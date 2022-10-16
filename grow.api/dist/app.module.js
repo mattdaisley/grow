@@ -12,18 +12,20 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const pumps_module_1 = require("./pumps/pumps.module");
 const typeorm_1 = require("@nestjs/typeorm");
+const serial_module_1 = require("./serial/serial.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            pumps_module_1.PumpsModule,
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'sqlite',
                 database: 'db',
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
                 synchronize: true,
             }),
+            pumps_module_1.PumpsModule,
+            serial_module_1.SerialModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

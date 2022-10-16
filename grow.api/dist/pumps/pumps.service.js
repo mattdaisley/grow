@@ -18,10 +18,11 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
 const pump_entity_1 = require("./entities/pump.entity");
+const serial_service_1 = require("../serial/serial.service");
 let PumpsService = class PumpsService {
-    constructor(pumpRepository) {
+    constructor(pumpRepository, serialService) {
         this.pumpRepository = pumpRepository;
-        this.pumps = [];
+        this.serialService = serialService;
     }
     async create(createPumpDto) {
         return await this.pumpRepository.save((0, class_transformer_1.plainToClass)(pump_entity_1.Pump, createPumpDto));
@@ -30,7 +31,13 @@ let PumpsService = class PumpsService {
         return await this.pumpRepository.find();
     }
     async findOne(id) {
-        return await this.pumpRepository.findOneBy({ id });
+        const pump = await this.pumpRepository.findOneBy({ id });
+        console.log(pump);
+        if (pump) {
+            const message = `H/P/${pump.index}/1\n`;
+            await this.serialService.write(message);
+        }
+        return pump;
     }
     async update(id, updatePumpDto) {
         return await this.pumpRepository.update(id, (0, class_transformer_1.plainToClass)(pump_entity_1.Pump, updatePumpDto));
@@ -42,7 +49,8 @@ let PumpsService = class PumpsService {
 PumpsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(pump_entity_1.Pump)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        serial_service_1.SerialService])
 ], PumpsService);
 exports.PumpsService = PumpsService;
 //# sourceMappingURL=pumps.service.js.map
