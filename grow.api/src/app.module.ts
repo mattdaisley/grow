@@ -9,7 +9,7 @@ import { SerialModule } from './serial/serial.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'db',
+      database: 'grow.db',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),

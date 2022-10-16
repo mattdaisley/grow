@@ -10,6 +10,8 @@ char buffer[PACKET_SIZE] = "";
 
 int relayPins[5] = {8, 9, 10, 11, 12};
 
+const uint8_t OFF_VALUE = HIGH;
+const uint8_t ON_VALUE = LOW;
 
 bool first_message_sent = false;
 
@@ -19,8 +21,8 @@ void setup() {
   Serial.flush();
 
   for (int i = 0; i < sizeof(relayPins); i++) {
-    pinMode(relayPins[i], OUTPUT);    // sets the digital pin 13 as output
-    digitalWrite(relayPins[i], HIGH); // sets the digital pin 13 on
+    pinMode(relayPins[i], OUTPUT);    // sets the digital pin as output
+    digitalWrite(relayPins[i], OFF_VALUE); // sets the digital pin off
   }
 }
 
@@ -73,17 +75,17 @@ void loop()
               reply = "Sending: H/P/" + String(pump_index) + "/1";
               Serial.println(reply);
               // Serial.println("{\"Pump1\": \"1\"}");
-              digitalWrite(relay_pin, LOW);  // sets the digital pin 13 off
+              digitalWrite(relay_pin, ON_VALUE);  // sets the digital pin 13 off
               delay(1000);            // waits for a second
 
               reply = "Sending: H/P/" + String(pump_index) + "/0";
               Serial.println(reply);
               // Serial.println("{\"Pump1\": \"0\"}");
-              digitalWrite(relay_pin, HIGH); // sets the digital pin 13 on
+              digitalWrite(relay_pin, OFF_VALUE); // sets the digital pin 13 on
             } 
             else 
             {
-              digitalWrite(relay_pin, HIGH); // sets the digital pin 13 on
+              digitalWrite(relay_pin, OFF_VALUE); // sets the digital pin 13 on
               reply = "Sending: H/P/" + String(pump_index) + "/0";
               Serial.println(reply);
               // Serial.println("{\"Pump1\": \"0\"}");
