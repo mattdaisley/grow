@@ -37,8 +37,10 @@ OK
 "Redis is Running"
 ```
 
-## MongoDB
+## sqlite3
 
 ### Installation on Raspberry PI
 
-Instructions from https://linuxhint.com/install-mongodb-raspberry-pi/
+```
+sudo apt install sqlite3
+```
