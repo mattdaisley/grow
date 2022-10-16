@@ -10,10 +10,15 @@ exports.PumpsModule = void 0;
 const common_1 = require("@nestjs/common");
 const pumps_service_1 = require("./pumps.service");
 const pumps_controller_1 = require("./pumps.controller");
+const typeorm_1 = require("@nestjs/typeorm");
+const pump_entity_1 = require("./entities/pump.entity");
 let PumpsModule = class PumpsModule {
 };
 PumpsModule = __decorate([
     (0, common_1.Module)({
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([pump_entity_1.Pump]),
+        ],
         controllers: [pumps_controller_1.PumpsController],
         providers: [pumps_service_1.PumpsService]
     })

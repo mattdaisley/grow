@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository, UpdateResult, DeleteResult } from 'typeorm';
 import { instanceToPlain, plainToClass } from 'class-transformer';
 import { CreatePumpDto } from './dto/create-pump.dto';
 import { UpdatePumpDto } from './dto/update-pump.dto';
@@ -8,34 +10,29 @@ import { Pump } from './entities/pump.entity';
 export class PumpsService {
   private readonly pumps: Pump[] = [];
 
-  create(createPumpDto: CreatePumpDto) {
-    const pumpIndex = this.pumps.findIndex(pump => pump.index === createPumpDto.index);
-    if (pumpIndex < 0) {
-      this.pumps.push(plainToClass(Pump, createPumpDto));
-    }
+  constructor(
+    @InjectRepository(Pump)
+    private pumpRepository: Repository<Pump>
+  ) { }
 
-    return this.pumps.find(pump => pump.index === createPumpDto.index);
+  async create(createPumpDto: CreatePumpDto): Promise<Pump> {
+    return await this.pumpRepository.save(plainToClass(Pump, createPumpDto));
   }
 
-  findAll() {
-    return this.pumps;
+  async findAll(): Promise<Pump[]> {
+    return await this.pumpRepository.find();
   }
 
-  findOne(index: number) {
-    return this.pumps.find(pump => pump.index === index);
+  async findOne(id: number): Promise<Pump> {
+    return await this.pumpRepository.findOneBy({ id });
   }
 
-  update(index: number, updatePumpDto: UpdatePumpDto) {
-    const pumpIndex = this.pumps.findIndex(pump => pump.index === updatePumpDto.index);
-
-    this.pumps[pumpIndex] = plainToClass(Pump, instanceToPlain(updatePumpDto));
-
-    return this.pumps.find(pump => pump.index === updatePumpDto.index);
+  async update(id: number, updatePumpDto: UpdatePumpDto): Promise<UpdateResult> {
+    return await this.pumpRepository.update(id, plainToClass(Pump, updatePumpDto))
   }
 
-  remove(index: number) {
-    const pumpIndex = this.pumps.findIndex(pump => pump.index === index);
-
-    this.pumps.splice(pumpIndex, 1);
+  async delete(id: number): Promise<DeleteResult> {
+    return await this.pumpRepository.delete(id);
   }
 }
+

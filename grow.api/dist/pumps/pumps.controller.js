@@ -21,7 +21,7 @@ let PumpsController = class PumpsController {
     constructor(pumpsService) {
         this.pumpsService = pumpsService;
     }
-    create(createPumpDto) {
+    async create(createPumpDto) {
         return this.pumpsService.create(createPumpDto);
     }
     findAll() {
@@ -30,11 +30,11 @@ let PumpsController = class PumpsController {
     findOne(id) {
         return this.pumpsService.findOne(+id);
     }
-    update(id, updatePumpDto) {
+    async update(id, updatePumpDto) {
         return this.pumpsService.update(+id, updatePumpDto);
     }
-    remove(id) {
-        return this.pumpsService.remove(+id);
+    async delete(id) {
+        return this.pumpsService.delete(+id);
     }
 };
 __decorate([
@@ -42,7 +42,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_pump_dto_1.CreatePumpDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], PumpsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
@@ -63,15 +63,15 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_pump_dto_1.UpdatePumpDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], PumpsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], PumpsController.prototype, "remove", null);
+    __metadata("design:returntype", Promise)
+], PumpsController.prototype, "delete", null);
 PumpsController = __decorate([
     (0, common_1.Controller)('pumps'),
     __metadata("design:paramtypes", [pumps_service_1.PumpsService])
