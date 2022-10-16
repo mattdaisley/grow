@@ -8,7 +8,7 @@ export class PumpsController {
   constructor(private readonly pumpsService: PumpsService) {}
 
   @Post()
-  create(@Body() createPumpDto: CreatePumpDto) {
+  async create(@Body() createPumpDto: CreatePumpDto) {
     return this.pumpsService.create(createPumpDto);
   }
 
@@ -23,12 +23,12 @@ export class PumpsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePumpDto: UpdatePumpDto) {
+  async update(@Param('id') id: string, @Body() updatePumpDto: UpdatePumpDto) {
     return this.pumpsService.update(+id, updatePumpDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.pumpsService.remove(+id);
+  async delete(@Param('id') id: string) {
+    return this.pumpsService.delete(+id);
   }
 }
