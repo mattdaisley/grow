@@ -36,3 +36,11 @@ OK
 127.0.0.1:6379> get testmessage
 "Redis is Running"
 ```
+
+## sqlite3
+
+### Installation on Raspberry PI
+
+```
+sudo apt install sqlite3
+```
