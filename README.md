@@ -37,10 +37,37 @@ OK
 "Redis is Running"
 ```
 
-## sqlite3
+## mysql
 
 ### Installation on Raspberry PI
 
+Instructions from https://pimylifeup.com/raspberry-pi-mysql/
+
 ```
-sudo apt install sqlite3
+sudo apt install mariadb-server
+```
+
+```
+sudo mysql_secure_installation
+```
+
+```
+sudo mysql -u root -p
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 43
+Server version: 10.3.36-MariaDB-0+deb10u2 Raspbian 10
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> CREATE DATABASE grow;
+Query OK, 1 row affected (0.002 sec)
+
+MariaDB [(none)]> CREATE USER 'growapi'@'localhost' IDENTIFIED BY 'pimylifeup';
+Query OK, 0 rows affected (0.007 sec)
+
+MariaDB [(none)]> GRANT ALL PRIVILEGES ON grow.* TO 'growapi'@'localhost';
+Query OK, 0 rows affected (0.001 sec)
 ```
