@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./.next \"pi@pi-mower:~/grow/grow.client\""
   },
   "dependencies": {
     "next": "12.3.1",
