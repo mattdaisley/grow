@@ -8,8 +8,12 @@ import { SerialModule } from './serial/serial.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'grow.db',
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'growapi',
+      password: 'pimylifeup',
+      database: 'grow',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
