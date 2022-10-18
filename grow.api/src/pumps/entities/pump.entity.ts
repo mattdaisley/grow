@@ -8,7 +8,7 @@ export class Pump {
     @Column()
     index: number;
 
-    @Column()
+    @Column("decimal", { precision: 6, scale:  4})
     doseRate: number;
 
     @Column()

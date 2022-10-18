@@ -40,9 +40,12 @@ export class PumpsService {
 
   async command(id: number, pumpCommandDto: PumpCommandDto): Promise<Pump> {
     const pump = await this.pumpRepository.findOneBy({ id });
-    console.log(pump, pumpCommandDto);
+
+    const doseTime = Math.round(pumpCommandDto.value / pump.doseRate * 1000);
+    console.log(pump, pumpCommandDto.value, doseTime);
+
     if (pump) {
-      const message = `H/P/${pump.index}/${pumpCommandDto.value}\n`
+      const message = `H/P/${pump.index}/${doseTime}\n`
       await this.serialService.write(message);
     }
 
