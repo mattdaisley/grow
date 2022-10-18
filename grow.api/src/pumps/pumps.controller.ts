@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Validation
 import { PumpsService } from './pumps.service';
 import { CreatePumpDto } from './dto/create-pump.dto';
 import { UpdatePumpDto } from './dto/update-pump.dto';
+import { PumpCommandDto } from './dto/pump-command.dto';
 
 @Controller('pumps')
 export class PumpsController {
@@ -30,5 +31,10 @@ export class PumpsController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.pumpsService.delete(+id);
+  }
+
+  @Post(':id/command')
+  async command(@Param('id') id: string, @Body() pumpCommandDto: PumpCommandDto) {
+    return this.pumpsService.command(+id, pumpCommandDto);
   }
 }

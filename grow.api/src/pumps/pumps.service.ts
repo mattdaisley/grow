@@ -6,6 +6,7 @@ import { CreatePumpDto } from './dto/create-pump.dto';
 import { UpdatePumpDto } from './dto/update-pump.dto';
 import { Pump } from './entities/pump.entity';
 import { SerialService } from 'src/serial/serial.service';
+import { PumpCommandDto } from './dto/pump-command.dto';
 
 @Injectable()
 export class PumpsService {
@@ -26,14 +27,7 @@ export class PumpsService {
   }
 
   async findOne(id: number): Promise<Pump> {
-    const pump = await this.pumpRepository.findOneBy({ id });
-    console.log(pump);
-    if (pump) {
-      const message = `H/P/${pump.index}/1\n`
-      await this.serialService.write(message);
-    }
-
-    return pump;
+    return await this.pumpRepository.findOneBy({ id });
   }
 
   async update(id: number, updatePumpDto: UpdatePumpDto): Promise<UpdateResult> {
@@ -42,6 +36,17 @@ export class PumpsService {
 
   async delete(id: number): Promise<DeleteResult> {
     return await this.pumpRepository.delete(id);
+  }
+
+  async command(id: number, pumpCommandDto: PumpCommandDto): Promise<Pump> {
+    const pump = await this.pumpRepository.findOneBy({ id });
+    console.log(pump, pumpCommandDto);
+    if (pump) {
+      const message = `H/P/${pump.index}/${pumpCommandDto.value}\n`
+      await this.serialService.write(message);
+    }
+
+    return pump;
   }
 }
 
