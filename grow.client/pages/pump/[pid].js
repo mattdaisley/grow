@@ -12,21 +12,21 @@ function Pump({ data }) {
   const [amount, setAmount] = useState();
 
   const handleAmountChange = (event) => {
-    setAmount(event.value);
+    console.log(event.target.value);
+    setAmount(event.target.value);
   }
 
   const handleSend = () => {
     const data = {
-      command: "send_dose",
-      amount
+      value: parseInt(amount),
     };
 
-    fetch(`http://localhost:3001/pumps/${pid}/command`, {
+    fetch(`http://pi-mower:3001/pumps/${pid}/command`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(objectWithData),
+      body: JSON.stringify(data),
     })
   }
 
@@ -44,7 +44,7 @@ function Pump({ data }) {
             <h2>{data.name}</h2>
             <p>Index: {data.index}</p>
             <p>Dose Rate: {data.doseRate}</p>
-            <input value={amount} onChange={handleAmountChange} />
+            <input onChange={handleAmountChange} type="number" min="0" step="1" />
             <button onClick={handleSend}>Send</button>
           </div>
         </div>
