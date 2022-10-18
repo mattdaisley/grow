@@ -2,7 +2,7 @@ int incomingByte = 0; // for incoming serial data
 
 const char HEADER = 'H';
 const char TERMINATOR = '\n';
-const int PACKET_SIZE = 8;
+const int PACKET_SIZE = 13;
 
 boolean readingString = false;
 int charPointer = 0;
@@ -64,19 +64,24 @@ void loop()
           if (command == "P") 
           {
             int pump_index = String(message.charAt(3)).toInt();
-            int value = String(message.charAt(5)).toInt();
+            
+            String svalue = "";
+            for(int k=5; k<PACKET_SIZE - 2; k++){
+              svalue += String(message[k]);
+            }
+            int value = svalue.toInt();
 
             int relay_pin = relayPins[pump_index];
 
             String reply = "";
-
-            if (value == 1) 
+            Serial.println(value);
+            if (value > 0) 
             {
-              reply = "Sending: H/P/" + String(pump_index) + "/1";
+              reply = "Sending: H/P/" + String(pump_index) + "/" + String(value);
               Serial.println(reply);
               // Serial.println("{\"Pump1\": \"1\"}");
               digitalWrite(relay_pin, ON_VALUE);  // sets the digital pin 13 off
-              delay(1000);            // waits for a second
+              delay(value);            // waits for a second
 
               reply = "Sending: H/P/" + String(pump_index) + "/0";
               Serial.println(reply);
