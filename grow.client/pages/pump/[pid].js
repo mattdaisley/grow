@@ -38,29 +38,22 @@ function Pump({ data }) {
       </Head>
 
       <main className={styles.main}>
-
+        <Link href={`/`}><a>&lt; Back</a></Link>
         <div className={styles.grid}>
           <div className={styles.card}>
-            <h2>{data.name}</h2>
+            <h2>{data.id}: {data.name}</h2>
             <p>Index: {data.index}</p>
             <p>Dose Rate: {data.doseRate}</p>
-            <input onChange={handleAmountChange} type="number" min="0" step="1" />
-            <button onClick={handleSend}>Send</button>
+            <br />
+            <h2>Send dose:</h2>
+            <p><input onChange={handleAmountChange} type="number" min="0" step="1" /> ml</p>
+            <p><button onClick={handleSend}>Send</button></p>
           </div>
         </div>
       </main>
 
       <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
+        Grow!
       </footer>
     </div>
   )
