@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./.next \"pi@pi-mower:~/grow/grow.client\""
+    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./.next \"pi@pi-mower:~/grow/grow.client\"",
+    "publish": "npm run build && npm run push:dist"
   },
   "dependencies": {
     "next": "12.3.1",

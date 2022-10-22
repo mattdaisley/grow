@@ -1,3 +1,5 @@
+const boolean DEBUG = false;
+
 int incomingByte = 0; // for incoming serial data
 
 const char HEADER = 'H';
@@ -30,8 +32,10 @@ void loop()
 {
   if (first_message_sent == false) 
   {
-    Serial.println("first_message_sent == false");
-    String reply = "Sending: H/P/" + String(0) + "/0";
+    if (DEBUG) {
+      Serial.println("first_message_sent == false");
+    }
+    String reply = "H/P/" + String(0) + "/0";
     Serial.println(reply);
     // Serial.println("{\"Pump1\": \"0\"}");
     first_message_sent = true;
@@ -41,9 +45,11 @@ void loop()
   if (Serial.available() > 0) 
   {
     int incoming = Serial.read();
-    Serial.print(char(incoming));
-    Serial.print(HEADER);
-    Serial.println("");
+    if (DEBUG) {
+      Serial.print(char(incoming));
+      Serial.print(HEADER);
+      Serial.println("");
+    }
     
     switch (incoming) {
       case HEADER:
@@ -56,7 +62,9 @@ void loop()
         if (readingString) {
           // String message = Serial.readStringUntil(TERMINATOR);
           String message = String(buffer);
-          Serial.println("Received: " + message);
+          if (DEBUG) {
+            Serial.println("Received: " + message);
+          }
           String command = String(message.charAt(1));
           command.toUpperCase();
 
@@ -74,16 +82,18 @@ void loop()
             int relay_pin = relayPins[pump_index];
 
             String reply = "";
-            Serial.println(value);
+            if (DEBUG) {
+              Serial.println(value);
+            }
             if (value > 0) 
             {
-              reply = "Sending: H/P/" + String(pump_index) + "/" + String(value);
+              reply = "H/P/" + String(pump_index) + "/" + String(value);
               Serial.println(reply);
               // Serial.println("{\"Pump1\": \"1\"}");
               digitalWrite(relay_pin, ON_VALUE);  // sets the digital pin 13 off
               delay(value);            // waits for a second
 
-              reply = "Sending: H/P/" + String(pump_index) + "/0";
+              reply = "H/P/" + String(pump_index) + "/0";
               Serial.println(reply);
               // Serial.println("{\"Pump1\": \"0\"}");
               digitalWrite(relay_pin, OFF_VALUE); // sets the digital pin 13 on
@@ -91,7 +101,7 @@ void loop()
             else 
             {
               digitalWrite(relay_pin, OFF_VALUE); // sets the digital pin 13 on
-              reply = "Sending: H/P/" + String(pump_index) + "/0";
+              reply = "H/P/" + String(pump_index) + "/0";
               Serial.println(reply);
               // Serial.println("{\"Pump1\": \"0\"}");
             }

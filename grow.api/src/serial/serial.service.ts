@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { SerialPort, ReadlineParser } from 'serialport'
 
 @Injectable()
@@ -10,7 +12,7 @@ export class SerialService {
     private currentPathIndex: number = 0;
     private pumpsReady: boolean = false;
   
-    constructor() { 
+    constructor(@InjectQueue('serial') private readonly serialQueue: Queue) {
         this.createSerialPort();
     }
 
@@ -42,10 +44,7 @@ export class SerialService {
             self.port.pipe(parser);
 
             parser.on('data', data => {
-                if (!self.pumpsReady && data.includes('first_message_sent == false')) {
-                    console.log("Data includes first message:", data);
-                    self.pumpsReady = true;
-                }
+                console.log('data:', data);
 
                 self.handlePortData(data);
             });
@@ -64,8 +63,15 @@ export class SerialService {
         return this.pumpsReady;
     }
 
-    private handlePortData(data: string): void {
+    private async handlePortData(data: string): Promise<void> {
+        if (!this.pumpsReady && data.includes('first_message_sent == false')) {
+            console.log("Data includes first message:", data);
+            this.pumpsReady = true;
+        }
 
+        await this.serialQueue.add('receive', {
+            message: data,
+        });
         // Do other things
     }
 

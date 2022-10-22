@@ -19,14 +19,18 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./dist \"pi@pi-mower:~/grow/grow.api\""
+    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./dist \"pi@pi-mower:~/grow/grow.api\"",
+    "push:node_modules": "rsync -rlptzv --progress --delete --exclude=.git ./node_modules \"pi@pi-mower:~/grow/grow.api\"",
+    "publish": "npm run build && npm run push:dist"
   },
   "dependencies": {
+    "@nestjs/bull": "^0.6.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^6.1.2",
     "@nestjs/typeorm": "^9.0.1",
+    "bull": "^4.10.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "mysql2": "^2.3.3",
@@ -41,6 +45,7 @@
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
+    "@types/bull": "^4.10.0",
     "@types/express": "^4.17.13",
     "@types/jest": "28.1.8",
     "@types/node": "^16.0.0",
