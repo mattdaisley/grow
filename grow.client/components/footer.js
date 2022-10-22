@@ -20,15 +20,20 @@ export default function Footer() {
     socket.on("events", (msg) => {
       setMessages((currentMessages) => [
         ...currentMessages,
-        msg,
+        { value: msg, timestamp: new Date(Date.now()).toISOString() },
       ]);
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+      messagesEndRef.current?.scrollIntoView()
     });
   };
 
   return (
     <footer className={styles.footer}>
-      {messages.map((message, index) => <div key={index}>{message}</div>)}
+      {messages.map((message, index) => (
+        <div key={index} className={styles.logEntry}>
+          <div>{message.timestamp}</div>
+          {message.value}
+        </div>
+      ))}
       <div ref={messagesEndRef} />
     </footer>
   )
