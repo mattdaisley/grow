@@ -60,7 +60,7 @@ export class SensorsService {
     return sensorReading;
   }
 
-  async findReadings(id: number): Promise<GetSensorReadingDto[]> {
+  async findReadings(id: number, limit: number = 100): Promise<GetSensorReadingDto[]> {
     const readings = await this.sensorReadingRepository.find({
       select: {
         id: true,
@@ -75,7 +75,7 @@ export class SensorsService {
       order: {
         id: "DESC",
       },
-      take: 100
+      take: limit
     });
 
     return readings;

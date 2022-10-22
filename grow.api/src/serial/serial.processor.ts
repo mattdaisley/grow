@@ -23,17 +23,24 @@ export class SerialProcessor {
         const sensorIndex = parts[2];
         const value = Number(parts[3]);
 
-        const sensor = await this.sensorsService.findOneByIndex(sensorIndex);
+        const tdsSensor = await this.sensorsService.findOneByIndex(sensorIndex);
+        const tempSensor = await this.sensorsService.findOneByIndex("1");
 
-        if (sensor && sensor.name == "TDS Sensor") {
+        let lastTemp = 21.3; // default
+        if (tempSensor) {
+          const tempSensorReading = await this.sensorsService.findReadings(tempSensor.id, 1);
+          if (tempSensorReading.length > 0) 
+            lastTemp = tempSensorReading[0].value;
+        }
 
-          const temperature = 21.3;
-          const compensationCoefficient = 1.0 + sensor.offset * (temperature - 25.0); //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.02*(fTP-25.0));
+        if (tdsSensor && tdsSensor.name == "TDS Sensor") {
+
+          const compensationCoefficient = 1.0 + tdsSensor.offset * (lastTemp - 25.0); //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.02*(fTP-25.0));
           const compensationVolatge = value / compensationCoefficient; //temperature compensation
           const tdsValue = (133.42 * compensationVolatge * compensationVolatge * compensationVolatge - 255.86 * compensationVolatge * compensationVolatge + 857.39 * compensationVolatge) * 0.5; //convert voltage value to tds value
 
           const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
-          this.sensorsService.createReading(sensor.id, createSensorReadingDto);
+          this.sensorsService.createReading(tdsSensor.id, createSensorReadingDto);
         }
       }
     } catch (error) {
