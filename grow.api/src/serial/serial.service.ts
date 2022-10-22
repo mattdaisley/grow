@@ -64,7 +64,7 @@ export class SerialService {
     }
 
     private async handlePortData(data: string): Promise<void> {
-        if (!this.pumpsReady && data.includes('first_message_sent == false')) {
+        if (!this.pumpsReady && data.includes('H/P/0/0')) {
             console.log("Data includes first message:", data);
             this.pumpsReady = true;
         }
