@@ -1,4 +1,4 @@
-import { IsDecimal } from "class-validator";
+import { IsDate, IsDecimal } from "class-validator";
 
 export class CreateSensorReadingDto {
     @IsDecimal()

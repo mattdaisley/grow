@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Sensor } from './sensor.entity';
 
 @Entity()
@@ -8,6 +8,9 @@ export class SensorReading {
 
     @Column("decimal", { precision: 8, scale:  4})
     value: number;
+
+    @CreateDateColumn()
+    created_at: Date; // Creation date
 
     @ManyToOne(() => Sensor, (sensor) => sensor.sensorReadings)
     sensor: Sensor

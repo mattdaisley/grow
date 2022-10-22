@@ -32,7 +32,8 @@ export class SerialProcessor {
           const compensationVolatge = value / compensationCoefficient; //temperature compensation
           const tdsValue = (133.42 * compensationVolatge * compensationVolatge * compensationVolatge - 255.86 * compensationVolatge * compensationVolatge + 857.39 * compensationVolatge) * 0.5; //convert voltage value to tds value
 
-          this.sensorsService.createReading(sensor.id, { value: tdsValue });
+          const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
+          this.sensorsService.createReading(sensor.id, createSensorReadingDto);
         }
       }
     } catch (error) {

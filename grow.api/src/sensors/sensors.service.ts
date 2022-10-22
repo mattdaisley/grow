@@ -61,7 +61,8 @@ export class SensorsService {
     const readings = await this.sensorReadingRepository.find({
       select: {
         id: true,
-        value: true
+        value: true,
+        created_at: true
       },
       where: {
         sensor: {
