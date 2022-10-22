@@ -49,7 +49,7 @@ function Pump({ data }) {
 // This gets called on every request
 export async function getServerSideProps({ params }) {
   // Fetch data from external API
-  const res = await fetch(`http://localhost:3001/pumps/${params.pid}`)
+  const res = await fetch(`http://pi-mower:3001/pumps/${params.pid}`)
   const data = await res.json()
 
   // Pass data to the page via props

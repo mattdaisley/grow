@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, UpdateResult, DeleteResult } from 'typeorm';
-import { classToClassFromExist, classToPlain, instanceToPlain, plainToClass } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { CreateSensorDto } from './dto/create-sensor.dto';
 import { CreateSensorReadingDto } from './dto/create-sensor-reading.dto';
 import { UpdateSensorDto } from './dto/update-sensor.dto';
 import { Sensor } from './entities/sensor.entity';
 import { SensorReading } from './entities/sensor-reading.entity';
 import { GetSensorReadingDto } from './dto/get-sensor-reading.dto';
+import { SensorsGateway } from './sensors.gateway';
 
 @Injectable()
 export class SensorsService {
@@ -19,7 +20,7 @@ export class SensorsService {
     @InjectRepository(SensorReading)
     private sensorReadingRepository: Repository<SensorReading>,
 
-    // private serialService: SerialService
+    private readonly sensorsGateway: SensorsGateway,
   ) { }
 
   async create(createSensorDto: CreateSensorDto): Promise<Sensor> {
@@ -53,6 +54,8 @@ export class SensorsService {
     sensorReading.sensor = sensor;
 
     await this.sensorReadingRepository.save(sensorReading);
+
+    this.sensorsGateway.server.emit('reading', JSON.stringify(sensorReading));
 
     return sensorReading;
   }

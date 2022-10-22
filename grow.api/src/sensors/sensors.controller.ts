@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { SensorsService } from './sensors.service';
 import { CreateSensorDto } from './dto/create-sensor.dto';
 import { UpdateSensorDto } from './dto/update-sensor.dto';
+import { CreateSensorReadingDto } from './dto/create-sensor-reading.dto';
 
 @Controller('sensors')
 export class SensorsController {
@@ -30,6 +31,11 @@ export class SensorsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.sensorsService.remove(+id);
+  }
+
+  @Post(':id/readings')
+  createReading(@Param('id') id: string, @Body() createSensorReadingDto: CreateSensorReadingDto) {
+    return this.sensorsService.createReading(+id, createSensorReadingDto);
   }
 
   @Get(':id/readings')

@@ -1,10 +1,11 @@
 import Link from 'next/link'
+import SensorCard from '../components/sensor_card'
 import styles from '../styles/Home.module.css'
 
-function Home({ data }) {
+function Home({ pumps, sensors }) {
   return (
     <div className={styles.grid}>
-      {data.map(pump => {
+      {pumps.map(pump => {
         return (
           <Link href={`/pump/${encodeURIComponent(pump.id)}`} key={pump.id}>
             <a className={styles.card}>
@@ -15,6 +16,8 @@ function Home({ data }) {
           </Link>
         )
       })}
+
+      {sensors.map(sensor => <SensorCard sensor={sensor} key={sensor.id} />)}
     </div>
   )
 }
@@ -22,11 +25,14 @@ function Home({ data }) {
 // This gets called on every request
 export async function getServerSideProps() {
   // Fetch data from external API
-  const res = await fetch(`http://localhost:3001/pumps`)
-  const data = await res.json()
+  const pumpsRes = await fetch(`http://localhost:3001/pumps`)
+  const pumps = await pumpsRes.json()
+
+  const sensorsRes = await fetch(`http://localhost:3001/sensors`)
+  const sensors = await sensorsRes.json()
 
   // Pass data to the page via props
-  return { props: { data } }
+  return { props: { pumps, sensors } }
 }
 
 export default Home;
