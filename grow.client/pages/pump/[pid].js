@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import Head from 'next/head'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
@@ -31,31 +29,20 @@ function Pump({ data }) {
   }
 
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Grow App - Pump {pid}</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <Link href={`/`}><a>&lt; Back</a></Link>
-        <div className={styles.grid}>
-          <div className={styles.card}>
-            <h2>{data.id}: {data.name}</h2>
-            <p>Index: {data.index}</p>
-            <p>Dose Rate: {data.doseRate}</p>
-            <br />
-            <h2>Send dose:</h2>
-            <p><input onChange={handleAmountChange} type="number" min="0" step="1" /> ml</p>
-            <p><button onClick={handleSend}>Send</button></p>
-          </div>
+    <>
+      <Link href={`/`}><a>&lt; Back</a></Link>
+      <div className={styles.grid}>
+        <div className={styles.card}>
+          <h2>{data.id}: {data.name}</h2>
+          <p>Index: {data.index}</p>
+          <p>Dose Rate: {data.doseRate}</p>
+          <br />
+          <h2>Send dose:</h2>
+          <p><input onChange={handleAmountChange} type="number" min="0" step="1" /> ml</p>
+          <p><button onClick={handleSend}>Send</button></p>
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        Grow!
-      </footer>
-    </div>
+      </div>
+    </>
   )
 }
 

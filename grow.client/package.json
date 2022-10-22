@@ -8,12 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./.next \"pi@pi-mower:~/grow/grow.client\"",
+    "push:node_modules": "rsync -rlptzv --progress --delete --exclude=.git ./node_modules \"pi@pi-mower:~/grow/grow.client\"",
     "publish": "npm run build && npm run push:dist"
   },
   "dependencies": {
     "next": "12.3.1",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "socket.io-client": "^4.5.3"
   },
   "devDependencies": {
     "eslint": "8.25.0",

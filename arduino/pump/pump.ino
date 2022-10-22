@@ -1,5 +1,14 @@
 const boolean DEBUG = false;
 
+#define TdsSensorPin A1
+#define VREF 5.0             // analog reference voltage(Volt) of the ADC
+#define SCOUNT  30           // sum of sample point
+int analogBuffer[SCOUNT];    // store the analog value in the array, read from ADC
+int analogBufferTemp[SCOUNT];
+int analogBufferIndex = 0, copyIndex = 0;
+float averageVoltage = 0, tdsValue = 0;
+float temperature = 21.3, tdsOffset = 0.0372;  // defaults 25 and 0.02
+
 int incomingByte = 0; // for incoming serial data
 
 const char HEADER = 'H';
@@ -22,6 +31,8 @@ void setup() {
   Serial.begin(115200); // opens serial port, sets data rate to 115200 bps
   Serial.flush();
 
+  pinMode(TdsSensorPin, INPUT);
+
   for (int i = 0; i < sizeof(relayPins); i++) {
     pinMode(relayPins[i], OUTPUT);    // sets the digital pin as output
     digitalWrite(relayPins[i], OFF_VALUE); // sets the digital pin off
@@ -30,15 +41,41 @@ void setup() {
 
 void loop() 
 {
+  String reply = "";
+
   if (first_message_sent == false) 
   {
     if (DEBUG) {
       Serial.println("first_message_sent == false");
     }
-    String reply = "H/P/" + String(0) + "/0";
+    reply = "H/P/" + String(0) + "/0";
     Serial.println(reply);
     // Serial.println("{\"Pump1\": \"0\"}");
     first_message_sent = true;
+  }
+
+  static unsigned long analogSampleTimepoint = millis();
+  if (millis() - analogSampleTimepoint > 40U)  //every 40 milliseconds, read the analog value from the ADC
+  {
+    analogSampleTimepoint = millis();
+    analogBuffer[analogBufferIndex] = analogRead(TdsSensorPin);    //read the analog value and store into the buffer
+    analogBufferIndex++;
+    if (analogBufferIndex == SCOUNT)
+      analogBufferIndex = 0;
+  }
+
+  static unsigned long printTimepoint = millis();
+  if (millis() - printTimepoint > 800U)
+  {
+    printTimepoint = millis();
+    for (copyIndex = 0; copyIndex < SCOUNT; copyIndex++) 
+    {
+      analogBufferTemp[copyIndex] = analogBuffer[copyIndex];
+    }
+    averageVoltage = getMedianNum(analogBufferTemp, SCOUNT) * (float)VREF / 1024.0; // read the analog value more stable by the median filtering algorithm, and convert to voltage value
+    
+    reply = "H/S/0/" + String(averageVoltage);
+    Serial.println(reply);
   }
 
   // send data only when you receive data:
@@ -80,8 +117,6 @@ void loop()
             int value = svalue.toInt();
 
             int relay_pin = relayPins[pump_index];
-
-            String reply = "";
             if (DEBUG) {
               Serial.println(value);
             }
@@ -119,8 +154,30 @@ void loop()
         }
     }
   }
-  // digitalWrite(8, HIGH); // sets the digital pin 13 on
-  // delay(1000);            // waits for a second
-  // digitalWrite(8, LOW);  // sets the digital pin 13 off
-  // delay(1000);            // waits for a second
+}
+
+
+int getMedianNum(int bArray[], int iFilterLen)
+{
+  int bTab[iFilterLen];
+  for (byte i = 0; i < iFilterLen; i++)
+    bTab[i] = bArray[i];
+  int i, j, bTemp;
+  for (j = 0; j < iFilterLen - 1; j++)
+  {
+    for (i = 0; i < iFilterLen - j - 1; i++)
+    {
+      if (bTab[i] > bTab[i + 1])
+      {
+        bTemp = bTab[i];
+        bTab[i] = bTab[i + 1];
+        bTab[i + 1] = bTemp;
+      }
+    }
+  }
+  if ((iFilterLen & 1) > 0)
+    bTemp = bTab[(iFilterLen - 1) / 2];
+  else
+    bTemp = (bTab[iFilterLen / 2] + bTab[iFilterLen / 2 - 1]) / 2;
+  return bTemp;
 }

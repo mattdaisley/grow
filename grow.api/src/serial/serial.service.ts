@@ -12,7 +12,9 @@ export class SerialService {
     private currentPathIndex: number = 0;
     private pumpsReady: boolean = false;
   
-    constructor(@InjectQueue('serial') private readonly serialQueue: Queue) {
+    constructor(
+        @InjectQueue('serial') private readonly serialQueue: Queue
+    ) {
         this.createSerialPort();
     }
 
@@ -29,7 +31,7 @@ export class SerialService {
             autoOpen: false,
         });
 
-        port.open((err) => {
+        port.open(async (err) => {
             if (err) {
                 self.currentPathIndex = self.currentPathIndex === self.paths.length - 1 ? 0 : self.currentPathIndex + 1;
 
@@ -42,6 +44,10 @@ export class SerialService {
 
             const parser = new ReadlineParser({ delimiter: '\n' });
             self.port.pipe(parser);
+
+            await this.serialQueue.add('sent', {
+                message: `Port opened!`
+            });
 
             parser.on('data', data => {
                 console.log('data:', data);
@@ -76,14 +82,28 @@ export class SerialService {
     }
 
     public async write(message: string): Promise<void> {
+        await this.serialQueue.add('sent', {
+            message: `sent: ${message}`
+        });
+
         console.log("isPortOpen", this.isPortOpen());
         if (!this.isPortOpen()) {
+
+            await this.serialQueue.add('sent', {
+                message: `Opening serial port...`
+            });
+
             this.createSerialPort();
             await this.sleep(5000);
         }
 
         console.log("isPortReady", this.isPortReady(), this.pumpsReady);
         if (!this.isPortReady()) {
+
+            await this.serialQueue.add('sent', {
+                message: `Port is not ready. Try again in 1 second.`
+            });
+
             await this.sleep(1000);
             return;
         }

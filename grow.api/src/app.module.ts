@@ -4,7 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PumpsModule } from './pumps/pumps.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SerialModule } from './serial/serial.module';
+import { EventsModule } from './events/events.module';
+import { SensorsModule } from './sensors/sensors.module';
 
 @Module({
   imports: [
@@ -24,7 +25,9 @@ import { SerialModule } from './serial/serial.module';
         port: 6379,
       },
     }),
-    PumpsModule
+    EventsModule,
+    PumpsModule,
+    SensorsModule
   ],
   controllers: [AppController],
   providers: [AppService],
