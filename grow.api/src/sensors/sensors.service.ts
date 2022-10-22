@@ -52,6 +52,7 @@ export class SensorsService {
 
     const sensorReading = plainToClass(SensorReading, createSensorReadingDto);
     sensorReading.sensor = sensor;
+    sensorReading.value = Number(sensorReading.value);
 
     await this.sensorReadingRepository.save(sensorReading);
 

@@ -18,6 +18,7 @@ export default function SensorCard({ sensor }) {
     socket = io("http://pi-mower:3001/sensors");
 
     socket.on("reading", (msg) => {
+      console.log(msg);
       const msgJson = JSON.parse(msg);
       if (msgJson.sensor.id === sensor.id) {
         setLastValue(msgJson.value);

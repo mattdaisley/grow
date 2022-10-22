@@ -18,7 +18,6 @@ export default function Footer() {
     socket = io("http://pi-mower:3001");
 
     socket.on("events", (msg) => {
-      console.log(msg);
       setMessages((currentMessages) => [
         ...currentMessages,
         msg,

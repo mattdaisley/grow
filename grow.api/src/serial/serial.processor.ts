@@ -21,7 +21,7 @@ export class SerialProcessor {
       if (message.includes("H/S/")) {
         const parts = message.split("/");
         const sensorIndex = parts[2];
-        const value = Number(parts[3]);
+        const sensorValue = Number(parts[3]);
 
         const tdsSensor = await this.sensorsService.findOneByIndex(sensorIndex);
         const tempSensor = await this.sensorsService.findOneByIndex("1");
@@ -36,7 +36,7 @@ export class SerialProcessor {
         if (tdsSensor && tdsSensor.name == "TDS Sensor") {
 
           const compensationCoefficient = 1.0 + tdsSensor.offset * (lastTemp - 25.0); //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.02*(fTP-25.0));
-          const compensationVolatge = value / compensationCoefficient; //temperature compensation
+          const compensationVolatge = sensorValue / compensationCoefficient; //temperature compensation
           const tdsValue = (133.42 * compensationVolatge * compensationVolatge * compensationVolatge - 255.86 * compensationVolatge * compensationVolatge + 857.39 * compensationVolatge) * 0.5; //convert voltage value to tds value
 
           const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
