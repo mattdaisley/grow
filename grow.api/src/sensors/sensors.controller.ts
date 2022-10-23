@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { SensorsService } from './sensors.service';
 import { CreateSensorDto } from './dto/create-sensor.dto';
 import { UpdateSensorDto } from './dto/update-sensor.dto';
@@ -39,7 +39,7 @@ export class SensorsController {
   }
 
   @Get(':id/readings')
-  findReadings(@Param('id') id: string) {
-    return this.sensorsService.findReadings(+id);
+  findReadings(@Param('id') id: string, @Query('limit') limit: number) {
+    return this.sensorsService.findReadings(+id, limit);
   }
 }

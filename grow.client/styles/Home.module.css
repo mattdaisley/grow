@@ -80,6 +80,7 @@
   align-items: stretch;
   justify-content: center;
   flex-wrap: wrap;
+  width: 100%;
   max-width: 1000px;
 }
 
@@ -149,12 +150,17 @@ a.card:active {
   margin-left: 0.5rem;
 }
 
-@media (max-width: 600px) {
-  .grid {
+.chartContainer {
+  width: 60%;
+}
+
+@media (max-width: 1024px) {
+  .chartContainer {
     width: 100%;
-    /* flex-direction: column; */
   }
-  
+}
+
+@media (max-width: 600px) {  
   .card {
     margin: .5rem;
     max-width: 180px;
