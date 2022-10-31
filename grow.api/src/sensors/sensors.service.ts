@@ -61,23 +61,32 @@ export class SensorsService {
     return sensorReading;
   }
 
-  async findReadings(id: number, limit: number = 100): Promise<GetSensorReadingDto[]> {
-    const readings = await this.sensorReadingRepository.find({
-      select: {
-        id: true,
-        value: true,
-        created_at: true
-      },
-      where: {
-        sensor: {
-          id
-        }
-      },
-      order: {
-        id: "DESC",
-      },
-      take: limit
-    });
+  async findReadings(id: number, limit: number = 100, interval: number = 1, start_time: string = ''): Promise<GetSensorReadingDto[]> {
+    
+    if (start_time === '') {
+      var date;
+      date = new Date();
+      start_time = date.getUTCFullYear() + '-' +
+          ('00' + (date.getUTCMonth()+1)).slice(-2) + '-' +
+          ('00' + date.getUTCDate()).slice(-2) + ' ' + 
+          '00:00:00';
+    }
+
+    console.log('in findReadings', id, limit, interval, start_time);
+
+    const readings_sql = this.sensorReadingRepository
+      .createQueryBuilder("readings")
+      .select(":start_time + INTERVAL FLOOR(TIMESTAMPDIFF(SECOND, :start_time, readings.created_at) / :interval) * :interval SECOND AS time, SUM(readings.value)/COUNT(*) as value")
+      .where("readings.created_at >= :start_time")
+      .setParameters({"start_time": start_time, "interval": interval})
+      .groupBy("time")
+      .limit(limit)
+      .orderBy("time", "DESC");
+
+    // console.log(readings_sql.getQueryAndParameters());
+
+    const readings = await readings_sql
+      .execute();
 
     return readings;
   }

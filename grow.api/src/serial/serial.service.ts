@@ -50,7 +50,7 @@ export class SerialService {
             });
 
             parser.on('data', data => {
-                console.log('data:', data);
+                // console.log('data:', data);
 
                 self.handlePortData(data);
             });

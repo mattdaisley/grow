@@ -24,14 +24,14 @@ export class SerialProcessor {
         const sensorValue = Number(parts[3]);
 
         const tdsSensor = await this.sensorsService.findOneByIndex(sensorIndex);
-        const tempSensor = await this.sensorsService.findOneByIndex("1");
+        // const tempSensor = await this.sensorsService.findOneByIndex("1");
 
         let lastTemp = 21.3; // default
-        if (tempSensor) {
-          const tempSensorReading = await this.sensorsService.findReadings(tempSensor.id, 1);
-          if (tempSensorReading.length > 0) 
-            lastTemp = tempSensorReading[0].value;
-        }
+        // if (tempSensor) {
+          // const tempSensorReading = await this.sensorsService.findReadings(tempSensor.id, 1);
+          // if (tempSensorReading.length > 0) 
+          //   lastTemp = tempSensorReading[0].value;
+        // }
 
         if (tdsSensor && tdsSensor.name == "TDS Sensor") {
 

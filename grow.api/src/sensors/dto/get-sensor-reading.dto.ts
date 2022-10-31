@@ -1,4 +1,4 @@
 export class GetSensorReadingDto {
-    id: number;
     value: number;
+    time: string;
 }

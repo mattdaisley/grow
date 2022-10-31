@@ -6,13 +6,16 @@ let socket;
 
 export default function Footer() {
   const [messages, setMessages] = useState([]);
+  const [showSerialLog, setShowSerialLog] = useState(false);
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
-    socketInitializer();
+    if (showSerialLog) {
+      socketInitializer();
+    }
 
     return () => socket && socket.close()
-  }, []);
+  }, [showSerialLog]);
 
   const socketInitializer = async () => {
     socket = io("http://pi-mower:3001");
@@ -27,14 +30,21 @@ export default function Footer() {
   };
 
   return (
-    <footer className={styles.footer}>
-      {messages.map((message, index) => (
-        <div key={index} className={styles.logEntry}>
-          <div>{message.timestamp}</div>
-          {message.value}
+    <footer className={`${styles.footer} ${!showSerialLog ? styles.footerCollapsed : ""}`}>
+      <div className={styles.footerMenu}>
+        <div className={styles.footerAction}>
+          <button onClick={() => setShowSerialLog(!showSerialLog)}>{showSerialLog ? "hide" : "show"} serial log</button>
         </div>
-      ))}
-      <div ref={messagesEndRef} />
+      </div>
+      <div className={styles.log}>
+        {showSerialLog && messages.map((message, index) => (
+          <div key={index} className={styles.logEntry}>
+            <div>{message.timestamp}</div>
+            {message.value}
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
     </footer>
   )
 }

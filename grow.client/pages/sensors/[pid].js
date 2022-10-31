@@ -27,47 +27,17 @@ ChartJS.register(
 
 let socket;
 
-const cleanReadingsData = (readings) => {
-  const sorted = readings.sort((a, b) => new Date(b.date) - new Date(a.date));
-  const normalized = [cleanReadingData(sorted[0])];
-  for (let i = 1; i < sorted.length; i++) {
-    const prev = normalized[normalized.length - 1];
-    const element = cleanReadingData(sorted[i]);
-    if (element.created_at === prev.created_at) {
-      normalized[normalized.length - 1] = { created_at: prev.created_at, value: (element.value + prev.value) / 2 };
-    }
-    else {
-      normalized.push(element);
-    }
-  }
-  console.log(normalized);
-  return normalized;
-}
-
-const addZero = (i) => {
-  if (i < 10) { i = "0" + i }
-  return i;
-}
-const cleanReadingData = (reading) => {
-  const d = new Date(reading.created_at)
-  let h = addZero(d.getHours());
-  let m = addZero(d.getMinutes());
-  let s = addZero(Math.floor(d.getSeconds() / 15) * 15);
-  let time = h + ":" + m + ":" + s;
-  let day = d.getDay() + "/" + d.getMonth() + "/" + d.getYear();
-  return {
-    created_at: new Date(day + " " + time).toLocaleTimeString('en-us'),
-    value: Math.round(reading.value)
-  }
-}
 
 function Sensors({ sensor, readings }) {
   const router = useRouter()
   const { pid } = router.query
 
+  const [lastMessage, setLastMessage] = useState("");
   const [lastValue, setLastValue] = useState(0);
   const [labels, setLabels] = useState([]);
   const [chartReadings, setChartReadings] = useState([]);
+  const [readingsBuffer, setReadingsBuffer] = useState([]);
+  const [readingInterval, setReadingInterval] = useState(5 * 60);
   const chartRef = useRef();
 
   useEffect(() => {
@@ -77,40 +47,54 @@ function Sensors({ sensor, readings }) {
   }, []);
 
   useEffect(() => {
-    const cleanedReadings = cleanReadingsData(readings ?? []).reverse();
+    const cleanedReadings = cleanReadingsData(readings ?? [], readingInterval).reverse();
     setChartReadings(cleanedReadings);
-    setLabels(cleanedReadings.map(x => x.created_at));
+    setLabels(cleanedReadings.map(x => x.time));
   }, []);
+
+  useEffect(() => {
+    if (lastMessage === "") {
+      return;
+    }
+
+    if (lastMessage.sensor.id === sensor.id) {
+      setLastValue(lastMessage.value);
+
+      if (chartRef?.current !== null) {
+        let addedReading;
+        chartRef.current.data.datasets.forEach((dataset) => {
+          const prev = readingsBuffer[0] ?? dataset.data[dataset.data.length - 1];
+          const next = cleanReadingData(lastMessage, readingInterval);
+          if (prev.time === next.time) {
+            const newReadingsBuffer = [...readingsBuffer, next];
+            const averageBufferValue = newReadingsBuffer.reduce((a, b) => a + b.value, 0) / newReadingsBuffer.length;
+            dataset.data[dataset.data.length - 1] = { time: prev.time, value: averageBufferValue }
+            setReadingsBuffer(newReadingsBuffer);
+          }
+          else {
+            dataset.data.shift();
+            addedReading = next;
+            dataset.data.push(addedReading);
+            setReadingsBuffer([addedReading]);
+          }
+        });
+
+        if (!!addedReading) {
+          chartRef.current.data.labels.shift();
+          chartRef.current.data.labels.push(addedReading.time);
+        }
+
+        setTimeout(() => chartRef.current.update(), 10);
+      }
+    }
+  }, [lastMessage]);
 
   const socketInitializer = async () => {
     socket = io("http://pi-mower:3001/sensors");
 
     socket.on("reading", (msg) => {
       const msgJson = JSON.parse(msg);
-      if (msgJson.sensor.id === sensor.id) {
-        setLastValue(msgJson.value);
-
-        if (chartRef?.current !== null) {
-          let addedReading;
-          chartRef.current.data.datasets.forEach((dataset) => {
-            const prev = dataset.data[dataset.data.length - 1];
-            const next = cleanReadingData(msgJson);
-            if (prev.created_at === next.created_at) {
-              dataset.data[dataset.data.length - 1] = { created_at: prev.created_at, value: (prev.value + next.value) / 2 }
-            }
-            else {
-              dataset.data.push(next);
-              addedReading = next
-            }
-          });
-
-          if (!!addedReading) {
-            chartRef.current.data.labels.push(addedReading.created_at);
-          }
-
-          setTimeout(() => chartRef.current.update(), 10);
-        }
-      }
+      setLastMessage(msgJson);
     });
   };
 
@@ -127,7 +111,7 @@ function Sensors({ sensor, readings }) {
       },
     },
     parsing: {
-      xAxisKey: 'created_at',
+      xAxisKey: 'time',
       yAxisKey: 'value'
     }
   };
@@ -144,6 +128,77 @@ function Sensors({ sensor, readings }) {
     ],
   };
 
+  const loadLastHourData = async () => {
+    const interval = 15;
+    const readings = await loadSensorReadings(pid, getDateTime(1), interval, 15 * 60);
+    setReadingInterval(interval)
+    processReadings(readings, interval);
+  }
+
+  const loadLastDayData = async () => {
+    const interval = 5 * 60;
+    const readings = await loadSensorReadings(pid, getDateTime(24), interval, 5 * 60);
+    setReadingInterval(interval)
+    processReadings(readings, interval);
+  }
+
+  const loadLastWeekData = async () => {
+    const interval = 60 * 60;
+    const readings = await loadSensorReadings(pid, getDateTime(24 * 7), interval, 24 * 7 * 60);
+    setReadingInterval(interval)
+    processReadings(readings, interval);
+  }
+
+  const processReadings = (readings, interval) => {
+    const cleanedReadings = cleanReadingsData(readings ?? [], interval).reverse();
+    setChartReadings(cleanedReadings);
+    setLabels(cleanedReadings.map(x => x.time));
+  }
+
+  const cleanReadingsData = (readings, interval) => {
+    const sorted = readings.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const normalized = [cleanReadingData(sorted[0], interval)];
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = normalized[normalized.length - 1];
+      const element = cleanReadingData(sorted[i], interval);
+      if (element.time === prev.time) {
+        normalized[normalized.length - 1] = { time: prev.time, value: (element.value + prev.value) / 2 };
+      }
+      else {
+        normalized.push(element);
+      }
+    }
+    return normalized;
+  }
+
+  const cleanReadingData = (reading, interval) => {
+    let hInterval = 1;
+    let mInterval = 1;
+    let sInterval = 1;
+    if (interval < 60) {
+      sInterval = interval;
+    }
+    else if (interval < 60 * 60) {
+      mInterval = interval / 60;
+      sInterval = 0;
+    }
+    else {
+      hInterval = interval / 60 / 24;
+      mInterval = 0;
+      sInterval = 0;
+    }
+    const d = new Date(reading.time ?? reading.created_at)
+    let h = hInterval === 0 ? "00" : Math.floor(d.getHours() / hInterval) * hInterval;
+    let m = mInterval === 0 ? "00" : Math.floor(d.getMinutes() / mInterval) * mInterval;
+    let s = sInterval === 0 ? "00" : Math.floor(d.getSeconds() / sInterval) * sInterval;
+    let time = h + ":" + m + ":" + s;
+    let day = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
+    return {
+      time: new Date(`${day} ${time}`).toLocaleTimeString('en-us'),
+      value: Math.round(reading.value)
+    }
+  }
+
   return (
     <>
       <Link href={`/`}><a>&lt; Back</a></Link>
@@ -154,6 +209,11 @@ function Sensors({ sensor, readings }) {
           <p>Index: {sensor.index}</p>
           <p>Offset: {sensor.offset}</p>
           <p>Value: {lastValue.toFixed(2)}</p>
+          <p>
+            <button onClick={loadLastHourData}>Last Hour</button>
+            <button onClick={loadLastDayData}>Last Day</button>
+            <button onClick={loadLastWeekData}>Last Week</button>
+          </p>
         </div>
       </div>
 
@@ -164,6 +224,41 @@ function Sensors({ sensor, readings }) {
   )
 }
 
+const getDateTime = (hourOffset = 0, startOfDay = false, interval = 1, d = new Date()) => {
+  let hInterval = 1;
+  let mInterval = 1;
+  let sInterval = 1;
+  if (interval < 60) {
+    sInterval = interval;
+  }
+  else if (interval < 60 * 60) {
+    mInterval = interval / 60;
+  }
+  else {
+    hInterval = interval / 60 / 24;
+  }
+
+  d.setHours(d.getHours() - hourOffset);
+  let h = Math.floor(d.getHours() / hInterval) * hInterval;
+  let m = Math.floor(d.getMinutes() / mInterval) * mInterval;
+  let s = Math.floor(d.getSeconds() / sInterval) * sInterval;
+  let time = `${h}:${m}:${s}`;
+  if (startOfDay) {
+    time = "00:00:00";
+  }
+  let day = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+
+  return `${day} ${time}`;
+}
+
+const loadSensorReadings = async (id, start_time, interval, limit) => {
+  const url = `http://pi-mower:3001/sensors/${id}/readings?limit=${limit}&interval=${interval}&start_time=${encodeURIComponent(start_time)}`;
+  console.log(url);
+  const readingsRes = await fetch(url)
+  const readings = await readingsRes.json()
+  return readings;
+}
+
 // This gets called on every request
 export async function getServerSideProps({ params }) {
 
@@ -172,9 +267,8 @@ export async function getServerSideProps({ params }) {
   const sensor = await sensorRes.json()
 
   // Fetch data from external API
-  const readingsRes = await fetch(`http://pi-mower:3001/sensors/${params.pid}/readings?limit=${30 * 60}`)
-  const readings = await readingsRes.json()
-
+  const readings = await loadSensorReadings(params.pid, getDateTime(24), 5 * 60, 5 * 60);
+  console.log(readings);
   // Pass data to the page via props
   return { props: { sensor, readings } }
 }

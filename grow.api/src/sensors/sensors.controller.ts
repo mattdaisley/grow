@@ -39,7 +39,8 @@ export class SensorsController {
   }
 
   @Get(':id/readings')
-  findReadings(@Param('id') id: string, @Query('limit') limit: number) {
-    return this.sensorsService.findReadings(+id, limit);
+  findReadings(@Param('id') id: string, @Query('limit') limit: number, @Query('interval') interval: number, @Query('start_time') start_time: string) {
+    console.log('findReadings', +id, limit, interval, start_time)
+    return this.sensorsService.findReadings(+id, limit, interval, start_time);
   }
 }
