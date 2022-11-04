@@ -8,24 +8,29 @@ int analogBufferTemp[SCOUNT];
 int analogBufferIndex = 0, copyIndex = 0;
 float averageVoltage = 0, tdsValue = 0;
 float temperature = 21.3, tdsOffset = 0.0372;  // defaults 25 and 0.02
+bool enableTDS = true;
 
 int incomingByte = 0; // for incoming serial data
 
 const char HEADER = 'H';
 const char TERMINATOR = '\n';
-const int PACKET_SIZE = 13;
+const int PACKET_SIZE = 15;
 
 boolean readingString = false;
 int charPointer = 0;
 char buffer[PACKET_SIZE] = "";
-
-int relayPins[5] = {8, 9, 10, 11, 12};
-
-const uint8_t OFF_VALUE = HIGH;
-const uint8_t ON_VALUE = LOW;
-
 bool first_message_sent = false;
 
+#define NUM_RELAYS 5
+int relayPins[NUM_RELAYS]                        = {8, 9, 10, 11, 12};
+int relayCommandLimits[NUM_RELAYS]               = {0, 0, 0, 0, 0};
+unsigned long relayCommandTimepoints[NUM_RELAYS] = {0, 0, 0, 0, 0};
+
+const uint8_t OFF_VALUE = LOW;
+const uint8_t ON_VALUE = HIGH;
+
+
+unsigned long loopTimepoint;
 
 void setup() {
   Serial.begin(115200); // opens serial port, sets data rate to 115200 bps
@@ -33,9 +38,12 @@ void setup() {
 
   pinMode(TdsSensorPin, INPUT);
 
-  for (int i = 0; i < sizeof(relayPins); i++) {
+  for (int i = 0; i < NUM_RELAYS; i++) {
     pinMode(relayPins[i], OUTPUT);    // sets the digital pin as output
     digitalWrite(relayPins[i], OFF_VALUE); // sets the digital pin off
+
+    relayCommandLimits[i] = 0;
+    relayCommandTimepoints[i] = 0;
   }
 }
 
@@ -45,37 +53,61 @@ void loop()
 
   if (first_message_sent == false) 
   {
-    if (DEBUG) {
-      Serial.println("first_message_sent == false");
-    }
     reply = "H/P/" + String(0) + "/0";
     Serial.println(reply);
     // Serial.println("{\"Pump1\": \"0\"}");
     first_message_sent = true;
   }
 
-  static unsigned long analogSampleTimepoint = millis();
-  if (millis() - analogSampleTimepoint > 40U)  //every 40 milliseconds, read the analog value from the ADC
-  {
-    analogSampleTimepoint = millis();
-    analogBuffer[analogBufferIndex] = analogRead(TdsSensorPin);    //read the analog value and store into the buffer
-    analogBufferIndex++;
-    if (analogBufferIndex == SCOUNT)
-      analogBufferIndex = 0;
+  if (enableTDS) {
+    static unsigned long analogSampleTimepoint = millis();
+    if (millis() - analogSampleTimepoint > 40U)  //every 40 milliseconds, read the analog value from the ADC
+    {
+      analogSampleTimepoint = millis();
+      analogBuffer[analogBufferIndex] = analogRead(TdsSensorPin);    //read the analog value and store into the buffer
+      analogBufferIndex++;
+      if (analogBufferIndex == SCOUNT)
+        analogBufferIndex = 0;
+    }
+
+    static unsigned long printTimepoint = millis();
+    if (millis() - printTimepoint > 800U)
+    {
+      printTimepoint = millis();
+      for (copyIndex = 0; copyIndex < SCOUNT; copyIndex++) 
+      {
+        analogBufferTemp[copyIndex] = analogBuffer[copyIndex];
+      }
+      averageVoltage = getMedianNum(analogBufferTemp, SCOUNT) * (float)VREF / 1024.0; // read the analog value more stable by the median filtering algorithm, and convert to voltage value
+      
+      reply = "H/S/0/" + String(averageVoltage);
+      Serial.println(reply);
+    }
   }
 
-  static unsigned long printTimepoint = millis();
-  if (millis() - printTimepoint > 800U)
-  {
-    printTimepoint = millis();
-    for (copyIndex = 0; copyIndex < SCOUNT; copyIndex++) 
-    {
-      analogBufferTemp[copyIndex] = analogBuffer[copyIndex];
+
+  loopTimepoint = millis();
+
+  if (DEBUG) {
+    Serial.println("checking relay commands " + String(NUM_RELAYS));
+  }
+  for (int i = 0; i < NUM_RELAYS; i++) {
+
+    if (DEBUG) {
+      Serial.println("relayCommands:" + String(relayCommandLimits[i]));
     }
-    averageVoltage = getMedianNum(analogBufferTemp, SCOUNT) * (float)VREF / 1024.0; // read the analog value more stable by the median filtering algorithm, and convert to voltage value
-    
-    reply = "H/S/0/" + String(averageVoltage);
-    Serial.println(reply);
+
+    if (relayCommandLimits[i] > 0) {
+
+      if (loopTimepoint - relayCommandTimepoints[i] > relayCommandLimits[i]) {
+        reply = "H/P/" + String(i) + "/0";
+        Serial.println(reply);
+        digitalWrite(relayPins[i], OFF_VALUE); // sets the digital pin 13 on
+
+        relayCommandLimits[i] = 0;
+        relayCommandTimepoints[i] = 0;
+      }
+    }
   }
 
   // send data only when you receive data:
@@ -114,7 +146,7 @@ void loop()
             for(int k=5; k<PACKET_SIZE - 2; k++){
               svalue += String(message[k]);
             }
-            int value = svalue.toInt();
+            unsigned long value = atol(svalue.c_str());
 
             int relay_pin = relayPins[pump_index];
             if (DEBUG) {
@@ -126,19 +158,25 @@ void loop()
               Serial.println(reply);
               // Serial.println("{\"Pump1\": \"1\"}");
               digitalWrite(relay_pin, ON_VALUE);  // sets the digital pin 13 off
-              delay(value);            // waits for a second
 
-              reply = "H/P/" + String(pump_index) + "/0";
-              Serial.println(reply);
-              // Serial.println("{\"Pump1\": \"0\"}");
-              digitalWrite(relay_pin, OFF_VALUE); // sets the digital pin 13 on
+              relayCommandLimits[pump_index] = value;
+              relayCommandTimepoints[pump_index] = loopTimepoint;
+
+              // delay(value);            // waits for specified ms
+
+              // reply = "H/P/" + String(pump_index) + "/0";
+              // Serial.println(reply);
+              // // Serial.println("{\"Pump1\": \"0\"}");
+              // digitalWrite(relay_pin, OFF_VALUE); // sets the digital pin 13 on
             } 
             else 
             {
               digitalWrite(relay_pin, OFF_VALUE); // sets the digital pin 13 on
               reply = "H/P/" + String(pump_index) + "/0";
               Serial.println(reply);
-              // Serial.println("{\"Pump1\": \"0\"}");
+              
+              relayCommandLimits[pump_index] = 0;
+              relayCommandTimepoints[pump_index] = 0;
             }
           }
         }
