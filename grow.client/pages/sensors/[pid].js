@@ -90,7 +90,7 @@ function Sensors({ sensor, readings }) {
   }, [lastMessage]);
 
   const socketInitializer = async () => {
-    socket = io("http://pi-mower:3001/sensors");
+    socket = io("http://localhost:3001/sensors");
 
     socket.on("reading", (msg) => {
       const msgJson = JSON.parse(msg);
@@ -252,7 +252,7 @@ const getDateTime = (hourOffset = 0, startOfDay = false, interval = 1, d = new D
 }
 
 const loadSensorReadings = async (id, start_time, interval, limit) => {
-  const url = `http://pi-mower:3001/sensors/${id}/readings?limit=${limit}&interval=${interval}&start_time=${encodeURIComponent(start_time)}`;
+  const url = `http://localhost:3001/sensors/${id}/readings?limit=${limit}&interval=${interval}&start_time=${encodeURIComponent(start_time)}`;
   console.log(url);
   const readingsRes = await fetch(url)
   const readings = await readingsRes.json()
@@ -263,7 +263,7 @@ const loadSensorReadings = async (id, start_time, interval, limit) => {
 export async function getServerSideProps({ params }) {
 
   // Fetch data from external API
-  const sensorRes = await fetch(`http://pi-mower:3001/sensors/${params.pid}`)
+  const sensorRes = await fetch(`http://localhost:3001/sensors/${params.pid}`)
   const sensor = await sensorRes.json()
 
   // Fetch data from external API

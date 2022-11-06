@@ -21,7 +21,7 @@ import { SensorsModule } from './sensors/sensors.module';
     }),
     BullModule.forRoot({
       redis: {
-        host: 'localhost',
+        host: 'ec2-13-57-221-175.us-west-1.compute.amazonaws.com',
         port: 6379,
       },
     }),
