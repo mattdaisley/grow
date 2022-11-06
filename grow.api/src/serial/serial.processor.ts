@@ -17,7 +17,7 @@ export class SerialProcessor {
     try {
       const message = job.data.message
       this.eventsGateway.server.emit('events', `received: ${message}`);
-
+      // console.log('received message ', message)
       if (message.includes("H/S/")) {
         const parts = message.split("/");
         const sensorIndex = parts[2];
@@ -29,7 +29,7 @@ export class SerialProcessor {
         let lastTemp = 21.3; // default
         // if (tempSensor) {
           // const tempSensorReading = await this.sensorsService.findReadings(tempSensor.id, 1);
-          // if (tempSensorReading.length > 0) 
+          // if (tempSensorReading.length > 0)
           //   lastTemp = tempSensorReading[0].value;
         // }
 
@@ -49,7 +49,7 @@ export class SerialProcessor {
   }
 
   @Process('sent')
-  handleSendMessage(job: Job) {
+  handleSentMessage(job: Job) {
     try {
       const message = job.data.message
       this.eventsGateway.server.emit('events', message);
