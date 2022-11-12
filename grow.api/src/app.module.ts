@@ -11,17 +11,17 @@ import { SensorsModule } from './sensors/sensors.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: 'grow-db.cdyn2egnt6h9.us-west-1.rds.amazonaws.com',
       port: 3306,
-      username: 'growapi',
-      password: 'pimylifeup',
+      username: 'grow',
+      password: 'MlP0cPibk5Z4',
       database: 'grow',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
     BullModule.forRoot({
       redis: {
-        host: 'ec2-13-57-221-175.us-west-1.compute.amazonaws.com',
+        host: 'localhost',
         port: 6379,
       },
     }),

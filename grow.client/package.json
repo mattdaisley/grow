@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 8080",
     "lint": "next lint",
-    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./.next \"pi@pi-mower:~/grow/grow.client\"",
-    "push:node_modules": "rsync -rlptzv --progress --delete --exclude=.git ./node_modules \"pi@pi-mower:~/grow/grow.client\"",
+    "push:package": "rsync -rlptzv --progress --delete --exclude=.git -e \"ssh -i /Users/mattdaisley/.ssh/grow-key.pem\" ./package.json \"ec2-user@ec2-54-67-82-153.us-west-1.compute.amazonaws.com:~/grow/grow.client\"",
+    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git -e \"ssh -i /Users/mattdaisley/.ssh/grow-key.pem\" ./.next \"ec2-user@ec2-54-67-82-153.us-west-1.compute.amazonaws.com:~/grow/grow.client\"",
+    "push:node_modules": "rsync -rlptzv --progress --delete --exclude=.git -e \"ssh -i /Users/mattdaisley/.ssh/grow-key.pem\" ./node_modules \"ec2-user@ec2-54-67-82-153.us-west-1.compute.amazonaws.com:~/grow/grow.client\"",
     "publish": "npm run build && npm run push:dist"
   },
   "dependencies": {

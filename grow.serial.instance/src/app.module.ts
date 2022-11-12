@@ -6,7 +6,7 @@ import { SerialModule } from './serial/serial.module';
   imports: [
     BullModule.forRoot({
       redis: {
-        host: 'ec2-13-57-221-175.us-west-1.compute.amazonaws.com',
+        host: 'ec2-54-67-82-153.us-west-1.compute.amazonaws.com',
         port: 6379,
       },
     }),

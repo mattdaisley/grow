@@ -24,21 +24,50 @@ sudo systemctl status redis.service
 
 ## Install on AWS EC2 instance
 
+```
 wget -O /tmp/epel.rpm –nv https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-sudo yum install -y /tmp/epel.rpm
-sudo yum update -y
-sudo yum install redis -y
-sudo systemctl start redis
-sudo systemctl enable redis
+```
 
+```
+sudo yum install -y /tmp/epel.rpm
+```
+
+```
+sudo yum update -y
+```
+
+```
+sudo yum install redis -y
+```
+
+```
+sudo systemctl start redis
+```
+
+```
+sudo systemctl enable redis
+```
+
+```
 redis-cli config get dir
+```
 
 - remove the existing service so a new one can be created that uses a redis.conf file
+  ```
   sudo rm /etc/systemd/system/redis.service
+  ```
+  ```
   sudo rm /usr/lib/systemd/system/redis.service
+  ```
+  ```
   sudo systemctl daemon-reload
+  ```
+  ```
   sudo systemctl reset-failed
+  ```
+  ```
   sudo nano /etc/systemd/system/redis.service
+  ```
 
 ```
 [Unit]
@@ -54,7 +83,9 @@ Restart=on-success
 WantedBy=multi-user.target
 ```
 
+```
 sudo nano /var/lib/redis/redis.conf
+```
 
 ```
 bind 0.0.0.0
@@ -63,9 +94,17 @@ daemonize no
 supervised systemd
 ```
 
+```
 sudo systemctl enable /etc/systemd/system/redis.service
+```
+
+```
 sudo systemctl start redis.service
+```
+
+```
 sudo systemctl status redis.service
+```
 
 ### Testing
 
@@ -90,6 +129,12 @@ PONG
 OK
 127.0.0.1:6379> get testmessage
 "Redis is Running"
+```
+
+## pm2
+
+```
+sudo yum install nodejs npm --enablerepo=epel
 ```
 
 ## mysql

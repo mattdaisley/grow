@@ -90,7 +90,7 @@ function Sensors({ sensor, readings }) {
   }, [lastMessage]);
 
   const socketInitializer = async () => {
-    socket = io("http://localhost:3001/sensors");
+    socket = io("http://grow.mattdaisley.com:3001/sensors");
 
     socket.on("reading", (msg) => {
       const msgJson = JSON.parse(msg);
@@ -130,7 +130,7 @@ function Sensors({ sensor, readings }) {
 
   const loadLastHourData = async () => {
     const interval = 15;
-    const readings = await loadSensorReadings(pid, getDateTime(1), interval, 15 * 60);
+    const readings = await loadSensorReadings(pid, getDateTime(1), interval, 1000);
     setReadingInterval(interval)
     processReadings(readings, interval);
   }
@@ -187,14 +187,14 @@ function Sensors({ sensor, readings }) {
       mInterval = 0;
       sInterval = 0;
     }
-    const d = new Date(reading.time ?? reading.created_at)
+    const d = reading.time ? new Date(Date.parse(`${reading.time} GMT`)) : new Date(Date.parse(`${reading.created_at}`));
     let h = hInterval === 0 ? "00" : Math.floor(d.getHours() / hInterval) * hInterval;
     let m = mInterval === 0 ? "00" : Math.floor(d.getMinutes() / mInterval) * mInterval;
     let s = sInterval === 0 ? "00" : Math.floor(d.getSeconds() / sInterval) * sInterval;
     let time = h + ":" + m + ":" + s;
     let day = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
     return {
-      time: new Date(`${day} ${time}`).toLocaleTimeString('en-us'),
+      time: new Date(`${day} ${time}`).toLocaleTimeString('en-us', { timeZone: 'US/Mountain' }),
       value: Math.round(reading.value)
     }
   }
@@ -240,8 +240,11 @@ const getDateTime = (hourOffset = 0, startOfDay = false, interval = 1, d = new D
 
   d.setHours(d.getHours() - hourOffset);
   let h = Math.floor(d.getHours() / hInterval) * hInterval;
+  if (h < 10) h = `0${h}`
   let m = Math.floor(d.getMinutes() / mInterval) * mInterval;
+  if (m < 10) m = `0${m}`
   let s = Math.floor(d.getSeconds() / sInterval) * sInterval;
+  if (s < 10) s = `0${s}`
   let time = `${h}:${m}:${s}`;
   if (startOfDay) {
     time = "00:00:00";
@@ -252,8 +255,22 @@ const getDateTime = (hourOffset = 0, startOfDay = false, interval = 1, d = new D
 }
 
 const loadSensorReadings = async (id, start_time, interval, limit) => {
-  const url = `http://localhost:3001/sensors/${id}/readings?limit=${limit}&interval=${interval}&start_time=${encodeURIComponent(start_time)}`;
-  console.log(url);
+  let url = `http://grow.mattdaisley.com:3001/sensors/${id}/readings`;
+  if (start_time || interval || limit) {
+    let params = {};
+    if (start_time) {
+      params = { ...params, start_time: new Date(start_time).toISOString('en-us', { timeZone: 'UTC' }) }
+    }
+    if (interval) {
+      params = { ...params, interval }
+    }
+    if (limit) {
+      params = { ...params, limit }
+    }
+
+    url += "?" + new URLSearchParams(params);
+  }
+
   const readingsRes = await fetch(url)
   const readings = await readingsRes.json()
   return readings;
@@ -263,7 +280,7 @@ const loadSensorReadings = async (id, start_time, interval, limit) => {
 export async function getServerSideProps({ params }) {
 
   // Fetch data from external API
-  const sensorRes = await fetch(`http://localhost:3001/sensors/${params.pid}`)
+  const sensorRes = await fetch(`http://grow.mattdaisley.com:3001/sensors/${params.pid}`)
   const sensor = await sensorRes.json()
 
   // Fetch data from external API

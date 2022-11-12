@@ -19,8 +19,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./dist \"pi@pi-mower:~/grow/grow.api\"",
-    "push:node_modules": "rsync -rlptzv --progress --delete --exclude=.git ./node_modules \"pi@pi-mower:~/grow/grow.api\"",
+    "push:package": "rsync -rlptzv --progress --delete --exclude=.git ./package.json ./tsconfig.json \"ec2-user@ec2-54-67-82-153.us-west-1.compute.amazonaws.com:~/grow/grow.api\"",
+    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git -e \"ssh -i /Users/mattdaisley/.ssh/grow-key.pem\" ./dist \"ec2-user@ec2-54-67-82-153.us-west-1.compute.amazonaws.com:~/grow/grow.api\"",
+    "push:node_modules": "rsync -rlptzv --progress --delete --exclude=.git -e \"ssh -i /Users/mattdaisley/.ssh/grow-key.pem\" ./node_modules \"ec2-user@ec2-54-67-82-153.us-west-1.compute.amazonaws.com:~/grow/grow.api\"",
     "publish": "npm run build && npm run push:dist"
   },
   "dependencies": {

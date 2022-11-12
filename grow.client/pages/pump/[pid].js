@@ -19,7 +19,7 @@ function Pump({ data }) {
       value: parseInt(amount),
     };
 
-    fetch(`http://localhost:3001/pumps/${pid}/command`, {
+    fetch(`http://grow.mattdaisley.com:3001/pumps/${pid}/command`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ function Pump({ data }) {
 // This gets called on every request
 export async function getServerSideProps({ params }) {
   // Fetch data from external API
-  const res = await fetch(`http://localhost:3001/pumps/${params.pid}`)
+  const res = await fetch(`http://grow.mattdaisley.com:3001/pumps/${params.pid}`)
   const data = await res.json()
 
   // Pass data to the page via props

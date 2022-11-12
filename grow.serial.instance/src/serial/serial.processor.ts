@@ -13,7 +13,7 @@ export class SerialProcessor {
   async handleSendMessage(job: Job) {
     try {
       const message = job.data.message
-      console.log("serialProcessor handleSendMessage", message)
+      // console.log("serialProcessor handleSendMessage", message)
       await this.serialService.write(message);
     } catch (error) {
       console.log(error);

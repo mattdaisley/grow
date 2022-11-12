@@ -25,10 +25,10 @@ function Home({ pumps, sensors }) {
 // This gets called on every request
 export async function getServerSideProps() {
   // Fetch data from external API
-  const pumpsRes = await fetch(`http://localhost:3001/pumps`)
+  const pumpsRes = await fetch(`http://grow.mattdaisley.com:3001/pumps`)
   const pumps = await pumpsRes.json()
 
-  const sensorsRes = await fetch(`http://localhost:3001/sensors`)
+  const sensorsRes = await fetch(`http://grow.mattdaisley.com:3001/sensors`)
   const sensors = await sensorsRes.json()
 
   // Pass data to the page via props

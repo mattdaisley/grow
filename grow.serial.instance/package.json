@@ -19,7 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./.next \"pi@pi-mower:~/grow/grow.serial.instance\"",
+    "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./dist \"pi@pi-mower:~/grow/grow.serial.instance\"",
     "push:node_modules": "rsync -rlptzv --progress --delete --exclude=.git ./node_modules \"pi@pi-mower:~/grow/grow.serial.instance\"",
     "publish": "npm run build && npm run push:dist"
   },
