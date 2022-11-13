@@ -18,7 +18,7 @@ export default function Footer() {
   }, [showSerialLog]);
 
   const socketInitializer = async () => {
-    socket = io("http://grow.mattdaisley.com:3001");
+    socket = io("https://grow.mattdaisley.com:444");
 
     socket.on("events", (msg) => {
       setMessages((currentMessages) => [

@@ -15,7 +15,7 @@ export default function SensorCard({ sensor }) {
   }, []);
 
   const socketInitializer = async () => {
-    socket = io("http://grow.mattdaisley.com:3001/sensors");
+    socket = io("https://grow.mattdaisley.com:444/sensors");
 
     socket.on("reading", (msg) => {
       // console.log(msg);

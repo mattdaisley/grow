@@ -90,7 +90,7 @@ function Sensors({ sensor, readings }) {
   }, [lastMessage]);
 
   const socketInitializer = async () => {
-    socket = io("http://grow.mattdaisley.com:3001/sensors");
+    socket = io("https://grow.mattdaisley.com:444/sensors");
 
     socket.on("reading", (msg) => {
       const msgJson = JSON.parse(msg);
@@ -255,7 +255,7 @@ const getDateTime = (hourOffset = 0, startOfDay = false, interval = 1, d = new D
 }
 
 const loadSensorReadings = async (id, start_time, interval, limit) => {
-  let url = `http://grow.mattdaisley.com:3001/sensors/${id}/readings`;
+  let url = `https://grow.mattdaisley.com:444/sensors/${id}/readings`;
   if (start_time || interval || limit) {
     let params = {};
     if (start_time) {
@@ -280,7 +280,7 @@ const loadSensorReadings = async (id, start_time, interval, limit) => {
 export async function getServerSideProps({ params }) {
 
   // Fetch data from external API
-  const sensorRes = await fetch(`http://grow.mattdaisley.com:3001/sensors/${params.pid}`)
+  const sensorRes = await fetch(`https://grow.mattdaisley.com:444/sensors/${params.pid}`)
   const sensor = await sensorRes.json()
 
   // Fetch data from external API
