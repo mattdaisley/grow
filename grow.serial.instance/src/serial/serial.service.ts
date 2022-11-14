@@ -83,7 +83,7 @@ export class SerialService {
             console.log("Data includes first message:", data);
             this.pumpsReady = true;
         }
-
+        // console.log('received', data);
         await this.serialQueue.add('receive', {
             message: data,
         });

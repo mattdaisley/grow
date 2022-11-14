@@ -21,13 +21,13 @@ int charPointer = 0;
 char buffer[PACKET_SIZE] = "";
 bool first_message_sent = false;
 
-#define NUM_RELAYS 5
-int relayPins[NUM_RELAYS]                        = {8, 9, 10, 11, 12};
-int relayCommandLimits[NUM_RELAYS]               = {0, 0, 0, 0, 0};
-unsigned long relayCommandTimepoints[NUM_RELAYS] = {0, 0, 0, 0, 0};
+#define NUM_RELAYS 11
+int relayPins[NUM_RELAYS]                        = {8, 9, 10, 11, 12, 2, 3, 4, 5, 6, 7};
+int relayCommandLimits[NUM_RELAYS]               = {0, 0, 0,  0,  0,  0, 0, 0, 0, 0, 0};
+unsigned long relayCommandTimepoints[NUM_RELAYS] = {0, 0, 0,  0,  0,  0, 0, 0, 0, 0, 0};
 
-const uint8_t OFF_VALUE = LOW;
-const uint8_t ON_VALUE = HIGH;
+const uint8_t OFF_VALUE = HIGH;
+const uint8_t ON_VALUE = LOW;
 
 
 unsigned long loopTimepoint;
@@ -138,6 +138,37 @@ void loop()
           command.toUpperCase();
 
           // handle message for Pump
+          if (command == "O") 
+          {
+            int outlet_index = String(message.charAt(3)).toInt();
+            
+            String svalue = "";
+            for(int k=5; k<PACKET_SIZE - 2; k++){
+              svalue += String(message[k]);
+            }
+            unsigned long value = atol(svalue.c_str());
+
+            int relay_pin = relayPins[outlet_index];
+            if (DEBUG) {
+              Serial.println(value);
+            }
+            if (value > 0) 
+            {
+              reply = "H/O/" + String(outlet_index) + "/" + String(value);
+              Serial.println(reply);
+              digitalWrite(relay_pin, ON_VALUE);  // sets the digital pin 13 off
+            } 
+            else 
+            {
+              digitalWrite(relay_pin, OFF_VALUE); // sets the digital pin 13 on
+              reply = "H/O/" + String(outlet_index) + "/0";
+              Serial.println(reply);
+              
+              relayCommandLimits[outlet_index] = 0;
+              relayCommandTimepoints[outlet_index] = 0;
+            }
+          }
+
           if (command == "P") 
           {
             int pump_index = String(message.charAt(3)).toInt();

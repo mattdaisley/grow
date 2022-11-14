@@ -32,7 +32,8 @@ export async function getServerSideProps() {
   const sensorsRes = await fetch(`https://grow.mattdaisley.com:444/sensors`)
   const sensors = await sensorsRes.json()
 
-  const outlets = [{ id: 0, index: 0, name: 'Light' }, { id: 1, index: 1, name: 'Aero Pump' }, { id: 2, index: 2, name: 'Nutrient Pump' }]
+  const outletsRes = await fetch(`https://grow.mattdaisley.com:444/outlets`)
+  const outlets = await outletsRes.json()
 
   // Pass data to the page via props
   return { props: { pumps, sensors, outlets } }

@@ -1,20 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PumpsModule } from './pumps/pumps.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from './events/events.module';
+import { OutletsModule } from './outlets/outlets.module';
+import { PumpsModule } from './pumps/pumps.module';
 import { SensorsModule } from './sensors/sensors.module';
-
-interface DatabaseConfig {
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  database: string;
-}
 
 @Module({
   imports: [
@@ -61,6 +54,7 @@ interface DatabaseConfig {
       inject: [ConfigService],
     }),
     EventsModule,
+    OutletsModule,
     PumpsModule,
     SensorsModule
   ],

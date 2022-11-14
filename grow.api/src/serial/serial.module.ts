@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { SerialProcessor } from './serial.processor';
 import { EventsModule } from 'src/events/events.module';
+import { OutletsModule } from 'src/outlets/outlets.module';
 import { SensorsModule } from 'src/sensors/sensors.module';
 import { SerialService } from './serial.service';
 
@@ -11,6 +12,7 @@ import { SerialService } from './serial.service';
       name: 'serial',
     }),
     EventsModule,
+    forwardRef(() => OutletsModule),
     SensorsModule
   ],
   exports: [SerialService],

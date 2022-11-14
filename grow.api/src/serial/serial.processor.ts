@@ -1,6 +1,8 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 import { EventsGateway } from 'src/events/events.gateway';
+import { UpdateOutletDto } from 'src/outlets/dto/update-outlet.dto';
+import { OutletsService } from 'src/outlets/outlets.service';
 import { CreateSensorReadingDto } from 'src/sensors/dto/create-sensor-reading.dto';
 import { SensorsService } from 'src/sensors/sensors.service';
 
@@ -9,6 +11,7 @@ export class SerialProcessor {
 
   constructor(
     private readonly eventsGateway: EventsGateway,
+    private readonly outletsService: OutletsService,
     private readonly sensorsService: SensorsService
   ){}
 
@@ -17,7 +20,11 @@ export class SerialProcessor {
     try {
       const message = job.data.message
       this.eventsGateway.server.emit('events', `received: ${message}`);
-      // console.log('received message ', message)
+      console.log('received message ', message)
+      if (message.includes("H/O/")) {
+        this.handleOutletMessage(message);
+      }
+
       if (message.includes("H/S/")) {
         const parts = message.split("/");
         const sensorIndex = parts[2];
@@ -26,7 +33,7 @@ export class SerialProcessor {
         const tdsSensor = await this.sensorsService.findOneByIndex(sensorIndex);
         // const tempSensor = await this.sensorsService.findOneByIndex("1");
 
-        let lastTemp = 21.3; // default
+        let lastTemp = 20.0; //21.3; // default
         // if (tempSensor) {
           // const tempSensorReading = await this.sensorsService.findReadings(tempSensor.id, 1);
           // if (tempSensorReading.length > 0)
@@ -48,11 +55,25 @@ export class SerialProcessor {
     }
   }
 
+  async handleOutletMessage(message: string) {
+    const parts = message.split("/");
+    const outletIndex = parts[2];
+    const outletValue = Number(parts[3]);
+
+    const outlet = await this.outletsService.findOneByIndex(+outletIndex);
+
+    if (outlet) {
+      const updateOutletDto: UpdateOutletDto = {...outlet, status: outletValue}
+      await this.outletsService.update(outlet.id, updateOutletDto)
+    }
+  }
+
   @Process('sent')
   handleSentMessage(job: Job) {
     try {
       const message = job.data.message
       this.eventsGateway.server.emit('events', message);
+      console.log('sent', message);
     } catch (error) {
       console.log(error);
     }

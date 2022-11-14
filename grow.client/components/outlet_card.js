@@ -9,7 +9,7 @@ import outletImage from '../public/outlet.png'
 let socket;
 
 export default function OutletCard({ outlet }) {
-  const [lastValue, setLastValue] = useState(0);
+  const [status, setStatus] = useState(outlet.status);
 
   useEffect(() => {
     // socketInitializer();
@@ -23,8 +23,8 @@ export default function OutletCard({ outlet }) {
     socket.on("reading", (msg) => {
       // console.log(msg);
       const msgJson = JSON.parse(msg);
-      if (msgJson.sensor.id === sensor.id) {
-        setLastValue(msgJson.value);
+      if (msgJson.outlet.id === outlet.id) {
+        setStatus(msgJson.value);
       }
     });
   };
@@ -35,6 +35,7 @@ export default function OutletCard({ outlet }) {
         <Image src={outletImage} width={60} height={60} />
         <h2>{outlet.name}</h2>
         <p>Index: {outlet.index}</p>
+        <p>Status: {status === 0 ? "off" : "on"}</p>
       </a>
     </Link>
   )

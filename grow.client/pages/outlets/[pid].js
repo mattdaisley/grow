@@ -10,15 +10,17 @@ function Outlet({ data }) {
   const router = useRouter()
   const { pid } = router.query
 
-  const [status, setStatus] = useState(0);
+  const [status, setStatus] = useState(data.status);
 
   const toggleStatus = (event) => {
+    const newStatus = status === 0 ? 1 : 0;
     setStatus(status === 0 ? 1 : 0);
+    handleSend(newStatus);
   }
 
-  const handleSend = () => {
+  const handleSend = (newStatus) => {
     const data = {
-      value: parseInt(status),
+      value: parseInt(newStatus),
     };
 
     fetch(`https://grow.mattdaisley.com:444/outlets/${pid}/command`, {
@@ -54,11 +56,8 @@ function Outlet({ data }) {
 // This gets called on every request
 export async function getServerSideProps({ params }) {
   // Fetch data from external API
-  // const res = await fetch(`https://grow.mattdaisley.com:444/outlets/${params.pid}`)
-  // const data = await res.json()
-
-  const outlets = [{ id: 0, index: 0, name: 'Light' }, { id: 1, index: 1, name: 'Aero Pump' }, { id: 2, index: 2, name: 'Nutrient Pump' }]
-  const data = outlets.find(outlet => outlet.id === parseInt(params.pid))
+  const res = await fetch(`https://grow.mattdaisley.com:444/outlets/${params.pid}`)
+  const data = await res.json()
 
   // Pass data to the page via props
   return { props: { data } }
