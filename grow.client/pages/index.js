@@ -2,23 +2,24 @@ import Link from 'next/link'
 import SensorCard from '../components/sensor_card'
 import styles from '../styles/Home.module.css'
 
-function Home({ pumps, sensors }) {
-  return (
-    <div className={styles.grid}>
-      {pumps.map(pump => {
-        return (
-          <Link href={`/pump/${encodeURIComponent(pump.id)}`} key={pump.id}>
-            <a className={styles.card}>
-              <h2>{pump.id}: {pump.name}</h2>
-              <p>Index: {pump.index}</p>
-              <p>Dose Rate: {pump.doseRate}</p>
-            </a>
-          </Link>
-        )
-      })}
+import OutletCard from '../components/outlet_card'
+import PumpCard from '../components/pump_card'
 
-      {sensors.map(sensor => <SensorCard sensor={sensor} key={sensor.id} />)}
-    </div>
+function Home({ pumps, sensors, outlets }) {
+  return (
+    <>
+      <div className={styles.grid}>
+        {pumps.map(pump => <PumpCard pump={pump} key={pump.id} />)}
+      </div>
+
+      <div className={styles.grid}>
+        {sensors.map(sensor => <SensorCard sensor={sensor} key={sensor.id} />)}
+      </div>
+
+      <div className={styles.grid}>
+        {outlets.map(outlet => <OutletCard outlet={outlet} key={outlet.id} />)}
+      </div>
+    </>
   )
 }
 
@@ -31,8 +32,10 @@ export async function getServerSideProps() {
   const sensorsRes = await fetch(`https://grow.mattdaisley.com:444/sensors`)
   const sensors = await sensorsRes.json()
 
+  const outlets = [{ id: 0, index: 0, name: 'Light' }, { id: 1, index: 1, name: 'Aero Pump' }, { id: 2, index: 2, name: 'Nutrient Pump' }]
+
   // Pass data to the page via props
-  return { props: { pumps, sensors } }
+  return { props: { pumps, sensors, outlets } }
 }
 
 export default Home;

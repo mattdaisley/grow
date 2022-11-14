@@ -117,6 +117,14 @@
   max-width: 300px;
 }
 
+.cardColumn {
+  display: flex;
+}
+
+.cardCenter {
+  text-align: center;
+}
+
 a.card:hover,
 a.card:focus,
 a.card:active {
