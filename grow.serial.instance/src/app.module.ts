@@ -1,14 +1,28 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
 import { SerialModule } from './serial/serial.module';
 
 @Module({
   imports: [
-    BullModule.forRoot({
-      redis: {
-        host: 'ec2-54-67-82-153.us-west-1.compute.amazonaws.com',
-        port: 6379,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+
+        const host = configService.get<string>('REDIS_HOST');
+        const port = configService.get<number>('REDIS_PORT');
+
+        return {
+          redis: {
+            host,
+            port,
+          },
+        }
       },
+      inject: [ConfigService],
     }),
     SerialModule
   ],
