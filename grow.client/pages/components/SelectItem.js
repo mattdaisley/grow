@@ -1,41 +1,45 @@
 import { useState } from 'react';
+import { Controller } from "react-hook-form";
+
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+
 import { Item } from './index';
 
-export const SelectItem = ({ field }) => {
-  const [value, setValue] = useState("");
+export const SelectItem = ({ appField, control }) => {
 
-  const handleFieldChanged = (event) => {
-    const targetValue = event.target.value;
-    setValue(targetValue);
-  };
+  const { options, ...props } = appField.props;
+  const selectControl =
+    <Controller
+      name={`testform.0.${appField.name}`}
+      control={control}
+      render={({ field }) => {
 
-  const { options, ...props } = field.props;
-  const selectControl = <Select
-    size="small"
-    {...props}
-    labelId={`select-${field.id}-label`}
-    id={`select-${field.id}`}
-    value={value}
-    onChange={handleFieldChanged}
-  >
-    {options?.map((option, j) => {
-      return <MenuItem key={j} value={option.value}>
-        {option.label}
-      </MenuItem>;
-    })}
-  </Select>;
+        return <Select
+          size="small"
+          {...props}
+          labelId={`select-${appField.id}-label`}
+          id={`select-${appField.id}`}
+          {...field}
+        >
+          {options?.map((option, j) => {
+            return <MenuItem key={j} value={option.value}>
+              {option.label}
+            </MenuItem>;
+          })}
+        </Select>
+      }}
+    />;
 
   return <Item>
-    {!!field.props.label
+    {!!appField.props.label
       ? (
-        <FormControl fullWidth={true} {...field.props}>
+        <FormControl fullWidth={true} {...appField.props}>
           <InputLabel
             size="small"
-            id={`select-${field.id}-label`}>{field.props.label}</InputLabel>
+            id={`select-${appField.id}-label`}>{appField.props.label}</InputLabel>
           {selectControl}
         </FormControl>
       )

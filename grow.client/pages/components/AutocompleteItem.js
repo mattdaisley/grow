@@ -1,23 +1,28 @@
-import { useState } from 'react';
+import { Controller } from "react-hook-form";
+
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+
 import { Item } from './index';
 
-export const AutocompleteItem = ({ field }) => {
-  const [value, setValue] = useState(null);
-
-  const handleFieldChanged = (event, newValue) => {
-    setValue(newValue);
-  };
+export const AutocompleteItem = ({ appField, control }) => {
   return <Item>
-    <Autocomplete
-      fullWidth
-      size="small"
-      {...field.props}
-      id={`autocomplete-${field.id}`}
-      value={value}
-      onChange={handleFieldChanged}
-      renderInput={(params) => <TextField {...params} label={field.props.label} />}
-      getOptionLabel={(option) => option.label ?? ""} />
+    <Controller
+      name={`testform.0.${appField.name}`}
+      control={control}
+      render={({ field: { value, onChange } }) => {
+
+        return <Autocomplete
+          fullWidth
+          size="small"
+          {...appField.props}
+          id={`autocomplete-${appField.id}`}
+          getOptionLabel={(option) => option.label ?? ""}
+          value={value}
+          onChange={(_, newValue) => onChange(newValue)}
+          isOptionEqualToValue={(option, testValue) => option.label === testValue.label}
+          renderInput={(params) => <TextField {...params} label={appField.props.label} />}
+        />
+      }} />
   </Item>;
 };

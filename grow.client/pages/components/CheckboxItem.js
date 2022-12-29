@@ -1,30 +1,33 @@
-import { useState } from 'react';
+import { Controller } from "react-hook-form";
+
 import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
+
 import { Item } from './index';
 
-export const CheckboxItem = ({ field }) => {
-  const [value, setValue] = useState(false);
+export const CheckboxItem = ({ appField, control }) => {
 
-  const handleFieldChanged = (event) => {
-    const targetValue = event.target.checked;
-    setValue(targetValue);
-  };
-
-  const checkboxControl = <Checkbox
-    size="small"
-    {...field?.props}
-    checked={value}
-    onChange={handleFieldChanged}
-  />;
+  const checkboxControl =
+    <Controller
+      name={`testform.0.${appField.name}`}
+      control={control}
+      render={({ field: { value, onChange } }) => {
+        return <Checkbox
+          size="small"
+          {...appField?.props}
+          checked={value}
+          onChange={onChange}
+        />
+      }}
+    />;
 
   return <Item>
-    {!!field?.props.label
+    {!!appField?.props.label
       ? (
         <FormControl>
           <FormControlLabel
-            label={field.props.label}
+            label={appField.props.label}
             control={checkboxControl} />
         </FormControl>
       )

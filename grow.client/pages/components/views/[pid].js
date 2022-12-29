@@ -1,34 +1,16 @@
-import { useState, useEffect, forwardRef, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm, useFieldArray } from "react-hook-form";
 
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import TextField from '@mui/material/TextField';
 
-import { TextItem } from '../TextItem';
-import { AutocompleteItem } from '../AutocompleteItem';
-import { CheckboxItem } from '../CheckboxItem';
-import { SelectItem } from '../SelectItem';
 import { Item } from '../index';
+import { RenderField } from '../RenderField';
+import { getFieldDefault } from '../getFieldDefault';
 
-const RenderField = ({ field }) => {
-  // console.log(field);
-  switch (field.type) {
-    case 'text':
-    case 'numeric':
-      return <TextItem field={field} key={field.id} />
-    case 'autocomplete':
-      return <AutocompleteItem field={field} key={field.id} />
-    case 'checkbox':
-      return <CheckboxItem field={field} key={field.id} />
-    case 'select':
-      return <SelectItem field={field} key={field.id} />
-    default:
-      // Do nothing for an unsupported type
-      break;
-  }
-}
-
-const RenderedFields = ({ viewDefinition, fieldsDefinition }) => {
+const RenderedFields = ({ viewDefinition, fieldsDefinition, control }) => {
   if (!viewDefinition || !fieldsDefinition) {
     return null;
   }
@@ -43,42 +25,34 @@ const RenderedFields = ({ viewDefinition, fieldsDefinition }) => {
                 const fieldDefinition = fieldsDefinition.fields.find(x => x.id === field.fieldId)
                 // console.log(fieldDefinition, fieldsDefinition);
                 if (!!fieldDefinition)
-                  return <RenderField field={fieldDefinition} key={`${group.id}-${field.fieldId}`} />
+                  return <RenderField field={fieldDefinition} key={`${group.id}-${fieldDefinition.id}`} control={control} />
               })
             }
           </Grid>
         )
       })
-      /*
-            fieldsDefinition?.fields?.map(field => {
-              switch (field.type) {
-                case 'text':
-                case 'numeric':
-                  return <TextItem field={field} key={field.id} />
-                case 'autocomplete':
-                  return <AutocompleteItem field={field} key={field.id} />
-                case 'checkbox':
-                  return <CheckboxItem field={field} key={field.id} />
-                case 'select':
-                  return <SelectItem field={field} key={field.id} />
-                default:
-                  // Do nothing for an unsupported type
-                  break;
-              }
-            })*/
     }
   </Grid>
 }
 
 export default function ViewPage({ viewId }) {
 
+  const [allFieldsLoaded, setAllFieldsLoaded] = useState(false);
   const [allFieldsJson, setAllFieldsJson] = useState("");
   const [allFieldsDefinition, setAllFieldsDefinition] = useState();
 
+  const [allViewsLoaded, setAllViewsLoaded] = useState(false);
+  const [allViewsJson, setAllViewsJson] = useState("");
   const [allViewsDefinition, setAllViewsDefinition] = useState([]);
 
   const [currentViewJson, setCurrentViewJson] = useState(`{ "id": ${viewId} }`);
   const [currentViewDefinition, setCurrentViewDefinition] = useState({ id: viewId });
+
+  const [currentViewFieldDefaults, setCurrentViewFieldDefaults] = useState(undefined);
+
+  const { register, control, handleSubmit, reset, formState, watch } = useForm();
+  const { errors } = formState;
+  const { fields, append, remove } = useFieldArray({ name: 'testfrom', control });
 
   useEffect(() => {
     const loadAllFields = () => {
@@ -94,9 +68,11 @@ export default function ViewPage({ viewId }) {
           console.log(e);
         }
       }
+      setAllFieldsLoaded(true);
     }
 
     loadAllFields()
+
     const loadInterval = setInterval(loadAllFields, 1000);
     return () => clearInterval(loadInterval);
   }, [allFieldsJson]);
@@ -104,14 +80,14 @@ export default function ViewPage({ viewId }) {
   useEffect(() => {
     const loadView = () => {
       const localAllViewsJson = localStorage.getItem('allviews');
-      // console.log('localAllViewsJson: ', localAllViewsJson)
-      if (localAllViewsJson) {
+      if (localAllViewsJson && localAllViewsJson !== allViewsJson) {
 
+        setAllViewsJson(localAllViewsJson);
         try {
-          var parsedJson = JSON.parse(localAllViewsJson);
-          setAllViewsDefinition(parsedJson);
+          var allFields = JSON.parse(localAllViewsJson);
+          setAllViewsDefinition(allFields);
 
-          const currentView = parsedJson?.views.find(x => x.id === viewId)
+          const currentView = allFields?.views.find(x => x.id === viewId)
           if (currentView) {
             setCurrentViewJson(JSON.stringify(currentView, null, 2));
             setCurrentViewDefinition(currentView);
@@ -121,6 +97,7 @@ export default function ViewPage({ viewId }) {
           console.log(e);
         }
       }
+      setAllViewsLoaded(true)
     }
 
     loadView();
@@ -128,7 +105,25 @@ export default function ViewPage({ viewId }) {
     const loadViewInterval = setInterval(loadView, 2000);
 
     return () => clearInterval(loadViewInterval);
-  }, []);
+  }, [allViewsJson]);
+
+  useEffect(() => {
+    if (allFieldsJson === "" || allViewsJson === "") {
+      return;
+    }
+
+    let fieldValues = {};
+    currentViewDefinition?.groups?.map(group => {
+      group.fields?.map((field) => {
+        const fieldDefinition = allFieldsDefinition?.fields.find(x => x.id === field.fieldId);
+        const { key, defaultValue } = getFieldDefault(fieldDefinition)
+        fieldValues[key] = defaultValue;
+      })
+    })
+    reset({ ['testform']: [fieldValues] });
+    setCurrentViewFieldDefaults(fieldValues);
+
+  }, [allFieldsJson, currentViewJson])
 
   const handleJsonChanged = (event) => {
     const rawJson = event.target.value;
@@ -158,28 +153,43 @@ export default function ViewPage({ viewId }) {
     }
   }
 
+  function onSubmit(data) {
+    // display form data on success
+    alert('SUCCESS!! :-)\n\n' + JSON.stringify(data, null, 4));
+  }
+
+  // console.log("currentViewFieldDefaults", currentViewFieldDefaults)
+  if (!currentViewFieldDefaults) {
+    return null;
+  }
+
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={2}>
-          <Grid xs>
-            <RenderedFields viewDefinition={currentViewDefinition} fieldsDefinition={allFieldsDefinition} />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Box sx={{ flexGrow: 1 }}>
+          <Grid container spacing={2}>
+            <Grid xs>
+              <RenderedFields viewDefinition={currentViewDefinition} fieldsDefinition={allFieldsDefinition} control={control} />
+              <Grid xs={12}>
+                <Button type="submit">Submit</Button>
+              </Grid>
+            </Grid>
+            <Grid xs={4}>
+              <Item>
+                <TextField
+                  id="json-input"
+                  label="JSON"
+                  placeholder="{}"
+                  multiline
+                  fullWidth
+                  value={currentViewJson}
+                  onChange={handleJsonChanged}
+                />
+              </Item>
+            </Grid>
           </Grid>
-          <Grid xs={4}>
-            <Item>
-              <TextField
-                id="json-input"
-                label="JSON"
-                placeholder="{}"
-                multiline
-                fullWidth
-                value={currentViewJson}
-                onChange={handleJsonChanged}
-              />
-            </Item>
-          </Grid>
-        </Grid>
-      </Box>
+        </Box>
+      </form>
     </div>
   );
 }

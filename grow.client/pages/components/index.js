@@ -1,14 +1,14 @@
 import { useState, useEffect, ChangeEvent } from 'react';
+import { useForm, useFieldArray } from "react-hook-form";
 
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
-import { TextItem } from './TextItem';
-import { AutocompleteItem } from './AutocompleteItem';
-import { CheckboxItem } from './CheckboxItem';
-import { SelectItem } from './SelectItem';
+
+import { RenderField } from './RenderField';
+import { getFieldDefault } from './getFieldDefault';
 
 export const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -75,24 +75,11 @@ const initialJson = `{
   ]
 }`
 
-const RenderedFields = ({ fieldsDefinition }) => {
+const RenderedFields = ({ fieldsDefinition, control }) => {
   return <>
     {
-      fieldsDefinition?.fields?.map(field => {
-        switch (field.type) {
-          case 'text':
-          case 'numeric':
-            return <TextItem field={field} key={field.id} />
-          case 'autocomplete':
-            return <AutocompleteItem field={field} key={field.id} />
-          case 'checkbox':
-            return <CheckboxItem field={field} key={field.id} />
-          case 'select':
-            return <SelectItem field={field} key={field.id} />
-          default:
-            // Do nothing for an unsupported type
-            break;
-        }
+      fieldsDefinition?.fields?.map(fieldDefinition => {
+        return <RenderField field={fieldDefinition} key={`${fieldDefinition.id}`} control={control} />
       })
     }
   </>
@@ -100,18 +87,23 @@ const RenderedFields = ({ fieldsDefinition }) => {
 
 export default function ComponentsPage() {
 
-  const [json, setJson] = useState();
-  const [fieldsDefinition, setFieldsDefinition] = useState();
+  const [allFieldsJson, setAllFieldsJson] = useState("");
+  const [allFieldsDefinition, setAllFieldsDefinition] = useState();
+
+  const [fieldDefaults, setFieldDefaults] = useState(undefined);
+
+  const { register, control, handleSubmit, reset, formState, watch } = useForm();
+  const { fields, append, remove } = useFieldArray({ name: 'testfrom', control });
 
   useEffect(() => {
     const localJson = localStorage.getItem('allfields');
     // console.log('localJson: ', localJson)
     if (localJson) {
-      setJson(localJson);
+      setAllFieldsJson(localJson);
 
       try {
         var parsedJson = JSON.parse(localJson);
-        setFieldsDefinition(parsedJson);
+        setAllFieldsDefinition(parsedJson);
       }
       catch (e) {
         console.log(e);
@@ -119,11 +111,11 @@ export default function ComponentsPage() {
     }
     else {
 
-      setJson(initialJson);
+      setAllFieldsJson(initialJson);
 
       try {
         var parsedJson = JSON.parse(initialJson);
-        setFieldsDefinition(parsedJson);
+        setAllFieldsDefinition(parsedJson);
       }
       catch {
 
@@ -131,19 +123,43 @@ export default function ComponentsPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (allFieldsJson === "") {
+      return;
+    }
+
+    let fieldValues = {};
+
+    // console.log("allFields", allFieldsDefinition);
+    allFieldsDefinition?.fields.map(fieldDefinition => {
+      const { key, defaultValue } = getFieldDefault(fieldDefinition)
+      fieldValues[key] = defaultValue;
+
+    })
+
+    reset({ 'testform': [fieldValues] });
+    setFieldDefaults(fieldValues);
+
+  }, [allFieldsJson])
+
   const handleJsonChanged = (event) => {
     const rawJson = event.target.value;
-    setJson(rawJson);
+    setAllFieldsJson(rawJson);
     // console.log('setting local json', rawJson)
     localStorage.setItem('allfields', rawJson);
 
     try {
       var parsedJson = JSON.parse(rawJson);
-      setFieldsDefinition(parsedJson);
+      setAllFieldsDefinition(parsedJson);
     }
     catch {
 
     }
+  }
+
+  // console.log("currentViewFieldDefaults", currentViewFieldDefaults)
+  if (!fieldDefaults) {
+    return null;
   }
 
   return (
@@ -151,7 +167,7 @@ export default function ComponentsPage() {
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid xs>
-            <RenderedFields fieldsDefinition={fieldsDefinition} />
+            <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} />
           </Grid>
           <Grid xs={4}>
             <Item>
@@ -161,7 +177,7 @@ export default function ComponentsPage() {
                 placeholder="{}"
                 multiline
                 fullWidth
-                value={json}
+                value={allFieldsJson}
                 onChange={handleJsonChanged}
               />
             </Item>
