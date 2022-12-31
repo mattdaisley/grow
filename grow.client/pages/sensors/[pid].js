@@ -201,7 +201,7 @@ function Sensors({ sensor, readings }) {
 
   return (
     <>
-      <Link href={`/`}><a>&lt; Back</a></Link>
+      <Link href={`/`}>&lt; Back</Link>
 
       <div className={styles.grid}>
         <div className={styles.card}>

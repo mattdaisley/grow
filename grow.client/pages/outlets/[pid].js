@@ -34,7 +34,7 @@ function Outlet({ data }) {
 
   return (
     <>
-      <Link href={`/`}><a>&lt; Back</a></Link>
+      <Link href={`/`}>&lt; Back</Link>
       <div className={styles.grid}>
         <div className={`${styles.card} ${styles.cardCenter}`}>
           <Image src={outletImage} width={80} height={80} />

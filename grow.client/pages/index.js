@@ -1,4 +1,8 @@
 import Link from 'next/link'
+
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Unstable_Grid2';
+
 import SensorCard from '../components/sensor_card'
 import styles from '../styles/Home.module.css'
 
@@ -7,19 +11,23 @@ import PumpCard from '../components/pump_card'
 
 function Home({ pumps, sensors, outlets }) {
   return (
-    <>
-      <div className={styles.grid}>
-        {pumps.map(pump => <PumpCard pump={pump} key={pump.id} />)}
-      </div>
-
-      <div className={styles.grid}>
-        {sensors.map(sensor => <SensorCard sensor={sensor} key={sensor.id} />)}
-      </div>
-
-      <div className={styles.grid}>
-        {outlets.map(outlet => <OutletCard outlet={outlet} key={outlet.id} />)}
-      </div>
-    </>
+    <Container>
+      <Grid xs={12} container spacing={2}>
+        <Grid xs={12} container spacing={2} display="flex" justifyContent="center" alignItems="center">
+          {pumps.map(pump => <PumpCard pump={pump} key={pump.id} />)}
+        </Grid>
+        <Grid xs={12}>
+          <Grid container spacing={2} display="flex" justifyContent="center" alignItems="center">
+            {sensors.map(sensor => <SensorCard sensor={sensor} key={sensor.id} />)}
+          </Grid>
+        </Grid>
+        <Grid xs={12}>
+          <Grid container spacing={2} display="flex" justifyContent="center" alignItems="center">
+            {outlets.map(outlet => <OutletCard outlet={outlet} key={outlet.id} />)}
+          </Grid>
+        </Grid>
+      </Grid>
+    </Container>
   )
 }
 

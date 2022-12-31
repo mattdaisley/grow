@@ -1,7 +1,12 @@
-import io from "socket.io-client";
 import { useState, useEffect, useRef } from "react";
+import io from "socket.io-client";
+
 import Link from 'next/link'
 import Image from 'next/image'
+
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import styles from '../styles/Home.module.css'
 import outletImage from '../public/outlet.png'
@@ -30,13 +35,17 @@ export default function OutletCard({ outlet }) {
   };
 
   return (
-    <Link href={`/outlets/${encodeURIComponent(outlet.id)}`} key={outlet.id}>
-      <a className={styles.card}>
-        <Image src={outletImage} width={60} height={60} />
-        <h2>{outlet.name}</h2>
-        <p>Index: {outlet.index}</p>
-        <p>Status: {status === 0 ? "off" : "on"}</p>
-      </a>
-    </Link>
+    <Grid xs={3}>
+      <Card>
+        <CardContent>
+          <Link href={`/outlets/${encodeURIComponent(outlet.id)}`} key={outlet.id}>
+            <Image src={outletImage} width={60} height={60} alt="outlet" />
+            <h2>{outlet.name}</h2>
+            <p>Index: {outlet.index}</p>
+            <p>Status: {status === 0 ? "off" : "on"}</p>
+          </Link>
+        </CardContent>
+      </Card>
+    </Grid>
   )
 }

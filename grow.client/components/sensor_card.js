@@ -1,6 +1,12 @@
-import io from "socket.io-client";
 import { useState, useEffect, useRef } from "react";
+import io from "socket.io-client";
+
 import Link from 'next/link'
+
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Grid from '@mui/material/Unstable_Grid2';
+
 import styles from '../styles/Home.module.css'
 
 let socket;
@@ -27,13 +33,17 @@ export default function SensorCard({ sensor }) {
   };
 
   return (
-    <Link href={`/sensors/${encodeURIComponent(sensor.id)}`}>
-      <a className={styles.card}>
-        <h2>{sensor.id}: {sensor.name}</h2>
-        <p>Index: {sensor.index}</p>
-        <p>Offset: {sensor.offset}</p>
-        <p>Value: {lastValue.toFixed(2)}</p>
-      </a>
-    </Link>
+    <Grid xs={3}>
+      <Card>
+        <CardContent>
+          <Link href={`/sensors/${encodeURIComponent(sensor.id)}`}>
+            <h2>{sensor.id}: {sensor.name}</h2>
+            <p>Index: {sensor.index}</p>
+            <p>Offset: {sensor.offset}</p>
+            <p>Value: {lastValue.toFixed(2)}</p>
+          </Link>
+        </CardContent>
+      </Card>
+    </Grid>
   )
 }

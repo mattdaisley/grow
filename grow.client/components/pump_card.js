@@ -1,9 +1,13 @@
 import io from "socket.io-client";
 import { useState, useEffect, useRef } from "react";
+
 import Link from 'next/link'
 import Image from 'next/image'
 
-import styles from '../styles/Home.module.css'
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Grid from '@mui/material/Unstable_Grid2';
+
 import floraBloom from '../public/floraBloom.png'
 import floraGrow from '../public/floraGrow.png'
 import floraMicro from '../public/floraMicro.png'
@@ -34,19 +38,23 @@ export default function PumpCard({ pump }) {
   };
 
   return (
-    <Link href={`/pumps/${encodeURIComponent(pump.id)}`} key={pump.id}>
-      <a className={styles.card + " " + styles.cardColumn}>
-        <div style={{ width: 40 }}>
-          <Image src={images[pump.index]} width={30} height={80} />
-        </div>
-        <div>
-          <h2>
-            {pump.name}
-          </h2>
-          <p>Index: {pump.index}</p>
-          <p>Dose Rate: {pump.doseRate}</p>
-        </div>
-      </a>
-    </Link>
+    <Grid xs={3}>
+      <Card>
+        <CardContent>
+          <Link href={`/pumps/${encodeURIComponent(pump.id)}`} key={pump.id}>
+            <div style={{ width: 40 }}>
+              <Image src={images[pump.index]} width={30} height={80} alt={pump.name} />
+            </div>
+            <div>
+              <h2>
+                {pump.name}
+              </h2>
+              <p>Index: {pump.index}</p>
+              <p>Dose Rate: {pump.doseRate}</p>
+            </div>
+          </Link>
+        </CardContent>
+      </Card>
+    </Grid>
   )
 }
