@@ -4,7 +4,6 @@ export default function Document() {
   return (
     <Html>
       <Head>
-        <title>Grow App</title>
         <link rel="icon" href="/favicon.ico" />
         <link
           rel="stylesheet"

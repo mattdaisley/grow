@@ -1,13 +1,10 @@
+import Head from 'next/head'
+
 import CssBaseline from '@mui/material/CssBaseline';
-import GlobalStyles from '@mui/material/GlobalStyles';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import Layout from '../components/layout'
 import '../styles/globals.css'
-
-const styleOverrides = {};
-const inputGlobalStyles = <GlobalStyles styles={styleOverrides} />;
-
 
 const theme = createTheme({
   palette: {
@@ -26,6 +23,9 @@ const theme = createTheme({
 function MyApp({ Component, pageProps }) {
   return (
     <>
+      <Head>
+        <title>Grow App</title>
+      </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Layout>
