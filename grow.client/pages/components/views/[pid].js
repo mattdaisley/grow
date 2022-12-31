@@ -54,6 +54,8 @@ export default function ViewPage({ viewId }) {
   const { errors } = formState;
   const { fields, append, remove } = useFieldArray({ name: 'testfrom', control });
 
+  const [formResults, setFormResults] = useState();
+
   useEffect(() => {
     const loadAllFields = () => {
       const localAllFieldsJson = localStorage.getItem('allfields');
@@ -155,7 +157,12 @@ export default function ViewPage({ viewId }) {
 
   function onSubmit(data) {
     // display form data on success
-    alert('SUCCESS!! :-)\n\n' + JSON.stringify(data, null, 4));
+    setFormResults(JSON.stringify(data, null, 4));
+  }
+
+  function resetForm() {
+    setFormResults();
+    reset();
   }
 
   // console.log("currentViewFieldDefaults", currentViewFieldDefaults)
@@ -172,6 +179,23 @@ export default function ViewPage({ viewId }) {
               <RenderedFields viewDefinition={currentViewDefinition} fieldsDefinition={allFieldsDefinition} control={control} />
               <Grid xs={12}>
                 <Button type="submit">Submit</Button>
+                <Button onClick={resetForm}>Reset</Button>
+              </Grid>
+              <Grid xs>
+                <Item>
+                  <div>Form Results</div>
+                  {formResults && (
+                    <TextField
+                      id="form-results"
+                      multiline
+                      fullWidth
+                      value={formResults}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  )}
+                </Item>
               </Grid>
             </Grid>
             <Grid xs={4}>

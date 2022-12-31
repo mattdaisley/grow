@@ -1,0 +1,163 @@
+global
+
+  available liquid solutions
+    fresh water
+    floraMicro
+    floraGrow
+    floraBloom
+    phUp
+    phDown
+
+  feed chart eg
+    week 1 - stage: seedling/clone
+      18h photoperiod
+      ppm 300-400
+      2.5 ml/gal floraMicro
+      2.5 ml/gal floraGrow
+      2.5 ml/gal floraBloom
+
+    week 2 - stage: early growth
+      12h photoperiod
+      ppm 600-800
+      5.2 ml/gal floraMicro
+      4.8 ml/gal floraGrow
+      3.7 ml/gal floraBloom
+
+    seperate weeks from stage? User can manually change the stage if needed.
+
+garden
+
+  data
+
+    start date
+      = current week
+      = current stage !changeable
+
+    plant 1
+      observations
+    plant 2
+      observations
+
+    current tds
+      adjusted by current temp
+      historical tds
+    current temp
+      historical temp
+    current ph
+      adjusted by current temp
+      historical ph
+
+    light 1 on/off
+      date/time
+      historical
+
+    main aeroponic pump on/off
+      date/time
+      historical
+    nutrient solution container pump on/off
+      date/time
+      historical
+
+    available nutrients
+      select from global liquids
+      estimated amount remaining = replay nutrient dispensed/added events
+
+    liquid added events
+      last water added date/time
+      last water added amount
+      historical water amounts/dates
+
+      last floraMicro added date/time
+      last floraMicro added amount
+      historical floraMicro amounts/dates
+
+      etc.
+
+    water removed events
+      dates
+      amounts
+
+  inputs
+    tds sensor
+    temp sensor
+    ph sensor
+
+  output
+    main aeroponic pump on/off
+    nutrient solution container pump on/off
+    liquid pumps 1-5 on/off
+    outlets 1-5 on/off
+    tds sensor on/off - to not interfere with ph sensor reading
+    ph senosr on/off - to not interfere with tds sensor reading
+
+  automation  
+    !water added
+      main aeroponic pump - increment pause request
+      tds sensor - increment pause request
+      ph sensor - increment pause request
+      nutrient solution container pump on
+      stage
+        add floraMicro - amount = stage configuraiton
+          !nutrient dispensed
+        wait
+        add floraGrow - amount = stage configuraiton
+          !nutrient dispensed
+        wait
+        add floraBloom - amount = stage configuraiton
+          !nutrient dispensed
+        wait
+      nutrient pump off
+      wait
+      tds sensor - decrement pause request
+      ph sensor - decrement pause request
+
+    !nutrient dispensed
+      log date/time
+      log amount
+
+    schedule for light
+      if light not paused
+        time of day ON
+        time of day OFF = time of day + stage photo period
+
+    schedule for aeroponic pump
+      if pump not paused
+        5 sec ON
+        5 min OFF
+
+    schedule for nutrient solution pump
+      if pump not paused
+        15 sec ON
+          tds sensor - increment pause request
+          ph sensor - increment pause request
+        30 min OFF
+          tds sensor - decrement pause request
+          ph sensor - decrement pause request
+
+    schedule for tds sensor
+      if sensor not paused
+        15 sec ON
+          ph sensor - increment pause request
+          !tds sensor value
+        2 min OFF
+          ph sensor - decrement pause request
+    
+    schedule for ph sensor
+      if sensor not paused 
+        15 sec ON
+          tds sensor - increment pause request
+          !ph sensor value
+        2 min OFF
+          ph sensor - decrement pause request
+
+    !tds sensor value
+      convert volts to tds
+      compensate for temperature
+      log date
+      log value
+
+    !ph sensor value
+      convert volts to ph
+      compensate for temperature
+      log date
+      log value

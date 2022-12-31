@@ -3,9 +3,37 @@ import { useState, useEffect, forwardRef, ChangeEvent } from 'react';
 import Link from 'next/link'
 
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
-import { Item } from '../index';
+
+import { DataGrid } from '@mui/x-data-grid';
+
+const columns = [
+  {
+    field: 'id', headerName: 'ID', width: 70, hideable: false
+  },
+  { field: 'name', headerName: 'Name', flex: 1 },
+  {
+    field: 'groups',
+    headerName: 'Group Count',
+    type: 'number',
+    width: 160,
+    valueGetter: (params) =>
+      `${params.row.groups.length || ''}`,
+  },
+  {
+    field: 'actions',
+    headerName: 'Actions',
+    description: 'This column has a value getter and is not sortable.',
+    sortable: false,
+    width: 160,
+    disableColumnMenu: true,
+    hideable: false,
+    headerAlign: 'center',
+    align: 'center',
+    renderCell: (params) => <Link href={`/components/views/${encodeURIComponent(params.row.id)}`}>Edit</Link>
+  },
+];
 
 export default function ViewsPage() {
 
@@ -46,24 +74,25 @@ export default function ViewsPage() {
 
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      <Box sx={{ flexGrow: 1 }}>
+      <Container>
         <Grid container spacing={2}>
-          {
-            allViewsDefinition?.views.map(view => {
-              return <Grid xs={12} key={view.id}>
-                <Item>
-                  {view.id}: {view.name} | <Link href={`/components/views/${encodeURIComponent(view.id)}`}>Edit</Link>
-                </Item>
-              </Grid>
-            })
-          }
+          <Grid xs={12} style={{ minHeight: 400, backgroundColor: 'white' }}>
+            {allViewsDefinition?.views.length > 0 && (
+              <DataGrid
+                rows={allViewsDefinition?.views}
+                columns={columns}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
+              />
+            )}
+          </Grid>
           <Grid xs={12}>
             <Link href={`/components/views/${encodeURIComponent(lastId + 1)}`}>
               <Button>Add New View</Button>
             </Link>
           </Grid>
         </Grid>
-      </Box>
+      </Container>
     </div>
   );
 }

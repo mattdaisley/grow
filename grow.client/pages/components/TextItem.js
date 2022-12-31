@@ -19,9 +19,9 @@ export const TextItem = ({ appField, control }) => {
     inputProps.inputComponent = NumberFormatCustom;
     inputProps.inputProps = {
       prefix: prefix ?? "",
-      // thousandsGroupStyle: thousandsGroupStyle ?? "thousand",
-      // thousandSeparator: thousandSeparator ?? ",",
-      // decimalScale: decimalScale ?? 2
+      thousandsGroupStyle: thousandsGroupStyle ?? "thousand",
+      thousandSeparator: thousandSeparator ?? ",",
+      decimalScale: decimalScale ?? 2
     }
   }
 
