@@ -20,6 +20,7 @@ import Link from "next/link";
 const pages = [
   { name: "Components", path: "/components" },
   { name: "Views", path: "/components/views" },
+  { name: "Pages", path: "/components/pages" },
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 

@@ -7,7 +7,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { DataGrid } from '@mui/x-data-grid';
-import useView from '../../../services/views.service';
+import usePages from '../../../services/pages.service';
 
 const columns = [
   {
@@ -20,7 +20,7 @@ const columns = [
     type: 'number',
     width: 160,
     valueGetter: (params) =>
-      `${params.row.groups.length || ''}`,
+      `${params.row.groups?.length || ''}`,
   },
   {
     field: 'actions',
@@ -32,28 +32,29 @@ const columns = [
     hideable: false,
     headerAlign: 'center',
     align: 'center',
-    renderCell: (params) => <Link href={`/components/views/${encodeURIComponent(params.row.id)}`}>Edit</Link>
+    renderCell: (params) => <Link href={`/components/pages/${encodeURIComponent(params.row.id)}`}>Edit</Link>
   },
 ];
 
-export default function ViewsPage() {
+export default function PagesPage() {
 
-  const [lastId, setLastId] = useState(0);
+  const [lastId, setLastId] = useState(-1);
 
-  const { allViewsDefinition } = useView();
+  const { allPagesDefinition } = usePages();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!!allViewsDefinition && allViewsDefinition.views) {
+    if (!!allPagesDefinition && allPagesDefinition.pages) {
       setLoading(false)
 
-      const allViewIds = allViewsDefinition.views.map(x => x.id) ?? 0;
-      var parsedLastId = Math.max(...allViewIds);
+      const allPageIds = allPagesDefinition.pages.map(x => x.id) ?? [-1];
+      console.log(allPagesDefinition, allPageIds)
+      var parsedLastId = Math.max(...allPageIds);
       setLastId(parsedLastId);
     }
-  }, [JSON.stringify(allViewsDefinition)])
+  }, [JSON.stringify(allPagesDefinition)])
 
-  // console.log('allViewsDefinition: ', allViewsDefinition)
+  console.log('allPagesDefinition: ', allPagesDefinition)
 
   if (loading) {
     return null;
@@ -64,9 +65,9 @@ export default function ViewsPage() {
       <Container>
         <Grid container spacing={2}>
           <Grid xs={12} style={{ minHeight: 400, backgroundColor: 'white' }}>
-            {allViewsDefinition?.views.length > 0 && (
+            {allPagesDefinition?.pages.length > 0 && (
               <DataGrid
-                rows={allViewsDefinition?.views}
+                rows={allPagesDefinition?.pages}
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
@@ -74,8 +75,8 @@ export default function ViewsPage() {
             )}
           </Grid>
           <Grid xs={12}>
-            <Link href={`/components/views/${encodeURIComponent(lastId + 1)}`}>
-              <Button>Add New View</Button>
+            <Link href={`/components/pages/${encodeURIComponent(lastId + 1)}`}>
+              <Button>Add New Page</Button>
             </Link>
           </Grid>
         </Grid>

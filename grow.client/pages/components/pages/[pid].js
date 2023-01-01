@@ -8,9 +8,10 @@ import TextField from '@mui/material/TextField';
 
 import { Item } from '../index';
 import useView from '../../../services/views.service';
-import { RenderedFields } from '../RenderedFields';
+import { RenderedFields, RenderedViews } from '../RenderedFields';
+import usePages from '../../../services/pages.service';
 
-export default function ViewPage({ viewId }) {
+export default function PagePage({ pageId }) {
 
   const { control, handleSubmit, reset, formState } = useForm();
   const { errors } = formState;
@@ -18,22 +19,22 @@ export default function ViewPage({ viewId }) {
 
   const [formResults, setFormResults] = useState();
 
-  const { currentViewDefinition, currentViewJson, currentViewFieldDefaults, updateCurrentView } = useView(viewId);
+  const { currentPageDefinition, currentPageJson, currentPageFieldDefaults, updatePage } = usePages(pageId);
   const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
-    if (!!currentViewFieldDefaults) {
-      // console.log(currentViewFieldDefaults);
-      reset({ ['testform']: [currentViewFieldDefaults] });
+    if (!!currentPageFieldDefaults) {
+      console.log(currentPageFieldDefaults);
+      reset({ ['testform']: [currentPageFieldDefaults] });
       setLoading(false);
     }
 
-  }, [JSON.stringify(currentViewFieldDefaults)])
+  }, [JSON.stringify(currentPageFieldDefaults)])
 
   const handleJsonChanged = (event) => {
     const rawJson = event.target.value;
-    updateCurrentView(rawJson);
+    updatePage(rawJson);
   }
 
   function onSubmit(data) {
@@ -46,18 +47,19 @@ export default function ViewPage({ viewId }) {
     reset();
   }
 
+  // console.log("currentPageDefinition", currentPageDefinition, "currentPageFieldDefaults", currentPageFieldDefaults)
+
   if (loading) {
     return null;
   }
 
-  // console.log("currentViewDefinition", currentViewDefinition, "currentViewFieldDefaults", currentViewFieldDefaults)
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
             <Grid xs>
-              <RenderedFields viewDefinition={currentViewDefinition} control={control} />
+              <RenderedViews pageDefinition={currentPageDefinition} control={control} />
               <Grid xs={12}>
                 <Button type="submit">Submit</Button>
                 <Button onClick={resetForm}>Reset</Button>
@@ -87,7 +89,7 @@ export default function ViewPage({ viewId }) {
                   placeholder="{}"
                   multiline
                   fullWidth
-                  value={currentViewJson}
+                  value={currentPageJson}
                   onChange={handleJsonChanged}
                 />
               </Item>
@@ -103,5 +105,5 @@ export async function getServerSideProps({ params }) {
   // Fetch data from external API
 
   // Pass data to the page via props
-  return { props: { viewId: Number(params.pid) } }
+  return { props: { pageId: Number(params.pid) } }
 }
