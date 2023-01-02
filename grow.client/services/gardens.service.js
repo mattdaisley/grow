@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-import { getFieldDefault } from '../pages/components/getFieldDefault';
 import usePage from './pages.service';
 
 const useGardens = (gardenId) => {

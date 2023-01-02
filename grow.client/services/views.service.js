@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getFieldDefault } from '../pages/components/getFieldDefault';
+import { getFieldDefault } from '../components/getFieldDefault';
 
 const useView = (viewId) => {
   const [allFieldsJson, setAllFieldsJson] = useState("");

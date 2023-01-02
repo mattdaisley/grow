@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
+import { getFieldDefault } from '../components/getFieldDefault';
 
-import { getFieldDefault } from '../pages/components/getFieldDefault';
 import useView from './views.service';
 
 const usePages = (pageId) => {

@@ -24,6 +24,7 @@
   justify-content: flex-end;
   align-items: left;
   flex-direction: column;
+  background-color: gray;
 }
 
 .footerCollapsed {
@@ -53,7 +54,7 @@
 }
 
 .footer .logEntry div {
-  color: gray;
+  color: white;
   margin-right: .5rem;
 }
 

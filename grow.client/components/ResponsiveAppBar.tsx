@@ -19,10 +19,10 @@ import Link from "next/link";
 
 const pages = [
   { name: "Gardens", path: "/gardens" },
-  { name: "Contexts", path: "/components/contexts" },
-  { name: "Pages", path: "/components/pages" },
-  { name: "Views", path: "/components/views" },
-  { name: "Components", path: "/components" },
+  // { name: "Contexts", path: "/configuration/contexts" },
+  { name: "Pages", path: "/configuration/pages" },
+  { name: "Views", path: "/configuration/views" },
+  { name: "Fields", path: "/configuration/fields" },
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
