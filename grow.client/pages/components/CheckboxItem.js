@@ -6,11 +6,11 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { Item } from './index';
 
-export const CheckboxItem = ({ appField, control }) => {
+export const CheckboxItem = ({ appField, control, fieldArrayName }) => {
 
   const checkboxControl =
     <Controller
-      name={`testform.0.${appField.name}`}
+      name={`${fieldArrayName}.0.${appField.name}`}
       control={control}
       render={({ field: { value, onChange } }) => {
         return <Checkbox

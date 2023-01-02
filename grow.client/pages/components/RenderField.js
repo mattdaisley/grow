@@ -3,7 +3,7 @@ import { AutocompleteItem } from './AutocompleteItem';
 import { CheckboxItem } from './CheckboxItem';
 import { SelectItem } from './SelectItem';
 
-export const RenderField = ({ field, control }) => {
+export const RenderField = ({ field, control, fieldArrayName }) => {
   // console.log(field);
   const getItem = () => {
     switch (field.type) {
@@ -24,6 +24,6 @@ export const RenderField = ({ field, control }) => {
 
   const FieldItem = getItem();
 
-  return <FieldItem appField={field} key={field.id} control={control} />;
+  return <FieldItem appField={field} key={field.id} control={control} fieldArrayName={fieldArrayName} />;
 
 };

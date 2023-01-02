@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import { NumberFormatCustom } from './NumberFormatCustom';
 import { Item } from './index';
 
-export const TextItem = ({ appField, control }) => {
+export const TextItem = ({ appField, control, fieldArrayName }) => {
   const [value, setValue] = useState("");
 
   const handleFieldChanged = (event) => {
@@ -27,7 +27,7 @@ export const TextItem = ({ appField, control }) => {
 
   const textControl = (
     <Controller
-      name={`testform.0.${appField.name}`}
+      name={`${fieldArrayName}.0.${appField.name}`}
       control={control}
       render={({ field }) => {
         // console.log(field);

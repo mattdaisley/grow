@@ -18,9 +18,11 @@ import AutoModeIcon from "@mui/icons-material/AutoMode";
 import Link from "next/link";
 
 const pages = [
-  { name: "Components", path: "/components" },
-  { name: "Views", path: "/components/views" },
+  { name: "Gardens", path: "/gardens" },
+  { name: "Contexts", path: "/components/contexts" },
   { name: "Pages", path: "/components/pages" },
+  { name: "Views", path: "/components/views" },
+  { name: "Components", path: "/components" },
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 

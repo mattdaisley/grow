@@ -4,10 +4,10 @@ import { getFieldDefault } from '../pages/components/getFieldDefault';
 import useView from './views.service';
 
 const usePages = (pageId) => {
-
   const [allPagesJson, setAllPagesJson] = useState("");
   const [allPagesDefinition, setAllPagesDefinition] = useState([]);
 
+  const [currentPageId, setCurrentPageId] = useState();
   const [currentPageJson, setCurrentPageJson] = useState("");
   const [currentPageDefinition, setCurrentPageDefinition] = useState();
   const [currentPageFieldDefaults, setCurrentPageFieldDefaults] = useState(undefined);
@@ -24,46 +24,18 @@ const usePages = (pageId) => {
     const loadPages = () => {
       const localAllPagesJson = localStorage.getItem('allpages');
       // console.log(localAllPagesJson, allFieldsDefinition);
-      if (allFieldsDefinition !== undefined && allViewsJson !== "" && localAllPagesJson && localAllPagesJson !== allPagesJson) {
+      if (allFieldsDefinition !== undefined && allViewsJson !== "") {
 
-        setAllPagesJson(localAllPagesJson);
         try {
-          var allPages = JSON.parse(localAllPagesJson);
-          setAllPagesDefinition(allPages);
+          if (localAllPagesJson && localAllPagesJson !== allPagesJson) {
+            var allPages = JSON.parse(localAllPagesJson);
+            setAllPagesDefinition(allPages);
+            setAllPagesJson(localAllPagesJson);
+          }
 
-          // console.log(pageId !== undefined);
-          if (pageId !== undefined) {
-            const currentPage = allPages?.pages.find(x => x.id === pageId)
-            if (currentPage) {
-              // console.log(currentPage);
-              setCurrentPageJson(JSON.stringify(currentPage, null, 2));
-
-              currentPage?.groups?.map(group => {
-                group.views = group.views?.map((view) => {
-
-                  const viewDefinition = allViewsDefinition?.views.find(x => x.id === view.viewId);
-                  console.log(viewDefinition, allFieldsDefinition)
-                  const filledGroups = viewDefinition?.groups?.map(group => {
-                    const filledFields = group.fields?.map((field) => {
-                      const fieldDefinition = allFieldsDefinition?.fields.find(x => x.id === field.fieldId);
-                      return fieldDefinition;
-                    })
-                    console.log(group.fields, filledFields)
-                    return { ...group, fields: filledFields }
-                  })
-                  return {
-                    ...viewDefinition, groups: filledGroups
-                  };
-                })
-              })
-              console.log(currentPage)
-              setCurrentPageDefinition(currentPage);
-            }
-            else {
-              const newPage = { id: pageId }
-              setCurrentPageJson(JSON.stringify(newPage, null, 2));
-              setCurrentPageDefinition(newPage);
-            }
+          // console.log(pageId, pageId !== undefined, currentPageId);
+          if (pageId !== undefined && pageId !== currentPageId) {
+            setCurrentPageId(pageId);
           }
         }
         catch (e) {
@@ -75,11 +47,54 @@ const usePages = (pageId) => {
 
     loadPages(allPagesJson, pageId);
 
-    const loadPageInterval = setInterval(loadPages, 2000);
+    let loadPageInterval
+    if (pageId !== currentPageId) {
+      clearInterval(loadPageInterval)
+      loadPageInterval = setInterval(loadPages, 2000);
+    }
 
-    return () => clearInterval(loadPageInterval);
-  }, [allPagesJson, allViewsJson, JSON.stringify(allFieldsDefinition)]);
+    return () => { if (loadPageInterval !== undefined) clearInterval(loadPageInterval); }
+  }, [allPagesJson, allViewsJson, JSON.stringify(allFieldsDefinition), pageId, currentPageId]);
   // console.log(allFieldsDefinition)
+
+  useEffect(() => {
+    if (allPagesDefinition?.pages === undefined || allPagesDefinition.pages.length === 0) {
+      return;
+    }
+
+    const currentPage = allPagesDefinition?.pages.find(x => x.id === currentPageId)
+    if (currentPage) {
+      // console.log(currentPage);
+      setCurrentPageJson(JSON.stringify(currentPage, null, 2));
+
+      currentPage?.groups?.map(group => {
+        group.views = group.views?.map((view) => {
+
+          const viewDefinition = allViewsDefinition?.views.find(x => x.id === view.viewId);
+          // console.log(viewDefinition, allFieldsDefinition)
+          const filledGroups = viewDefinition?.groups?.map(group => {
+            const filledFields = group.fields?.map((field) => {
+              const fieldDefinition = allFieldsDefinition?.fields.find(x => x.id === field.fieldId);
+              return fieldDefinition;
+            })
+            // console.log(group.fields, filledFields)
+            return { ...group, fields: filledFields }
+          })
+          return {
+            ...viewDefinition, groups: filledGroups
+          };
+        })
+      })
+      // console.log(currentPage)
+      setCurrentPageDefinition(currentPage);
+    }
+    else {
+      const newPage = { id: currentPageId }
+      setCurrentPageJson(JSON.stringify(newPage, null, 2));
+      setCurrentPageDefinition(newPage);
+    }
+  }, [currentPageId])
+
 
   useEffect(() => {
     if (allFieldsJson === "" || allViewsJson === "" || currentPageJson === "") {
@@ -156,6 +171,7 @@ const usePages = (pageId) => {
     allViewsDefinition,
 
     allFieldsJson,
+    allFieldsDefinition
   }
 }
 

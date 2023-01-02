@@ -5,10 +5,10 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 import { Item } from './index';
 
-export const AutocompleteItem = ({ appField, control }) => {
+export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
   return <Item>
     <Controller
-      name={`testform.0.${appField.name}`}
+      name={`${fieldArrayName}.0.${appField.name}`}
       control={control}
       render={({ field: { value, onChange } }) => {
 

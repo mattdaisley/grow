@@ -8,12 +8,12 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { Item } from './index';
 
-export const SelectItem = ({ appField, control }) => {
+export const SelectItem = ({ appField, control, fieldArrayName }) => {
 
   const { options, ...props } = appField.props;
   const selectControl =
     <Controller
-      name={`testform.0.${appField.name}`}
+      name={`${fieldArrayName}.0.${appField.name}`}
       control={control}
       render={({ field }) => {
 

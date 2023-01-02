@@ -25,4 +25,3 @@ export function getFieldDefault(fieldDefinition) {
   // console.log(key, fieldValues[key], fieldDefinition);
 
 }
-;
