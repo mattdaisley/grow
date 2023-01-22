@@ -37,18 +37,12 @@ const columns = [
     hideable: false,
     headerAlign: 'center',
     align: 'center',
-    renderCell: (params) => <Link href={`/gardens/${encodeURIComponent(params.row.gardenId)}/${encodeURIComponent(params.row.id)}`}>Edit</Link>
+    renderCell: (params) => <Link href={`/configuration/pages/${encodeURIComponent(params.row.id)}`}>Edit</Link>
   },
 ];
 
 export default function GardenPage({ params }) {
   const gardenId = Number(params.pid);
-
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace(`/gardens/${encodeURIComponent(gardenId)}/0`);
-  }, [])
 
   const { control, handleSubmit, reset, formState } = useForm();
   const { errors } = formState;
@@ -91,7 +85,7 @@ export default function GardenPage({ params }) {
   // console.log(currentGardenDefinition, currentGardenJson);
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1, padding: '1.5rem 1rem' }}>
         <Grid container spacing={2}>
           <Grid xs={8} style={{ minHeight: 400, backgroundColor: 'white' }}>
             {currentGardenDefinition?.pages.length > 0 && (

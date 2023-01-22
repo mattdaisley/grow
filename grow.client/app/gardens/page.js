@@ -34,7 +34,14 @@ const columns = [
     hideable: false,
     headerAlign: 'center',
     align: 'center',
-    renderCell: (params) => <Link href={`/gardens/${encodeURIComponent(params.row.id)}`}>Edit</Link>
+    renderCell: (params) => {
+      return (
+        <Grid container spacing={2}>
+          <Grid><Link href={`/gardens/${encodeURIComponent(params.row.id)}`}>View</Link></Grid>
+          <Grid><Link href={`/gardens/edit/${encodeURIComponent(params.row.id)}`}>Edit</Link></Grid>
+        </Grid>
+      )
+    }
   },
 ];
 

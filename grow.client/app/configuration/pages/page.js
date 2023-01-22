@@ -77,7 +77,7 @@ export default function PagesPage() {
             )}
           </Grid>
           <Grid xs={12}>
-            <Link href={`/components/pages/${encodeURIComponent(lastId + 1)}`}>
+            <Link href={`/configuration/pages/${encodeURIComponent(lastId + 1)}`}>
               <Button>Add New Page</Button>
             </Link>
           </Grid>

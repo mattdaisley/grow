@@ -2,6 +2,7 @@
 
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import Toolbar from "@mui/material/Toolbar";
 
 import styles from '../styles/Home.module.css'
 import ResponsiveAppBar from '../components/ResponsiveAppBar'
@@ -30,9 +31,8 @@ export default function Layout({ children }) {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <div className={styles.container}>
-
             <ResponsiveAppBar />
-
+            <Toolbar />
             <main className={styles.main}>
               {children}
             </main>
