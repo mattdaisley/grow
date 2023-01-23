@@ -76,7 +76,7 @@ export default function ViewsPage() {
             )}
           </Grid>
           <Grid xs={12}>
-            <Link href={`/components/views/${encodeURIComponent(lastId + 1)}`}>
+            <Link href={`/configuration/views/${encodeURIComponent(lastId + 1)}`}>
               <Button>Add New View</Button>
             </Link>
           </Grid>

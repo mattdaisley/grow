@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, useWatch } from "react-hook-form";
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -44,7 +44,13 @@ export function RenderCollectionGroupViews({ group, control, fieldArrayName }) {
     name: collectionFieldArrayName
   });
 
-  // console.log(fieldArrayName, fields);
+  const watchFields = useWatch({
+    control,
+    name: collectionFieldArrayName
+  });
+
+  // console.log(collectionFieldArrayName, watchFields);
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -63,7 +69,6 @@ export function RenderCollectionGroupViews({ group, control, fieldArrayName }) {
         setValue(value - 1);
       }
     }
-
   }
 
   return (
@@ -79,9 +84,16 @@ export function RenderCollectionGroupViews({ group, control, fieldArrayName }) {
             aria-label="basic tabs example"
             variant="scrollable"
             scrollButtons={false}>
-            {fields.map((field, index) => (
-              <Tab key={field.id} label={`${collectionName} ${index}`} {...a11yProps(index)} />
-            ))}
+            {watchFields.map((field, index) => {
+              let label = !!group.label ? field[`${group.label}`] : "";
+              if (label === undefined || label === "") {
+                label = `${collectionName} ${index}`
+              };
+              // console.log(group, field, label === undefined, label === "");
+              return (
+                <Tab key={field.id} label={label} {...a11yProps(index)} />
+              )
+            })}
           </Tabs>
         </Box>
         <Box xs={1} >
@@ -90,7 +102,7 @@ export function RenderCollectionGroupViews({ group, control, fieldArrayName }) {
         </Box>
       </Grid>
       {
-        fields.map((field, index) => (
+        watchFields.map((field, index) => (
           <TabPanel key={field.id} value={value} index={index} group={group} control={control} fieldArrayName={collectionFieldArrayName} />
         ))
       }
