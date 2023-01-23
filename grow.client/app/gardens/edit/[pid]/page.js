@@ -105,6 +105,7 @@ export default function GardenPage({ params }) {
                 placeholder="{}"
                 multiline
                 fullWidth
+                maxRows={38}
                 value={currentGardenJson}
                 onChange={handleJsonChanged}
               />

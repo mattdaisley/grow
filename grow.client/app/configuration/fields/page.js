@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
 
 import { RenderField } from '../../../components/Rendering/RenderField';
 import { getFieldDefault } from '../../../services/getFieldDefault';
@@ -79,16 +80,16 @@ const initialJson = `{
 
 const RenderedFields = ({ fieldsDefinition, control, fieldArrayName }) => {
 
-  return <>
-    {
-      fieldsDefinition?.fields?.map(fieldDefinition => {
+  return (
+    <Grid xs={12}>
+      {fieldsDefinition?.fields?.map(fieldDefinition => {
         if (!fieldDefinition.id || !fieldDefinition.type) {
           return null;
         }
         return <RenderField field={fieldDefinition} key={`${fieldDefinition.id}`} control={control} fieldArrayName={fieldArrayName} />
-      })
-    }
-  </>
+      })}
+    </Grid>
+  )
 }
 
 export default function FieldsPage() {
@@ -176,10 +177,19 @@ export default function FieldsPage() {
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={2}>
-          <Grid xs>
-            <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} fieldArrayName={fieldArrayName} />
+        <Grid container xs={12} spacing={2}>
+          <Grid container xs={8} alignContent={'flex-start'}>
+            <Box sx={{ width: '100%' }}>
+              <Stack spacing={2}>
+                <Paper sx={{ padding: 0 }}>
+                  <Grid xs={12} container alignContent={'flex-start'} flexDirection={'column'}>
+                    <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} fieldArrayName={fieldArrayName} />
+                  </Grid>
+                </Paper>
+              </Stack>
+            </Box>
           </Grid>
+
           <Grid xs={4}>
             <Item>
               <TextField

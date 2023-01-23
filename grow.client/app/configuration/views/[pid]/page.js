@@ -102,6 +102,7 @@ export default function ViewPage({ params }) {
                   placeholder="{}"
                   multiline
                   fullWidth
+                  maxRows={38}
                   value={currentViewJson}
                   onChange={handleJsonChanged}
                 />

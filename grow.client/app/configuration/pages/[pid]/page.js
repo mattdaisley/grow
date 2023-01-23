@@ -92,11 +92,12 @@ export default function PagePage({ params }) {
             <Grid xs={4}>
               <Item>
                 <TextField
-                  id="json-input"
+                  id="json-results"
                   label="JSON"
                   placeholder="{}"
                   multiline
                   fullWidth
+                  maxRows={38}
                   value={currentPageJson}
                   onChange={handleJsonChanged}
                 />

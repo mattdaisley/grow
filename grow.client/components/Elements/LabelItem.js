@@ -10,14 +10,19 @@ export const LabelItem = ({ appField, control, fieldArrayName }) => {
 
   const textControl = (
     <Controller
-      name={`${fieldArrayName}.${appField.name}`}
+      name={`${fieldArrayName}.${appField.computed}`}
       control={control}
       render={({ field }) => {
         // console.log(field);
+        let label = field.value;
+        if (label === undefined || label === "") {
+          label = appField.default
+        }
+
         return <Typography
           {...props}
         >
-          {field.value ?? appField.default}
+          {label}
         </Typography>
       }} />
 
