@@ -65,13 +65,13 @@ export default function ViewsPage() {
     <div style={{ width: '100%', height: '100%' }}>
       <Container>
         <Grid container spacing={2}>
-          <Grid xs={12} style={{ minHeight: 400, backgroundColor: 'white' }}>
+          <Grid xs={12} style={{ minHeight: 600, backgroundColor: 'white' }}>
             {allViewsDefinition?.views.length > 0 && (
               <DataGrid
                 rows={allViewsDefinition?.views}
                 columns={columns}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
+                pageSize={10}
+                rowsPerPageOptions={[10, 20]}
               />
             )}
           </Grid>

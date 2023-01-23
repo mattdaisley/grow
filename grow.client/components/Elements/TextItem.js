@@ -9,13 +9,15 @@ import { Item } from '../Item';
 export const TextItem = ({ appField, control, fieldArrayName }) => {
   const [value, setValue] = useState("");
 
+  console.log(appField, fieldArrayName)
+
   const handleFieldChanged = (event) => {
     const targetValue = event.target.value;
     setValue(targetValue);
   };
 
   let inputProps = {};
-  const { prefix, thousandsGroupStyle, thousandSeparator, decimalScale, ...props } = appField.props;
+  const { prefix, thousandsGroupStyle, thousandSeparator, decimalScale, ...props } = appField.props ?? {};
   if (appField.type === 'numeric') {
     inputProps.inputComponent = NumberFormatCustom;
     inputProps.inputProps = {

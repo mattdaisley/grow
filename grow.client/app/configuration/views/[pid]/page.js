@@ -18,9 +18,11 @@ export default function ViewPage({ params }) {
 
   const viewId = Number(params.pid);
 
+  const fieldArrayName = `testform`;
+
   const { control, handleSubmit, reset, formState } = useForm();
   const { errors } = formState;
-  const { fields, append, remove } = useFieldArray({ name: 'testfrom', control });
+  const { fields, append, remove } = useFieldArray({ name: fieldArrayName, control });
 
   const [formResults, setFormResults] = useState();
 
@@ -31,7 +33,7 @@ export default function ViewPage({ params }) {
   useEffect(() => {
     if (!!currentViewFieldDefaults) {
       // console.log(currentViewFieldDefaults);
-      reset({ ['testform']: [currentViewFieldDefaults] });
+      reset({ [fieldArrayName]: [currentViewFieldDefaults] });
       setLoading(false);
     }
 
@@ -43,6 +45,7 @@ export default function ViewPage({ params }) {
   }
 
   function onSubmit(data) {
+    console.log(data)
     // display form data on success
     setFormResults(JSON.stringify(data, null, 4));
   }
@@ -67,7 +70,7 @@ export default function ViewPage({ params }) {
                 <Stack spacing={2}>
                   <Paper sx={{ padding: 0 }}>
                     <Grid xs={12} container alignContent={'flex-start'}>
-                      <RenderedFields viewDefinition={currentViewDefinition} control={control} />
+                      <RenderedFields viewDefinition={currentViewDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
                     </Grid>
                   </Paper>
                 </Stack>
