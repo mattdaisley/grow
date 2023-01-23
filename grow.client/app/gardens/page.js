@@ -84,7 +84,7 @@ export default function GardensPage() {
             )}
           </Grid>
           <Grid xs={12}>
-            <Link href={`/gardens/${encodeURIComponent(lastId + 1)}`}>
+            <Link href={`/gardens/edit/${encodeURIComponent(lastId + 1)}`}>
               <Button>Add New Garden</Button>
             </Link>
           </Grid>

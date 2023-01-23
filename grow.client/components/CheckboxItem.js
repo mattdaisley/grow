@@ -4,13 +4,13 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { Item } from './item';
+import { Item } from './Item';
 
 export const CheckboxItem = ({ appField, control, fieldArrayName }) => {
 
   const checkboxControl =
     <Controller
-      name={`${fieldArrayName}.0.${appField.name}`}
+      name={`${fieldArrayName}.${appField.name}`}
       control={control}
       render={({ field: { value, onChange } }) => {
         return <Checkbox

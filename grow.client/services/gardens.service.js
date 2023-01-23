@@ -54,9 +54,9 @@ const useGardens = (gardenId) => {
               setCurrentGardenDefinition(currentGarden);
             }
             else {
-              // const newPage = { id: pageId }
-              // setCurrentPageJson(JSON.stringify(newPage, null, 2));
-              // setCurrentPageDefinition(newPage);
+              const newGarden = { id: gardenId, name: "new garden", pages: [] }
+              setCurrentGardenJson(JSON.stringify(newGarden, null, 2));
+              setCurrentGardenDefinition(newGarden)
             }
           }
         }

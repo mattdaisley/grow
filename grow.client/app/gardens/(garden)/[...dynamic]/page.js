@@ -10,7 +10,8 @@ import TextField from '@mui/material/TextField';
 
 import usePages from '../../../../services/pages.service';
 import useGardens from '../../../../services/gardens.service';
-import { RenderedViews } from '../../../../components/RenderedFields';
+import { RenderedViews } from '../../../../components/RenderedViews';
+import { Item } from '../../../../components/Item';
 
 export default function DynamicPage({ params }) {
 
@@ -29,6 +30,7 @@ export default function DynamicPage({ params }) {
   const { currentPageDefinition, currentPageJson, currentPageFieldDefaults, updatePage } = usePages(currentPageId);
   const [loading, setLoading] = useState(true);
 
+  // console.log(fields, currentPageFieldDefaults);
 
   useEffect(() => {
     if (!!currentGardenDefinition) {
@@ -75,30 +77,30 @@ export default function DynamicPage({ params }) {
   return <div style={{ width: '100%', height: '100%' }}>
     <form onSubmit={handleSubmit(onSubmit)}>
       <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={2}>
-          <Grid xs>
-            <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={fieldArrayName} />
-            <Grid xs={12}>
-              <Button type="submit">Submit</Button>
-              <Button onClick={resetForm}>Reset</Button>
-            </Grid>
-            <Grid xs>
-              <div>Form Results</div>
-              {formResults && (
-                <TextField
-                  id="form-results"
-                  multiline
-                  fullWidth
-                  value={formResults}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              )}
-            </Grid>
+        <Grid container xs={12} spacing={2}>
+          <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+
+          <Grid xs={12}>
+            <Button type="submit">Submit</Button>
+            <Button onClick={resetForm}>Reset</Button>
           </Grid>
+        </Grid>
+
+        <Grid container xs={12}>
+          <div>Form Results</div>
+          {formResults && (
+            <TextField
+              id="form-results"
+              multiline
+              fullWidth
+              value={formResults}
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          )}
         </Grid>
       </Box>
     </form>
-  </div>
+  </div >
 }

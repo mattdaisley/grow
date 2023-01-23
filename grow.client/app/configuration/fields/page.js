@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 
 import { RenderField } from '../../../components/RenderField';
-import { getFieldDefault } from '../../../components/getFieldDefault';
+import { getFieldDefault } from '../../../services/getFieldDefault';
 
 export const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -78,9 +78,13 @@ const initialJson = `{
 }`
 
 const RenderedFields = ({ fieldsDefinition, control, fieldArrayName }) => {
+
   return <>
     {
       fieldsDefinition?.fields?.map(fieldDefinition => {
+        if (!fieldDefinition.id || !fieldDefinition.type) {
+          return null;
+        }
         return <RenderField field={fieldDefinition} key={`${fieldDefinition.id}`} control={control} fieldArrayName={fieldArrayName} />
       })
     }
@@ -136,6 +140,7 @@ export default function FieldsPage() {
 
     // console.log("allFields", allFieldsDefinition);
     allFieldsDefinition?.fields.map(fieldDefinition => {
+      // console.log(fieldDefinition);
       const { key, defaultValue } = getFieldDefault(fieldDefinition)
       fieldValues[key] = defaultValue;
 
@@ -149,11 +154,13 @@ export default function FieldsPage() {
   const handleJsonChanged = (event) => {
     const rawJson = event.target.value;
     setAllFieldsJson(rawJson);
-    // console.log('setting local json', rawJson)
-    localStorage.setItem('allfields', rawJson);
 
     try {
+      // console.log('setting local json', rawJson)
       var parsedJson = JSON.parse(rawJson);
+
+      localStorage.setItem('allfields', JSON.stringify(parsedJson, null, 2));
+
       setAllFieldsDefinition(parsedJson);
     }
     catch {
@@ -181,6 +188,7 @@ export default function FieldsPage() {
                 placeholder="{}"
                 multiline
                 fullWidth
+                maxRows={38}
                 value={allFieldsJson}
                 onChange={handleJsonChanged}
               />

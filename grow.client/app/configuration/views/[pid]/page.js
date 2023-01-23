@@ -6,7 +6,9 @@ import { useForm, useFieldArray } from "react-hook-form";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
+import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
 
 import { Item } from '../../fields/page';
 import useView from '../../../../services/views.service';
@@ -59,30 +61,39 @@ export default function ViewPage({ params }) {
     <div style={{ width: '100%', height: '100%' }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-            <Grid xs>
-              <RenderedFields viewDefinition={currentViewDefinition} control={control} />
+          <Grid container xs={12} spacing={2}>
+            <Grid container xs={8} alignContent={'flex-start'}>
+              <Box sx={{ width: '100%' }}>
+                <Stack spacing={2}>
+                  <Paper sx={{ padding: 0 }}>
+                    <Grid xs={12} container alignContent={'flex-start'}>
+                      <RenderedFields viewDefinition={currentViewDefinition} control={control} />
+                    </Grid>
+                  </Paper>
+                </Stack>
+              </Box>
+
               <Grid xs={12}>
                 <Button type="submit">Submit</Button>
                 <Button onClick={resetForm}>Reset</Button>
               </Grid>
-              <Grid xs>
-                <Item>
-                  <div>Form Results</div>
-                  {formResults && (
-                    <TextField
-                      id="form-results"
-                      multiline
-                      fullWidth
-                      value={formResults}
-                      InputProps={{
-                        readOnly: true,
-                      }}
-                    />
-                  )}
-                </Item>
+
+              <Grid xs={12}>
+                <div>Form Results</div>
+                {formResults && (
+                  <TextField
+                    id="form-results"
+                    multiline
+                    fullWidth
+                    value={formResults}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                )}
               </Grid>
             </Grid>
+
             <Grid xs={4}>
               <Item>
                 <TextField

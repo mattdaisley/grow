@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { getFieldDefault } from '../components/getFieldDefault';
 
+import { getFieldDefault } from './getFieldDefault';
+import { getCollectionFieldDefaults } from './getCollectionFieldDefaults';
 import useView from './views.service';
+import { getViewFieldValues } from './getViewFieldValues';
 
 const usePages = (pageId) => {
   const [allPagesJson, setAllPagesJson] = useState("");
@@ -103,16 +105,20 @@ const usePages = (pageId) => {
     // console.log(currentPageJson, currentPageDefinition)
     let fieldValues = {};
     currentPageDefinition?.groups?.map(group => {
-      group?.views?.map(view => {
-        view?.groups?.map(group => {
-          group.fields?.map((fieldDefinition) => {
-            if (fieldDefinition) {
-              const { key, defaultValue } = getFieldDefault(fieldDefinition)
-              fieldValues[key] = defaultValue;
-            }
-          })
-        })
-      })
+      if (!!group) {
+        switch (group.type) {
+          case 'collection':
+            let { collectionName, collection } = getCollectionFieldDefaults(group);
+            fieldValues[collectionName] = [collection]
+            break;
+
+          default:
+            group.views?.map((view, index) => {
+              fieldValues = { ...fieldValues, ...getViewFieldValues(view) };
+            })
+            break;
+        }
+      }
     })
     // reset({ ['testform']: [fieldValues] });
     setCurrentPageFieldDefaults(fieldValues);
@@ -135,6 +141,7 @@ const usePages = (pageId) => {
       })
 
       const newPage = { ...parsedJson, groups: newGroups }
+      //setCurrentPageDefinition(newPage);
       // setCurrentViewDefinition(parsedJson);
       // console.log(newView);
       const currentPageIndex = allPagesDefinition.pages.findIndex(x => x?.id === pageId)
@@ -176,3 +183,5 @@ const usePages = (pageId) => {
 }
 
 export default usePages;
+
+

@@ -83,6 +83,7 @@ export default function GardenPage({ params }) {
     return null;
   }
   // console.log(currentGardenDefinition, currentGardenJson);
+  console.log(currentGardenDefinition?.pages);
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Box sx={{ flexGrow: 1, padding: '1.5rem 1rem' }}>
@@ -90,7 +91,7 @@ export default function GardenPage({ params }) {
           <Grid xs={8} style={{ minHeight: 400, backgroundColor: 'white' }}>
             {currentGardenDefinition?.pages.length > 0 && (
               <DataGrid
-                rows={currentGardenDefinition?.pages.map(page => { return { ...page, gardenId } })}
+                rows={currentGardenDefinition?.pages.filter(page => page.id !== undefined).map(page => { return { ...page, gardenId } })}
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}

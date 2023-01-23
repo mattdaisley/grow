@@ -9,14 +9,15 @@ import Grid from '@mui/material/Unstable_Grid2';
 import TextField from '@mui/material/TextField';
 
 import { Item } from '../../fields/page';
-import { RenderedFields, RenderedViews } from '../../../../components/RenderedFields';
+import { RenderedFields } from '../../../../components/RenderedFields';
+import { RenderedViews } from "../../../../components/RenderedViews";
 import usePages from '../../../../services/pages.service';
 
 export default function PagePage({ params }) {
 
   const pageId = Number(params.pid)
 
-  const fieldArrayName = `testform-${pageId}`;
+  const fieldArrayName = `test-page-${pageId}`;
 
   const { control, handleSubmit, reset, formState } = useForm();
   const { errors } = formState;
@@ -30,7 +31,7 @@ export default function PagePage({ params }) {
 
   useEffect(() => {
     if (!!currentPageFieldDefaults) {
-      console.log(currentPageFieldDefaults);
+      // console.log(currentPageFieldDefaults);
       reset({ [fieldArrayName]: [currentPageFieldDefaults] });
       setLoading(false);
     }
@@ -62,14 +63,16 @@ export default function PagePage({ params }) {
     <div style={{ width: '100%', height: '100%' }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-            <Grid xs>
-              <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={fieldArrayName} />
+          <Grid container xs={12} spacing={2}>
+            <Grid container xs={8}>
+              <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+
               <Grid xs={12}>
                 <Button type="submit">Submit</Button>
                 <Button onClick={resetForm}>Reset</Button>
               </Grid>
-              <Grid xs>
+
+              <Grid xs={12}>
                 <Item>
                   <div>Form Results</div>
                   {formResults && (
@@ -86,6 +89,7 @@ export default function PagePage({ params }) {
                 </Item>
               </Grid>
             </Grid>
+
             <Grid xs={4}>
               <Item>
                 <TextField

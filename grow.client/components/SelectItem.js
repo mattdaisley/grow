@@ -6,14 +6,14 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
-import { Item } from './item';
+import { Item } from './Item';
 
 export const SelectItem = ({ appField, control, fieldArrayName }) => {
 
   const { options, ...props } = appField.props;
   const selectControl =
     <Controller
-      name={`${fieldArrayName}.0.${appField.name}`}
+      name={`${fieldArrayName}.${appField.name}`}
       control={control}
       render={({ field }) => {
 

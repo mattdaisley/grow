@@ -4,7 +4,7 @@ import { Controller } from "react-hook-form";
 import TextField from '@mui/material/TextField';
 
 import { NumberFormatCustom } from './NumberFormatCustom';
-import { Item } from './item';
+import { Item } from './Item';
 
 export const TextItem = ({ appField, control, fieldArrayName }) => {
   const [value, setValue] = useState("");
@@ -28,7 +28,7 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
 
   const textControl = (
     <Controller
-      name={`${fieldArrayName}.0.${appField.name}`}
+      name={`${fieldArrayName}.${appField.name}`}
       control={control}
       render={({ field }) => {
         // console.log(field);
