@@ -3,8 +3,8 @@ import { Controller } from "react-hook-form";
 
 import TextField from '@mui/material/TextField';
 
-import { NumberFormatCustom } from './NumberFormatCustom';
-import { Item } from './Item';
+import { NumberFormatCustom } from './util/NumberFormatCustom';
+import { Item } from '../Item';
 
 export const TextItem = ({ appField, control, fieldArrayName }) => {
   const [value, setValue] = useState("");

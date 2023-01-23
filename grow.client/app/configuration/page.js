@@ -7,8 +7,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import TextField from '@mui/material/TextField';
 
-import { RenderField } from '../../components/RenderField';
-import { getFieldDefault } from '../../components/getFieldDefault';
+import { RenderField } from '../../components/Rendering/RenderField';
+import { getFieldDefault } from '../../services/getFieldDefault';
 import { Item } from '../../components/Item';
 
 const initialJson = `{

@@ -10,8 +10,7 @@ import TextField from '@mui/material/TextField';
 
 import usePages from '../../../../services/pages.service';
 import useGardens from '../../../../services/gardens.service';
-import { RenderedViews } from '../../../../components/RenderedViews';
-import { Item } from '../../../../components/Item';
+import { RenderedViews } from '../../../../components/Rendering/RenderedViews';
 
 export default function DynamicPage({ params }) {
 

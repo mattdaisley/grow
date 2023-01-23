@@ -4,7 +4,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { Item } from './Item';
+import { Item } from '../Item';
 
 export const CheckboxItem = ({ appField, control, fieldArrayName }) => {
 

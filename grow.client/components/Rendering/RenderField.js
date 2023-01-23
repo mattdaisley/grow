@@ -1,10 +1,10 @@
 'use client'
 
-import { AutocompleteItem } from './AutocompleteItem';
-import { CheckboxItem } from './CheckboxItem';
-import { LabelItem } from './LabelItem';
-import { SelectItem } from './SelectItem';
-import { TextItem } from './TextItem';
+import { AutocompleteItem } from '../Elements/AutocompleteItem';
+import { CheckboxItem } from '../Elements/CheckboxItem';
+import { LabelItem } from '../Elements/LabelItem';
+import { SelectItem } from '../Elements/SelectItem';
+import { TextItem } from '../Elements/TextItem';
 
 export const RenderField = ({ field, control, fieldArrayName }) => {
   // console.log(field);

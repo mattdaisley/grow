@@ -7,8 +7,8 @@ import Link from 'next/link'
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
-
 import { DataGrid } from '@mui/x-data-grid';
+
 import usePages from '../../../services/pages.service';
 
 const columns = [

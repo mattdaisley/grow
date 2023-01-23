@@ -3,7 +3,7 @@ import { Controller } from "react-hook-form";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
-import { Item } from './Item';
+import { Item } from '../Item';
 
 export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
 

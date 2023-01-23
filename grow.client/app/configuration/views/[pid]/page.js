@@ -12,7 +12,7 @@ import Stack from '@mui/material/Stack';
 
 import { Item } from '../../fields/page';
 import useView from '../../../../services/views.service';
-import { RenderedFields } from '../../../../components/RenderedFields';
+import { RenderedFields } from '../../../../components/Rendering/RenderedFields';
 
 export default function ViewPage({ params }) {
 

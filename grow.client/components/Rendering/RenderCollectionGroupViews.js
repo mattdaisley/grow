@@ -11,7 +11,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 
-import { getCollectionFieldDefaults } from '../services/getCollectionFieldDefaults';
+import { getCollectionFieldDefaults } from '../../services/getCollectionFieldDefaults';
 import { RenderGroupViews } from './RenderGroupViews';
 
 function a11yProps(index) {

@@ -6,7 +6,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
-import { Item } from './Item';
+import { Item } from '../Item';
 
 export const SelectItem = ({ appField, control, fieldArrayName }) => {
 

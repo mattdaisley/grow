@@ -9,8 +9,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import TextField from '@mui/material/TextField';
 
 import { Item } from '../../fields/page';
-import { RenderedFields } from '../../../../components/RenderedFields';
-import { RenderedViews } from "../../../../components/RenderedViews";
+import { RenderedViews } from "../../../../components/Rendering/RenderedViews";
 import usePages from '../../../../services/pages.service';
 
 export default function PagePage({ params }) {

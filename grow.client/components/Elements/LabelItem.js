@@ -2,7 +2,7 @@ import { Controller } from "react-hook-form";
 
 import Typography from '@mui/material/Typography';
 
-import { Item } from './Item';
+import { Item } from '../Item';
 
 export const LabelItem = ({ appField, control, fieldArrayName }) => {
 
