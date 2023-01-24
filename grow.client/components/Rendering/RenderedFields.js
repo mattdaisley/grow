@@ -6,6 +6,7 @@ import { RenderField } from './RenderField';
 
 export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
   // console.log(viewDefinition);
+  // console.log(fieldArrayName)
   if (!viewDefinition) {
     return null;
   }

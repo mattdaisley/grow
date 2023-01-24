@@ -93,8 +93,8 @@ const useView = (viewId) => {
     currentViewDefinition?.groups?.map(group => {
       group.fields?.map((fieldDefinition) => {
         if (fieldDefinition) {
-          const { key, defaultValue } = getFieldDefault(fieldDefinition)
-          fieldValues[key] = defaultValue;
+          const fieldDefault = getFieldDefault(fieldDefinition)
+          fieldValues[fieldDefinition.name] = fieldDefault;
         }
       })
     })

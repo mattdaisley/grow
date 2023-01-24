@@ -9,7 +9,7 @@ import { Item } from '../Item';
 export const TextItem = ({ appField, control, fieldArrayName }) => {
   const [value, setValue] = useState("");
 
-  console.log(appField, fieldArrayName)
+  // console.log(appField, fieldArrayName)
 
   const handleFieldChanged = (event) => {
     const targetValue = event.target.value;
@@ -33,7 +33,7 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
       name={`${fieldArrayName}.${appField.name}`}
       control={control}
       render={({ field }) => {
-        // console.log(field);
+        // console.log(fieldArrayName, appField, field);
         return <TextField
           fullWidth={true}
           size="small"

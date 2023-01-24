@@ -11,7 +11,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 
-import { getCollectionFieldDefaults } from '../../services/getCollectionFieldDefaults';
+import { getCollectionFieldsAndDefaults } from '../../services/getCollectionFieldsAndDefaults';
 import { RenderGroupViews } from './RenderGroupViews';
 
 function a11yProps(index) {
@@ -33,7 +33,7 @@ function TabPanel(props) {
   </>;
 }
 
-export function RenderCollectionGroupViews({ group, control, fieldArrayName }) {
+export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
   const [value, setValue] = useState(0);
 
   let collectionName = group.name ?? "collection";
@@ -50,14 +50,15 @@ export function RenderCollectionGroupViews({ group, control, fieldArrayName }) {
   });
 
   // console.log(collectionFieldArrayName, watchFields);
+  // console.log(group);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const handleCollectionAdd = (event) => {
-    const newDefaults = getCollectionFieldDefaults(group);
-    append(newDefaults.collection);
+    const newDefaults = getCollectionFieldsAndDefaults(group);
+    append(newDefaults.fieldValues);
     setValue(fields.length);
   };
 
@@ -89,9 +90,9 @@ export function RenderCollectionGroupViews({ group, control, fieldArrayName }) {
               if (label === undefined || label === "") {
                 label = `${collectionName} ${index}`
               };
-              // console.log(group, field, label === undefined, label === "");
+
               return (
-                <Tab key={field.id} label={label} {...a11yProps(index)} />
+                <Tab key={index} label={label} {...a11yProps(index)} />
               )
             })}
           </Tabs>
@@ -103,7 +104,7 @@ export function RenderCollectionGroupViews({ group, control, fieldArrayName }) {
       </Grid>
       {
         watchFields.map((field, index) => (
-          <TabPanel key={field.id} value={value} index={index} group={group} control={control} fieldArrayName={collectionFieldArrayName} />
+          <TabPanel key={index} value={value} index={index} group={group} control={control} fieldArrayName={collectionFieldArrayName} />
         ))
       }
     </>

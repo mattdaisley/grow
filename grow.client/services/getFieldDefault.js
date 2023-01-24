@@ -1,7 +1,6 @@
 export function getFieldDefault(fieldDefinition) {
   // console.log("allFields", allFieldsDefinition, field);
   // console.log(fieldDefinition);
-  const key = `${fieldDefinition.name}`;
   let defaultValue = undefined;
 
   switch (fieldDefinition.type) {
@@ -21,7 +20,7 @@ export function getFieldDefault(fieldDefinition) {
       break;
   }
 
-  return { key, defaultValue };
+  return defaultValue;
   // console.log(key, fieldValues[key], fieldDefinition);
 
 }

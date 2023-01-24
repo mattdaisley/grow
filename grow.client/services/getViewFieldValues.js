@@ -1,15 +1,19 @@
 import { getFieldDefault } from './getFieldDefault';
 
 export function getViewFieldValues(view) {
-  let viewFieldValues = {};
+  let viewFields = [];
+  let viewFieldValues = {}
   view?.groups?.map(group => {
 
     group.fields?.map((fieldDefinition) => {
       if (fieldDefinition) {
-        const { key, defaultValue } = getFieldDefault(fieldDefinition);
-        viewFieldValues[key] = defaultValue;
+        const fieldDefault = getFieldDefault(fieldDefinition);
+        // console.log(viewField)
+        viewFields.push({ ...fieldDefinition, default: fieldDefault });
+        viewFieldValues[fieldDefinition.name] = fieldDefault;
       }
     });
   });
-  return viewFieldValues;
+
+  return { viewFields, viewFieldValues };
 }

@@ -142,8 +142,8 @@ export default function FieldsPage() {
     // console.log("allFields", allFieldsDefinition);
     allFieldsDefinition?.fields.map(fieldDefinition => {
       // console.log(fieldDefinition);
-      const { key, defaultValue } = getFieldDefault(fieldDefinition)
-      fieldValues[key] = defaultValue;
+      const fieldDefault = getFieldDefault(fieldDefinition)
+      fieldValues[fieldDefinition.name] = fieldDefault;
 
     })
 

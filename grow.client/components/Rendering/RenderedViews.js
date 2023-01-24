@@ -5,7 +5,8 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
 import { RenderGroupViews } from './RenderGroupViews';
-import { RenderCollectionGroupViews } from './RenderCollectionGroupViews';
+import { RenderGroupCollectionTabs } from './RenderGroupCollectionTabs';
+import { RenderGroupCollectionDataGrid } from './RenderGroupCollectionDataGrid';
 
 export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
 
@@ -19,20 +20,23 @@ export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
 
         const renderGroup = () => {
           switch (group.type) {
-            case 'collection':
+            case 'collection-tabs':
               return (
-                <RenderCollectionGroupViews key={group.id} group={group} control={control} fieldArrayName={fieldArrayName} />
+                <RenderGroupCollectionTabs group={group} control={control} fieldArrayName={fieldArrayName} />
               )
-
+            case 'collection-grid':
+              return (
+                <RenderGroupCollectionDataGrid group={group} control={control} fieldArrayName={fieldArrayName} />
+              )
             default:
               return (
-                <RenderGroupViews key={group.id} group={group} control={control} fieldArrayName={fieldArrayName} />
+                <RenderGroupViews group={group} control={control} fieldArrayName={fieldArrayName} />
               )
           }
         }
 
         return (
-          <Paper>
+          <Paper key={group.id}>
             {renderGroup()}
           </Paper>
         )

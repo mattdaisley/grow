@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { getFieldDefault } from './getFieldDefault';
-import { getCollectionFieldDefaults } from './getCollectionFieldDefaults';
+import { getCollectionFieldsAndDefaults } from './getCollectionFieldsAndDefaults';
 import useView from './views.service';
 import { getViewFieldValues } from './getViewFieldValues';
 
@@ -107,20 +107,27 @@ const usePages = (pageId) => {
     currentPageDefinition?.groups?.map(group => {
       if (!!group) {
         switch (group.type) {
-          case 'collection':
-            let { collectionName, collection } = getCollectionFieldDefaults(group);
-            fieldValues[collectionName] = [collection]
+          case 'collection-tabs':
+            let tabsDefaults = getCollectionFieldsAndDefaults(group);
+            fieldValues[tabsDefaults.collectionName] = [tabsDefaults.fieldValues]
+            break;
+
+          case 'collection-grid':
+            const gridDefaults = getCollectionFieldsAndDefaults(group);
+            fieldValues[gridDefaults.collectionName] = []
             break;
 
           default:
             group.views?.map((view, index) => {
-              fieldValues = { ...fieldValues, ...getViewFieldValues(view) };
+              const { viewFieldValues } = getViewFieldValues(view);
+              fieldValues = { ...fieldValues, ...viewFieldValues };
             })
             break;
         }
       }
     })
     // reset({ ['testform']: [fieldValues] });
+    // console.log(fieldValues)
     setCurrentPageFieldDefaults(fieldValues);
 
   }, [allFieldsJson, allViewsJson, currentPageJson])
