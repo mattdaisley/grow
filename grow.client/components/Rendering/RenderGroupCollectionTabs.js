@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFieldArray, useWatch } from "react-hook-form";
 
 import Box from '@mui/material/Box';
@@ -35,6 +35,7 @@ function TabPanel(props) {
 
 export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
   const [value, setValue] = useState(0);
+  const [tabState, setTabState] = useState({ added: false, currentTab: 0 });
 
   let collectionName = group.name ?? "collection";
   const collectionFieldArrayName = `${fieldArrayName}.${collectionName}`;
@@ -49,25 +50,30 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
     name: collectionFieldArrayName
   });
 
+  useEffect(() => {
+    const newValue = watchFields.length - 1 >= tabState.currentTab ? tabState.currentTab : watchFields.length - 1;
+    setValue(newValue);
+  }, [tabState.currentTab, watchFields.length])
+
   // console.log(collectionFieldArrayName, watchFields);
   // console.log(group);
 
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setTabState({ ...tabState, currentTab: newValue });
   };
 
   const handleCollectionAdd = (event) => {
     const newDefaults = getCollectionFieldsAndDefaults(group);
     append(newDefaults.fieldValues);
-    setValue(fields.length);
+    setTabState({ ...tabState, currentTab: watchFields.length, tabAdded: true });
   };
 
   const handleCollectionRemove = (event) => {
     if (fields.length > 1) {
-      remove(value)
+      remove(tabState.currentTab)
 
-      if (value > 0) {
-        setValue(value - 1);
+      if (tabState.currentTab > 0) {
+        setTabState({ ...tabState, currentTab: tabState.currentTab - 1 });
       }
     }
   }
@@ -86,6 +92,7 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
             variant="scrollable"
             scrollButtons={false}>
             {watchFields.map((field, index) => {
+              // console.log(field)
               let label = !!group.label ? field[`${group.label}`] : "";
               if (label === undefined || label === "") {
                 label = `${collectionName} ${index}`
