@@ -11,6 +11,7 @@ import TextField from '@mui/material/TextField';
 import { Item } from '../../fields/page';
 import { RenderedViews } from "../../../../components/Rendering/RenderedViews";
 import usePages from '../../../../services/pages.service';
+import { PageContext } from '../../../PageContext';
 
 export default function PagePage({ params }) {
 
@@ -64,7 +65,9 @@ export default function PagePage({ params }) {
         <Box sx={{ flexGrow: 1 }}>
           <Grid container xs={12} spacing={2}>
             <Grid container xs={8}>
-              <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+              <PageContext.Provider value={{ control, fieldArrayName: `${fieldArrayName}.0` }}>
+                <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+              </PageContext.Provider>
 
               <Grid xs={12}>
                 <Button type="submit">Submit</Button>

@@ -12,6 +12,7 @@ import Stack from '@mui/material/Stack';
 
 import { RenderField } from '../../../components/Rendering/RenderField';
 import { getFieldDefault } from '../../../services/getFieldDefault';
+import { PageContext } from '../../PageContext';
 
 export const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -183,7 +184,9 @@ export default function FieldsPage() {
               <Stack spacing={2}>
                 <Paper sx={{ padding: 0 }}>
                   <Grid xs={12} container alignContent={'flex-start'} flexDirection={'column'}>
-                    <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} fieldArrayName={fieldArrayName} />
+                    <PageContext.Provider value={{ control, fieldArrayName }}>
+                      <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} fieldArrayName={fieldArrayName} />
+                    </PageContext.Provider>
                   </Grid>
                 </Paper>
               </Stack>

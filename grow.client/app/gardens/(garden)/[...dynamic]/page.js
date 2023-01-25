@@ -11,6 +11,7 @@ import TextField from '@mui/material/TextField';
 import usePages from '../../../../services/pages.service';
 import useGardens from '../../../../services/gardens.service';
 import { RenderedViews } from '../../../../components/Rendering/RenderedViews';
+import { PageContext } from '../../../PageContext';
 
 export default function DynamicPage({ params }) {
 
@@ -77,7 +78,10 @@ export default function DynamicPage({ params }) {
     <form onSubmit={handleSubmit(onSubmit)}>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container xs={12} spacing={2}>
-          <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+
+          <PageContext.Provider value={{ control, fieldArrayName: `${fieldArrayName}.0` }}>
+            <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+          </PageContext.Provider>
 
           <Grid xs={12}>
             <Button type="submit">Submit</Button>

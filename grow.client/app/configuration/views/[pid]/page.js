@@ -13,6 +13,7 @@ import Stack from '@mui/material/Stack';
 import { Item } from '../../fields/page';
 import useView from '../../../../services/views.service';
 import { RenderedFields } from '../../../../components/Rendering/RenderedFields';
+import { PageContext } from '../../../PageContext';
 
 export default function ViewPage({ params }) {
 
@@ -70,7 +71,9 @@ export default function ViewPage({ params }) {
                 <Stack spacing={2}>
                   <Paper sx={{ padding: 0 }}>
                     <Grid xs={12} container alignContent={'flex-start'}>
-                      <RenderedFields viewDefinition={currentViewDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+                      <PageContext.Provider value={{ control, fieldArrayName: `${fieldArrayName}.0` }}>
+                        <RenderedFields viewDefinition={currentViewDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+                      </PageContext.Provider>
                     </Grid>
                   </Paper>
                 </Stack>

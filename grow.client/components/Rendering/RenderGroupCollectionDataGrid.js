@@ -39,12 +39,19 @@ export function RenderGroupCollectionDataGrid({ group, control, fieldArrayName }
   let collectionName = group.name ?? "collection";
   const collectionFieldArrayName = `${fieldArrayName}.${collectionName}`;
 
+  const watchFields = useWatch({
+    control,
+    name: fieldArrayName
+  });
+
+  // console.log(fieldArrayName, watchFields)
+
   const { fields, prepend } = useFieldArray({
     control,
     name: collectionFieldArrayName
   });
 
-  const watchFields = useWatch({
+  const watchCollectionFields = useWatch({
     control,
     name: collectionFieldArrayName
   });
@@ -55,9 +62,9 @@ export function RenderGroupCollectionDataGrid({ group, control, fieldArrayName }
     const collectionFields = getCollectionFieldsAndDefaults(group);
     setGroupCollectionFields(collectionFields)
     // console.log(collectionFields);
-    editingForm.reset({ editing: [collectionFields.fieldValues] })
+    editingForm.reset({ ...watchFields, editing: [collectionFields.fieldValues] })
     setLoading(false);
-  }, [JSON.stringify(group), value])
+  }, [JSON.stringify(group), value, JSON.stringify(watchFields)])
 
   function onSubmit(data) {
     console.log(data)
@@ -77,7 +84,7 @@ export function RenderGroupCollectionDataGrid({ group, control, fieldArrayName }
     columns = [...columns, ...fieldColumns]
   }
   // console.log(columns)
-  console.log(watchFields, groupCollectionFields)
+  // console.log(watchFields, groupCollectionFields)
 
   // Todo: instead of directly using watchFields for the rows, add a valueGetter to the column to look up the value in the field array.
   //       this will allow for calculated fields and let us get the label for autocomplete and select
@@ -93,7 +100,7 @@ export function RenderGroupCollectionDataGrid({ group, control, fieldArrayName }
           borderColor: 'grey.400'
         }}>
           <DataGrid
-            rows={watchFields ?? []}
+            rows={watchCollectionFields ?? []}
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[10, 20]}

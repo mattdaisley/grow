@@ -1,13 +1,13 @@
 export function getFieldDefault(fieldDefinition) {
   // console.log("allFields", allFieldsDefinition, field);
-  // console.log(fieldDefinition);
+  console.log(fieldDefinition);
   let defaultValue = undefined;
 
   switch (fieldDefinition.type) {
     case 'text':
     case 'select':
     case 'numeric':
-      defaultValue = '';
+      defaultValue = fieldDefinition.default || '';
       break;
     case 'autocomplete':
       defaultValue = null;
