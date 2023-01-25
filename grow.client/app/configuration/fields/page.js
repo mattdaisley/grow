@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -102,7 +102,8 @@ export default function FieldsPage() {
 
   const [fieldDefaults, setFieldDefaults] = useState(undefined);
 
-  const { register, control, handleSubmit, reset, formState, watch } = useForm();
+  const methods = useForm();
+  const { register, control, handleSubmit, reset, formState, watch } = methods;
   const { fields, append, remove } = useFieldArray({ name: fieldArrayName, control });
 
   useEffect(() => {
@@ -184,8 +185,10 @@ export default function FieldsPage() {
               <Stack spacing={2}>
                 <Paper sx={{ padding: 0 }}>
                   <Grid xs={12} container alignContent={'flex-start'} flexDirection={'column'}>
-                    <PageContext.Provider value={{ control, fieldArrayName }}>
-                      <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} fieldArrayName={fieldArrayName} />
+                    <PageContext.Provider value={{ fieldArrayName }}>
+                      <FormProvider {...methods} >
+                        <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} fieldArrayName={fieldArrayName} />
+                      </FormProvider>
                     </PageContext.Provider>
                   </Grid>
                 </Paper>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -20,7 +20,8 @@ export default function DynamicPage({ params }) {
 
   const fieldArrayName = `garden-${gardenId}`;
 
-  const { control, handleSubmit, reset, formState } = useForm();
+  const methods = useForm();
+  const { control, handleSubmit, reset, formState, watch } = methods;
   const { errors } = formState;
   const { fields, append, remove } = useFieldArray({ name: fieldArrayName, control });
   const [formResults, setFormResults] = useState();
@@ -79,8 +80,10 @@ export default function DynamicPage({ params }) {
       <Box sx={{ flexGrow: 1 }}>
         <Grid container xs={12} spacing={2}>
 
-          <PageContext.Provider value={{ control, fieldArrayName: `${fieldArrayName}.0` }}>
-            <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+          <PageContext.Provider value={{ fieldArrayName: `${fieldArrayName}.0` }}>
+            <FormProvider {...methods} >
+              <RenderedViews pageDefinition={currentPageDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
+            </FormProvider>
           </PageContext.Provider>
 
           <Grid xs={12}>

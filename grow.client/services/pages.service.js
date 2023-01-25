@@ -109,12 +109,23 @@ const usePages = (pageId) => {
         switch (group.type) {
           case 'collection-tabs':
             let tabsDefaults = getCollectionFieldsAndDefaults(group);
-            fieldValues[tabsDefaults.collectionName] = [tabsDefaults.fieldValues]
+            if (fieldValues[tabsDefaults.collectionName] === undefined) {
+              fieldValues[tabsDefaults.collectionName] = [tabsDefaults.fieldValues]
+            }
             break;
 
           case 'collection-grid':
             const gridDefaults = getCollectionFieldsAndDefaults(group);
-            fieldValues[gridDefaults.collectionName] = []
+            if (fieldValues[gridDefaults.collectionName] === undefined) {
+              fieldValues[gridDefaults.collectionName] = []
+            }
+            break;
+
+          case 'collection-add':
+            const collectionAddDefaults = getCollectionFieldsAndDefaults(group);
+            if (fieldValues[collectionAddDefaults.collectionName] === undefined) {
+              fieldValues[collectionAddDefaults.collectionName] = [collectionAddDefaults.fieldValues]
+            }
             break;
 
           default:

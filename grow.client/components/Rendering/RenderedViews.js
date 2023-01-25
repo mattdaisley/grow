@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import { RenderGroupViews } from './RenderGroupViews';
 import { RenderGroupCollectionTabs } from './RenderGroupCollectionTabs';
 import { RenderGroupCollectionDataGrid } from './RenderGroupCollectionDataGrid';
+import { RenderGroupCollectionAdd } from './RenderGroupCollectionAdd';
 
 export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
 
@@ -27,6 +28,10 @@ export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
             case 'collection-grid':
               return (
                 <RenderGroupCollectionDataGrid group={group} control={control} fieldArrayName={fieldArrayName} />
+              )
+            case 'collection-add':
+              return (
+                <RenderGroupCollectionAdd group={group} control={control} fieldArrayName={fieldArrayName} />
               )
             default:
               return (

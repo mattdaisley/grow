@@ -1,6 +1,6 @@
 export function getFieldDefault(fieldDefinition) {
   // console.log("allFields", allFieldsDefinition, field);
-  console.log(fieldDefinition);
+  // console.log(fieldDefinition);
   let defaultValue = undefined;
 
   switch (fieldDefinition.type) {

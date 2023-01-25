@@ -1,77 +1,32 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import { DataGrid } from '@mui/x-data-grid';
-import { v4 as uuidv4 } from 'uuid';
 
 import { getCollectionFieldsAndDefaults } from '../../services/getCollectionFieldsAndDefaults';
-import { RenderGroupViews } from './RenderGroupViews';
 
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
+export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
 
-function TabPanel(props) {
-  const { value, index, group, control, fieldArrayName } = props;
-
-  const collectionFieldArrayName = `${fieldArrayName}.${value}`;
-
-  return <>
-    {value === index && (
-      <RenderGroupViews group={group} control={control} fieldArrayName={collectionFieldArrayName} />
-    )}
-  </>;
-}
-
-export function RenderGroupCollectionDataGrid({ group, control, fieldArrayName }) {
-  const [value, setValue] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [groupCollectionFields, setGroupCollectionFields] = useState(true);
+
+  const { watch } = useFormContext();
 
   let collectionName = group.name ?? "collection";
   const collectionFieldArrayName = `${fieldArrayName}.${collectionName}`;
 
-  const watchFields = useWatch({
-    control,
-    name: fieldArrayName
-  });
+  const watchCollectionFields = watch(collectionFieldArrayName);
 
-  // console.log(fieldArrayName, watchFields)
-
-  const { fields, prepend } = useFieldArray({
-    control,
-    name: collectionFieldArrayName
-  });
-
-  const watchCollectionFields = useWatch({
-    control,
-    name: collectionFieldArrayName
-  });
-
-  const editingForm = useForm();
+  // console.log(fieldArrayName, collectionFieldArrayName, watchCollectionFields)
 
   useEffect(() => {
     const collectionFields = getCollectionFieldsAndDefaults(group);
     setGroupCollectionFields(collectionFields)
     // console.log(collectionFields);
-    editingForm.reset({ ...watchFields, editing: [collectionFields.fieldValues] })
-    setLoading(false);
-  }, [JSON.stringify(group), value, JSON.stringify(watchFields)])
-
-  function onSubmit(data) {
-    console.log(data)
-
-    prepend({ id: uuidv4(), ...data.editing[0] });
-    setValue(value + 1);
-  };
+  }, [JSON.stringify(group)])
 
   let columns = []
   if (groupCollectionFields?.collection !== undefined) {
@@ -107,15 +62,6 @@ export function RenderGroupCollectionDataGrid({ group, control, fieldArrayName }
           />
         </Box>
       </Grid>
-      {!loading && (
-        <>
-          <RenderGroupViews group={group} control={editingForm.control} fieldArrayName={`editing.0`} />
-
-          <Box sx={{ padding: 2 }}>
-            <Button onClick={editingForm.handleSubmit(onSubmit)}>Add Item</Button>
-          </Box>
-        </>
-      )}
 
     </>
   );

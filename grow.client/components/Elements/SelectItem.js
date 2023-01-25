@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { Controller, useFieldArray, useWatch } from "react-hook-form";
+import { Controller, useFieldArray, useWatch, useFormContext } from "react-hook-form";
 
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -15,12 +15,11 @@ export const SelectItem = ({ appField, control, fieldArrayName }) => {
   const { options, computedOptions, ...props } = appField.props;
   // console.log(fieldArrayName);
 
+  const pageFormContext = useFormContext();
   const pageContext = useContext(PageContext);
 
-  const fields = useWatch({
-    control: pageContext.control,
-    name: pageContext.fieldArrayName
-  });
+  const fields = pageFormContext.watch(pageContext.fieldArrayName);
+  // console.log(fields, pageContext.fieldArrayName)
 
   function getComputedMenuItems(computedOptions) {
     if (computedOptions === undefined || Object.keys(computedOptions).length === 0) {
