@@ -84,7 +84,7 @@ const RenderedFields = ({ fieldsDefinition, control, fieldArrayName }) => {
   return (
     <Grid xs={12}>
       {fieldsDefinition?.fields?.map(fieldDefinition => {
-        if (!fieldDefinition.id || !fieldDefinition.type) {
+        if (fieldDefinition.id === undefined || fieldDefinition.type === undefined) {
           return null;
         }
         return <RenderField field={fieldDefinition} key={`${fieldDefinition.id}`} control={control} fieldArrayName={fieldArrayName} />
@@ -187,7 +187,7 @@ export default function FieldsPage() {
                   <Grid xs={12} container alignContent={'flex-start'} flexDirection={'column'}>
                     <PageContext.Provider value={{ fieldArrayName }}>
                       <FormProvider {...methods} >
-                        <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} fieldArrayName={fieldArrayName} />
+                        <RenderedFields fieldsDefinition={allFieldsDefinition} control={control} fieldArrayName={`${fieldArrayName}.0`} />
                       </FormProvider>
                     </PageContext.Provider>
                   </Grid>

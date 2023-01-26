@@ -11,6 +11,17 @@ import { getCollectionFieldsAndDefaults } from '../../services/getCollectionFiel
 import { PageContext } from '../../app/PageContext';
 
 
+function getAutocompleteItemComputedLabel(fieldValue, computedOptions, fields) {
+  if (computedOptions === undefined || Object.keys(computedOptions).length === 0) {
+    return "";
+  }
+  const options = fields[computedOptions.key];
+
+  const matchingOption = options[fieldValue.value]
+  // console.log(matchingOption, computedOptions, matchingOption[computedOptions.label])
+  return matchingOption[computedOptions.label]
+}
+
 function getSelectItemComputedLabel(fieldValue, computedOptions, fields) {
   if (computedOptions === undefined || Object.keys(computedOptions).length === 0) {
     return "";
@@ -65,6 +76,13 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
               computedRow[fieldName] = fieldDefinition;
             }
             break;
+          case 'autocomplete':
+            computedRow[fieldName] = getAutocompleteItemComputedLabel(fieldValue, fieldDefinition.props.computedOptions, fields)
+
+            if (computedRow[fieldName] === "") {
+              computedRow[fieldName] = fieldDefinition;
+            }
+            break;
           default:
             computedRow[fieldName] = fieldValue;
             break;
@@ -93,9 +111,6 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
   }
   // console.log(columns)
   // console.log(watchFields, groupCollectionFields)
-
-  // Todo: instead of directly using watchFields for the rows, add a valueGetter to the column to look up the value in the field array.
-  //       this will allow for calculated fields and let us get the label for autocomplete and select
 
   return (
     <>
