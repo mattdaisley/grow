@@ -7,6 +7,7 @@ const useView = (viewId) => {
 
   const [allViewsJson, setAllViewsJson] = useState("");
   const [allViewsDefinition, setAllViewsDefinition] = useState([]);
+  const [allViewsCombined, setAllViewsCombined] = useState([]);
 
   const [currentViewJson, setCurrentViewJson] = useState("");
   const [currentViewDefinition, setCurrentViewDefinition] = useState();
@@ -47,9 +48,30 @@ const useView = (viewId) => {
           var allViews = JSON.parse(localAllViewsJson);
           setAllViewsDefinition(allViews);
 
+          const viewsCombined = allViews?.views.map(viewToCombine => {
+            // console.log(viewToCombine)
+            const viewGroups = viewToCombine?.groups?.map(group => {
+              const groupFields = group.fields?.map((field) => {
+                const fieldDefinition = allFieldsDefinition?.fields.find(x => x.id === field.fieldId);
+
+                const combinedField = { ...fieldDefinition }
+                if (field.conditions) {
+                  combinedField.conditions = [...field.conditions]
+                }
+                // console.log(field, combinedField)
+                return combinedField;
+              })
+              return { ...group, fields: groupFields };
+            })
+            return { ...viewGroups }
+          })
+          // console.log(allViews)
+          // console.log(viewsCombined)
+          setAllViewsCombined({ views: viewsCombined });
+
           // console.log(viewId !== undefined);
           if (viewId !== undefined) {
-            const currentView = allViews?.views.find(x => x.id === viewId)
+            const currentView = allViews?.views?.find(x => x.id === viewId)
             if (currentView) {
               // console.log(currentView);
               setCurrentViewJson(JSON.stringify(currentView, null, 2));
@@ -57,10 +79,16 @@ const useView = (viewId) => {
               currentView?.groups?.map(group => {
                 group.fields = group.fields?.map((field) => {
                   const fieldDefinition = allFieldsDefinition?.fields.find(x => x.id === field.fieldId);
-                  return fieldDefinition;
+                  // console.log(field, fieldDefinition)
+                  const combinedField = { ...fieldDefinition }
+                  if (field.conditions) {
+                    combinedField.conditions = [...field.conditions]
+                  }
+
+                  return combinedField;
                 })
               })
-
+              // console.log(currentView);
               setCurrentViewDefinition(currentView);
             }
             else {
@@ -108,19 +136,19 @@ const useView = (viewId) => {
 
     try {
       var parsedJson = JSON.parse(newViewJson);
-      // console.log(parsedJson)
+      console.log(parsedJson)
       const newGroups = parsedJson.groups?.map(group => {
         const newFields = group.fields?.map((field) => {
           // console.log(field)
           return { fieldId: field.fieldId }
         })
 
-        return { ...group, fields: newFields }
+        return group;
       })
 
       const newView = { ...parsedJson, groups: newGroups }
       // setCurrentViewDefinition(parsedJson);
-      // console.log(newView);
+      console.log(newView);
       const currentViewIndex = allViewsDefinition.views.findIndex(x => x?.id === viewId)
       // console.log(currentViewIndex, parsedJson);
       if (currentViewIndex > -1) {
@@ -134,8 +162,9 @@ const useView = (viewId) => {
         allViewsDefinition.views.push(newView);
       }
 
-      localStorage.setItem('allviews', JSON.stringify(allViewsDefinition));
-      setAllViewsJson(JSON.stringify(allViewsDefinition, null, 2))
+      const formattedJson = JSON.stringify(allViewsDefinition, null, 2);
+      localStorage.setItem('allviews', formattedJson);
+      setAllViewsJson(formattedJson)
     }
     catch (e) {
       // console.log(e);
@@ -150,6 +179,7 @@ const useView = (viewId) => {
 
     allViewsJson,
     allViewsDefinition,
+    allViewsCombined,
 
     allFieldsJson,
     allFieldsDefinition

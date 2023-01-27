@@ -5,8 +5,6 @@ import { useForm, useFieldArray, useWatch, useFormContext } from "react-hook-for
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
-import { DataGrid } from '@mui/x-data-grid';
 import { v4 as uuidv4 } from 'uuid';
 
 import { getCollectionFieldsAndDefaults } from '../../services/getCollectionFieldsAndDefaults';

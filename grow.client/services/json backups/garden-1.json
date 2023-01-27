@@ -1,0 +1,69 @@
+{
+  "nutrient-pumps": [
+    {
+      "nutrient-pump_name": "Flora Micro",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false
+    },
+    {
+      "nutrient-pump_name": "Flora Grow",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false
+    },
+    {
+      "nutrient-pump_name": "Flora Bloom",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false
+    }
+  ],
+  "nutrient-pumps_events": [
+    {
+      "id": "ff72fc82-80f4-4032-a446-f7eac4c7e12d",
+      "nutrient-pump-event_nutrient-pump_name": 2,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:13:25.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2.2
+    },
+    {
+      "id": "37d16ad0-762f-4491-96ee-8e286288e002",
+      "nutrient-pump-event_nutrient-pump_name": 1,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:13:15.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2
+    },
+    {
+      "id": "33b7d997-f8f7-4713-87bf-738486c70fee",
+      "nutrient-pump-event_nutrient-pump_name": 0,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:13:05.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2
+    }
+  ],
+  "outlets": [
+    { "outlet_name": "Main Pump", "outlet_state": true },
+    { "outlet_name": "Lights", "outlet_state": false },
+    { "outlet_name": "Nutrient Mixer", "outlet_state": false },
+    { "outlet_name": "Fan", "outlet_state": false }
+  ],
+  "outlet-events": [
+    {
+      "id": "ae95b380-83fc-49f1-99c9-840fca5f0750",
+      "outlet-event_timestamp": "2020-01-23 22:13:05.000",
+      "outlet-event_value": 0
+    },
+    {
+      "id": "a4888835-fa20-49f7-974b-73cdfa48dc72",
+      "outlet-event_timestamp": "2020-01-23 22:13:00.000",
+      "outlet-event_value": 1
+    }
+  ],
+  "test__text-numeric": 1232,
+  "test__checkbox": true,
+  "test__text1": "test text value that is specific to this garden!!!",
+  "test__autocomplete": { "label": "option 1", "value": 0 },
+  "test__select": 1,
+  "test__text-dollar": 123.98
+}

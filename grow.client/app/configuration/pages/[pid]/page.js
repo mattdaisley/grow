@@ -33,7 +33,7 @@ export default function PagePage({ params }) {
 
   useEffect(() => {
     if (!!currentPageFieldDefaults) {
-      // console.log(currentPageFieldDefaults);
+      // console.log(fieldArrayName, currentPageFieldDefaults);
       reset({ [fieldArrayName]: [currentPageFieldDefaults] });
       setLoading(false);
     }

@@ -34,7 +34,7 @@ export default function ViewPage({ params }) {
 
   useEffect(() => {
     if (!!currentViewFieldDefaults) {
-      // console.log(currentViewFieldDefaults);
+      // console.log(fieldArrayName, currentViewFieldDefaults);
       reset({ [fieldArrayName]: [currentViewFieldDefaults] });
       setLoading(false);
     }
@@ -47,7 +47,7 @@ export default function ViewPage({ params }) {
   }
 
   function onSubmit(data) {
-    console.log(data)
+    // console.log(data)
     // display form data on success
     setFormResults(JSON.stringify(data, null, 4));
   }

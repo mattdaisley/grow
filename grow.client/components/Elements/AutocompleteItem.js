@@ -9,8 +9,15 @@ import { PageContext } from '../../app/PageContext';
 
 export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
 
+  const appFieldProps = appField.props ?? {};
+  const { options: fieldOptions, computedOptions, ...props } = appFieldProps;
 
-  const { options: fieldOptions, computedOptions, ...props } = appField.props;
+  const autoCompleteProps = {
+    autoComplete: true,
+    autoSelect: true,
+    autoHighlight: true,
+    ...props
+  }
   // console.log(appField);
 
   const pageFormContext = useFormContext();
@@ -53,7 +60,7 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
         return <Autocomplete
           fullWidth
           size="small"
-          {...props}
+          {...autoCompleteProps}
           id={`autocomplete-${appField.id}`}
           options={menuItems}
           value={value}

@@ -1,0 +1,144 @@
+{
+  "outlets": [
+    {
+      "id": 0,
+      "outlet_name": "Main Pump",
+      "outlet_state": true,
+      "output-type": { "label": "GPIO", "value": 0 },
+      "output_gpio-pin": "7",
+      "output_gpio-on-state": { "label": "High", "value": 1 },
+      "output_gpio-startup-state": { "label": "Off", "value": 1 },
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 }
+    },
+    {
+      "id": 1,
+      "outlet_name": "Lights",
+      "outlet_state": false,
+      "output-type": { "label": "GPIO", "value": 0 },
+      "output_gpio-pin": "8",
+      "output_gpio-on-state": { "label": "High", "value": 1 },
+      "output_gpio-startup-state": { "label": "On", "value": 0 },
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 }
+    },
+    {
+      "id": 2,
+      "outlet_name": "Nutrient Mixer",
+      "outlet_state": false,
+      "output-type": { "label": "GPIO", "value": 0 },
+      "output_gpio-pin": "9",
+      "output_gpio-on-state": { "label": "High", "value": 1 },
+      "output_gpio-startup-state": { "label": "Off", "value": 1 },
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 }
+    },
+    {
+      "id": 3,
+      "outlet_name": "Fan",
+      "outlet_state": false,
+      "output-type": { "label": "GPIO", "value": 0 },
+      "output_gpio-pin": "10",
+      "output_gpio-on-state": { "label": "High", "value": 1 },
+      "output_gpio-startup-state": { "label": "Off", "value": 1 },
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 }
+    }
+  ],
+  "outlet-events": [
+    {
+      "id": "fa85a8a8-302c-408d-be8a-91f78679c9d1",
+      "outlet-event_timestamp": "2020-01-23 22:23:30.000",
+      "outlet-event_outlet_name": { "value": 0, "label": "Main Pump" },
+      "outlet-event_value": 0
+    },
+    {
+      "id": "e8772de1-fa4e-486b-a026-1639d0e8bc79",
+      "outlet-event_timestamp": "2020-01-23 22:23:00.000",
+      "outlet-event_outlet_name": { "value": 0, "label": "Main Pump" },
+      "outlet-event_value": 1
+    },
+    {
+      "id": "5ce73bf0-86b9-4d28-b093-7159ca8aae12",
+      "outlet-event_timestamp": "2020-01-23 22:13:00.000",
+      "outlet-event_outlet_name": { "value": 0, "label": "Main Pump" },
+      "outlet-event_value": 0
+    }
+  ],
+  "id": "e0159c33-93cb-4bd2-83ea-a62ec8f39931",
+  "nutrient-pumps": [
+    {
+      "id": 0,
+      "nutrient-pump_name": "Flora Micro",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false
+    },
+    {
+      "id": 1,
+      "nutrient-pump_name": "Flora Grow",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false
+    },
+    {
+      "id": 2,
+      "nutrient-pump_name": "Flora Bloom",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false
+    },
+    {
+      "id": "c9a17ee3-2c48-499e-b994-abbd878536dc",
+      "nutrient-pump_name": "PH Down",
+      "nutrient-pump_dose-rate": 0.2,
+      "nutrient-pump_state": false
+    }
+  ],
+  "nutrient-pumps_events": [
+    {
+      "id": "958ef84e-381f-4a2a-b49b-9a4fb1b1a4be",
+      "nutrient-pump-event_nutrient-pump_name": 2,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:23:25.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2.2
+    },
+    {
+      "id": "b3dd6029-a27e-4d5f-b600-d7c39f94537b",
+      "nutrient-pump-event_nutrient-pump_name": 1,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:23:15.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2
+    },
+    {
+      "id": "26e17ca1-5638-41f3-a043-66ecbfc61d27",
+      "nutrient-pump-event_nutrient-pump_name": 0,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:23:05.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2
+    },
+    {
+      "id": "ff72fc82-80f4-4032-a446-f7eac4c7e12d",
+      "nutrient-pump-event_nutrient-pump_name": 2,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:13:25.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2.2
+    },
+    {
+      "id": "37d16ad0-762f-4491-96ee-8e286288e002",
+      "nutrient-pump-event_nutrient-pump_name": 1,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:13:15.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2
+    },
+    {
+      "id": "33b7d997-f8f7-4713-87bf-738486c70fee",
+      "nutrient-pump-event_nutrient-pump_name": 0,
+      "nutrient-pump-event_timestamp": "2020-01-23 22:13:05.000",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": 2
+    }
+  ],
+  "test__text-numeric": 1232,
+  "test__checkbox": true,
+  "test__text1": "test text value that is specific to this garden!!!",
+  "test__autocomplete": { "label": "option 1", "value": 0 },
+  "test__select": 1,
+  "test__text-dollar": 123.98
+}

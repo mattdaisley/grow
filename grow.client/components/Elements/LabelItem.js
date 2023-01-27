@@ -1,32 +1,29 @@
-import { Controller } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 import Typography from '@mui/material/Typography';
 
 import { Item } from '../Item';
 
-export const LabelItem = ({ appField, control, fieldArrayName }) => {
+export const LabelItem = ({ appField, fieldArrayName }) => {
 
   const props = appField.props;
 
-  const textControl = (
-    <Controller
-      name={`${fieldArrayName}.${appField.computed}`}
-      control={control}
-      render={({ field }) => {
-        // console.log(field);
-        let label = field.value;
-        if (label === undefined || label === "") {
-          label = appField.default
-        }
+  const pageFormContext = useFormContext();
 
-        return <Typography
-          {...props}
-        >
-          {label}
-        </Typography>
-      }} />
+  let label = pageFormContext.watch(`${fieldArrayName}.${appField.computed}`);
+  // console.log(label)
 
+  if (label === undefined || label === "") {
+    label = appField.default
+  }
+
+  return (
+    <Item>
+      <Typography
+        {...props}
+      >
+        {label}
+      </Typography>
+    </Item>
   );
-
-  return <Item>{textControl}</Item>;
 };

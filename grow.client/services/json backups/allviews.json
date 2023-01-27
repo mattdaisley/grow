@@ -1,0 +1,161 @@
+{
+  "views": [
+    {
+      "id": 0,
+      "name": "Summary Details",
+      "groups": [
+        {
+          "id": 0,
+          "width": 4,
+          "fields": [{ "fieldId": 8 }, { "fieldId": 15 }]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Nutrient Pump Details",
+      "groups": [
+        {
+          "id": 0,
+          "fields": [{ "fieldId": 11 }, { "fieldId": 14 }, { "fieldId": 12 }]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Outlet details",
+      "groups": [
+        {
+          "id": 0,
+          "fields": [{ "fieldId": 9 }, { "fieldId": 10 }]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Outlet Event",
+      "groups": [
+        {
+          "id": 0,
+          "fields": [{ "fieldId": 16 }, { "fieldId": 20 }, { "fieldId": 17 }]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Nutrient Pump Event",
+      "groups": [
+        {
+          "id": 0,
+          "fields": [
+            { "fieldId": 18 },
+            { "fieldId": 19 },
+            { "fieldId": 14 },
+            { "fieldId": 13 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Output Configuration",
+      "groups": [
+        {
+          "id": 0,
+          "width": 4,
+          "fields": [{ "fieldId": 21 }]
+        },
+        {
+          "id": 1,
+          "width": 2,
+          "fields": [
+            {
+              "fieldId": 22,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "output-type",
+                  "comparison": "equals",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "fieldId": 26,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "output-type",
+                  "comparison": "equals",
+                  "value": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "width": 2,
+          "fields": [
+            {
+              "fieldId": 23,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "output-type",
+                  "comparison": "equals",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "fieldId": 27,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "output-type",
+                  "comparison": "equals",
+                  "value": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "width": 2,
+          "fields": [
+            {
+              "fieldId": 24,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "output-type",
+                  "comparison": "equals",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "width": 2,
+          "fields": [
+            {
+              "fieldId": 25,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "output-type",
+                  "comparison": "equals",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

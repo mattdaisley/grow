@@ -87,7 +87,7 @@ const RenderedFields = ({ fieldsDefinition, control, fieldArrayName }) => {
         if (fieldDefinition.id === undefined || fieldDefinition.type === undefined) {
           return null;
         }
-        return <RenderField field={fieldDefinition} key={`${fieldDefinition.id}`} control={control} fieldArrayName={fieldArrayName} />
+        return <>{fieldDefinition.id}: <RenderField field={fieldDefinition} key={`${fieldDefinition.id}`} control={control} fieldArrayName={fieldArrayName} /></>
       })}
     </Grid>
   )
@@ -97,6 +97,7 @@ export default function FieldsPage() {
 
   const fieldArrayName = 'testform';
 
+  const [currentAllFieldsJson, setCurrentAllFieldsJson] = useState("");
   const [allFieldsJson, setAllFieldsJson] = useState("");
   const [allFieldsDefinition, setAllFieldsDefinition] = useState();
 
@@ -107,31 +108,28 @@ export default function FieldsPage() {
   const { fields, append, remove } = useFieldArray({ name: fieldArrayName, control });
 
   useEffect(() => {
-    const localJson = localStorage.getItem('allfields');
-    // console.log('localJson: ', localJson)
-    if (localJson) {
-      setAllFieldsJson(localJson);
+    const loadFields = () => {
+      const localJson = localStorage.getItem('allfields');
+      if (localJson && localJson !== allFieldsJson) {
+        // console.log(allFieldsJson, localJson)
+        setAllFieldsJson(localJson);
 
-      try {
-        var parsedJson = JSON.parse(localJson);
-        setAllFieldsDefinition(parsedJson);
-      }
-      catch (e) {
-        console.log(e);
-      }
-    }
-    else {
-
-      setAllFieldsJson(initialJson);
-
-      try {
-        var parsedJson = JSON.parse(initialJson);
-        setAllFieldsDefinition(parsedJson);
-      }
-      catch {
-
+        try {
+          var parsedJson = JSON.parse(localJson);
+          setAllFieldsDefinition(parsedJson);
+          setCurrentAllFieldsJson(localJson);
+        }
+        catch (e) {
+          console.log(e);
+        }
       }
     }
+
+    loadFields();
+
+    // const loadFieldsInterval = setInterval(loadFields, 2000);
+
+    // return () => clearInterval(loadFieldsInterval);
   }, []);
 
   useEffect(() => {
@@ -156,15 +154,17 @@ export default function FieldsPage() {
 
   const handleJsonChanged = (event) => {
     const rawJson = event.target.value;
-    setAllFieldsJson(rawJson);
+    setCurrentAllFieldsJson(rawJson);
 
     try {
       // console.log('setting local json', rawJson)
       var parsedJson = JSON.parse(rawJson);
-
-      localStorage.setItem('allfields', JSON.stringify(parsedJson, null, 2));
-
       setAllFieldsDefinition(parsedJson);
+
+      const formattedJson = JSON.stringify(parsedJson, null, 2);
+      setCurrentAllFieldsJson(formattedJson);
+
+      localStorage.setItem('allfields', formattedJson);
     }
     catch {
 
@@ -205,7 +205,7 @@ export default function FieldsPage() {
                 multiline
                 fullWidth
                 maxRows={38}
-                value={allFieldsJson}
+                value={currentAllFieldsJson}
                 onChange={handleJsonChanged}
               />
             </Item>

@@ -50,6 +50,8 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
     name: collectionFieldArrayName
   });
 
+  // console.log(collectionFieldArrayName, watchFields)
+
   useEffect(() => {
     const newValue = watchFields.length - 1 >= tabState.currentTab ? tabState.currentTab : watchFields.length - 1;
     setValue(newValue);

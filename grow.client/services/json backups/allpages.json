@@ -1,0 +1,101 @@
+{
+  "pages": [
+    {
+      "id": 0,
+      "name": "Summary",
+      "groups": [
+        { "id": 0, "views": [{ "viewId": 0 }] },
+        {
+          "id": 1,
+          "type": "collection-grid",
+          "name": "outlets",
+          "label": "outlets_summary",
+          "views": [{ "viewId": 4 }]
+        },
+        {
+          "id": 2,
+          "type": "collection-grid",
+          "name": "nutrient-pumps",
+          "label": "nutrient-pumps_summary",
+          "views": [{ "viewId": 3 }]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Nutrient Pumps",
+      "groups": [
+        {
+          "id": 0,
+          "type": "collection-tabs",
+          "name": "nutrient-pumps",
+          "label": "nutrient-pump_name",
+          "views": [{ "viewId": 3 }]
+        },
+        {
+          "id": 1,
+          "type": "collection-grid",
+          "name": "nutrient-pumps_events",
+          "label": "nutrient-pumps_event",
+          "views": [{ "viewId": 6 }]
+        },
+        {
+          "id": 2,
+          "type": "collection-add",
+          "name": "nutrient-pumps_events",
+          "label": "nutrient-pumps_add",
+          "actions": [
+            { "type": "submit", "label": "Add Nutrient Solution Event" }
+          ],
+          "views": [{ "viewId": 6 }]
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "another page",
+      "groups": [{ "id": 0, "views": [{ "viewId": 0 }] }]
+    },
+    {
+      "id": 2,
+      "name": "Outlets",
+      "groups": [
+        {
+          "id": 0,
+          "type": "collection-tabs",
+          "name": "outlets",
+          "label": "outlet_name",
+          "views": [{ "viewId": 4 }, { "viewId": 7 }]
+        },
+        {
+          "id": 1,
+          "type": "collection-grid",
+          "name": "outlet-events",
+          "label": "outlet_events",
+          "views": [{ "viewId": 5 }]
+        },
+        {
+          "id": 2,
+          "type": "collection-add",
+          "name": "outlet-events",
+          "label": "outlet_events_add",
+          "actions": [{ "type": "submit", "label": "Add Outlet Event" }],
+          "views": [{ "viewId": 5 }]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Label test",
+      "groups": [
+        {
+          "id": 0,
+          "type": "collection-tabs",
+          "name": "outlets",
+          "label": "outlet_name",
+          "views": [{ "viewId": 4 }, { "viewId": 7 }]
+        }
+      ]
+    }
+  ]
+}

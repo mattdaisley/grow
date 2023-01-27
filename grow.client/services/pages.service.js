@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-import { getFieldDefault } from './getFieldDefault';
 import { getCollectionFieldsAndDefaults } from './getCollectionFieldsAndDefaults';
 import useView from './views.service';
 import { getViewFieldValues } from './getViewFieldValues';
@@ -77,7 +76,13 @@ const usePages = (pageId) => {
           const filledGroups = viewDefinition?.groups?.map(group => {
             const filledFields = group.fields?.map((field) => {
               const fieldDefinition = allFieldsDefinition?.fields.find(x => x.id === field.fieldId);
-              return fieldDefinition;
+
+              const combinedField = { ...fieldDefinition }
+              if (field.conditions) {
+                combinedField.conditions = [...field.conditions]
+              }
+              // console.log(combinedField, field)
+              return combinedField;
             })
             // console.log(group.fields, filledFields)
             return { ...group, fields: filledFields }

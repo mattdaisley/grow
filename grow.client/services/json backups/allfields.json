@@ -1,0 +1,317 @@
+{
+  "fields": [
+    {
+      "id": 0,
+      "name": "test__autocomplete",
+      "type": "autocomplete",
+      "props": {
+        "label": "test autocomplete",
+        "autoComplete": true,
+        "autoSelect": true,
+        "autoHighlight": true,
+        "options": [
+          {
+            "label": "option 1",
+            "value": 0
+          },
+          {
+            "label": "option 2",
+            "value": 1
+          },
+          {
+            "label": "option 3",
+            "value": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "name": "test__select",
+      "type": "select",
+      "props": {
+        "label": "test select",
+        "options": [
+          {
+            "label": "None",
+            "value": ""
+          },
+          {
+            "label": "option 1",
+            "value": 0
+          },
+          {
+            "label": "option 2",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "name": "test__text1",
+      "type": "text",
+      "props": {
+        "label": "test text 1"
+      }
+    },
+    {
+      "id": 3,
+      "name": "test__text-numeric",
+      "type": "numeric",
+      "props": {
+        "label": "test numeric",
+        "thousandSeparator": ",",
+        "decimalScale": 3
+      }
+    },
+    {
+      "id": 5,
+      "name": "test__text-dollar",
+      "type": "numeric",
+      "props": {
+        "label": "test dollar",
+        "prefix": "$"
+      }
+    },
+    {
+      "id": 4,
+      "name": "test__checkbox",
+      "type": "checkbox",
+      "props": {
+        "label": "test checkbox"
+      }
+    },
+    {
+      "id": 7,
+      "type": "label",
+      "name": "test_label_text1",
+      "default": "[Text1]",
+      "computed": "test__text1",
+      "props": {
+        "label": "Computed Text 1"
+      }
+    },
+    {
+      "id": 8,
+      "type": "label",
+      "name": "test_label_outlet_0",
+      "default": "[Name of Outlet 0]",
+      "computed": "outlets.0.outlet_name",
+      "props": {
+        "label": "Computed Outlet 0"
+      }
+    },
+    {
+      "id": 9,
+      "name": "outlet_name",
+      "type": "text",
+      "props": {
+        "label": "Outlet Name"
+      }
+    },
+    {
+      "id": 10,
+      "name": "outlet_state",
+      "type": "checkbox",
+      "props": {
+        "label": "On/Off"
+      }
+    },
+    {
+      "id": 11,
+      "name": "nutrient-pump_name",
+      "type": "text",
+      "props": {
+        "label": "Nutrient Pump Name",
+        "placeholder": "Nutrient Pump Name"
+      }
+    },
+    {
+      "id": 12,
+      "name": "nutrient-pump_state",
+      "type": "checkbox",
+      "props": {
+        "label": "On/Off"
+      }
+    },
+    {
+      "id": 13,
+      "name": "nutrient-pump_dose",
+      "type": "numeric",
+      "props": {
+        "label": "Dose (ml)",
+        "thousandSeparator": ",",
+        "decimalScale": 2
+      }
+    },
+    {
+      "id": 14,
+      "name": "nutrient-pump_dose-rate",
+      "type": "numeric",
+      "props": {
+        "label": "Dose rate (ml/s)",
+        "thousandSeparator": ",",
+        "decimalScale": 4
+      }
+    },
+    {
+      "id": 15,
+      "type": "label",
+      "name": "nutrient-pump_0_name",
+      "default": "[Name of Nutrient Pump 0]",
+      "computed": "nutrient-pumps.0.nutrient-pump_name",
+      "props": {
+        "label": "Computed Nutrient Pump 0"
+      }
+    },
+    {
+      "id": 16,
+      "name": "outlet-event_timestamp",
+      "type": "text",
+      "props": {
+        "label": "Event Timestamp"
+      }
+    },
+    {
+      "id": 17,
+      "name": "outlet-event_value",
+      "type": "numeric",
+      "props": {
+        "label": "Value",
+        "decimalScale": 0
+      }
+    },
+    {
+      "id": 18,
+      "name": "nutrient-pump-event_timestamp",
+      "type": "text",
+      "props": {
+        "label": "Event Timestamp"
+      }
+    },
+    {
+      "id": 19,
+      "name": "nutrient-pump-event_nutrient-pump_name",
+      "type": "select",
+      "props": {
+        "label": "Nutrient Solution",
+        "computedOptions": {
+          "key": "nutrient-pumps",
+          "label": "nutrient-pump_name"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "name": "outlet-event_outlet_name",
+      "type": "autocomplete",
+      "props": {
+        "label": "Outlet",
+        "autoComplete": true,
+        "autoSelect": true,
+        "autoHighlight": true,
+        "computedOptions": {
+          "key": "outlets",
+          "label": "outlet_name"
+        }
+      }
+    },
+    {
+      "id": 21,
+      "name": "output-type",
+      "type": "autocomplete",
+      "props": {
+        "label": "Output Type",
+        "options": [
+          {
+            "label": "GPIO",
+            "value": 0
+          },
+          {
+            "label": "Serial",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": 22,
+      "name": "output_gpio-pin",
+      "type": "text",
+      "props": {
+        "label": "Pin"
+      }
+    },
+    {
+      "id": 23,
+      "name": "output_gpio-on-state",
+      "type": "autocomplete",
+      "props": {
+        "label": "On State",
+        "options": [
+          {
+            "label": "Low",
+            "value": 0
+          },
+          {
+            "label": "High",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": 24,
+      "name": "output_gpio-startup-state",
+      "type": "autocomplete",
+      "props": {
+        "label": "Startup State",
+        "options": [
+          {
+            "label": "On",
+            "value": 0
+          },
+          {
+            "label": "Off",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": 25,
+      "name": "output_gpio-shutdown-state",
+      "type": "autocomplete",
+      "props": {
+        "label": "Shutdown State",
+        "options": [
+          {
+            "label": "On",
+            "value": 0
+          },
+          {
+            "label": "Off",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": 26,
+      "name": "output_serial-command",
+      "type": "text",
+      "props": {
+        "label": "Command"
+      }
+    },
+    {
+      "id": 27,
+      "name": "output_serial-index",
+      "type": "text",
+      "props": {
+        "label": "Index"
+      }
+    }
+  ]
+}

@@ -1,8 +1,10 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { getFieldDefault } from './getFieldDefault';
 
 export function getViewFieldValues(view) {
   let viewFields = [];
-  let viewFieldValues = {}
+  let viewFieldValues = { id: uuidv4() }
   view?.groups?.map(group => {
 
     group.fields?.map((fieldDefinition) => {

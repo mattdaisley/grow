@@ -46,7 +46,7 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
 
   const watchCollectionFields = pageFormContext.watch(collectionFieldArrayName);
 
-  // console.log(fieldArrayName, groupCollectionFields, watchCollectionFields)
+  // console.log(collectionFieldArrayName, fields, groupCollectionFields, watchCollectionFields)
 
   let rows = []
   if (groupCollectionFields?.collection !== undefined) {
