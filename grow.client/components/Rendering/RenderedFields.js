@@ -7,6 +7,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 import { RenderField } from './RenderField';
 import { PageContext } from "../../app/PageContext";
+import { getConditions } from "../../services/getConditions";
 
 export const RenderedFields = ({ viewDefinition, fieldArrayName }) => {
   // console.log(viewDefinition);
@@ -21,29 +22,10 @@ export const RenderedFields = ({ viewDefinition, fieldArrayName }) => {
     return null;
   }
 
-  function getConditions(fieldDefinition) {
-    const conditions = { visible: true }
-    // console.log(fieldDefinition.conditions)
-    fieldDefinition.conditions?.map(condition => {
-      const fieldToCompare = pageFields[condition.key];
-
-      // console.log(condition, fieldToCompare)
-      switch (condition.type) {
-        case 'visibility':
-          if (fieldToCompare && condition.comparison === "equals" && fieldToCompare.value !== condition.value) {
-            conditions.visible = false;
-          }
-          break;
-      }
-    })
-
-    return conditions;
-  }
-
   function getFields(group) {
     return group.fields?.map(fieldDefinition => {
       if (!!fieldDefinition) {
-        const conditions = getConditions(fieldDefinition);
+        const conditions = getConditions(fieldDefinition, pageFields);
         // console.log(conditions);
         if (!conditions.visible) {
           return null;

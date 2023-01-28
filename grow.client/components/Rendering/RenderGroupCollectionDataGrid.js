@@ -9,6 +9,7 @@ import { DataGrid } from '@mui/x-data-grid';
 
 import { getCollectionFieldsAndDefaults } from '../../services/getCollectionFieldsAndDefaults';
 import { PageContext } from '../../app/PageContext';
+import { getConditions } from '../../services/getConditions';
 
 
 function getAutocompleteItemComputedLabel(fieldValue, computedOptions, fields) {
@@ -40,7 +41,7 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
   const pageFormContext = useFormContext();
   const pageContext = useContext(PageContext);
 
-  const fields = pageFormContext.watch(pageContext.fieldArrayName);
+  const pageFields = pageFormContext.watch(pageContext.fieldArrayName);
 
   let collectionName = group.name ?? "collection";
   const collectionFieldArrayName = `${fieldArrayName}.${collectionName}`;
@@ -71,14 +72,14 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
 
         switch (fieldDefinition.type) {
           case 'select':
-            computedRow[fieldName] = getSelectItemComputedLabel(fieldValue, fieldDefinition.props.computedOptions, fields)
+            computedRow[fieldName] = getSelectItemComputedLabel(fieldValue, fieldDefinition.props.computedOptions, pageFields)
 
             if (computedRow[fieldName] === "") {
               computedRow[fieldName] = fieldDefinition;
             }
             break;
           case 'autocomplete':
-            computedRow[fieldName] = getAutocompleteItemComputedLabel(fieldValue, fieldDefinition.props.computedOptions, fields)
+            computedRow[fieldName] = getAutocompleteItemComputedLabel(fieldValue, fieldDefinition.props.computedOptions, pageFields)
             // console.log(fieldName, fieldValue, fieldDefinition, computedRow)
             if (computedRow[fieldName] === "") {
               const matchingOption = fieldDefinition.props?.options?.find(option => option.value === fieldValue.value);
@@ -104,10 +105,22 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
   let columns = []
   if (groupCollectionFields?.collection !== undefined) {
     columns.push({ field: 'id', headerName: 'id', flex: 1 })
+    // console.log(groupCollectionFields, watchCollectionFields)
+    const fieldColumns = groupCollectionFields.collection.map(fieldDefinition => {
+      // console.log(fieldDefinition)
 
-    const fieldColumns = groupCollectionFields.collection.map(fieldDefinition => ({
-      field: fieldDefinition.name, headerName: fieldDefinition.props?.label, flex: 1
-    }))
+      // const conditions = getConditions(fieldDefinition, groupCollectionFields.fieldValues);
+      // // console.log(fieldDefinition, conditions, groupCollectionFields.fieldValues);
+      // if (!conditions.visible) {
+      //   return null;
+      // }
+      // TODO: Go through all watchCollectionFields and if a specific field is not visible for any row, don't show the column.
+      // Or could be okay to just hide the column by default
+
+      return {
+        field: fieldDefinition.name, headerName: fieldDefinition.props?.label, flex: 1
+      }
+    }).filter(field => field !== null)
 
     columns = [...columns, ...fieldColumns]
   }
