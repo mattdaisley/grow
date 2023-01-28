@@ -30,7 +30,7 @@
           "type": "collection-tabs",
           "name": "nutrient-pumps",
           "label": "nutrient-pump_name",
-          "views": [{ "viewId": 3 }]
+          "views": [{ "viewId": 3 }, { "viewId": 7 }]
         },
         {
           "id": 1,
@@ -65,7 +65,7 @@
           "type": "collection-tabs",
           "name": "outlets",
           "label": "outlet_name",
-          "views": [{ "viewId": 4 }, { "viewId": 7 }]
+          "views": [{ "viewId": 4 }, { "viewId": 7 }, { "viewId": 8 }]
         },
         {
           "id": 1,

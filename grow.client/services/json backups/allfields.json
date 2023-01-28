@@ -312,6 +312,102 @@
       "props": {
         "label": "Index"
       }
+    },
+    {
+      "id": 28,
+      "name": "automation_timer-type",
+      "type": "autocomplete",
+      "props": {
+        "label": "Timer Type",
+        "options": [
+          {
+            "label": "Cycle",
+            "value": 0
+          },
+          {
+            "label": "Schedule",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": 29,
+      "name": "automation_timer_cycle-time-on",
+      "type": "numeric",
+      "props": {
+        "label": "Time On (seconds)",
+        "decimalScale": 0
+      }
+    },
+    {
+      "id": 30,
+      "name": "automation_timer_cycle-time-off",
+      "type": "numeric",
+      "props": {
+        "label": "Time Off (seconds)",
+        "decimalScale": 0
+      }
+    },
+    {
+      "id": 31,
+      "name": "automation_timer_enabled",
+      "type": "checkbox",
+      "props": {
+        "label": "Enabled"
+      }
+    },
+    {
+      "id": 32,
+      "name": "automation_timer_schedule-start-time",
+      "type": "text",
+      "props": {
+        "label": "Start at"
+      }
+    },
+    {
+      "id": 33,
+      "name": "automation_timer_schedule-start-state",
+      "type": "autocomplete",
+      "props": {
+        "label": "Turn Output",
+        "options": [
+          {
+            "label": "On",
+            "value": 0
+          },
+          {
+            "label": "Off",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": 34,
+      "name": "automation_timer_schedule-stop-time",
+      "type": "text",
+      "props": {
+        "label": "Stop at"
+      }
+    },
+    {
+      "id": 35,
+      "name": "automation_timer_schedule-stop-state",
+      "type": "autocomplete",
+      "props": {
+        "label": "Turn Output",
+        "options": [
+          {
+            "label": "On",
+            "value": 0
+          },
+          {
+            "label": "Off",
+            "value": 1
+          }
+        ]
+      }
     }
   ]
 }

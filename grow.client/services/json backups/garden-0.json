@@ -1,24 +1,35 @@
 {
+  "id": "e0159c33-93cb-4bd2-83ea-a62ec8f39931",
   "outlets": [
     {
       "id": 0,
       "outlet_name": "Main Pump",
-      "outlet_state": true,
+      "outlet_state": false,
       "output-type": { "label": "GPIO", "value": 0 },
       "output_gpio-pin": "7",
       "output_gpio-on-state": { "label": "High", "value": 1 },
       "output_gpio-startup-state": { "label": "Off", "value": 1 },
-      "output_gpio-shutdown-state": { "label": "Off", "value": 1 }
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
+      "automation_timer-type": { "label": "Cycle", "value": 0 },
+      "automation_timer_enabled": true,
+      "automation_timer_cycle-time-on": 15,
+      "automation_timer_cycle-time-off": 300
     },
     {
       "id": 1,
       "outlet_name": "Lights",
-      "outlet_state": false,
+      "outlet_state": true,
       "output-type": { "label": "GPIO", "value": 0 },
       "output_gpio-pin": "8",
       "output_gpio-on-state": { "label": "High", "value": 1 },
       "output_gpio-startup-state": { "label": "On", "value": 0 },
-      "output_gpio-shutdown-state": { "label": "Off", "value": 1 }
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
+      "automation_timer-type": { "label": "Schedule", "value": 1 },
+      "automation_timer_enabled": true,
+      "automation_timer_schedule-start-time": "08:30",
+      "automation_timer_schedule-start-state": { "label": "On", "value": 0 },
+      "automation_timer_schedule-stop-time": "20:30",
+      "automation_timer_schedule-stop-state": { "label": "Off", "value": 1 }
     },
     {
       "id": 2,
@@ -28,7 +39,11 @@
       "output_gpio-pin": "9",
       "output_gpio-on-state": { "label": "High", "value": 1 },
       "output_gpio-startup-state": { "label": "Off", "value": 1 },
-      "output_gpio-shutdown-state": { "label": "Off", "value": 1 }
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
+      "automation_timer-type": { "label": "Cycle", "value": 0 },
+      "automation_timer_enabled": true,
+      "automation_timer_cycle-time-on": 15,
+      "automation_timer_cycle-time-off": 1800
     },
     {
       "id": 3,
@@ -38,7 +53,52 @@
       "output_gpio-pin": "10",
       "output_gpio-on-state": { "label": "High", "value": 1 },
       "output_gpio-startup-state": { "label": "Off", "value": 1 },
-      "output_gpio-shutdown-state": { "label": "Off", "value": 1 }
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
+      "automation_timer-type": { "label": "Cycle", "value": 0 },
+      "automation_timer_enabled": true,
+      "automation_timer_cycle-time-on": 1800,
+      "automation_timer_cycle-time-off": 7200
+    }
+  ],
+  "nutrient-pumps": [
+    {
+      "id": 0,
+      "nutrient-pump_name": "Flora Micro",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false,
+      "output-type": { "label": "Serial", "value": 1 },
+      "output_serial-command": "P",
+      "output_serial-index": "0"
+    },
+    {
+      "id": 1,
+      "nutrient-pump_name": "Flora Grow",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false,
+      "output-type": { "label": "Serial", "value": 1 },
+      "output_serial-command": "P",
+      "output_serial-index": "1"
+    },
+    {
+      "id": 2,
+      "nutrient-pump_name": "Flora Bloom",
+      "nutrient-pump_dose-rate": 1.2055,
+      "nutrient-pump_dose": "",
+      "nutrient-pump_state": false,
+      "output-type": { "label": "Serial", "value": 1 },
+      "output_serial-command": "P",
+      "output_serial-index": "2"
+    },
+    {
+      "id": "c9a17ee3-2c48-499e-b994-abbd878536dc",
+      "nutrient-pump_name": "PH Down",
+      "nutrient-pump_dose-rate": 0.2,
+      "nutrient-pump_state": false,
+      "output-type": { "label": "Serial", "value": 1 },
+      "output_serial-command": "P",
+      "output_serial-index": "3"
     }
   ],
   "outlet-events": [
@@ -59,36 +119,6 @@
       "outlet-event_timestamp": "2020-01-23 22:13:00.000",
       "outlet-event_outlet_name": { "value": 0, "label": "Main Pump" },
       "outlet-event_value": 0
-    }
-  ],
-  "id": "e0159c33-93cb-4bd2-83ea-a62ec8f39931",
-  "nutrient-pumps": [
-    {
-      "id": 0,
-      "nutrient-pump_name": "Flora Micro",
-      "nutrient-pump_dose-rate": 1.2055,
-      "nutrient-pump_dose": "",
-      "nutrient-pump_state": false
-    },
-    {
-      "id": 1,
-      "nutrient-pump_name": "Flora Grow",
-      "nutrient-pump_dose-rate": 1.2055,
-      "nutrient-pump_dose": "",
-      "nutrient-pump_state": false
-    },
-    {
-      "id": 2,
-      "nutrient-pump_name": "Flora Bloom",
-      "nutrient-pump_dose-rate": 1.2055,
-      "nutrient-pump_dose": "",
-      "nutrient-pump_state": false
-    },
-    {
-      "id": "c9a17ee3-2c48-499e-b994-abbd878536dc",
-      "nutrient-pump_name": "PH Down",
-      "nutrient-pump_dose-rate": 0.2,
-      "nutrient-pump_state": false
     }
   ],
   "nutrient-pumps_events": [

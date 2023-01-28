@@ -7,7 +7,14 @@
         {
           "id": 0,
           "width": 4,
-          "fields": [{ "fieldId": 8 }, { "fieldId": 15 }]
+          "fields": [
+            {
+              "fieldId": 8
+            },
+            {
+              "fieldId": 15
+            }
+          ]
         }
       ]
     },
@@ -17,7 +24,17 @@
       "groups": [
         {
           "id": 0,
-          "fields": [{ "fieldId": 11 }, { "fieldId": 14 }, { "fieldId": 12 }]
+          "fields": [
+            {
+              "fieldId": 11
+            },
+            {
+              "fieldId": 14
+            },
+            {
+              "fieldId": 12
+            }
+          ]
         }
       ]
     },
@@ -27,31 +44,58 @@
       "groups": [
         {
           "id": 0,
-          "fields": [{ "fieldId": 9 }, { "fieldId": 10 }]
+          "fields": [
+            {
+              "fieldId": 9
+            },
+            {
+              "fieldId": 10
+            }
+          ]
         }
       ]
     },
     {
       "id": 5,
       "name": "Outlet Event",
+      "label": "Outlet Event",
       "groups": [
         {
           "id": 0,
-          "fields": [{ "fieldId": 16 }, { "fieldId": 20 }, { "fieldId": 17 }]
+          "fields": [
+            {
+              "fieldId": 16
+            },
+            {
+              "fieldId": 20
+            },
+            {
+              "fieldId": 17
+            }
+          ]
         }
       ]
     },
     {
       "id": 6,
       "name": "Nutrient Pump Event",
+      "label": "Nutrient Pump Event",
       "groups": [
         {
           "id": 0,
           "fields": [
-            { "fieldId": 18 },
-            { "fieldId": 19 },
-            { "fieldId": 14 },
-            { "fieldId": 13 }
+            {
+              "fieldId": 18
+            },
+            {
+              "fieldId": 19
+            },
+            {
+              "fieldId": 14
+            },
+            {
+              "fieldId": 13
+            }
           ]
         }
       ]
@@ -59,11 +103,16 @@
     {
       "id": 7,
       "name": "Output Configuration",
+      "label": "Output Configuration",
       "groups": [
         {
           "id": 0,
           "width": 4,
-          "fields": [{ "fieldId": 21 }]
+          "fields": [
+            {
+              "fieldId": 21
+            }
+          ]
         },
         {
           "id": 1,
@@ -152,6 +201,133 @@
                   "value": 0
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Output Automation Timer Configuration",
+      "label": "Timer Configuration",
+      "groups": [
+        {
+          "id": 0,
+          "width": 4,
+          "fields": [
+            {
+              "fieldId": 28
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "width": 3,
+          "fields": [
+            {
+              "fieldId": 29,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "automation_timer-type",
+                  "comparison": "equals",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "width": 1.5,
+          "fields": [
+            {
+              "fieldId": 32,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "automation_timer-type",
+                  "comparison": "equals",
+                  "value": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "width": 1.5,
+          "fields": [
+            {
+              "fieldId": 33,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "automation_timer-type",
+                  "comparison": "equals",
+                  "value": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "width": 3,
+          "fields": [
+            {
+              "fieldId": 30,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "automation_timer-type",
+                  "comparison": "equals",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "width": 1.5,
+          "fields": [
+            {
+              "fieldId": 34,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "automation_timer-type",
+                  "comparison": "equals",
+                  "value": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "width": 1.5,
+          "fields": [
+            {
+              "fieldId": 35,
+              "conditions": [
+                {
+                  "type": "visibility",
+                  "key": "automation_timer-type",
+                  "comparison": "equals",
+                  "value": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "width": 2,
+          "fields": [
+            {
+              "fieldId": 31
             }
           ]
         }
