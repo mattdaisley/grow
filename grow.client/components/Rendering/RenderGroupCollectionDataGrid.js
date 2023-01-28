@@ -12,6 +12,7 @@ import { PageContext } from '../../app/PageContext';
 
 
 function getAutocompleteItemComputedLabel(fieldValue, computedOptions, fields) {
+  // console.log(fieldValue, computedOptions, fields)
   if (computedOptions === undefined || Object.keys(computedOptions).length === 0) {
     return "";
   }
@@ -78,9 +79,10 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
             break;
           case 'autocomplete':
             computedRow[fieldName] = getAutocompleteItemComputedLabel(fieldValue, fieldDefinition.props.computedOptions, fields)
-
+            // console.log(fieldName, fieldValue, fieldDefinition, computedRow)
             if (computedRow[fieldName] === "") {
-              computedRow[fieldName] = fieldDefinition;
+              const matchingOption = fieldDefinition.props?.options?.find(option => option.value === fieldValue.value);
+              computedRow[fieldName] = matchingOption.label ?? ""
             }
             break;
           default:
