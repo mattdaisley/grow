@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { useForm, useFieldArray, useWatch, useFormContext } from "react-hook-form";
 
 import Grid from '@mui/material/Unstable_Grid2';
+import { Typography } from "@mui/material";
 
 import { RenderField } from './RenderField';
 import { PageContext } from "../../app/PageContext";
@@ -36,18 +37,40 @@ export const RenderedFields = ({ viewDefinition, fieldArrayName }) => {
     }).filter(field => field !== null)
   }
 
-  return viewDefinition?.groups?.map(group => {
+  if (viewDefinition?.groups === undefined) {
+    return null;
+  }
+
+  const groupFields = viewDefinition?.groups?.map(group => {
     const fields = getFields(group);
     // console.log(fields);
     if (fields.length === 0) {
       return null;
     }
 
-    return (
-      <Grid xs={group.width ?? 12} key={group.id}>
-        {fields}
+    return { group, fields };
+  }).filter(groupField => groupField !== null);
+
+  // console.log(groupFields)
+
+  if (groupFields.length === 0) {
+    return null;
+  }
+
+  return <>
+    {viewDefinition.label && (
+      <Grid xs={12} sx={{ px: 2 }}>
+        <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.400' }}>{viewDefinition.label}</Typography>
       </Grid>
-    );
-  })
+    )}
+    {groupFields.map(({ group, fields }) => {
+
+      return (
+        <Grid xs={group.width ?? 12} key={group.id}>
+          {fields}
+        </Grid>
+      );
+    })}
+  </>
 
 };

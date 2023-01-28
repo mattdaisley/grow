@@ -8,7 +8,10 @@ export function getConditions(fieldDefinition, pageFields) {
     // console.log(condition, fieldToCompare)
     switch (condition.type) {
       case 'visibility':
-        if (fieldToCompare && condition.comparison === "equals" && fieldToCompare.value !== condition.value) {
+        if (fieldToCompare && condition.comparison === "equals" && fieldToCompare.value === condition.value) {
+          conditions.visible = true;
+        }
+        else {
           conditions.visible = false;
         }
         break;

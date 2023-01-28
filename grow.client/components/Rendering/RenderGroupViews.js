@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper';
 import { RenderedFields } from './RenderedFields';
 
 export function RenderGroupViews({ group, control, fieldArrayName }) {
-  // console.log(fieldArrayName)
+  // console.log(fieldArrayName, group)
   return (
     <Grid xs={12} container alignContent={'flex-start'}>
       {group.views?.map(viewDefinition => {
