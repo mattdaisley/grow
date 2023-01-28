@@ -87,7 +87,7 @@ const RenderedFields = ({ fieldsDefinition, control, fieldArrayName }) => {
         if (fieldDefinition.id === undefined || fieldDefinition.type === undefined) {
           return null;
         }
-        return <>{fieldDefinition.id}: <RenderField field={fieldDefinition} key={`${fieldDefinition.id}`} control={control} fieldArrayName={fieldArrayName} /></>
+        return <>{fieldDefinition.id}: {fieldDefinition.name} <RenderField field={fieldDefinition} key={`${fieldDefinition.id}`} control={control} fieldArrayName={fieldArrayName} /></>
       })}
     </Grid>
   )

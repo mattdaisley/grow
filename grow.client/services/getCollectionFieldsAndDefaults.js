@@ -15,7 +15,7 @@ export function getCollectionFieldsAndDefaults(group) {
       const key = viewField.name;
       // console.log(key, fieldValues);
       if (!(key in fieldValues)) {
-        // collection.push(viewField)
+        collection.push(viewField)
         fieldValues[key] = viewFieldValues[key]
       }
     })
