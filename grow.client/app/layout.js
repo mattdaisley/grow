@@ -13,14 +13,25 @@ import '../styles/globals.css'
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#212121",
-      light: "#484848",
-      dark: "#000000"
+      main: "#90a4ae",
+      light: "#c1d5e0",
+      dark: "#62757f",
+      contrastText: "#000000"
     },
     background: {
-      paper: "#F5F5F6",
-      default: "#E1E2E1"
+      main: "#eceff1",
+      paper: "#ffffff",
+      default: "#fafafa"
+    },
+    text: {
+      primary: '#494949',
     }
+  },
+  typography: {
+    h4: {
+      fontWeight: 500
+    },
+    fontWeightLight: 500
   }
 });
 
@@ -32,7 +43,6 @@ export default function Layout({ children }) {
           <CssBaseline />
           <div className={styles.container}>
             <ResponsiveAppBar />
-            <Toolbar />
             <main className={styles.main}>
               {children}
             </main>

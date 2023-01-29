@@ -8,23 +8,19 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
+import SearchIcon from "@mui/icons-material/Search";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 
 import Link from "next/link";
 
-const pages = [
-  { name: "Gardens", path: "/gardens" },
-  // { name: "Contexts", path: "/configuration/contexts" },
-  { name: "Pages", path: "/configuration/pages" },
-  { name: "Views", path: "/configuration/views" },
-  { name: "Fields", path: "/configuration/fields" },
-];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
+
+const drawerWidth = 240;
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -82,137 +78,132 @@ function ResponsiveAppBar() {
 
   return (
     <AppBar
-      position="fixed"
-      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      position="sticky"
+      color="transparent"
+      sx={{
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: `${drawerWidth}px`,
+        transition: theme.transitions.create(["margin", "width"], {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        backdropFilter: "blur(8px)",
+        boxShadow: "none",
+        zIndex: (theme) => theme.zIndex.drawer + 0,
+      }}
     >
-      <Container maxWidth="xl">
-        <Toolbar>
-          <AutoModeIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="/"
+      <Toolbar>
+        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleOpenNavMenu}
+            color="inherit"
+          >
+            <MenuIcon />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorElNav}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "left",
+            }}
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
             sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
+              display: { xs: "block", md: "none" },
             }}
           >
-            GROW
-          </Typography>
+            {/* {pages.map((page) => (
+              <MenuItem key={page.name} onClick={handleCloseNavMenu}>
+                <Link href={page.path}>
+                  <Typography textAlign="center">{page.name}</Typography>
+                </Link>
+              </MenuItem>
+            ))} */}
+          </Menu>
+        </Box>
+        <AutoModeIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+        <Typography
+          variant="h5"
+          noWrap
+          component="a"
+          href=""
+          sx={{
+            mr: 2,
+            display: { xs: "flex", md: "none" },
+            flexGrow: 1,
+            fontFamily: "monospace",
+            fontWeight: 700,
+            letterSpacing: ".3rem",
+            color: "inherit",
+            textDecoration: "none",
+          }}
+        >
+          LOGO
+        </Typography>
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: { xs: "8", md: "flex" },
+            mr: 4,
+            alignItems: "flex-end",
+          }}
+        >
+          <SearchIcon sx={{ display: { xs: "flex" }, mr: 1 }} />
+          <TextField
+            id="standard-search"
+            label="Search"
+            type="search"
+            size="small"
+            variant="standard"
+            fullWidth
+          />
+        </Box>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
+        <Box sx={{ flexGrow: 0 }}>
+          <Tooltip title="Open settings">
+            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              <Avatar
+                alt="Matt Daisley"
+                sx={{ bgcolor: theme.palette.primary.light }}
+              >
+                MD
+              </Avatar>
             </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page.name} onClick={handleCloseNavMenu}>
-                  <Link href={page.path}>
-                    <Typography textAlign="center">{page.name}</Typography>
-                  </Link>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <AutoModeIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href=""
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
+          </Tooltip>
+          <Menu
+            sx={{ mt: "45px" }}
+            id="menu-appbar"
+            anchorEl={anchorElUser}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
             }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorElUser)}
+            onClose={handleCloseUserMenu}
           >
-            LOGO
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Link href={page.path} key={page.name}>
-                <Button
-                  key={page.name}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page.name}
-                </Button>
-              </Link>
+            {settings.map((setting) => (
+              <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <Typography textAlign="center">{setting}</Typography>
+              </MenuItem>
             ))}
-          </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar
-                  alt="Matt Daisley"
-                  sx={{ bgcolor: theme.palette.primary.light }}
-                >
-                  MD
-                </Avatar>
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-        </Toolbar>
-      </Container>
+          </Menu>
+        </Box>
+      </Toolbar>
     </AppBar>
   );
 }

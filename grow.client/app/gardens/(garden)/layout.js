@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import AutoModeIcon from "@mui/icons-material/AutoMode";
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
@@ -13,10 +14,19 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Toolbar from '@mui/material/Toolbar';
+import Typography from "@mui/material/Typography";
 
 import useGardens from '../../../services/gardens.service';
 
-const drawerWidth = 240;
+export const drawerWidth = 240;
+
+const pages = [
+  { name: "Gardens", path: "/gardens" },
+  // { name: "Contexts", path: "/configuration/contexts" },
+  { name: "Pages", path: "/configuration/pages" },
+  { name: "Views", path: "/configuration/views" },
+  { name: "Fields", path: "/configuration/fields" },
+];
 
 export default function GardenLayout({ children }) {
 
@@ -33,21 +43,51 @@ export default function GardenLayout({ children }) {
   };
 
   const drawer = (
-    <div>
-      <Toolbar />
-      <Divider />
+    <Box>
+      <Toolbar>
+        <AutoModeIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+        <Typography
+          variant="h6"
+          noWrap
+          component="a"
+          href="/"
+          sx={{
+            mr: 2,
+            display: { xs: "none", md: "flex" },
+            fontFamily: "monospace",
+            fontWeight: 700,
+            letterSpacing: ".3rem",
+            color: "inherit",
+            textDecoration: "none",
+          }}
+        >
+          GROW
+        </Typography>
+      </Toolbar>
       <List>
         {currentGardenDefinition?.pages.length > 0 && currentGardenDefinition?.pages.map((page, index) => (
           <ListItem key={page.id} disablePadding>
-            <Link href={`/gardens/${encodeURIComponent(gardenId)}/${page.id}`}>
-              <ListItemButton>
-                <ListItemText primary={page.name} />
-              </ListItemButton>
-            </Link>
+            <ListItemButton>
+              <Link href={`/gardens/${encodeURIComponent(gardenId)}/${page.id}`}>
+                <ListItemText primary={page.name} sx={{ '& .MuiListItemText-primary': { fontWeight: 'light' } }} />
+              </Link>
+            </ListItemButton>
           </ListItem>
         ))}
       </List>
-    </div>
+      <Divider />
+      <List>
+        {pages.map((page) => (
+          <ListItem key={page.name} disablePadding>
+            <ListItemButton>
+              <Link href={page.path}>
+                <ListItemText primary={page.name} sx={{ '& .MuiListItemText-primary': { fontWeight: 'light' } }} />
+              </Link>
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
   );
 
   const container = window !== undefined ? () => window.document.body : undefined;
@@ -68,10 +108,17 @@ export default function GardenLayout({ children }) {
           ModalProps={{
             keepMounted: true, // Better open performance on mobile.
           }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          PaperProps={{
+            sx: { bgcolor: 'primary.main' }
           }}
+          sx={(theme) => ({
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              bgcolor: theme.palette.background.main
+            },
+          })}
         >
           {drawer}
         </Drawer>
@@ -79,7 +126,12 @@ export default function GardenLayout({ children }) {
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              bgcolor: 'background.main',
+              color: 'primary.contrastText'
+            },
           }}
           open
         >
