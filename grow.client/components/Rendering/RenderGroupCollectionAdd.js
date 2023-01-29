@@ -17,22 +17,13 @@ export function RenderGroupCollectionAdd({ group, fieldArrayName }) {
   const { control, watch } = useFormContext();
   const pageContext = useContext(PageContext);
 
-  const allFields = watch();
-  // console.log(allFields)
   const pageFields = watch(pageContext.fieldArrayName);
   // console.log(group, fieldArrayName, pageFields, pageContext.fieldArrayName)
 
   let collectionName = group.name ?? "collection";
   const collectionFieldArrayName = `${fieldArrayName}.${collectionName}`;
 
-  const watchFields = useWatch({
-    control,
-    name: fieldArrayName
-  });
-
-  // console.log(fieldArrayName, watchFields)
-
-  const { fields, prepend } = useFieldArray({
+  const { prepend } = useFieldArray({
     control,
     name: collectionFieldArrayName
   });
@@ -42,15 +33,19 @@ export function RenderGroupCollectionAdd({ group, fieldArrayName }) {
   useEffect(() => {
     const collectionFields = getCollectionFieldsAndDefaults(group);
     // console.log(collectionFields);
-    editingForm.reset({ ...pageFields, editing: [collectionFields.fieldValues] })
+    const editingFormDefaults = { ...pageFields, editing: [collectionFields.fieldValues] };
+    // console.log(editingFormDefaults);
+    editingForm.reset(editingFormDefaults)
     setLoading(false);
   }, [JSON.stringify(group), JSON.stringify(pageFields)])
 
   function onSubmit(data) {
-    // console.log(data.editing[0])
+    // console.log(data, data.editing[0])
 
     prepend({ id: uuidv4(), ...data.editing[0] });
   };
+
+  // console.log(editingForm)
 
   return (
     <>

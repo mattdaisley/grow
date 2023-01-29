@@ -13,7 +13,7 @@ import { getConditions } from '../../services/getConditions';
 
 
 function getAutocompleteItemComputedLabel(fieldValue, computedOptions, fields) {
-  // console.log(fieldValue, computedOptions, fields)
+  console.log(fieldValue, computedOptions, fields)
   if (computedOptions === undefined || Object.keys(computedOptions).length === 0) {
     return "";
   }

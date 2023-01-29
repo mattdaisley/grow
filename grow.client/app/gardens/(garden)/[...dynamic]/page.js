@@ -7,6 +7,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 import usePages from '../../../../services/pages.service';
 import useGardens from '../../../../services/gardens.service';
@@ -31,7 +32,7 @@ export default function DynamicPage({ params }) {
   const { currentPageDefinition, currentPageJson, currentPageFieldDefaults, updatePage } = usePages(currentPageId);
   const [loading, setLoading] = useState(true);
 
-  // console.log(fields, currentPageFieldDefaults);
+  // console.log(fields, currentPageFieldDefaults, currentGardenDefinition);
 
   useEffect(() => {
     if (!!currentGardenDefinition) {
@@ -79,6 +80,8 @@ export default function DynamicPage({ params }) {
     <form onSubmit={handleSubmit(onSubmit)}>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container xs={12} spacing={2}>
+
+          <Typography variant="h2" sx={{ pb: 2 }}>{currentGardenDefinition?.name}</Typography>
 
           <PageContext.Provider value={{ fieldArrayName: `${fieldArrayName}.0` }}>
             <FormProvider {...methods} >

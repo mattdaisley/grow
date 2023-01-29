@@ -1,24 +1,35 @@
 {
-  "nutrient-pumps": [
+  "outlets": [
     {
-      "nutrient-pump_name": "Flora Micro",
-      "nutrient-pump_dose-rate": 1.2055,
-      "nutrient-pump_dose": "",
-      "nutrient-pump_state": false
-    },
-    {
-      "nutrient-pump_name": "Flora Grow",
-      "nutrient-pump_dose-rate": 1.2055,
-      "nutrient-pump_dose": "",
-      "nutrient-pump_state": false
-    },
-    {
-      "nutrient-pump_name": "Flora Bloom",
-      "nutrient-pump_dose-rate": 1.2055,
-      "nutrient-pump_dose": "",
-      "nutrient-pump_state": false
+      "id": "b8208bf3-5991-4cdd-bd4b-549fc3b9ead3",
+      "outlet_name": "Main Pump",
+      "outlet_state": false,
+      "output-type": { "label": "GPIO", "value": 0 },
+      "output_gpio-pin": "7",
+      "output_serial-command": "P",
+      "output_gpio-on-state": { "label": "High", "value": 1 },
+      "output_serial-index": "",
+      "output_gpio-startup-state": { "label": "Off", "value": 1 },
+      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
+      "automation_timer-type": { "label": "Cycle", "value": 0 },
+      "automation_timer_cycle-time-on": 5,
+      "automation_timer_schedule-start-time": "",
+      "automation_timer_schedule-start-state": null,
+      "automation_timer_cycle-time-off": 300,
+      "automation_timer_schedule-stop-time": "",
+      "automation_timer_schedule-stop-state": null,
+      "automation_timer_enabled": true
     }
   ],
+  "outlet-events": [
+    {
+      "id": "a59e8d4b-ed24-4f9f-afd3-736c517a1df2",
+      "outlet-event_timestamp": "2020-01-23 22:13:05.000",
+      "outlet-event_outlet_name": { "value": 0, "label": "Main Pump" },
+      "outlet-event_value": 0
+    }
+  ],
+  "nutrient-pumps": [],
   "nutrient-pumps_events": [
     {
       "id": "ff72fc82-80f4-4032-a446-f7eac4c7e12d",
@@ -40,24 +51,6 @@
       "nutrient-pump-event_timestamp": "2020-01-23 22:13:05.000",
       "nutrient-pump_dose-rate": 1.2055,
       "nutrient-pump_dose": 2
-    }
-  ],
-  "outlets": [
-    { "outlet_name": "Main Pump", "outlet_state": true },
-    { "outlet_name": "Lights", "outlet_state": false },
-    { "outlet_name": "Nutrient Mixer", "outlet_state": false },
-    { "outlet_name": "Fan", "outlet_state": false }
-  ],
-  "outlet-events": [
-    {
-      "id": "ae95b380-83fc-49f1-99c9-840fca5f0750",
-      "outlet-event_timestamp": "2020-01-23 22:13:05.000",
-      "outlet-event_value": 0
-    },
-    {
-      "id": "a4888835-fa20-49f7-974b-73cdfa48dc72",
-      "outlet-event_timestamp": "2020-01-23 22:13:00.000",
-      "outlet-event_value": 1
     }
   ],
   "test__text-numeric": 1232,

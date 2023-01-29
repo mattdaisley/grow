@@ -10,10 +10,10 @@ import { RenderField } from './RenderField';
 import { PageContext } from "../../app/PageContext";
 import { getConditions } from "../../services/getConditions";
 
-export const RenderedFields = ({ viewDefinition, fieldArrayName }) => {
+export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
   // console.log(viewDefinition);
   // console.log(fieldArrayName)
-  const { control, watch } = useFormContext();
+  const { watch } = useFormContext();
   const pageContext = useContext(PageContext);
 
   const pageFields = watch(fieldArrayName);

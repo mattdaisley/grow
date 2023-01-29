@@ -57,17 +57,19 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
       control={control}
       render={({ field: { value, onChange } }) => {
 
-        return <Autocomplete
-          fullWidth
-          size="small"
-          {...autoCompleteProps}
-          id={`autocomplete-${appField.id}`}
-          options={menuItems}
-          value={value}
-          onChange={(_, newValue) => onChange(newValue)}
-          isOptionEqualToValue={(option, testValue) => option?.label === testValue?.label}
-          renderInput={(params) => <TextField {...params} label={props.label} />}
-        />
+        return (
+          <Autocomplete
+            fullWidth
+            size="small"
+            {...autoCompleteProps}
+            id={`autocomplete-${appField.id}`}
+            options={menuItems}
+            value={value}
+            onChange={(_, newValue) => onChange(newValue)}
+            isOptionEqualToValue={(option, testValue) => option?.label === testValue?.label}
+            renderInput={(params) => <TextField {...params} label={props.label} />}
+          />
+        )
       }} />
   </Item>;
 };
