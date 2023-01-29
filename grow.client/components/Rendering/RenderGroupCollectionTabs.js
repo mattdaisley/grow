@@ -35,7 +35,7 @@ function TabPanel(props) {
 
 export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
   const [value, setValue] = useState(0);
-  const [tabState, setTabState] = useState({ added: false, currentTab: 0 });
+  const [tabState, setTabState] = useState({ currentTab: 0 });
 
   let collectionName = group.name ?? "collection";
   const collectionFieldArrayName = `${fieldArrayName}.${collectionName}`;
@@ -53,9 +53,9 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
   // console.log(collectionFieldArrayName, watchFields)
 
   useEffect(() => {
-    const newValue = watchFields.length - 1 >= tabState.currentTab ? tabState.currentTab : watchFields.length - 1;
+    const newValue = fields.length - 1 >= tabState.currentTab ? tabState.currentTab : fields.length - 1;
     setValue(newValue);
-  }, [tabState.currentTab, watchFields.length])
+  }, [tabState.currentTab, fields.length])
 
   // console.log(collectionFieldArrayName, watchFields);
   // console.log(group);
@@ -67,11 +67,12 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
   const handleCollectionAdd = (event) => {
     const newDefaults = getCollectionFieldsAndDefaults(group);
     append(newDefaults.fieldValues);
-    setTabState({ ...tabState, currentTab: watchFields.length, tabAdded: true });
+    setTabState({ ...tabState, currentTab: fields.length });
   };
 
   const handleCollectionRemove = (event) => {
     if (fields.length > 1) {
+      // console.log(tabState, fields, fields)
       remove(tabState.currentTab)
 
       if (tabState.currentTab > 0) {
@@ -79,6 +80,7 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
       }
     }
   }
+  // console.log(tabState, fields, fields)
 
   return (
     <>
@@ -112,7 +114,7 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
         </Box>
       </Grid>
       {
-        watchFields.map((field, index) => (
+        fields.map((field, index) => (
           <TabPanel key={index} value={value} index={index} group={group} control={control} fieldArrayName={collectionFieldArrayName} />
         ))
       }

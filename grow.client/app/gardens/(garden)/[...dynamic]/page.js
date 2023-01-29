@@ -81,7 +81,7 @@ export default function DynamicPage({ params }) {
       <Box sx={{ flexGrow: 1 }}>
         <Grid container xs={12} spacing={2}>
 
-          <Typography variant="h2" sx={{ pb: 2 }}>{currentGardenDefinition?.name}</Typography>
+          <Typography variant="h5" sx={{ pb: 2 }}>{currentGardenDefinition?.name}</Typography>
 
           <PageContext.Provider value={{ fieldArrayName: `${fieldArrayName}.0` }}>
             <FormProvider {...methods} >

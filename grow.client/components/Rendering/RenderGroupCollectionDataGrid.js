@@ -11,9 +11,8 @@ import { getCollectionFieldsAndDefaults } from '../../services/getCollectionFiel
 import { PageContext } from '../../app/PageContext';
 import { getConditions } from '../../services/getConditions';
 
-
 function getAutocompleteItemComputedLabel(fieldValue, computedOptions, fields) {
-  console.log(fieldValue, computedOptions, fields)
+  // console.log(fieldValue, computedOptions, fields)
   if (computedOptions === undefined || Object.keys(computedOptions).length === 0) {
     return "";
   }
