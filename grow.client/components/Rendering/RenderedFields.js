@@ -60,7 +60,7 @@ export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
   return <>
     {viewDefinition.label && (
       <Grid xs={12} sx={{ px: 2 }}>
-        <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.400' }}>{viewDefinition.label}</Typography>
+        <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300' }}>{viewDefinition.label}</Typography>
       </Grid>
     )}
     {groupFields.map(({ group, fields }) => {

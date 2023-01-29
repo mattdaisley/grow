@@ -4,8 +4,10 @@ import { useState, useEffect, useContext } from 'react';
 import { useFormContext } from "react-hook-form";
 
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import { DataGrid } from '@mui/x-data-grid';
+import Typography from '@mui/material/Typography';
 
 import { getCollectionFieldsAndDefaults } from '../../services/getCollectionFieldsAndDefaults';
 import { PageContext } from '../../app/PageContext';
@@ -128,23 +130,21 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
 
   return (
     <>
-      <Grid container alignItems={'center'}>
-        <Box sx={{
-          padding: 2,
-          width: '100%',
-          borderBottom: 1,
-          borderColor: 'grey.400'
-        }}>
-          <DataGrid
-            rows={rows ?? []}
-            columns={columns}
-            pageSize={10}
-            rowsPerPageOptions={[10, 20]}
-            rowHeight={40}
-            autoHeight
-          />
-        </Box>
-      </Grid>
+      <Paper sx={{
+        width: '100%',
+
+      }}>
+        <Typography variant='h5' sx={{ p: 1 }}>{group.label}</Typography>
+        <DataGrid
+          rows={rows ?? []}
+          columns={columns}
+          pageSize={10}
+          rowsPerPageOptions={[10, 20]}
+          rowHeight={40}
+          autoHeight
+          sx={{ bgcolor: 'background.paper' }}
+        />
+      </Paper>
 
     </>
   );

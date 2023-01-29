@@ -4,7 +4,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Toolbar from "@mui/material/Toolbar";
 
-import styles from '../styles/Home.module.css'
 import ResponsiveAppBar from '../components/ResponsiveAppBar'
 import Footer from '../components/Footer'
 
@@ -31,6 +30,9 @@ const theme = createTheme({
     h4: {
       fontWeight: 500
     },
+    h5: {
+      fontWeight: 500
+    },
     fontWeightLight: 500
   }
 });
@@ -41,9 +43,9 @@ export default function Layout({ children }) {
       <body>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <div className={styles.container}>
+          <div>
             <ResponsiveAppBar />
-            <main className={styles.main}>
+            <main>
               {children}
             </main>
           </div>
