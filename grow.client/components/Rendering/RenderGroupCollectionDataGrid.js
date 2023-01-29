@@ -131,7 +131,6 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
       <Grid container alignItems={'center'}>
         <Box sx={{
           padding: 2,
-          height: 430,
           width: '100%',
           borderBottom: 1,
           borderColor: 'grey.400'
@@ -141,6 +140,8 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[10, 20]}
+            rowHeight={40}
+            autoHeight
           />
         </Box>
       </Grid>
