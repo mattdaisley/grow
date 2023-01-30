@@ -73,7 +73,7 @@
           "id": 1,
           "type": "collection-grid",
           "name": "outlet-events",
-          "label": "outlet_events",
+          "label": "Outlet Events",
           "views": [{ "viewId": 5 }]
         },
         {

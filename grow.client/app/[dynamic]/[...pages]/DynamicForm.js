@@ -55,7 +55,7 @@ export function DynamicForm(props) {
         </Toolbar>
       </AppBar>
       <form onSubmit={formMethods.handleSubmit(onSubmit)}>
-        <Box sx={{ flexGrow: 1, p: 4 }} >
+        <Box sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, pl: { xs: 4, md: 6 } }} >
           <Grid container xs={12} spacing={0}>
             <FormProvider {...formMethods}>
               <DynamicPageContext.Provider value={{ ...props }}>

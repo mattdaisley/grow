@@ -21,7 +21,7 @@ export default function DynamicPage() {
   // console.log(allPages, allViews, allFields, dynamicItem)
 
   if (!allPages?.item || !allViews?.item || !allFields?.item) {
-    return <div>Unable to load configuration data</div>;
+    return null;
   }
 
   if (!dynamicItem?.item) {
