@@ -7,16 +7,18 @@
         { "id": 0, "views": [{ "viewId": 0 }] },
         {
           "id": 1,
+          "width": 6,
           "type": "collection-grid",
           "name": "outlets",
-          "label": "outlets_summary",
+          "label": "Outlets Summary",
           "views": [{ "viewId": 4 }]
         },
         {
           "id": 2,
+          "width": 6,
           "type": "collection-grid",
           "name": "nutrient-pumps",
-          "label": "nutrient-pumps_summary",
+          "label": "Nutrient Pumps Summary",
           "views": [{ "viewId": 3 }]
         }
       ]
@@ -36,14 +38,14 @@
           "id": 1,
           "type": "collection-grid",
           "name": "nutrient-pumps_events",
-          "label": "nutrient-pumps_event",
+          "label": "Events",
           "views": [{ "viewId": 6 }]
         },
         {
           "id": 2,
           "type": "collection-add",
           "name": "nutrient-pumps_events",
-          "label": "nutrient-pumps_add",
+          "label": "Add New Event",
           "actions": [
             { "type": "submit", "label": "Add Nutrient Solution Event" }
           ],

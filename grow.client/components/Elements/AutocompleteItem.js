@@ -21,9 +21,8 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
   // console.log(appField);
 
   const pageFormContext = useFormContext();
-  const pageContext = useContext(PageContext);
 
-  const fields = pageFormContext.watch(pageContext.fieldArrayName);
+  const fields = pageFormContext.watch();
   // console.log(fields, pageContext.fieldArrayName)
 
   function getComputedMenuItems(computedOptions) {

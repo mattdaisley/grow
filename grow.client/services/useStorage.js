@@ -29,8 +29,15 @@ export default function useStorage(key) {
     };
   }, [cache.json]);
 
+  function setItem(newItem) {
+    const data = JSON.stringify(newItem, null, 2);
+    console.log(data);
+    // localStorage.setItem(key, data);
+  }
+
   return {
-    ...cache
+    ...cache,
+    setItem
   }
 }
 

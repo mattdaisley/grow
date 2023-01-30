@@ -10,12 +10,17 @@ import Footer from '../components/Footer'
 import '../styles/globals.css'
 
 const theme = createTheme({
+  spacing: 8,
   palette: {
     primary: {
       main: "#90a4ae",
       light: "#c1d5e0",
       dark: "#62757f",
       contrastText: "#000000"
+    },
+    paper: {
+      default: "#ffffff",
+      main: "#fafafa"
     },
     background: {
       main: "#eceff1",
@@ -33,6 +38,9 @@ const theme = createTheme({
     h5: {
       fontWeight: 500
     },
+    subtitle1: {
+      fontWeight: 500
+    },
     fontWeightLight: 500
   }
 });
@@ -45,9 +53,7 @@ export default function Layout({ children }) {
           <CssBaseline />
           <div>
             <ResponsiveAppBar />
-            <main>
-              {children}
-            </main>
+            {children}
           </div>
           <Footer />
         </ThemeProvider>

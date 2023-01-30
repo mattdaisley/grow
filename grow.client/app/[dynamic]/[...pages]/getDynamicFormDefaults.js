@@ -2,6 +2,7 @@ import { getCollectionFieldsAndDefaults } from "../../../services/getCollectionF
 import { getViewFieldValues } from "../../../services/getViewFieldValues";
 
 export function getDynamicFormDefaults(props) {
+
   const allPages = props.allPages.item.pages || [];
   const page = allPages.find(x => x.id === props.pageId);
 
@@ -10,11 +11,10 @@ export function getDynamicFormDefaults(props) {
 
   if (page !== null) {
 
-    currentPage = { ...page };
-    currentPage = fillPage(props, currentPage);
-
-    // console.log(currentPage)
+    currentPage = fillPage(props, page);
     defaultValues = getPageDefaultValues(currentPage);
+
+    // console.log(currentPage, defaultValues)
   }
 
   const fieldValues = { ...defaultValues, ...props.dynamicItem.item };
@@ -22,7 +22,9 @@ export function getDynamicFormDefaults(props) {
   return { currentPage, fieldValues, timestamp: Date.now() };
 }
 
-function fillPage(props, currentPage) {
+function fillPage(props, page) {
+  let currentPage = { ...page };
+
   const allViews = props.allViews.item.views || [];
   const allFields = props.allFields.item.fields || [];
 
@@ -31,7 +33,7 @@ function fillPage(props, currentPage) {
     const groupViews = group.views?.map((groupView) => {
 
       const view = allViews.find(x => x.id === groupView.viewId);
-      // console.log(view, allFields)
+      // console.log(view)
       const viewGroups = view?.groups?.map(group => {
 
         const groupFields = group.fields?.map((groupField) => {
@@ -39,7 +41,8 @@ function fillPage(props, currentPage) {
           const field = allFields.find(x => x.id === groupField.fieldId);
 
           const filledField = { ...field };
-          if (field.conditions) {
+          // console.log(field, groupField)
+          if (groupField.conditions) {
             filledField.conditions = [...groupField.conditions];
           }
           // console.log(filledField, field)
@@ -58,6 +61,7 @@ function fillPage(props, currentPage) {
       ...group, views: groupViews
     };
   });
+
   return currentPage;
 }
 
@@ -68,9 +72,10 @@ function getPageDefaultValues(currentPage) {
     if (!!group) {
       switch (group.type) {
         case 'collection-tabs':
-          let tabsDefaults = getCollectionFieldsAndDefaults(group);
-          if (defaultValues[tabsDefaults.collectionName] === undefined) {
-            defaultValues[tabsDefaults.collectionName] = [tabsDefaults.fieldValues];
+        case 'collection-add':
+          let collectionDefaults = getCollectionFieldsAndDefaults(group);
+          if (defaultValues[collectionDefaults.collectionName] === undefined) {
+            defaultValues[collectionDefaults.collectionName] = [collectionDefaults.fieldValues];
           }
           break;
 
@@ -78,13 +83,6 @@ function getPageDefaultValues(currentPage) {
           const gridDefaults = getCollectionFieldsAndDefaults(group);
           if (defaultValues[gridDefaults.collectionName] === undefined) {
             defaultValues[gridDefaults.collectionName] = [];
-          }
-          break;
-
-        case 'collection-add':
-          const collectionAddDefaults = getCollectionFieldsAndDefaults(group);
-          if (defaultValues[collectionAddDefaults.collectionName] === undefined) {
-            defaultValues[collectionAddDefaults.collectionName] = [collectionAddDefaults.fieldValues];
           }
           break;
 

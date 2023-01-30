@@ -29,7 +29,19 @@ export default function DynamicLayout({ children }) {
       <DynamicAppDrawer dynamicItemName={dynamicItemName} id={id} currentItem={currentItem} />
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 4, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+        sx={(theme) => {
+          // // console.log(theme, theme.spacing(2))
+          return ({
+            flexGrow: 1,
+            pl: `${drawerWidth}px`,
+            // width: {sm: `calc(100% - ${drawerWidth}px)` },
+            width: 1,
+            height: 1,
+            position: 'fixed',
+            overflowY: 'scroll'
+          })
+        }
+        }
       >
         {children}
       </Box>

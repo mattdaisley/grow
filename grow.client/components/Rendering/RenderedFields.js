@@ -7,23 +7,20 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { Typography } from "@mui/material";
 
 import { RenderField } from './RenderField';
-import { PageContext } from "../../app/PageContext";
 import { getConditions } from "../../services/getConditions";
 
 export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
   // console.log(viewDefinition);
-  // console.log(fieldArrayName)
   const { watch } = useFormContext();
-  const pageContext = useContext(PageContext);
 
   const pageFields = watch(fieldArrayName);
-  // console.log(pageFields)
 
   if (!viewDefinition) {
     return null;
   }
 
   function getFields(group) {
+    // console.log(group, pageFields)
     return group.fields?.map(fieldDefinition => {
       if (!!fieldDefinition) {
         const conditions = getConditions(fieldDefinition, pageFields);
@@ -59,8 +56,8 @@ export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
 
   return <>
     {viewDefinition.label && (
-      <Grid xs={12} sx={{ px: 2 }}>
-        <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300' }}>{viewDefinition.label}</Typography>
+      <Grid xs={12}>
+        <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{viewDefinition.label}</Typography>
       </Grid>
     )}
     {groupFields.map(({ group, fields }) => {

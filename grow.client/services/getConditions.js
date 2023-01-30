@@ -1,7 +1,7 @@
 'use client';
 export function getConditions(fieldDefinition, pageFields) {
   const conditions = { visible: true };
-  // console.log(fieldDefinition.conditions)
+  // console.log(fieldDefinition.conditions, pageFields)
   fieldDefinition.conditions?.map(condition => {
     const fieldToCompare = pageFields[condition.key];
 

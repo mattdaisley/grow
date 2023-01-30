@@ -18,32 +18,40 @@ export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
     return null;
   }
   // console.log(pageDefinition);
-  return <Stack spacing={4} sx={{ width: '100%' }}>
+  return <Grid container spacing={4} sx={{ width: '100%' }}>
     {pageDefinition?.groups?.map(group => {
-
+      console.log(group.width)
       const renderGroup = () => {
         switch (group.type) {
           case 'collection-tabs':
             return (
-              <Paper sx={{ width: '100%' }}>
-                <RenderGroupCollectionTabs group={group} control={control} fieldArrayName={fieldArrayName} />
-              </Paper>
+              <Grid xs={group.width || 12} spacing={2}>
+                <Paper sx={{ width: '100%' }}>
+                  <RenderGroupCollectionTabs group={group} control={control} fieldArrayName={fieldArrayName} />
+                </Paper>
+              </Grid>
             )
           case 'collection-grid':
             return (
-              <RenderGroupCollectionDataGrid group={group} control={control} fieldArrayName={fieldArrayName} />
+              <Grid xs={group.width || 12}>
+                <RenderGroupCollectionDataGrid group={group} control={control} fieldArrayName={fieldArrayName} />
+              </Grid>
             )
           case 'collection-add':
             return (
-              <Paper sx={{ width: '100%' }}>
-                <RenderGroupCollectionAdd group={group} control={control} fieldArrayName={fieldArrayName} />
-              </Paper>
+              <Grid xs={group.width || 12} spacing={0}>
+                <Paper sx={{ width: '100%' }}>
+                  <RenderGroupCollectionAdd group={group} control={control} fieldArrayName={fieldArrayName} />
+                </Paper>
+              </Grid>
             )
           default:
             return (
-              <Paper sx={{ width: '100%' }}>
-                <RenderGroupViews group={group} control={control} fieldArrayName={fieldArrayName} />
-              </Paper>
+              <Grid xs={12} alignContent={'flex-start'}>
+                <Paper sx={{ width: '100%' }}>
+                  <RenderGroupViews group={group} control={control} fieldArrayName={fieldArrayName} />
+                </Paper>
+              </Grid>
             )
         }
       }
@@ -55,7 +63,7 @@ export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
       )
 
     })}
-  </Stack >;
+  </Grid>;
 };
 
 

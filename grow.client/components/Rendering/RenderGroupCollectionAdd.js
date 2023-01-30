@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useContext } from 'react';
 import { useForm, useFieldArray, useWatch, useFormContext } from "react-hook-form";
+import { v4 as uuidv4 } from 'uuid';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { v4 as uuidv4 } from 'uuid';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import { getCollectionFieldsAndDefaults } from '../../services/getCollectionFieldsAndDefaults';
 import { RenderGroupViews } from './RenderGroupViews';
@@ -17,15 +18,14 @@ export function RenderGroupCollectionAdd({ group, fieldArrayName }) {
   const { control, watch } = useFormContext();
   const pageContext = useContext(PageContext);
 
-  const pageFields = watch(pageContext.fieldArrayName);
+  const pageFields = watch();
   // console.log(group, fieldArrayName, pageFields, pageContext.fieldArrayName)
 
   let collectionName = group.name ?? "collection";
-  const collectionFieldArrayName = `${fieldArrayName}.${collectionName}`;
 
   const { prepend } = useFieldArray({
     control,
-    name: collectionFieldArrayName
+    name: collectionName
   });
 
   const editingForm = useForm();
@@ -51,9 +51,11 @@ export function RenderGroupCollectionAdd({ group, fieldArrayName }) {
     <>
       {!loading && (
         <>
-          <RenderGroupViews group={group} control={editingForm.control} fieldArrayName={`editing.0`} />
+          <Grid container spacing={2} sx={{ p: 1 }}>
+            <RenderGroupViews group={group} control={editingForm.control} fieldArrayName={`editing.0`} />
+          </Grid>
 
-          <Box sx={{ padding: 2 }}>
+          <Box sx={{ px: 2, py: 1, borderTop: 1, borderColor: 'grey.300' }}>
             {group.actions?.map((action, index) => {
               if (action.type === 'submit') {
                 return <Button key={index} onClick={editingForm.handleSubmit(onSubmit)}>{action.label}</Button>

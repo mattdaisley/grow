@@ -8,7 +8,7 @@ import { RenderedFields } from './RenderedFields';
 export function RenderGroupViews({ group, control, fieldArrayName }) {
   // console.log(fieldArrayName, group)
   return (
-    <Grid xs={12} container alignContent={'flex-start'}>
+    <>
       {group.views?.map(viewDefinition => {
         // console.log(viewDefinition)
         if (!!viewDefinition) {
@@ -22,6 +22,6 @@ export function RenderGroupViews({ group, control, fieldArrayName }) {
         }
       })}
 
-    </Grid>
+    </>
   );
 }

@@ -7,8 +7,6 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
 import { Item } from '../Item';
-import { PageContext } from '../../app/PageContext';
-
 
 export const SelectItem = ({ appField, control, fieldArrayName }) => {
 
@@ -16,9 +14,7 @@ export const SelectItem = ({ appField, control, fieldArrayName }) => {
   // console.log(fieldArrayName);
 
   const pageFormContext = useFormContext();
-  const pageContext = useContext(PageContext);
-
-  const fields = pageFormContext.watch(pageContext.fieldArrayName);
+  const fields = pageFormContext.watch();
   // console.log(fields, pageContext.fieldArrayName)
 
   function getComputedMenuItems(computedOptions) {

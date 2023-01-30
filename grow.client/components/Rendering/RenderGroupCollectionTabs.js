@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { useFieldArray, useWatch } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -34,29 +34,22 @@ function TabPanel(props) {
 }
 
 export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
-  const [value, setValue] = useState(0);
-  const [tabState, setTabState] = useState({ currentTab: 0 });
+  const [tabState, setTabState] = useState({ currentTab: 0, tabToRemove: undefined });
 
   let collectionName = group.name ?? "collection";
   const collectionFieldArrayName = `${fieldArrayName}.${collectionName}`;
 
+  const formMethods = useFormContext();
+  // const fields = formMethods.watch();
+
   const { fields, append, remove } = useFieldArray({
-    control,
-    name: collectionFieldArrayName
+    control: formMethods.control,
+    name: collectionName
   });
 
-  const watchFields = useWatch({
-    control,
-    name: collectionFieldArrayName
-  });
+  const watchFields = formMethods.watch(collectionName);
 
-  // console.log(collectionFieldArrayName, watchFields)
-
-  useEffect(() => {
-    const newValue = fields.length - 1 >= tabState.currentTab ? tabState.currentTab : fields.length - 1;
-    setValue(newValue);
-  }, [tabState.currentTab, fields.length])
-
+  // console.log(collectionName, formMethods, watchFields)
   // console.log(collectionFieldArrayName, watchFields);
   // console.log(group);
 
@@ -67,35 +60,45 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
   const handleCollectionAdd = (event) => {
     const newDefaults = getCollectionFieldsAndDefaults(group);
     append(newDefaults.fieldValues);
-    setTabState({ ...tabState, currentTab: fields.length });
+    setTabState({ ...tabState, currentTab: watchFields?.length });
   };
 
   const handleCollectionRemove = (event) => {
-    if (fields.length > 1) {
-      // console.log(tabState, fields, fields)
-      remove(tabState.currentTab)
-
-      if (tabState.currentTab > 0) {
-        setTabState({ ...tabState, currentTab: tabState.currentTab - 1 });
-      }
+    if (watchFields.length > 1 && tabState.currentTab > 0) {
+      setTabState({ ...tabState, currentTab: tabState.currentTab - 1, tabToRemove: tabState.currentTab });
     }
   }
+
+  useEffect(() => {
+    // console.log(tabState, fields, fields)
+    if (tabState.tabToRemove !== undefined) {
+      remove(tabState.tabToRemove)
+      setTabState({ ...tabState, tabToRemove: undefined });
+    }
+
+  }, [tabState.tabToRemove])
+
   // console.log(tabState, fields, fields)
+  if (fields === undefined || watchFields === undefined) {
+    return null;
+  }
+
+  const currentTab = (fields.length > tabState.currentTab) ? tabState.currentTab : fields.length - 1
 
   return (
     <>
-      <Grid container alignItems={'center'}>
+      <Grid container spacing={0} alignItems={'center'} sx={{ p: 1 }}>
         <Box sx={{
           px: 1,
           maxWidth: { xs: 'calc(100% * 11 / var(--Grid-columns))' }
         }}>
           <Tabs
-            value={value}
+            value={currentTab}
             onChange={handleChange}
             aria-label="basic tabs example"
             variant="scrollable"
             scrollButtons={false}>
-            {watchFields.map((field, index) => {
+            {fields?.map((field, index) => {
               // console.log(field)
               let label = !!group.label ? field[`${group.label}`] : "";
               if (label === undefined || label === "") {
@@ -108,16 +111,17 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
             })}
           </Tabs>
         </Box>
-        <Box xs={1} >
+        <Box xs={1}>
           <IconButton onClick={handleCollectionRemove}><RemoveIcon /></IconButton>
           <IconButton onClick={handleCollectionAdd}><AddIcon /></IconButton>
         </Box>
+        <Grid container spacing={1} xs={12} sx={{ pt: 2 }}>
+          {
+            fields?.map((field, index) => (
+              <TabPanel key={index} value={currentTab} index={index} group={group} control={control} fieldArrayName={collectionName} />
+            ))
+          }</Grid>
       </Grid>
-      {
-        fields.map((field, index) => (
-          <TabPanel key={index} value={value} index={index} group={group} control={control} fieldArrayName={collectionFieldArrayName} />
-        ))
-      }
     </>
   );
 }
