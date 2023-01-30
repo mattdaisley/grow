@@ -31,7 +31,9 @@ const pages = [
 export default function GardenLayout({ children }) {
 
   const pathname = usePathname();
+  console.log(pathname)
   const pathnameKeys = pathname.split('/');
+  console.log(pathnameKeys)
   const gardenId = Number(pathnameKeys[2]);
 
   const [mobileOpen, setMobileOpen] = useState(false);

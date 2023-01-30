@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getFieldDefault } from './getFieldDefault';
 
 const useView = (viewId) => {
+  const [fieldsLoaded, setFieldsLoaded] = useState(false);
   const [allFieldsJson, setAllFieldsJson] = useState("");
   const [allFieldsDefinition, setAllFieldsDefinition] = useState();
 
