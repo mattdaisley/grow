@@ -19,7 +19,7 @@ export function DynamicFields({ currentPage }) {
   return (
     <>
       <RenderedViews pageDefinition={currentPage} control={formMethods.control} />
-      <TextField
+      {false && <TextField
         id="form-results"
         multiline
         fullWidth
@@ -27,7 +27,7 @@ export function DynamicFields({ currentPage }) {
         value={JSON.stringify(fields, null, 2)}
         InputProps={{
           readOnly: true,
-        }} />
+        }} />}
     </>
   );
 }

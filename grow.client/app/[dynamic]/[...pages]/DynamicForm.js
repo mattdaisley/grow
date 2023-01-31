@@ -27,20 +27,40 @@ export function DynamicForm(props) {
   // const { currentPageDefinition, currentPageFieldDefaults } = usePages(props.pageId);
   // console.log(props.pageId, currentPageFieldDefaults)
   const formMethods = useForm(dynamicFormData.fieldValues);
+  const fields = formMethods.watch();
   const { formState } = formMethods;
 
   useEffect(() => {
-    if (!isFirstLoad) {
+    if (!isFirstLoad && !formState.isDirty) {
+      // console.log('resetting')
       formMethods.reset({ ...dynamicFormData.fieldValues });
     }
 
     setIsFirstLoad(false);
   }, [isFirstLoad, dynamicFormData.timestamp]);
 
+
+  useEffect(() => {
+    let timer
+    // console.log('formchange', formState.isDirty)
+    if (formState.isDirty) {
+      timer = setTimeout(() => {
+        // console.log('in timeout')
+        formMethods.handleSubmit(onSubmit)()
+      }, 1000)
+    }
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [formState.isDirty, JSON.stringify(fields)])
+
   // console.log(dynamicFormData)
-  // console.log(formState.isDirty, formState.dirtyFields)
+  // console.log(formState.isDirty)
+  // console.log(formState.isDirty, formMethods.getValues(), formState.dirtyFields)
 
   function onSubmit(data) {
+    // console.log('onSubmit', data)
     // display form data on success
     props.dynamicItem.setItem(data)
     // setFormResults(JSON.stringify(data, null, 4));

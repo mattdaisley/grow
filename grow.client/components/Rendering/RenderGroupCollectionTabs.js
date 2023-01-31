@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -98,7 +98,7 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
             aria-label="basic tabs example"
             variant="scrollable"
             scrollButtons={false}>
-            {fields?.map((field, index) => {
+            {watchFields?.map((field, index) => {
               // console.log(field)
               let label = !!group.label ? field[`${group.label}`] : "";
               if (label === undefined || label === "") {

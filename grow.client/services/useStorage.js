@@ -31,8 +31,8 @@ export default function useStorage(key) {
 
   function setItem(newItem) {
     const data = JSON.stringify(newItem, null, 2);
-    console.log(data);
-    // localStorage.setItem(key, data);
+    // console.log(data);
+    localStorage.setItem(key, data);
   }
 
   return {
