@@ -61,7 +61,7 @@ export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
       </Grid>
     )}
     {groupFields.map(({ group, fields }) => {
-
+      // console.log(group, fields)
       return (
         <Grid xs={group.width ?? 12} key={group.id}>
           {fields}

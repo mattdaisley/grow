@@ -9,10 +9,11 @@ import { Item } from '../Item';
 export const TextItem = ({ appField, control, fieldArrayName }) => {
   const [value, setValue] = useState("");
 
-  // console.log(appField, fieldArrayName)
+  const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
 
   const pageFormContext = useFormContext();
   const fields = pageFormContext.watch();
+  // const currentField = pageFormContext.watch(controllerName);
 
   const handleFieldChanged = (event) => {
     const targetValue = event.target.value;
@@ -31,11 +32,11 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
     }
   }
 
-  const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
+  // if (currentField === undefined) {
+    // console.log(controllerName, currentField)
+    // return null;
+  // }
 
-  if (fields[controllerName] === undefined) {
-    return null;
-  }
   // console.log(controllerName)
   const textControl = (
     <Controller

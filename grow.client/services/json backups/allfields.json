@@ -5,7 +5,7 @@
       "name": "test__autocomplete",
       "type": "autocomplete",
       "props": {
-        "label": "test autocomplete",
+        "label": "test autocomplete!",
         "autoComplete": true,
         "autoSelect": true,
         "autoHighlight": true,

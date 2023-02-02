@@ -30,9 +30,35 @@ export default function useStorage(key) {
   }, [cache.json]);
 
   function setItem(newItem) {
-    const data = JSON.stringify(newItem, null, 2);
-    // console.log(data);
-    localStorage.setItem(key, data);
+    if (typeof newItem !== 'string') {
+      // console.log(newItem);
+      const data = JSON.stringify(newItem, null, 2);
+      // console.log(data)
+      setCache({ json: data, item: newItem, timestamp: Date.now() })
+      localStorage.setItem(key, data);
+      return
+    }
+
+    // console.log('setting local json', newItem)
+    try {
+      var parsedJson = JSON.parse(newItem);
+      console.log(parsedJson)
+      const formattedJson = JSON.stringify(parsedJson, null, 2);
+      setCache({ json: formattedJson, item: parsedJson, timestamp: Date.now() })
+
+      // console.log(formattedJson)
+      // localStorage.setItem(key, formattedJson);
+    }
+    catch (e) {
+      if (e instanceof SyntaxError) {
+        // SyntaxErrors are expected and can be ignored
+      } else {
+        console.log(e)
+      }
+    }
+    // const data = JSON.stringify(newItem, null, 2);
+    // // console.log(data);
+    // localStorage.setItem(key, data);
   }
 
   return {

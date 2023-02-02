@@ -47,7 +47,7 @@ export function DynamicForm({ dynamicFormData, onSubmit, children, ...props }) {
 
   return (
     <form onSubmit={formMethods.handleSubmit(onSubmit)}>
-      <Box sx={{ flexGrow: 1, py: 4, pl: { xs: 2, md: 4 }, pl: { xs: 2, md: 4 } }}>
+      <Box sx={{ flexGrow: 1, py: 4, pl: { xs: 2, md: 4 } }}>
         <Grid container xs={12} spacing={0}>
           <FormProvider {...formMethods}>
             <DynamicPageContext.Provider value={{ ...props }}>

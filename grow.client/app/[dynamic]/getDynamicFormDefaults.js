@@ -2,7 +2,7 @@ import { getCollectionFieldsAndDefaults } from "../../services/getCollectionFiel
 import { getViewFieldValues } from "../../services/getViewFieldValues";
 
 export function getDynamicFormDefaults(props) {
-
+  // console.log(props)
   const allPages = props.allPages.item.pages || [];
   const page = allPages.find(x => x.id === props.pageId);
 

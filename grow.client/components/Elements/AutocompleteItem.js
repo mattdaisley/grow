@@ -12,6 +12,8 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
   const appFieldProps = appField.props ?? {};
   const { options: fieldOptions, computedOptions, ...props } = appFieldProps;
 
+  const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
+
   const autoCompleteProps = {
     autoComplete: true,
     autoSelect: true,
@@ -23,6 +25,7 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
   const pageFormContext = useFormContext();
 
   const fields = pageFormContext.watch();
+  const currentField = pageFormContext.watch(controllerName);
   // console.log(fields, pageContext.fieldArrayName)
 
   function getComputedMenuItems(computedOptions) {
@@ -53,11 +56,9 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
   }
   // console.log(props, fieldOptions, menuItems)
 
-  const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
-
-  if (fields[controllerName] === undefined) {
-    return null;
-  }
+  // if (currentField === undefined) {
+    // return null;
+  // }
 
   return <Item>
     <Controller
