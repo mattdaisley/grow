@@ -125,7 +125,7 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
 
     columns = [...columns, ...fieldColumns]
   }
-  // console.log(columns)
+  // console.log(columns, rows)
   // console.log(watchFields, groupCollectionFields)
 
   return (

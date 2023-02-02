@@ -20,7 +20,7 @@ export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
   // console.log(pageDefinition);
   return <Grid container spacing={4} sx={{ width: '100%' }}>
     {pageDefinition?.groups?.map(group => {
-      // console.log(group.width)
+      // console.log(group)
       const renderGroup = () => {
         switch (group.type) {
           case 'collection-tabs':

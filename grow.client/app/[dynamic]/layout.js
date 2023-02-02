@@ -20,6 +20,11 @@ export default function DynamicLayout({ children }) {
 
   const { item: allDynamicItems, timestamp: dynamicItemsTimestamp } = useStorage(`all${dynamicItemName}`);
 
+  // console.log(allDynamicItems)
+  if (allDynamicItems === undefined) {
+    return null;
+  }
+
   const currentItem = allDynamicItems?.[dynamicItemName].find(item => item.id === id)
 
   // console.log(allDynamicItems, allDynamicItems?.[dynamicItemName], dynamicItemsTimestamp, id, currentItem)
@@ -36,7 +41,7 @@ export default function DynamicLayout({ children }) {
             pl: `${drawerWidth}px`,
             // width: {sm: `calc(100% - ${drawerWidth}px)` },
             width: 1,
-            height: 1,
+            height: 'calc(100% - 64px)',
             position: 'fixed',
             overflowY: 'scroll'
           })

@@ -19,13 +19,17 @@ export default function PagesMenuList({ dynamicItemName, id, pages }) {
 
   const { item: allPages, timestamp: pagesTimestamp } = useStorage('allpages');
 
+  if (allPages === undefined) {
+    return null;
+  }
+
   const pageDefinitions = pages?.map(page => {
     const pageDefinition = allPages?.pages.find(x => x.id === page.pageId);
     // console.log(pageDefinition)
     return { ...pageDefinition }
   })
 
-  // console.log(pages, allPages)
+  // console.log(pageDefinitions, allPages, pages)
 
   return <List>
     {pageDefinitions?.length > 0 && pageDefinitions.map((page, index) => (

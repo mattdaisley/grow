@@ -24,7 +24,7 @@ export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
     return group.fields?.map(fieldDefinition => {
       if (!!fieldDefinition) {
         const conditions = getConditions(fieldDefinition, pageFields);
-        // console.log(conditions);
+        // console.log(fieldDefinition, conditions);
         if (!conditions.visible) {
           return null;
         }

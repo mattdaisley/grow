@@ -44,15 +44,24 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
     return menuItems;
   }
 
-  const menuItems = [
+  let menuItems = [
     ...(fieldOptions ?? []),
     ...getComputedMenuItems(computedOptions)
   ]
+  if (menuItems.length === 0) {
+    menuItems.push({ label: "None", value: 0 })
+  }
   // console.log(props, fieldOptions, menuItems)
+
+  const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
+
+  if (fields[controllerName] === undefined) {
+    return null;
+  }
 
   return <Item>
     <Controller
-      name={`${fieldArrayName}.${appField.name}`}
+      name={controllerName}
       control={control}
       render={({ field: { value, onChange } }) => {
 

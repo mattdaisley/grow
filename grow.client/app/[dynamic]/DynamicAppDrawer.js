@@ -58,8 +58,10 @@ export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {
           GROW
         </Typography>
       </Toolbar>
-      <DrawerPageList dynamicItemName={dynamicItemName} id={id} pages={currentItem?.pages} />
-      <Divider />
+      {currentItem !== undefined && <>
+        <DrawerPageList dynamicItemName={dynamicItemName} id={id} pages={currentItem?.pages} />
+        <Divider />
+      </>}
       <List>
         {globalPages.map((page) => (
           <ListItem key={page.name} disablePadding>

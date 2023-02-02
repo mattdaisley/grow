@@ -6,8 +6,7 @@ import { useFormContext } from "react-hook-form";
 import { TextField } from "@mui/material";
 
 import { DynamicItemContext as DynamicPageContext } from "./DynamicItemContext";
-import { TextItem } from "../../../components/Elements/TextItem";
-import { RenderedViews } from "../../../components/Rendering/RenderedViews";
+import { RenderedViews } from "../../components/Rendering/RenderedViews";
 
 export function DynamicFields({ currentPage }) {
   const dynamicPageData = useContext(DynamicPageContext);

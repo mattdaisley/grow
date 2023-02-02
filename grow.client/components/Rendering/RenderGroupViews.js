@@ -10,8 +10,8 @@ export function RenderGroupViews({ group, control, fieldArrayName }) {
   return (
     <>
       {group.views?.map(viewDefinition => {
-        // console.log(viewDefinition)
         if (!!viewDefinition) {
+          // console.log(viewDefinition)
           return (
             <RenderedFields
               viewDefinition={viewDefinition}

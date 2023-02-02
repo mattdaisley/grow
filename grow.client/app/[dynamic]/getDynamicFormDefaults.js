@@ -1,5 +1,5 @@
-import { getCollectionFieldsAndDefaults } from "../../../services/getCollectionFieldsAndDefaults";
-import { getViewFieldValues } from "../../../services/getViewFieldValues";
+import { getCollectionFieldsAndDefaults } from "../../services/getCollectionFieldsAndDefaults";
+import { getViewFieldValues } from "../../services/getViewFieldValues";
 
 export function getDynamicFormDefaults(props) {
 
@@ -14,7 +14,7 @@ export function getDynamicFormDefaults(props) {
     currentPage = fillPage(props, page);
     defaultValues = getPageDefaultValues(currentPage);
 
-    // console.log(currentPage, defaultValues)
+    // console.log(currentPage, defaultValues, props.dynamicItem.item)
   }
 
   const fieldValues = { ...defaultValues, ...props.dynamicItem.item };

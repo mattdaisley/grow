@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 
 import TextField from '@mui/material/TextField';
 
@@ -10,6 +10,9 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
   const [value, setValue] = useState("");
 
   // console.log(appField, fieldArrayName)
+
+  const pageFormContext = useFormContext();
+  const fields = pageFormContext.watch();
 
   const handleFieldChanged = (event) => {
     const targetValue = event.target.value;
@@ -28,9 +31,15 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
     }
   }
 
+  const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
+
+  if (fields[controllerName] === undefined) {
+    return null;
+  }
+  // console.log(controllerName)
   const textControl = (
     <Controller
-      name={`${fieldArrayName}.${appField.name}`}
+      name={controllerName}
       control={control}
       render={({ field }) => {
         // console.log(fieldArrayName, appField, field);
@@ -42,6 +51,7 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
           // onChange={handleFieldChanged}
           {...field}
           InputProps={inputProps}
+          sx={{ fontSize: 'small' }}
         />
       }
       } />

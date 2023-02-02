@@ -1,9 +1,10 @@
 'use client'
 
 import { usePathname } from "next/navigation"
+
 import usePages from "../../../services/pages.service";
 import useStorage from "../../../services/useStorage";
-import { DynamicForm } from "./DynamicForm";
+import { DynamicItemForm } from "./DynamicItemForm";
 
 export default function DynamicPage() {
   const pathname = usePathname();
@@ -31,7 +32,7 @@ export default function DynamicPage() {
   // console.log(allPages, allViews, allFields, dynamicItem)
 
   return (
-    <DynamicForm
+    <DynamicItemForm
       id={id}
       pageId={pageId}
       dynamicItemsName={dynamicItemsName}
