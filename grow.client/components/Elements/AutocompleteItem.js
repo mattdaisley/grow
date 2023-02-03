@@ -57,7 +57,7 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
   // console.log(props, fieldOptions, menuItems)
 
   // if (currentField === undefined) {
-    // return null;
+  // return null;
   // }
 
   return <Item>
@@ -70,6 +70,9 @@ export const AutocompleteItem = ({ appField, control, fieldArrayName }) => {
           <Autocomplete
             fullWidth
             size="small"
+            autoComplete={true}
+            autoSelect={true}
+            autoHighlight={true}
             {...autoCompleteProps}
             id={`autocomplete-${appField.id}`}
             options={menuItems}

@@ -11,7 +11,7 @@ export function DynamicForm({ dynamicFormData, onSubmit, children, ...props }) {
 
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   // console.log(dynamicFormData.fieldValues)
-  const formMethods = useForm(dynamicFormData.fieldValues);
+  const formMethods = useForm({ defaultValues: { ...dynamicFormData.fieldValues } });
   const fields = formMethods.watch();
   const { formState } = formMethods;
   // console.log(fields)

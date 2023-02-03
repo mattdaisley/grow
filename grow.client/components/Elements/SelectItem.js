@@ -16,7 +16,7 @@ export const SelectItem = ({ appField, control, fieldArrayName }) => {
   const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
 
   const pageFormContext = useFormContext();
-  const fields = pageFormContext.watch(controllerName);
+  const fields = pageFormContext.watch();
   // console.log(fields, fieldArrayName)
 
   function getComputedMenuItems(computedOptions) {

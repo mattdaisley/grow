@@ -2,7 +2,7 @@
 
 import { getFieldValues } from '../../../services/getFieldValues';
 
-export function getAllFieldsDynamicFormData({item}) {
+export function getAllFieldsDynamicFormData({ item }) {
 
   const fields = getFieldValues(item.fields);
   // console.log(fields)
@@ -15,6 +15,7 @@ export function getAllFieldsDynamicFormData({item}) {
           views: [
             {
               id: 0,
+              label: "Fields Preview",
               groups: [
                 {
                   id: 0,

@@ -23,7 +23,8 @@
             "value": 2
           }
         ]
-      }
+      },
+      "default": null
     },
     {
       "id": 1,
@@ -45,7 +46,8 @@
             "value": 1
           }
         ]
-      }
+      },
+      "default": ""
     },
     {
       "id": 2,
@@ -53,7 +55,8 @@
       "type": "text",
       "props": {
         "label": "test text 1"
-      }
+      },
+      "default": ""
     },
     {
       "id": 3,
@@ -63,7 +66,8 @@
         "label": "test numeric",
         "thousandSeparator": ",",
         "decimalScale": 3
-      }
+      },
+      "default": ""
     },
     {
       "id": 5,
@@ -72,7 +76,8 @@
       "props": {
         "label": "test dollar",
         "prefix": "$"
-      }
+      },
+      "default": ""
     },
     {
       "id": 4,
@@ -80,13 +85,13 @@
       "type": "checkbox",
       "props": {
         "label": "test checkbox"
-      }
+      },
+      "default": false
     },
     {
       "id": 7,
       "type": "label",
       "name": "test_label_text1",
-      "default": "[Text1]",
       "computed": "test__text1",
       "props": {
         "label": "Computed Text 1"
@@ -96,7 +101,6 @@
       "id": 8,
       "type": "label",
       "name": "test_label_outlet_0",
-      "default": "[Name of Outlet 0]",
       "computed": "outlets.0.outlet_name",
       "props": {
         "label": "Computed Outlet 0"
@@ -108,7 +112,8 @@
       "type": "text",
       "props": {
         "label": "Outlet Name"
-      }
+      },
+      "default": ""
     },
     {
       "id": 10,
@@ -116,7 +121,8 @@
       "type": "checkbox",
       "props": {
         "label": "On/Off"
-      }
+      },
+      "default": false
     },
     {
       "id": 11,
@@ -125,7 +131,8 @@
       "props": {
         "label": "Nutrient Pump Name",
         "placeholder": "Nutrient Pump Name"
-      }
+      },
+      "default": ""
     },
     {
       "id": 12,
@@ -133,7 +140,8 @@
       "type": "checkbox",
       "props": {
         "label": "On/Off"
-      }
+      },
+      "default": false
     },
     {
       "id": 13,
@@ -143,7 +151,8 @@
         "label": "Dose (ml)",
         "thousandSeparator": ",",
         "decimalScale": 2
-      }
+      },
+      "default": ""
     },
     {
       "id": 14,
@@ -153,13 +162,13 @@
         "label": "Dose rate (ml/s)",
         "thousandSeparator": ",",
         "decimalScale": 4
-      }
+      },
+      "default": ""
     },
     {
       "id": 15,
       "type": "label",
       "name": "nutrient-pump_0_name",
-      "default": "[Name of Nutrient Pump 0]",
       "computed": "nutrient-pumps.0.nutrient-pump_name",
       "props": {
         "label": "Computed Nutrient Pump 0"
@@ -171,7 +180,8 @@
       "type": "text",
       "props": {
         "label": "Event Timestamp"
-      }
+      },
+      "default": ""
     },
     {
       "id": 17,
@@ -180,7 +190,8 @@
       "props": {
         "label": "Value",
         "decimalScale": 0
-      }
+      },
+      "default": ""
     },
     {
       "id": 18,
@@ -188,7 +199,8 @@
       "type": "text",
       "props": {
         "label": "Event Timestamp"
-      }
+      },
+      "default": ""
     },
     {
       "id": 19,
@@ -200,7 +212,8 @@
           "key": "nutrient-pumps",
           "label": "nutrient-pump_name"
         }
-      }
+      },
+      "default": ""
     },
     {
       "id": 20,
@@ -215,7 +228,8 @@
           "key": "outlets",
           "label": "outlet_name"
         }
-      }
+      },
+      "default": null
     },
     {
       "id": 21,
@@ -233,7 +247,8 @@
             "value": 1
           }
         ]
-      }
+      },
+      "default": null
     },
     {
       "id": 22,
@@ -241,7 +256,8 @@
       "type": "text",
       "props": {
         "label": "Pin"
-      }
+      },
+      "default": ""
     },
     {
       "id": 23,
@@ -259,7 +275,8 @@
             "value": 1
           }
         ]
-      }
+      },
+      "default": null
     },
     {
       "id": 24,
@@ -277,7 +294,8 @@
             "value": 1
           }
         ]
-      }
+      },
+      "default": null
     },
     {
       "id": 25,
@@ -295,7 +313,8 @@
             "value": 1
           }
         ]
-      }
+      },
+      "default": null
     },
     {
       "id": 26,
@@ -303,7 +322,8 @@
       "type": "text",
       "props": {
         "label": "Command"
-      }
+      },
+      "default": ""
     },
     {
       "id": 27,
@@ -311,7 +331,8 @@
       "type": "text",
       "props": {
         "label": "Index"
-      }
+      },
+      "default": ""
     },
     {
       "id": 28,
@@ -329,7 +350,8 @@
             "value": 1
           }
         ]
-      }
+      },
+      "default": null
     },
     {
       "id": 29,
@@ -338,7 +360,8 @@
       "props": {
         "label": "Time On (seconds)",
         "decimalScale": 0
-      }
+      },
+      "default": ""
     },
     {
       "id": 30,
@@ -347,7 +370,8 @@
       "props": {
         "label": "Time Off (seconds)",
         "decimalScale": 0
-      }
+      },
+      "default": ""
     },
     {
       "id": 31,
@@ -355,7 +379,8 @@
       "type": "checkbox",
       "props": {
         "label": "Enabled"
-      }
+      },
+      "default": false
     },
     {
       "id": 32,
@@ -363,7 +388,8 @@
       "type": "text",
       "props": {
         "label": "Start at"
-      }
+      },
+      "default": ""
     },
     {
       "id": 33,
@@ -381,7 +407,8 @@
             "value": 1
           }
         ]
-      }
+      },
+      "default": null
     },
     {
       "id": 34,
@@ -389,7 +416,8 @@
       "type": "text",
       "props": {
         "label": "Stop at"
-      }
+      },
+      "default": ""
     },
     {
       "id": 35,
@@ -407,7 +435,17 @@
             "value": 1
           }
         ]
-      }
+      },
+      "default": null
+    },
+    {
+      "id": "a0c786cd-faa8-43b5-afec-7ecbfd1dbb3a",
+      "type": "text",
+      "name": "sensor_name",
+      "props": {
+        "label": "Sensor Name"
+      },
+      "default": ""
     }
   ]
 }

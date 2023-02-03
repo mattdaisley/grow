@@ -33,21 +33,23 @@ export default function useStorage(key) {
     if (typeof newItem !== 'string') {
       // console.log(newItem);
       const data = JSON.stringify(newItem, null, 2);
-      // console.log(data)
-      setCache({ json: data, item: newItem, timestamp: Date.now() })
-      localStorage.setItem(key, data);
+      if (data !== cache.json) {
+        // console.log(data)
+        setCache({ json: data, item: newItem, timestamp: Date.now() })
+        localStorage.setItem(key, data);
+      }
       return
     }
 
     // console.log('setting local json', newItem)
     try {
       var parsedJson = JSON.parse(newItem);
-      console.log(parsedJson)
+      // console.log(parsedJson)
       const formattedJson = JSON.stringify(parsedJson, null, 2);
       setCache({ json: formattedJson, item: parsedJson, timestamp: Date.now() })
 
       // console.log(formattedJson)
-      // localStorage.setItem(key, formattedJson);
+      localStorage.setItem(key, formattedJson);
     }
     catch (e) {
       if (e instanceof SyntaxError) {

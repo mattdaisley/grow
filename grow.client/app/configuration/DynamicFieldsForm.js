@@ -10,8 +10,9 @@ import TextField from '@mui/material/TextField';
 import { DynamicAppBar } from '../[dynamic]/DynamicAppBar';
 import { DynamicFields } from '../[dynamic]/DynamicFields';
 import { DynamicForm } from '../[dynamic]/DynamicForm';
+import FieldsEditor from './FieldsEditor/FieldsEditor';
 
-export function DynamicFieldsForm({ getDynamicFormData, json, setItem, deps, ...props }) {
+export function DynamicFieldsForm({ getDynamicFormData, setDynamicFormData, json, setItem, deps, ...props }) {
 
   const [currentJson, setCurrentJson] = useState("");
 
@@ -35,10 +36,16 @@ export function DynamicFieldsForm({ getDynamicFormData, json, setItem, deps, ...
   }
 
   function handleJsonChanged(event) {
-    const rawJson = event.target.value;
-    setCurrentJson(rawJson);
-    // console.log('handleJsonChanged', rawJson)
-    setItem(rawJson);
+    const newJson = event.target.value;
+    setCurrentJson(newJson);
+    // console.log('handleJsonChanged', newJson)
+    setItem && setItem(newJson);
+  }
+
+  function handleFieldsEditorChange(newValue) {
+    // setCurrentJson(newJson);
+    // console.log('handleFieldsEditorChange', newValue)
+    setDynamicFormData && setDynamicFormData(newValue, setItem);
   }
 
   if (dynamicFormData)
@@ -51,22 +58,12 @@ export function DynamicFieldsForm({ getDynamicFormData, json, setItem, deps, ...
               <DynamicFields currentPage={dynamicFormData.currentPage} />
             </DynamicForm>
           </Grid>
-          <Grid xs={4}>
-      
-            <Box sx={{ flexGrow: 1, py: 4, pr: { xs: 2, md: 4 } }}>
-              <Paper sx={{ width: '100%' }}>
-                <TextField
-                  id="json-input"
-                  label="JSON"
-                  placeholder="{}"
-                  multiline
-                  fullWidth
-                  maxRows={38}
-                  value={currentJson}
-                  onChange={handleJsonChanged} />
-              </Paper>
-            </Box>
-          </Grid>
+          <FieldsEditor
+            dynamicFormData={dynamicFormData}
+            json={currentJson}
+            deps={deps}
+            onEditorChange={handleFieldsEditorChange}
+            onJsonChange={handleJsonChanged} />
         </Grid>
       </>
     );

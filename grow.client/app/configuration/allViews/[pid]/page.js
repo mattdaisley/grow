@@ -59,6 +59,10 @@ function getAllViewsDynamicFormData(props) {
   return dynamicFormData;
 }
 
+function setDynamicFormData(newValue, props) {
+
+}
+
 export default function EditPagePage({ params }) {
 
   const dynamicItemsName = "Configuration / Views"
@@ -67,6 +71,7 @@ export default function EditPagePage({ params }) {
 
   const allViews = useStorage('allviews');
   const allFields = useStorage('allfields');
+
   // const dynamicItem = useStorage(`${dynamicItemsName}-${id}`);
   const dynamicItem = { item: { name: dynamicItemsName }, timestamp: Date.now(), setItem: () => { } }
 
@@ -115,6 +120,7 @@ export default function EditPagePage({ params }) {
       pageId={viewId}
       dynamicItem={dynamicItem}
       getDynamicFormData={getAllViewsDynamicFormData}
+      setDynamicFormData={setDynamicFormData}
       deps={[allViews.timestamp, allFields.timestamp]}
       json={json}
       setItem={handleSetItem}

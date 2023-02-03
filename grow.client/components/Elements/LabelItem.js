@@ -18,7 +18,7 @@ export const LabelItem = ({ appField, fieldArrayName }) => {
   }
 
   return (
-    <Item>
+    <Item sx={{ minHeight: '56px' }}>
       <Typography
         {...props}
       >
