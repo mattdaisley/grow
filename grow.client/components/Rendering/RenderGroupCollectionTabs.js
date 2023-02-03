@@ -120,7 +120,8 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
             fields?.map((field, index) => (
               <TabPanel key={index} value={currentTab} index={index} group={group} control={control} fieldArrayName={collectionName} />
             ))
-          }</Grid>
+          }
+        </Grid>
       </Grid>
     </>
   );

@@ -2,15 +2,13 @@
 
 import useStorage from '../../../../services/useStorage';
 import { DynamicFieldsForm } from '../../DynamicFieldsForm';
-import { DynamicItemForm } from '../../../[dynamic]/[...pages]/DynamicItemForm'
 import { getDynamicFormDefaults as getDynamicFormData } from "../../../[dynamic]/getDynamicFormDefaults";
 
 // import { getAllPagesDynamicFormData } from './getAllPagesDynamicFormData';
-import { getAllFieldsDynamicFormData } from '../../allFields/getAllFieldsDynamicFormData';
 
 export default function EditPagePage({ params }) {
 
-  const dynamicItemsName = "configuration"
+  const dynamicItemsName = "Configuration / Pages"
   const id = 0
   const pageId = Number(params.pid)
 
@@ -31,7 +29,11 @@ export default function EditPagePage({ params }) {
   }
 
   // console.log(allPages, allViews, allFields, dynamicItem)
-  const page = allPages.item.pages?.find(x => x.id === pageId);
+  let page = allPages.item.pages?.find(x => x.id === pageId);
+  if (page === undefined) {
+    page = { id: pageId, name: `page ${pageId}`, groups: [{ id: 0, views: [] }] }
+    allPages.item.pages.push(page)
+  }
   const json = JSON.stringify(page, null, 2);
 
   function handleSetItem(rawJson) {

@@ -40,25 +40,24 @@ const columns = [
     hideable: false,
     headerAlign: 'center',
     align: 'center',
-    renderCell: (params) => <Link href={`/configuration/allPages/${encodeURIComponent(params.row.id)}`}>Edit</Link>
+    renderCell: (params) => <Link href={`/configuration/allViews/${encodeURIComponent(params.row.id)}`}>Edit</Link>
   },
 ];
 
-export default function AllPagesPage() {
+export default function AllViewsPage() {
 
-  const allPages = useStorage('allpages');
-  // console.log(allPages);
+  const allViews = useStorage('allviews');
+  console.log(allViews);
 
-  if (allPages?.item?.pages === undefined) {
+  if (allViews?.item?.views === undefined) {
     return null;
   }
 
-  const allPageIds = allPages.item.pages.map(x => x.id) ?? [-1];
-  // console.log(allPagesDefinition, allPageIds)
-  var lastId = Math.max(...allPageIds);
+  const allViewIds = allViews.item.views.map(x => x.id) ?? [-1];
+  var lastId = Math.max(...allViewIds);
 
   const dynamicItem = { item: { name: "Configuration" } };
-  const dynamicFormData = { currentPage: { name: "All Pages" }, timestamp: allPages.timestamp }
+  const dynamicFormData = { currentPage: { name: "All Views" }, timestamp: allViews.timestamp }
 
   return (
     <>
@@ -67,16 +66,16 @@ export default function AllPagesPage() {
         <Grid xs={12}>
           <Box sx={{ flexGrow: 1, p: 4 }}>
             <Paper sx={{ width: '100%', height: '600px' }}>
-              {allPages.item.pages.length > 0 && (
+              {allViews.item.views.length > 0 && (
                 <DataGrid
-                  rows={allPages?.item?.pages}
+                  rows={allViews?.item?.views}
                   columns={columns}
                   pageSize={10}
                   rowsPerPageOptions={[10]}
                 />
               )}
-              <Link href={`/configuration/allPages/${encodeURIComponent(lastId + 1)}`}>
-                <Button>Add New Page</Button>
+              <Link href={`/configuration/allViews/${encodeURIComponent(lastId + 1)}`}>
+                <Button>Add New View</Button>
               </Link>
             </Paper>
           </Box>

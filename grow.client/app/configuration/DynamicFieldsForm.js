@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 
 import Grid from '@mui/material/Unstable_Grid2';
-import { Box, Paper } from '@mui/material';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 
 import { DynamicAppBar } from '../[dynamic]/DynamicAppBar';
@@ -27,7 +28,7 @@ export function DynamicFieldsForm({ getDynamicFormData, json, setItem, deps, ...
   //   allFields.timestamp
   // ]);
   function onSubmit(data) {
-    console.log('onSubmit', data);
+    // console.log('onSubmit', data);
     // display form data on success
     // allFields.setItem(data)
     // setFormResults(JSON.stringify(data, null, 4));
@@ -51,7 +52,7 @@ export function DynamicFieldsForm({ getDynamicFormData, json, setItem, deps, ...
             </DynamicForm>
           </Grid>
           <Grid xs={4}>
-
+      
             <Box sx={{ flexGrow: 1, py: 4, pr: { xs: 2, md: 4 } }}>
               <Paper sx={{ width: '100%' }}>
                 <TextField

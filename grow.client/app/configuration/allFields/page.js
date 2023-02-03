@@ -14,7 +14,7 @@ export default function AllFieldsPage() {
     return null;
   }
 
-  const dynamicItem = { item: { name: "configuration" } };
+  const dynamicItem = { item: { name: "Configuration" } };
 
   return (
     <DynamicFieldsForm

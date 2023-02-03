@@ -22,9 +22,9 @@ export const drawerWidth = 240;
 export const globalPages = [
   { name: "Gardens", path: "/gardens" },
   // { name: "Contexts", path: "/configuration/contexts" },
-  { name: "Pages", path: "/configuration/pages" },
-  { name: "Views", path: "/configuration/views" },
-  { name: "Fields", path: "/configuration/fields" },
+  { name: "Pages", path: "/configuration/allPages" },
+  { name: "Views", path: "/configuration/allViews" },
+  { name: "Fields", path: "/configuration/allFields" },
 ];
 
 export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {

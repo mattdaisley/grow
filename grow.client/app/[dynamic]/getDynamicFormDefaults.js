@@ -65,7 +65,7 @@ function fillPage(props, page) {
   return currentPage;
 }
 
-function getPageDefaultValues(currentPage) {
+export function getPageDefaultValues(currentPage) {
   let defaultValues = {}
 
   currentPage?.groups?.map(group => {

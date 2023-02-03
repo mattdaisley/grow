@@ -13,8 +13,10 @@ export const SelectItem = ({ appField, control, fieldArrayName }) => {
   const { options, computedOptions, ...props } = appField.props;
   // console.log(fieldArrayName);
 
+  const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
+
   const pageFormContext = useFormContext();
-  const fields = pageFormContext.watch();
+  const fields = pageFormContext.watch(controllerName);
   // console.log(fields, fieldArrayName)
 
   function getComputedMenuItems(computedOptions) {
@@ -38,11 +40,9 @@ export const SelectItem = ({ appField, control, fieldArrayName }) => {
     return menuItems;
   }
 
-  const controllerName = (fieldArrayName !== undefined) ? `${fieldArrayName}.${appField.name}` : appField.name;
-
-  if (fields[controllerName] === undefined) {
-    return null;
-  }
+  // if (fields === undefined) {
+  //   return null;
+  // }
 
   const selectControl =
     <Controller

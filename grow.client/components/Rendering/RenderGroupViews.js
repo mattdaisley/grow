@@ -9,19 +9,20 @@ export function RenderGroupViews({ group, control, fieldArrayName }) {
   //console.log(fieldArrayName, group)
   return (
     <>
-      {group.views?.map(viewDefinition => {
-        if (!!viewDefinition) {
-          // console.log(viewDefinition)
-          return (
-            <RenderedFields
-              viewDefinition={viewDefinition}
-              key={`${group.id}-${viewDefinition.id}`}
-              control={control}
-              fieldArrayName={fieldArrayName} />
-          );
-        }
-      })}
-
+      <Grid container spacing={1} xs={12} sx={{ p: 1 }}>
+        {group.views?.map(viewDefinition => {
+          if (!!viewDefinition) {
+            // console.log(viewDefinition)
+            return (
+              <RenderedFields
+                viewDefinition={viewDefinition}
+                key={`${group.id}-${viewDefinition.id}`}
+                control={control}
+                fieldArrayName={fieldArrayName} />
+            );
+          }
+        })}
+      </Grid>
     </>
   );
 }
