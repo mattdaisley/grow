@@ -36,12 +36,12 @@ export default function EditPagePage({ params }) {
   }
   const json = JSON.stringify(page, null, 2);
 
-  function handleSetItem(rawJson) {
+  function handleSetItem(newPage) {
     try {
-      var parsedJson = JSON.parse(rawJson);
+      // console.log(newPage)
       const newAllPages = allPages.item.pages?.map(page => {
-        if (page.id === pageId) {
-          return parsedJson;
+        if (page.id === newPage.id) {
+          return newPage;
         }
         return page;
       })
@@ -59,10 +59,12 @@ export default function EditPagePage({ params }) {
 
   return (
     <DynamicFieldsForm
+      editorLevel="page"
       id={id}
       pageId={pageId}
       dynamicItem={dynamicItem}
       getDynamicFormData={getDynamicFormData}
+      setDynamicFormData={setDynamicFormData}
       deps={[allPages.timestamp, allViews.timestamp, allFields.timestamp]}
       json={json}
       setItem={handleSetItem}
@@ -80,5 +82,22 @@ export default function EditPagePage({ params }) {
     //   allFields={allFields}
     // />
   )
+}
+
+
+function setDynamicFormData(newValue, setItem) {
+  // console.log(newValue)
+
+  const newGroups = newValue.groups.map(group => {
+
+    const newViews = group.views.map(view => {
+      return { viewId: view.id }
+    })
+
+    return { ...group, views: newViews }
+  })
+
+  // console.log({ ...newValue, groups: newGroups })
+  setItem({ ...newValue, groups: newGroups })
 }
 

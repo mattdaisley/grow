@@ -6,6 +6,7 @@ export function getFieldValues(fields) {
 
   fields?.map((fieldDefinition) => {
     if (fieldDefinition) {
+      // console.log(fieldDefinition)
       const fieldDefault = getFieldDefault(fieldDefinition);
       // console.log(fieldDefinition, fieldDefault)
       viewFields.push({ ...fieldDefinition, default: fieldDefault });

@@ -12,17 +12,17 @@ import List from '@mui/material/List';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import { GroupItems } from './GroupItems/GroupItems';
+import { PageItems } from './PageItems/PageItems';
 
 export default function FieldsEditor(props) {
-  return useMemo(() => <FieldsEditorComponent {...props} />, [...props.deps])
+  return useMemo(() => <FieldsEditorComponent {...props} />, [...props.deps, props.json])
 }
 
-function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonChange }) {
+function FieldsEditorComponent({ dynamicFormData, json, editorLevel, onEditorChange, onJsonChange }) {
 
-  const [openField, setOpenField] = useState(undefined);
+  const [openField, setOpenField] = useState([]);
   const [editMode, setEditMode] = useState('editor')
-
+  // console.log(dynamicFormData.currentPage)
   const formMethods = useForm({ defaultValues: { ...dynamicFormData.currentPage } });
 
   const watchFields = formMethods.watch();
@@ -31,7 +31,7 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
   useEffect(() => {
     let timeout;
     timeout = setTimeout(() => {
-      // console.log('in timeout')
+      // console.log('onEditorChange', watchFields)
       onEditorChange && onEditorChange(watchFields)
     }, 500)
 
@@ -43,16 +43,22 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
   }, [dynamicFormData.currentPage])
 
   const handleClick = (id) => {
-    if (openField === id) {
-      setOpenField(undefined);
+    const openFieldIndex = openField.indexOf(id)
+    let currentOpenFields = [...openField]
+    if (openFieldIndex > -1) {
+      currentOpenFields.splice(openFieldIndex, 1)
+      // console.log('removing', openField, id, openFieldIndex, currentOpenFields)
+      setOpenField(currentOpenFields);
     }
     else {
-      setOpenField(id);
+      currentOpenFields = currentOpenFields.filter(x => id.indexOf(x) === 0)
+      // console.log('adding', openField, currentOpenFields, id, openFieldIndex)
+      setOpenField([...currentOpenFields, id]);
     }
   };
 
   const handleNewFieldClick = (groupId, viewId, viewGroupId) => {
-    console.log(groupId, viewId, viewGroupId);
+    // console.log(groupId, viewId, viewGroupId);
     if (onChange === undefined) {
       return;
     }
@@ -85,7 +91,7 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
 
     const newFields = { ...watchFields, groups: newGroups }
 
-    console.log(newFields);
+    // console.log(newFields);
     onEditorChange(newFields)
 
     setOpenField(newId);
@@ -101,18 +107,13 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
           </Grid>
           {editMode === 'editor' && (
             <List>
-              {watchFields?.groups?.map((group, groupIndex) => {
-                const groupControlName = `groups.${groupIndex}`
-
-                return <GroupItems
-                  key={groupIndex}
-                  group={group}
-                  groupControlName={groupControlName}
-                  control={formMethods.control}
-                  openField={openField}
-                  onClick={handleClick}
-                  onNewFieldClick={handleNewFieldClick} />
-              })}
+              <PageItems
+                editorLevel={editorLevel}
+                page={watchFields}
+                control={formMethods.control}
+                openField={openField}
+                onClick={handleClick}
+                onNewFieldClick={handleNewFieldClick} />
             </List>
           )}
           {editMode === 'json' && (

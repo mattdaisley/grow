@@ -12,7 +12,7 @@ import { DynamicFields } from '../[dynamic]/DynamicFields';
 import { DynamicForm } from '../[dynamic]/DynamicForm';
 import FieldsEditor from './FieldsEditor/FieldsEditor';
 
-export function DynamicFieldsForm({ getDynamicFormData, setDynamicFormData, json, setItem, deps, ...props }) {
+export function DynamicFieldsForm({ getDynamicFormData, setDynamicFormData, json, setItem, editorLevel, deps, ...props }) {
 
   const [currentJson, setCurrentJson] = useState("");
 
@@ -59,6 +59,7 @@ export function DynamicFieldsForm({ getDynamicFormData, setDynamicFormData, json
             </DynamicForm>
           </Grid>
           <FieldsEditor
+            editorLevel={editorLevel}
             dynamicFormData={dynamicFormData}
             json={currentJson}
             deps={deps}

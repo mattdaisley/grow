@@ -116,6 +116,7 @@ export default function EditPagePage({ params }) {
 
   return (
     <DynamicFieldsForm
+      editorLevel="view"
       id={id}
       pageId={viewId}
       dynamicItem={dynamicItem}

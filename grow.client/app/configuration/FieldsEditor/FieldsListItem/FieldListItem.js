@@ -16,14 +16,16 @@ import Stack from '@mui/material/Stack';
 export function FieldListItem({ field, openField, fieldControlName, control, onClick }) {
 
   const handleClick = () => {
-    onClick && onClick(field.id);
+    onClick && onClick(fieldControlName);
   };
+
+  const isOpen = openField?.includes(fieldControlName) ?? false
 
   return (
     <>
-      {openField === field.id ? (
+      {isOpen ? (
         <ListItem
-          key={field.id}
+          key={fieldControlName}
           sx={{ height: '55px' }}
           secondaryAction={<ListItemIcon sx={{ justifyContent: 'flex-end' }} onClick={handleClick}>
             <ExpandLess />
@@ -44,16 +46,16 @@ export function FieldListItem({ field, openField, fieldControlName, control, onC
         </ListItem>
       ) : (
         <ListItem
-          key={field.id}
+          key={fieldControlName}
           sx={{ height: '55px' }}
           onClick={handleClick}
           secondaryAction={<ListItemIcon sx={{ justifyContent: 'flex-end' }}>
             <ExpandMore />
           </ListItemIcon>}>
-          <ListItemText primary={field.name} />
+          <ListItemText primary={field.name} secondary={`id: ${field.id}`}/>
         </ListItem>
       )}
-      <Collapse in={openField === field.id} timeout="auto" unmountOnExit>
+      <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <Stack spacing={2} sx={{ px: 2, py: 2 }}>
 
           <Controller

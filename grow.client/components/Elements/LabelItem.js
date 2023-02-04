@@ -11,7 +11,7 @@ export const LabelItem = ({ appField, fieldArrayName }) => {
   const pageFormContext = useFormContext();
 
   let label = pageFormContext.watch(`${appField.computed}`);
-  // console.log(label)
+  console.log(label, appField)
 
   if (label === undefined || label === "") {
     label = appField.default
