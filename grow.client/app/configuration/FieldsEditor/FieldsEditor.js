@@ -60,7 +60,7 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
 
   const handleNewFieldClick = (groupId, viewId, viewGroupId) => {
     // console.log(groupId, viewId, viewGroupId);
-    if (onChange === undefined) {
+    if (onEditorChange === undefined) {
       return;
     }
 
@@ -95,7 +95,7 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
     // console.log(newFields);
     onEditorChange(newFields)
 
-    setOpenField(newId);
+    handleClick(newId);
   }
 
   return (

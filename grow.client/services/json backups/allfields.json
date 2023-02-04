@@ -5,7 +5,7 @@
       "name": "test__autocomplete",
       "type": "autocomplete",
       "props": {
-        "label": "test autocomplete!",
+        "label": "test autocomplete",
         "autoComplete": true,
         "autoSelect": true,
         "autoHighlight": true,
@@ -444,6 +444,43 @@
       "name": "sensor_name",
       "props": {
         "label": "Sensor Name"
+      },
+      "default": ""
+    },
+    {
+      "id": "6ade559f-afb7-4441-b25e-e9e17b42191c",
+      "type": "autocomplete",
+      "name": "input-type",
+      "props": {
+        "label": "Input Type",
+        "options": [
+          {
+            "label": "GPIO",
+            "value": 0
+          },
+          {
+            "label": "Serial",
+            "value": 1
+          }
+        ]
+      },
+      "default": null
+    },
+    {
+      "id": "c5a4dcbe-f8ca-4633-a0fa-d1d5dad85465",
+      "type": "text",
+      "name": "input_gpio-pin",
+      "props": {
+        "label": "Pin"
+      },
+      "default": ""
+    },
+    {
+      "id": "53ce16ff-f2bb-4654-97b6-3749e5857852",
+      "type": "numeric",
+      "name": "input_gpio-value",
+      "props": {
+        "label": "Value"
       },
       "default": ""
     }

@@ -38,9 +38,11 @@ function GroupItem({ editorLevel, group, view, viewControlName, openField, onAdd
           viewControlName={viewControlName}
           openField={openField}
           {...props} />
-        <Box sx={{ px: 2, py: 1 }}>
-          <Button onClick={() => onAddViewGroup && onAddViewGroup(group.id, view.id)}>Add New Group</Button>
-        </Box>
+        {editorLevel === 'view' && (
+          <Box sx={{ px: 2, py: 1 }}>
+            <Button onClick={() => onAddViewGroup && onAddViewGroup(group.id, view.id)}>Add New Group</Button>
+          </Box>
+        )}
       </>
     )
   }

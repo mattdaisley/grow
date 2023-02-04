@@ -83,6 +83,7 @@
       "label": "Nutrient Pump Event",
       "groups": [
         {
+          "label": "New Group",
           "id": 0,
           "fields": [
             {
@@ -329,6 +330,47 @@
           "fields": [
             {
               "fieldId": 31
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Sensor Details",
+      "groups": [
+        {
+          "label": "",
+          "id": 0,
+          "fields": [
+            {
+              "fieldId": "a0c786cd-faa8-43b5-afec-7ecbfd1dbb3a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Input Configuration",
+      "groups": [
+        {
+          "label": "",
+          "id": 0,
+          "width": 4,
+          "fields": [
+            {
+              "fieldId": "6ade559f-afb7-4441-b25e-e9e17b42191c"
+            }
+          ]
+        },
+        {
+          "label": "",
+          "id": "b91b213e-2946-4725-af8a-01c2429a48de",
+          "width": 2,
+          "fields": [
+            {
+              "fieldId": "c5a4dcbe-f8ca-4633-a0fa-d1d5dad85465"
             }
           ]
         }

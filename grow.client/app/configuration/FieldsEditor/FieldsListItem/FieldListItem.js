@@ -3,6 +3,8 @@
 import { Controller } from 'react-hook-form';
 
 import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
@@ -13,11 +15,17 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Stack from '@mui/material/Stack';
 
-export function FieldListItem({ field, openField, fieldControlName, control, onClick }) {
+export function FieldListItem({ field, openField, fieldControlName, control, onClick, onDeleteField }) {
 
   const handleClick = () => {
     onClick && onClick(fieldControlName);
   };
+
+  const handleDeleteFieldClick = () => {
+    // console.log('handleDeleteFieldClick', onDeleteField, field.id)
+    onClick && onClick(fieldControlName);
+    onDeleteField && onDeleteField(field.id)
+  }
 
   const isOpen = openField?.includes(fieldControlName) ?? false
 
@@ -52,7 +60,7 @@ export function FieldListItem({ field, openField, fieldControlName, control, onC
           secondaryAction={<ListItemIcon sx={{ justifyContent: 'flex-end' }}>
             <ExpandMore />
           </ListItemIcon>}>
-          <ListItemText primary={field.name} secondary={`id: ${field.id}`}/>
+          <ListItemText primary={field.name} secondary={`id: ${field.id}`} />
         </ListItem>
       )}
       <Collapse in={isOpen} timeout="auto" unmountOnExit>
@@ -90,6 +98,10 @@ export function FieldListItem({ field, openField, fieldControlName, control, onC
                 fullWidth
                 {...formField} />;
             }} />
+
+          <Box>
+            <Button size="small" sx={{ ml: 2 }} onClick={handleDeleteFieldClick}>Delete Field</Button>
+          </Box>
         </Stack>
       </Collapse>
       <Divider component="li" />

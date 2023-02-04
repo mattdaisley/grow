@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 
 import { FieldListItem } from '../FieldsListItem/FieldListItem';
 
-export function ViewGroupItems({ groupId, viewId, viewGroup, openField, viewGroupControlName, control, onClick, onNewFieldClick }) {
+export function ViewGroupItems({ groupId, viewId, viewGroup, viewGroupControlName, onNewFieldClick, ...props }) {
 
   return (
     <>
@@ -16,9 +16,7 @@ export function ViewGroupItems({ groupId, viewId, viewGroup, openField, viewGrou
             key={field.id}
             field={field}
             fieldControlName={fieldControlName}
-            control={control}
-            openField={openField}
-            onClick={onClick} />
+            {...props}/>
         );
       })}
       <Box sx={{ p: 2 }}>
