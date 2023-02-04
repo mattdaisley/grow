@@ -102,10 +102,6 @@ export default function EditViewPage({ params }) {
     return null;
   }
 
-  if (!dynamicItem?.item) {
-    return <div>{dynamicItemsName} {id} not found</div>;
-  }
-
   // console.log(allPages, allViews, allFields, dynamicItem)
   let view = allViews.item.views?.find(x => x.id === viewId);
   if (view === undefined) {

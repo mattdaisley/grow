@@ -1,16 +1,21 @@
 'use client';
 
+import { useState } from 'react';
+
 import { Controller } from 'react-hook-form';
 import Link from 'next/link'
 
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Edit from '@mui/icons-material/Edit';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -31,7 +36,10 @@ export function PageItems({ page, ...props }) {
 }
 
 
-function PageItem({ editorLevel, group, groupControlName, openField, control, ...props }) {
+function PageItem({ editorLevel, group, groupControlName, openField, control, allViews, onDeleteGroup, onAddView, onRemoveView, ...props }) {
+
+  const [addingView, setAddingView] = useState(false);
+  const [addingViewValue, setAddingViewValue] = useState();
 
   if (editorLevel !== 'page') {
     return (
@@ -51,6 +59,25 @@ function PageItem({ editorLevel, group, groupControlName, openField, control, ..
     props.onClick && props.onClick(groupControlName);
 
   };
+
+  const handleRemoveGroupClick = () => {
+    props.onClick && props.onClick(groupControlName);
+    onDeleteGroup && onDeleteGroup(group.id)
+  }
+
+  const handleAddViewClick = () => {
+    setAddingView(true)
+  }
+
+  const handleAddViewConfirmClick = () => {
+    // console.log(addingViewValue)
+    setAddingView(false)
+    onAddView && onAddView(group.id, addingViewValue.value)
+  }
+
+  function handleRemoveView(viewId) {
+    onRemoveView && onRemoveView(group.id, viewId)
+  }
 
   const isOpen = openField?.includes(groupControlName) ?? false
 
@@ -134,9 +161,40 @@ function PageItem({ editorLevel, group, groupControlName, openField, control, ..
           }} />
 
         <Box sx={{ flexGrow: 1, border: 1, borderRadius: 1, borderColor: 'grey.300' }}>
-          {group.views.map(view => (
-            <ViewItemBasic key={view.id} view={view} />
+          {group.views.map((view, index) => (
+            <ViewItemBasic key={view.id + index} view={view} onRemoveView={handleRemoveView} />
           ))}
+          {!addingView && (
+            <Box sx={{ py: 2, px: 2 }}>
+              <Button variant="outlined" color="secondary" size="small" onClick={() => handleAddViewClick()}>Add View to Group</Button>
+
+              <Button size="small" sx={{ ml: 2 }} onClick={handleRemoveGroupClick}>Delete Group</Button>
+            </Box>
+          )}
+          {addingView && (
+            <Box sx={{ p: 2 }}>
+              <Autocomplete
+                label="View"
+                autoComplete
+                autoSelect
+                autoHighlight
+                fullWidth
+                size="small"
+                options={allViews.item.views.map(view => ({ value: view.id, label: view.name }))}
+                value={addingViewValue}
+                onChange={(_, newValue) => setAddingViewValue(newValue)}
+                isOptionEqualToValue={(option, testValue) => option?.id === testValue?.id}
+                renderInput={(params) => <TextField {...params} label="View" />} />
+              <Button
+                color="secondary"
+                size="small"
+                sx={{ mt: 1 }}
+                disabled={addingViewValue === undefined}
+                onClick={() => handleAddViewConfirmClick()}>
+                Confirm
+              </Button>
+            </Box>
+          )}
         </Box>
       </Stack>
     </Collapse>
@@ -144,13 +202,21 @@ function PageItem({ editorLevel, group, groupControlName, openField, control, ..
   </>
 }
 
-function ViewItemBasic({ view }) {
+function ViewItemBasic({ view, onRemoveView }) {
   return <>
     <ListItem
       secondaryAction={
-        <Link title="edit" href={`/configuration/allViews/${encodeURIComponent(view.id)}`}>
-          <Edit fontSize="small" />
-        </Link>}>
+        <>
+          <Link title="edit" href={`/configuration/allViews/${encodeURIComponent(view.id)}`}>
+            <IconButton>
+              <Edit fontSize='small' />
+            </IconButton>
+          </Link>
+          <IconButton onClick={() => onRemoveView(view.id)}>
+            <DeleteIcon fontSize='small' />
+          </IconButton>
+        </>
+      }>
       <ListItemText primary={view.name} secondary={`ViewId: ${view.id}`} />
     </ListItem>
     <Divider component="li" />

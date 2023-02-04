@@ -4,14 +4,25 @@
       "id": 0,
       "name": "Summary",
       "groups": [
-        { "id": 0, "views": [{ "viewId": 0 }] },
+        {
+          "id": 0,
+          "views": [
+            {
+              "viewId": 0
+            }
+          ]
+        },
         {
           "id": 1,
           "width": 6,
           "type": "collection-grid",
           "name": "outlets",
           "label": "Outlets Summary",
-          "views": [{ "viewId": 4 }]
+          "views": [
+            {
+              "viewId": 4
+            }
+          ]
         },
         {
           "id": 2,
@@ -19,7 +30,11 @@
           "type": "collection-grid",
           "name": "nutrient-pumps",
           "label": "Nutrient Pumps Summary",
-          "views": [{ "viewId": 3 }]
+          "views": [
+            {
+              "viewId": 3
+            }
+          ]
         }
       ]
     },
@@ -32,14 +47,25 @@
           "type": "collection-tabs",
           "name": "nutrient-pumps",
           "label": "nutrient-pump_name",
-          "views": [{ "viewId": 3 }, { "viewId": 7 }]
+          "views": [
+            {
+              "viewId": 3
+            },
+            {
+              "viewId": 7
+            }
+          ]
         },
         {
           "id": 1,
           "type": "collection-grid",
           "name": "nutrient-pumps_events",
           "label": "Events",
-          "views": [{ "viewId": 6 }]
+          "views": [
+            {
+              "viewId": 6
+            }
+          ]
         },
         {
           "id": 2,
@@ -47,16 +73,32 @@
           "name": "nutrient-pumps_events",
           "label": "Add New Event",
           "actions": [
-            { "type": "submit", "label": "Add Nutrient Solution Event" }
+            {
+              "type": "submit",
+              "label": "Add Nutrient Solution Event"
+            }
           ],
-          "views": [{ "viewId": 6 }]
+          "views": [
+            {
+              "viewId": 6
+            }
+          ]
         }
       ]
     },
     {
       "id": 1,
       "name": "another page",
-      "groups": [{ "id": 0, "views": [{ "viewId": 0 }] }]
+      "groups": [
+        {
+          "id": 0,
+          "views": [
+            {
+              "viewId": 7
+            }
+          ]
+        }
+      ]
     },
     {
       "id": 2,
@@ -67,22 +109,45 @@
           "type": "collection-tabs",
           "name": "outlets",
           "label": "outlet_name",
-          "views": [{ "viewId": 4 }, { "viewId": 7 }, { "viewId": 8 }]
+          "views": [
+            {
+              "viewId": 4
+            },
+            {
+              "viewId": 7
+            },
+            {
+              "viewId": 8
+            }
+          ]
         },
         {
           "id": 1,
           "type": "collection-grid",
           "name": "outlet-events",
           "label": "Outlet Events",
-          "views": [{ "viewId": 5 }]
+          "views": [
+            {
+              "viewId": 5
+            }
+          ]
         },
         {
           "id": 2,
           "type": "collection-add",
           "name": "outlet-events",
           "label": "outlet_events_add",
-          "actions": [{ "type": "submit", "label": "Add Outlet Event" }],
-          "views": [{ "viewId": 5 }]
+          "actions": [
+            {
+              "type": "submit",
+              "label": "Add Outlet Event"
+            }
+          ],
+          "views": [
+            {
+              "viewId": 5
+            }
+          ]
         }
       ]
     },
@@ -95,7 +160,28 @@
           "type": "collection-tabs",
           "name": "outlets",
           "label": "outlet_name",
-          "views": [{ "viewId": 4 }, { "viewId": 7 }]
+          "views": [
+            {
+              "viewId": 4
+            },
+            {
+              "viewId": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Sensors",
+      "groups": [
+        {
+          "id": 0,
+          "views": [
+            {
+              "viewId": 0
+            }
+          ]
         }
       ]
     }

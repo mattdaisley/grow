@@ -10,13 +10,13 @@ export function RenderGroupViews({ group, control, fieldArrayName }) {
   return (
     <>
       <Grid container spacing={1} xs={12} sx={{ p: 1 }}>
-        {group.views?.map(viewDefinition => {
+        {group.views?.map((viewDefinition, index) => {
           if (!!viewDefinition) {
             // console.log(viewDefinition)
             return (
               <RenderedFields
                 viewDefinition={viewDefinition}
-                key={`${group.id}-${viewDefinition.id}`}
+                key={`${group.id}-${viewDefinition.id}-${index}`}
                 control={control}
                 fieldArrayName={fieldArrayName} />
             );

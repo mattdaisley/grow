@@ -1,5 +1,7 @@
 'use client'
 
+import { v4 as uuidv4 } from 'uuid';
+
 import useStorage from '../../../../services/useStorage';
 import { DynamicFieldsForm } from '../../DynamicFieldsForm';
 import { getDynamicFormDefaults as getDynamicFormData } from "../../../[dynamic]/getDynamicFormDefaults";
@@ -57,6 +59,75 @@ export default function EditPagePage({ params }) {
     }
   }
 
+  function handleAddGroup() {
+    const newAllPages = allPages.item.pages?.map(page => {
+      if (page.id === pageId) {
+
+        const newId = uuidv4();
+        const newGroups = [...page.groups, { id: newId, views: [] }]
+        return { ...page, groups: [...newGroups] };
+      }
+
+      return page;
+    })
+    // console.log({ pages: newAllPages })
+    allPages.setItem({ pages: newAllPages })
+  }
+
+  function handleDeleteGroup(groupId) {
+    const newAllPages = allPages.item.pages?.map(page => {
+      if (page.id === pageId) {
+        const newGroups = page.groups.filter(group => group.id !== groupId)
+        return { ...page, groups: [...newGroups] };
+      }
+
+      return page;
+    })
+    // console.log({ pages: newAllPages })
+    allPages.setItem({ pages: newAllPages })
+  }
+
+  function handleAddView(groupId, viewId) {
+    // console.log(groupId, viewId)
+    const newAllPages = allPages.item.pages?.map(page => {
+      if (page.id === pageId) {
+        const newGroups = page.groups.map(group => {
+          if (group.id === groupId) {
+            return { ...group, views: [...group.views, { viewId }] }
+          }
+          return group;
+        })
+
+        return { ...page, groups: [...newGroups] };
+      }
+
+      return page;
+    })
+    // console.log({ pages: newAllPages })
+    allPages.setItem({ pages: newAllPages })
+  }
+
+  function handleRemoveView(groupId, viewId) {
+    console.log(groupId, viewId)
+    const newAllPages = allPages.item.pages?.map(page => {
+      if (page.id === pageId) {
+        const newGroups = page.groups.map(group => {
+          if (group.id === groupId) {
+            const newViews = group.views.filter(view => view.viewId !== viewId)
+            return { ...group, views: newViews }
+          }
+          return group;
+        })
+
+        return { ...page, groups: [...newGroups] };
+      }
+
+      return page;
+    })
+    // console.log({ pages: newAllPages })
+    allPages.setItem({ pages: newAllPages })
+  }
+
   return (
     <DynamicFieldsForm
       editorLevel="page"
@@ -68,6 +139,10 @@ export default function EditPagePage({ params }) {
       deps={[allPages.timestamp, allViews.timestamp, allFields.timestamp]}
       json={json}
       setItem={handleSetItem}
+      onAddGroup={handleAddGroup}
+      onDeleteGroup={handleDeleteGroup}
+      onAddView={handleAddView}
+      onRemoveView={handleRemoveView}
       allPages={allPages}
       allViews={allViews}
       allFields={allFields} />

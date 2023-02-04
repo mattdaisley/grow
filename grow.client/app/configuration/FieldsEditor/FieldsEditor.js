@@ -18,7 +18,7 @@ export default function FieldsEditor(props) {
   return useMemo(() => <FieldsEditorComponent {...props} />, [...props.deps, props.json])
 }
 
-function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonChange, ...props }) {
+function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonChange, onAddGroup, ...props }) {
 
   const [openField, setOpenField] = useState([]);
   const [editMode, setEditMode] = useState('editor')
@@ -107,15 +107,22 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
             <Button variant={editMode === 'json' ? "solid" : "text"} onClick={() => setEditMode('json')}>Json</Button>
           </Grid>
           {editMode === 'editor' && (
-            <List>
-              <PageItems
-                page={watchFields}
-                control={formMethods.control}
-                openField={openField}
-                onClick={handleClick}
-                onNewFieldClick={handleNewFieldClick}
-                {...props} />
-            </List>
+            <>
+              <List>
+                <PageItems
+                  page={watchFields}
+                  control={formMethods.control}
+                  openField={openField}
+                  onClick={handleClick}
+                  onNewFieldClick={handleNewFieldClick}
+                  {...props} />
+              </List>
+              {props.editorLevel === 'page' && (
+                <Box sx={{ px: 2, pb: 1 }}>
+                  <Button onClick={() => onAddGroup && onAddGroup()}>Add New Group</Button>
+                </Box>
+              )}
+            </>
           )}
           {editMode === 'json' && (
             <Box sx={{ flexGrow: 1, p: 2 }}>

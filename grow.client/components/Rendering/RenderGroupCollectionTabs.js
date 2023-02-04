@@ -99,7 +99,7 @@ export function RenderGroupCollectionTabs({ group, control, fieldArrayName }) {
             variant="scrollable"
             scrollButtons={false}>
             {watchFields?.map((field, index) => {
-              // console.log(field)
+              // console.log(field, group)
               let label = !!group.label ? field[`${group.label}`] : "";
               if (label === undefined || label === "") {
                 label = `${collectionName} ${index}`
