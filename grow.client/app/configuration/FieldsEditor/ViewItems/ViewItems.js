@@ -27,7 +27,7 @@ export function ViewItems({ view, viewControlName, ...props }) {
     const viewGroupControlName = `${viewControlName}.groups.${viewGroupIndex}`;
 
     return <ViewItem
-      key={viewGroupControlName}
+      key={viewGroup.id}
       viewId={view.id}
       viewGroup={viewGroup}
       viewGroupControlName={viewGroupControlName}
@@ -36,7 +36,9 @@ export function ViewItems({ view, viewControlName, ...props }) {
 }
 
 
-function ViewItem({ editorLevel, allFields, groupId, viewId, viewGroup, viewGroupControlName, control, openField, onClick, onAddField, onRemoveField, ...props }) {
+function ViewItem({
+  editorLevel, allFields, groupId, viewId, viewGroup, viewGroupControlName, control, openField, onClick,
+  onDeleteViewGroup, onAddField, onRemoveField, ...props }) {
 
   const [addingField, setAddingField] = useState(false);
   const [addingFieldValue, setAddingFieldValue] = useState();
@@ -61,6 +63,11 @@ function ViewItem({ editorLevel, allFields, groupId, viewId, viewGroup, viewGrou
 
   };
 
+  const handleRemoveGroupClick = () => {
+    onClick && onClick(viewGroupControlName);
+    onDeleteViewGroup && onDeleteViewGroup(viewGroup.id)
+  }
+
   const handleAddFieldClick = () => {
     setAddingField(true)
   }
@@ -77,7 +84,7 @@ function ViewItem({ editorLevel, allFields, groupId, viewId, viewGroup, viewGrou
 
   const isOpen = openField?.includes(viewGroupControlName) ?? false
 
-  let primaryDiscription = viewGroup.label ?? `Group ${viewGroup.id}`
+  let primaryDiscription = viewGroup?.label === undefined || viewGroup?.label === '' ? `Group ${viewGroup.id}` : viewGroup.label
   let secondaryDescription = ""
   if (viewGroup.type !== undefined) {
     secondaryDescription += group.type + " "
@@ -127,8 +134,10 @@ function ViewItem({ editorLevel, allFields, groupId, viewId, viewGroup, viewGrou
             <FieldItemBasic key={field.id} field={field} onRemoveField={handleRemoveFieldClick} />
           ))}
           {!addingField && (
-            <Box sx={{ py: 1, px: 2 }}>
-              <Button onClick={() => handleAddFieldClick()}>Add Field to Group</Button>
+            <Box sx={{ py: 2, px: 2 }}>
+              <Button variant="outlined" color="secondary" size="small" onClick={() => handleAddFieldClick()}>Add Field to Group</Button>
+
+              <Button size="small" sx={{ ml: 2 }} onClick={handleRemoveGroupClick}>Delete Group</Button>
             </Box>
           )}
           {addingField && (
@@ -145,7 +154,14 @@ function ViewItem({ editorLevel, allFields, groupId, viewId, viewGroup, viewGrou
                 onChange={(_, newValue) => setAddingFieldValue(newValue)}
                 isOptionEqualToValue={(option, testValue) => option?.id === testValue?.id}
                 renderInput={(params) => <TextField {...params} label="Field" />} />
-              <Button disabled={addingFieldValue === undefined} onClick={() => handleAddFieldConfirmClick()}>Confirm</Button>
+              <Button
+                color="secondary"
+                size="small"
+                sx={{ mt: 1 }}
+                disabled={addingFieldValue === undefined}
+                onClick={() => handleAddFieldConfirmClick()}>
+                Confirm
+              </Button>
             </Box>
           )}
         </Box>

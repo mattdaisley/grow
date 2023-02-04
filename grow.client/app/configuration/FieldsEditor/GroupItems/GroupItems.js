@@ -4,6 +4,7 @@ import { Controller } from 'react-hook-form';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
@@ -25,17 +26,22 @@ export function GroupItems({ group, groupControlName, ...props }) {
   });
 }
 
-function GroupItem({ editorLevel, group, view, viewControlName, openField, ...props }) {
+function GroupItem({ editorLevel, group, view, viewControlName, openField, onAddViewGroup, ...props }) {
 
   if (editorLevel !== 'page') {
     return (
-      <ViewItems
-        editorLevel={editorLevel}
-        groupId={group.id}
-        view={view}
-        viewControlName={viewControlName}
-        openField={openField}
-        {...props} />
+      <>
+        <ViewItems
+          editorLevel={editorLevel}
+          groupId={group.id}
+          view={view}
+          viewControlName={viewControlName}
+          openField={openField}
+          {...props} />
+        <Box sx={{ px: 2, py: 1 }}>
+          <Button onClick={() => onAddViewGroup && onAddViewGroup(group.id, view.id)}>Add New Group</Button>
+        </Box>
+      </>
     )
   }
 

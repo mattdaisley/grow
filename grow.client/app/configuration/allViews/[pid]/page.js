@@ -1,5 +1,7 @@
 'use client'
 
+import { v4 as uuidv4 } from 'uuid';
+
 import useStorage from '../../../../services/useStorage';
 import { DynamicFieldsForm } from '../../DynamicFieldsForm';
 import { getViewFieldValues } from '../../../../services/getViewFieldValues';
@@ -31,7 +33,7 @@ function getAllViewsDynamicFormData(props) {
       return filledField;
     });
     // console.log(group.fields, groupFields)
-    return { ...group, fields: groupFields };
+    return { label: '', ...group, fields: groupFields };
   });
 
   const { viewFieldValues } = getViewFieldValues(view, allFields);
@@ -45,7 +47,7 @@ function getAllViewsDynamicFormData(props) {
           id: 0,
           views: [
             {
-              id: 0,
+              ...view,
               groups: viewGroups
             }
           ]
@@ -59,8 +61,27 @@ function getAllViewsDynamicFormData(props) {
   return dynamicFormData;
 }
 
-function setDynamicFormData(newValue, props) {
-  // console.log(newValue, props)
+function setDynamicFormData(newValue, setItem) {
+  // console.log(newValue, setItem)
+
+  const newGroups = newValue.groups.map(group => {
+
+    const newViews = group.views.map(view => {
+
+      const newViewGroups = view.groups.map(viewGroup => {
+        // console.log(viewGroup)
+        const newFields = viewGroup.fields.map(field => ({ fieldId: field.id ?? field.fieldId }))
+        return { ...viewGroup, fields: newFields }
+      })
+
+      return { ...view, groups: newViewGroups }
+    })
+
+    return { ...group, views: newViews }
+  })
+
+  // console.log({ ...newValue, groups: newGroups })
+  setItem({ ...newValue, groups: newGroups })
 }
 
 export default function EditViewPage({ params }) {
@@ -93,12 +114,21 @@ export default function EditViewPage({ params }) {
   }
   const json = JSON.stringify(view, null, 2);
 
-  function handleSetItem(rawJson) {
+  function handleSetItem(newItem) {
+    // console.log(newItem)
     try {
-      var parsedJson = JSON.parse(rawJson);
+      let newView
+      if (typeof newItem !== 'string') {
+        // console.log(newItem);
+        newView = newItem.groups[0].views[0]
+      }
+      else {
+        newView = JSON.parse(rawJson);
+      }
+      // console.log(newItem, newView, allViews)
       const newAllViews = allViews.item.views?.map(view => {
         if (view.id === viewId) {
-          return parsedJson;
+          return newView;
         }
         return view;
       })
@@ -112,6 +142,35 @@ export default function EditViewPage({ params }) {
         console.log(e)
       }
     }
+  }
+
+  function handleAddViewGroup() {
+    const newAllViews = allViews.item.views?.map(view => {
+      if (view.id !== viewId) {
+        return view;
+      }
+
+      const newId = uuidv4();
+      const newViewGroups = [...view.groups, { id: newId, fields: [] }]
+
+      return { ...view, groups: newViewGroups }
+    })
+    // console.log({ views: newAllViews })
+    allViews.setItem({ views: newAllViews })
+  }
+
+  function handleDeleteViewGroup(viewGroupId) {
+    const newAllViews = allViews.item.views?.map(view => {
+      if (view.id !== viewId) {
+        return view;
+      }
+
+      const newViewGroups = view.groups.filter(viewGroup => viewGroup.id !== viewGroupId);
+
+      return { ...view, groups: newViewGroups }
+    })
+    // console.log({ views: newAllViews })
+    allViews.setItem({ views: newAllViews })
   }
 
   function handleAddField(viewGroupId, fieldId) {
@@ -172,6 +231,8 @@ export default function EditViewPage({ params }) {
       deps={[allViews.timestamp, allFields.timestamp]}
       json={json}
       setItem={handleSetItem}
+      onAddViewGroup={handleAddViewGroup}
+      onDeleteViewGroup={handleDeleteViewGroup}
       onAddField={handleAddField}
       onRemoveField={handleRemoveField} />
   )

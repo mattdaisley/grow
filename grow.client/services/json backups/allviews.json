@@ -23,6 +23,7 @@
       "name": "Nutrient Pump Details",
       "groups": [
         {
+          "label": "Details",
           "id": 0,
           "fields": [
             {

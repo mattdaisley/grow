@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from "react";
 
 export default function useStorage(key) {
@@ -60,7 +62,7 @@ export default function useStorage(key) {
     }
     // const data = JSON.stringify(newItem, null, 2);
     // // console.log(data);
-    // localStorage.setItem(key, data);
+    localStorage.setItem(key, data);
   }
 
   return {
@@ -72,13 +74,13 @@ export default function useStorage(key) {
 const GetItem = (key) => {
 
   const json = localStorage.getItem(key);
-  // console.log(allFieldsJson)
+  // console.log(key, json)
 
   if (json !== undefined) {
     try {
       var item = JSON.parse(json);
+      // console.log(key, json, item)
       return { json, item };
-      // console.log(allFields)
     }
     catch (e) {
       console.log(e);
