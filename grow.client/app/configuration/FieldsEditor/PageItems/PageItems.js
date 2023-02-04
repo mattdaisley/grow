@@ -31,27 +31,24 @@ export function PageItems({ page, ...props }) {
 }
 
 
-function PageItem({ editorLevel, group, groupControlName, control, openField, onClick, onNewFieldClick }) {
-
-  const groupItems = () => (
-    <GroupItems
-      key={groupControlName}
-      editorLevel={editorLevel}
-      group={group}
-      groupControlName={groupControlName}
-      control={control}
-      openField={openField}
-      onClick={onClick}
-      onNewFieldClick={onNewFieldClick} />
-  )
+function PageItem({ editorLevel, group, groupControlName, openField, control, ...props }) {
 
   if (editorLevel !== 'page') {
-    return groupItems()
+    return (
+      <GroupItems
+        key={groupControlName}
+        editorLevel={editorLevel}
+        openField={openField}
+        group={group}
+        groupControlName={groupControlName}
+        control={control}
+        {...props} />
+    )
   }
 
   const handleClick = () => {
     // console.log('clicked', groupControlName, onClick)
-    onClick && onClick(groupControlName);
+    props.onClick && props.onClick(groupControlName);
 
   };
 

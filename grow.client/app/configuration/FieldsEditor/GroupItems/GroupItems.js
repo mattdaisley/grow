@@ -25,7 +25,7 @@ export function GroupItems({ group, groupControlName, ...props }) {
   });
 }
 
-function GroupItem({ editorLevel, group, view, viewControlName, control, openField, onClick, onNewFieldClick }) {
+function GroupItem({ editorLevel, group, view, viewControlName, openField, ...props }) {
 
   if (editorLevel !== 'page') {
     return (
@@ -34,16 +34,14 @@ function GroupItem({ editorLevel, group, view, viewControlName, control, openFie
         groupId={group.id}
         view={view}
         viewControlName={viewControlName}
-        control={control}
         openField={openField}
-        onClick={onClick}
-        onNewFieldClick={onNewFieldClick} />
+        {...props} />
     )
   }
 
   const handleClick = () => {
     // console.log('clicked', viewControlName, onClick)
-    onClick && onClick(viewControlName);
+    props.onClick && props.onClick(viewControlName);
   };
 
   const isOpen = openField?.includes(viewControlName) ?? false

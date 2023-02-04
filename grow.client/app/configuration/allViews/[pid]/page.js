@@ -8,7 +8,7 @@ import { getViewFieldValues } from '../../../../services/getViewFieldValues';
 // import { getAllPagesDynamicFormData } from './getAllPagesDynamicFormData';
 
 function getAllViewsDynamicFormData(props) {
-
+  // console.log('getAllViewsDynamicFormData')
   const allViews = props.allViews.item.views || [];
   const view = allViews.find(x => x.id === props.pageId);
 
@@ -34,7 +34,7 @@ function getAllViewsDynamicFormData(props) {
     return { ...group, fields: groupFields };
   });
 
-  const { viewFieldValues } = getViewFieldValues(view);
+  const { viewFieldValues } = getViewFieldValues(view, allFields);
 
   // console.log(fields)
   const dynamicFormData = {
@@ -55,15 +55,15 @@ function getAllViewsDynamicFormData(props) {
     fieldValues: { ...viewFieldValues },
     timestamp: Date.now()
   };
-  console.log(dynamicFormData)
+  // console.log(dynamicFormData)
   return dynamicFormData;
 }
 
 function setDynamicFormData(newValue, props) {
-
+  // console.log(newValue, props)
 }
 
-export default function EditPagePage({ params }) {
+export default function EditViewPage({ params }) {
 
   const dynamicItemsName = "Configuration / Views"
   const id = 0
@@ -114,19 +114,66 @@ export default function EditPagePage({ params }) {
     }
   }
 
+  function handleAddField(viewGroupId, fieldId) {
+    // console.log(viewId, viewGroupId, fieldId)
+
+    const newAllViews = allViews.item.views?.map(view => {
+      if (view.id !== viewId) {
+        return view;
+      }
+
+      const newViewGroups = view.groups.map(viewGroup => {
+        if (viewGroup.id !== viewGroupId) {
+          return viewGroup;
+        }
+
+        return { ...viewGroup, fields: [...viewGroup.fields, { fieldId }] };
+      })
+
+      return { ...view, groups: newViewGroups }
+    })
+    // console.log({ views: newAllViews })
+    allViews.setItem({ views: newAllViews })
+  }
+
+  function handleRemoveField(viewGroupId, fieldId) {
+    // console.log(viewGroupId, fieldId)
+
+    const newAllViews = allViews.item.views?.map(view => {
+      if (view.id !== viewId) {
+        return view;
+      }
+
+      const newViewGroups = view.groups.map(viewGroup => {
+        if (viewGroup.id !== viewGroupId) {
+          return viewGroup;
+        }
+
+        const newFields = viewGroup.fields.filter(field => field.fieldId !== fieldId);
+        return { ...viewGroup, fields: newFields };
+      })
+
+      return { ...view, groups: newViewGroups }
+    })
+    // console.log({ views: newAllViews })
+    allViews.setItem({ views: newAllViews })
+  }
+
   return (
     <DynamicFieldsForm
       editorLevel="view"
       id={id}
       pageId={viewId}
+      allViews={allViews}
+      allFields={allFields}
       dynamicItem={dynamicItem}
       getDynamicFormData={getAllViewsDynamicFormData}
       setDynamicFormData={setDynamicFormData}
       deps={[allViews.timestamp, allFields.timestamp]}
       json={json}
       setItem={handleSetItem}
-      allViews={allViews}
-      allFields={allFields} />
+      onAddField={handleAddField}
+      onRemoveField={handleRemoveField} />
   )
 }
 

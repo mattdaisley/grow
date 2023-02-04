@@ -5,18 +5,22 @@ import Link from 'next/link'
 
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Edit from '@mui/icons-material/Edit';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Stack from '@mui/material/Stack';
 
 import { ViewGroupItems } from '../ViewGroupItems/ViewGroupItems';
+import { useState } from 'react';
 
 export function ViewItems({ view, viewControlName, ...props }) {
   return view?.groups?.map((viewGroup, viewGroupIndex) => {
@@ -24,7 +28,7 @@ export function ViewItems({ view, viewControlName, ...props }) {
 
     return <ViewItem
       key={viewGroupControlName}
-      view={view}
+      viewId={view.id}
       viewGroup={viewGroup}
       viewGroupControlName={viewGroupControlName}
       {...props} />;
@@ -32,19 +36,22 @@ export function ViewItems({ view, viewControlName, ...props }) {
 }
 
 
-function ViewItem({ editorLevel, groupId, view, viewGroup, viewGroupControlName, control, openField, onClick, onNewFieldClick }) {
+function ViewItem({ editorLevel, allFields, groupId, viewId, viewGroup, viewGroupControlName, control, openField, onClick, onAddField, onRemoveField, ...props }) {
+
+  const [addingField, setAddingField] = useState(false);
+  const [addingFieldValue, setAddingFieldValue] = useState();
 
   if (editorLevel !== 'view') {
     return (
       <ViewGroupItems
         groupId={groupId}
-        viewId={view.id}
+        viewId={viewId}
         viewGroup={viewGroup}
         viewGroupControlName={viewGroupControlName}
         control={control}
         openField={openField}
         onClick={onClick}
-        onNewFieldClick={onNewFieldClick} />
+        {...props} />
     )
   }
 
@@ -53,6 +60,20 @@ function ViewItem({ editorLevel, groupId, view, viewGroup, viewGroupControlName,
     onClick && onClick(viewGroupControlName);
 
   };
+
+  const handleAddFieldClick = () => {
+    setAddingField(true)
+  }
+
+  const handleAddFieldConfirmClick = () => {
+    console.log(addingFieldValue)
+    setAddingField(false)
+    onAddField && onAddField(viewGroup.id, addingFieldValue.value)
+  }
+
+  const handleRemoveFieldClick = (fieldId) => {
+    onRemoveField && onRemoveField(viewGroup.id, fieldId)
+  }
 
   const isOpen = openField?.includes(viewGroupControlName) ?? false
 
@@ -103,8 +124,30 @@ function ViewItem({ editorLevel, groupId, view, viewGroup, viewGroupControlName,
       <Stack spacing={2} sx={{ px: 2, py: 2 }}>
         <Box sx={{ flexGrow: 1, border: 1, borderRadius: 1, borderColor: 'grey.300' }}>
           {viewGroup.fields.map(field => (
-            <FieldItemBasic key={field.id} field={field} />
+            <FieldItemBasic key={field.id} field={field} onRemoveField={handleRemoveFieldClick} />
           ))}
+          {!addingField && (
+            <Box sx={{ py: 1, px: 2 }}>
+              <Button onClick={() => handleAddFieldClick()}>Add Field to Group</Button>
+            </Box>
+          )}
+          {addingField && (
+            <Box sx={{ p: 2 }}>
+              <Autocomplete
+                label="Field"
+                autoComplete
+                autoSelect
+                autoHighlight
+                fullWidth
+                size="small"
+                options={allFields.item.fields.map(field => ({ value: field.id, label: field.name }))}
+                value={addingFieldValue}
+                onChange={(_, newValue) => setAddingFieldValue(newValue)}
+                isOptionEqualToValue={(option, testValue) => option?.id === testValue?.id}
+                renderInput={(params) => <TextField {...params} label="Field" />} />
+              <Button disabled={addingFieldValue === undefined} onClick={() => handleAddFieldConfirmClick()}>Confirm</Button>
+            </Box>
+          )}
         </Box>
       </Stack>
     </Collapse>
@@ -112,13 +155,21 @@ function ViewItem({ editorLevel, groupId, view, viewGroup, viewGroupControlName,
   </>
 }
 
-function FieldItemBasic({ field }) {
+function FieldItemBasic({ field, onRemoveField }) {
   return <>
     <ListItem
       secondaryAction={
-        <Link title="edit" href={`/configuration/allFields`}>
-          <Edit fontSize="small" />
-        </Link>}>
+        <>
+          <Link title="edit" href={`/configuration/allFields`}>
+            <IconButton>
+              <Edit fontSize='small' />
+            </IconButton>
+          </Link>
+          <IconButton onClick={() => onRemoveField(field.id)}>
+            <DeleteIcon fontSize='small' />
+          </IconButton>
+        </>
+      }>
       <ListItemText primary={field.name} secondary={`FieldId: ${field.id}`} />
     </ListItem>
     <Divider component="li" />

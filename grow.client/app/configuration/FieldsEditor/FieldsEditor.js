@@ -18,7 +18,7 @@ export default function FieldsEditor(props) {
   return useMemo(() => <FieldsEditorComponent {...props} />, [...props.deps, props.json])
 }
 
-function FieldsEditorComponent({ dynamicFormData, json, editorLevel, onEditorChange, onJsonChange }) {
+function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonChange, ...props }) {
 
   const [openField, setOpenField] = useState([]);
   const [editMode, setEditMode] = useState('editor')
@@ -39,6 +39,7 @@ function FieldsEditorComponent({ dynamicFormData, json, editorLevel, onEditorCha
   }, [watchFields])
 
   useEffect(() => {
+    // console.log('reset', dynamicFormData.currentPage)
     formMethods.reset({ ...dynamicFormData.currentPage })
   }, [dynamicFormData.currentPage])
 
@@ -108,12 +109,12 @@ function FieldsEditorComponent({ dynamicFormData, json, editorLevel, onEditorCha
           {editMode === 'editor' && (
             <List>
               <PageItems
-                editorLevel={editorLevel}
                 page={watchFields}
                 control={formMethods.control}
                 openField={openField}
                 onClick={handleClick}
-                onNewFieldClick={handleNewFieldClick} />
+                onNewFieldClick={handleNewFieldClick}
+                {...props} />
             </List>
           )}
           {editMode === 'json' && (
