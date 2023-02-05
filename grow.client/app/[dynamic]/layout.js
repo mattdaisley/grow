@@ -45,8 +45,7 @@ export default function DynamicLayout({ children }) {
             position: 'fixed',
             overflowY: 'scroll'
           })
-        }
-        }
+        }}
       >
         {children}
       </Box>

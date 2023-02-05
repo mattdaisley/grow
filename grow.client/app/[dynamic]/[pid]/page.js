@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 
 import { usePathname, useRouter } from 'next/navigation';
 
+import Box from '@mui/material/Box';
+
 export default function DynamicPage({ params }) {
 
   const router = useRouter();
@@ -18,5 +20,5 @@ export default function DynamicPage({ params }) {
     router.replace(`/${dynamicItemName}/${encodeURIComponent(id)}/0`);
   }, [])
 
-  return <div>Loading...</div>
+  return <Box sx={{ flexGrow: 1, py: 4, px: { xs: 2, md: 4 } }}>Loading...</Box>;
 }
