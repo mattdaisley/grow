@@ -483,6 +483,46 @@
         "label": "Value"
       },
       "default": ""
+    },
+    {
+      "id": "6842275a-2e9f-41c6-9a0e-ed5234668f17",
+      "type": "checkbox",
+      "name": "sensor_state",
+      "props": {
+        "label": "On/Off"
+      },
+      "default": false
+    },
+    {
+      "id": "5d296416-cf2c-4f1b-80a7-240cadb4edaa",
+      "type": "text",
+      "name": "sensor-event_timestamp",
+      "props": {
+        "label": "Timestamp"
+      },
+      "default": ""
+    },
+    {
+      "id": "4e6ca09d-fb93-45da-8b04-0337e46f62da",
+      "type": "numeric",
+      "name": "sensor-event_value",
+      "props": {
+        "label": "Value"
+      },
+      "default": ""
+    },
+    {
+      "id": "b5f90eb9-5c8b-473e-8507-a59323871261",
+      "type": "autocomplete",
+      "name": "sensor-event_sensor_name",
+      "props": {
+        "label": "Sensor Name",
+        "computedOptions": {
+          "key": "sensors",
+          "label": "sensor_name"
+        }
+      },
+      "default": null
     }
   ]
 }

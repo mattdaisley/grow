@@ -14,7 +14,7 @@
         },
         {
           "id": 1,
-          "width": 6,
+          "width": 4,
           "type": "collection-grid",
           "name": "outlets",
           "label": "Outlets Summary",
@@ -26,7 +26,7 @@
         },
         {
           "id": 2,
-          "width": 6,
+          "width": 4,
           "type": "collection-grid",
           "name": "nutrient-pumps",
           "label": "Nutrient Pumps Summary",
@@ -35,6 +35,18 @@
               "viewId": 3
             }
           ]
+        },
+        {
+          "id": "c63d71e8-0c99-4aa0-abbe-7dcff620f4cc",
+          "width": 4,
+          "views": [
+            {
+              "viewId": 9
+            }
+          ],
+          "label": "Sensors Summary",
+          "type": "collection-grid",
+          "name": "sensors"
         }
       ]
     },
@@ -179,9 +191,43 @@
           "id": 0,
           "views": [
             {
-              "viewId": 0
+              "viewId": 9
+            },
+            {
+              "viewId": 10
             }
-          ]
+          ],
+          "label": "sensor_name",
+          "type": "collection-tabs",
+          "name": "sensors"
+        },
+        {
+          "id": "11fc91ae-4b16-45f5-95e0-3d3db23abd97",
+          "views": [
+            {
+              "viewId": 11
+            }
+          ],
+          "label": "Sensor Events",
+          "type": "collection-grid",
+          "name": "sensor-events"
+        },
+        {
+          "id": "5d80e9bf-8518-4a69-b1eb-40ccaabeb349",
+          "views": [
+            {
+              "viewId": 11
+            }
+          ],
+          "actions": [
+            {
+              "type": "submit",
+              "label": "Add Sensor Event"
+            }
+          ],
+          "label": "sensor-events_add",
+          "type": "collection-add",
+          "name": "sensor-events"
         }
       ]
     }

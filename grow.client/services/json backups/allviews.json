@@ -5,6 +5,7 @@
       "name": "Summary Details",
       "groups": [
         {
+          "label": "",
           "id": 0,
           "width": 4,
           "fields": [
@@ -62,6 +63,7 @@
       "label": "Outlet Event",
       "groups": [
         {
+          "label": "",
           "id": 0,
           "fields": [
             {
@@ -345,6 +347,9 @@
           "fields": [
             {
               "fieldId": "a0c786cd-faa8-43b5-afec-7ecbfd1dbb3a"
+            },
+            {
+              "fieldId": "6842275a-2e9f-41c6-9a0e-ed5234668f17"
             }
           ]
         }
@@ -371,6 +376,28 @@
           "fields": [
             {
               "fieldId": "c5a4dcbe-f8ca-4633-a0fa-d1d5dad85465"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Sensor Event",
+      "label": "Add Sensor Event",
+      "groups": [
+        {
+          "label": "Add Sensor Event",
+          "id": 0,
+          "fields": [
+            {
+              "fieldId": "b5f90eb9-5c8b-473e-8507-a59323871261"
+            },
+            {
+              "fieldId": "5d296416-cf2c-4f1b-80a7-240cadb4edaa"
+            },
+            {
+              "fieldId": "4e6ca09d-fb93-45da-8b04-0337e46f62da"
             }
           ]
         }

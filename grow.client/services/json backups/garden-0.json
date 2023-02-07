@@ -1,64 +1,65 @@
 {
-  "id": 0,
-  "name": "Jalepenos",
-  "outlets": [
+  "sensors": [
     {
-      "id": 0,
-      "outlet_name": "Main Pump",
-      "outlet_state": false,
-      "output-type": { "label": "GPIO", "value": 0 },
-      "output_gpio-pin": "7",
-      "output_gpio-on-state": { "label": "High", "value": 1 },
-      "output_gpio-startup-state": { "label": "Off", "value": 1 },
-      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
-      "automation_timer-type": { "label": "Cycle", "value": 0 },
-      "automation_timer_enabled": true,
-      "automation_timer_cycle-time-on": 15,
-      "automation_timer_cycle-time-off": 300
+      "id": "0fbe52f8-3cc0-4ae1-af04-55cb0258343a",
+      "sensor_name": "TDS",
+      "input-type": {
+        "label": "GPIO",
+        "value": 0
+      },
+      "input_gpio-pin": "11",
+      "sensor_state": true
     },
     {
-      "id": 1,
-      "outlet_name": "Lights",
-      "outlet_state": true,
-      "output-type": { "label": "GPIO", "value": 0 },
-      "output_gpio-pin": "8",
-      "output_gpio-on-state": { "label": "High", "value": 1 },
-      "output_gpio-startup-state": { "label": "On", "value": 0 },
-      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
-      "automation_timer-type": { "label": "Schedule", "value": 1 },
-      "automation_timer_enabled": true,
-      "automation_timer_schedule-start-time": "08:30",
-      "automation_timer_schedule-start-state": { "label": "On", "value": 0 },
-      "automation_timer_schedule-stop-time": "20:30",
-      "automation_timer_schedule-stop-state": { "label": "Off", "value": 1 }
+      "id": "9756f7a6-c24b-4bf2-98e3-4122dce51bff",
+      "sensor_name": "PH",
+      "sensor_state": false,
+      "input-type": {
+        "label": "GPIO",
+        "value": 0
+      },
+      "input_gpio-pin": "12"
     },
     {
-      "id": 2,
-      "outlet_name": "Nutrient Mixer",
-      "outlet_state": false,
-      "output-type": { "label": "GPIO", "value": 0 },
-      "output_gpio-pin": "9",
-      "output_gpio-on-state": { "label": "High", "value": 1 },
-      "output_gpio-startup-state": { "label": "Off", "value": 1 },
-      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
-      "automation_timer-type": { "label": "Cycle", "value": 0 },
-      "automation_timer_enabled": true,
-      "automation_timer_cycle-time-on": 15,
-      "automation_timer_cycle-time-off": 1800
+      "id": "be6e6e8a-639d-4381-8169-e226a1ff95db",
+      "sensor_name": "Temperature",
+      "sensor_state": true,
+      "input-type": {
+        "label": "GPIO",
+        "value": 0
+      },
+      "input_gpio-pin": "13"
+    }
+  ],
+  "sensor-events": [
+    {
+      "id": "5f87ef72-9fd4-4769-8826-5992047b4b2e",
+      "sensor-event_sensor_name": {
+        "value": 0,
+        "label": "TDS"
+      },
+      "sensor-event_timestamp": "2023-02-06 20:00:15.000",
+      "sensor-event_value": 0.04
     },
     {
-      "id": 3,
-      "outlet_name": "Fan",
-      "outlet_state": false,
-      "output-type": { "label": "GPIO", "value": 0 },
-      "output_gpio-pin": "10",
-      "output_gpio-on-state": { "label": "High", "value": 1 },
-      "output_gpio-startup-state": { "label": "Off", "value": 1 },
-      "output_gpio-shutdown-state": { "label": "Off", "value": 1 },
-      "automation_timer-type": { "label": "Cycle", "value": 0 },
-      "automation_timer_enabled": true,
-      "automation_timer_cycle-time-on": 1800,
-      "automation_timer_cycle-time-off": 7200
+      "id": "a0dfd17b-5c40-42fa-88e8-2b3db2c9d1ad",
+      "sensor-event_sensor_name": {
+        "value": 0,
+        "label": "TDS"
+      },
+      "sensor-event_timestamp": "2023-02-06 20:00:00.000",
+      "sensor-event_value": 0.02
+    }
+  ],
+  "collection": [
+    {
+      "id": "2dc18373-0c3c-4fcc-871f-90006ccac1be",
+      "sensor_name": "TDS",
+      "input-type": {
+        "label": "GPIO",
+        "value": 0
+      },
+      "input_gpio-pin": "11"
     }
   ],
   "nutrient-pumps": [
@@ -68,7 +69,10 @@
       "nutrient-pump_dose-rate": 1.2055,
       "nutrient-pump_dose": "",
       "nutrient-pump_state": false,
-      "output-type": { "label": "Serial", "value": 1 },
+      "output-type": {
+        "label": "Serial",
+        "value": 1
+      },
       "output_serial-command": "P",
       "output_serial-index": "0"
     },
@@ -78,7 +82,10 @@
       "nutrient-pump_dose-rate": 1.2055,
       "nutrient-pump_dose": "",
       "nutrient-pump_state": false,
-      "output-type": { "label": "Serial", "value": 1 },
+      "output-type": {
+        "label": "Serial",
+        "value": 1
+      },
       "output_serial-command": "P",
       "output_serial-index": "1"
     },
@@ -88,38 +95,24 @@
       "nutrient-pump_dose-rate": 1.2055,
       "nutrient-pump_dose": "",
       "nutrient-pump_state": false,
-      "output-type": { "label": "Serial", "value": 1 },
+      "output-type": {
+        "label": "Serial",
+        "value": 1
+      },
       "output_serial-command": "P",
       "output_serial-index": "2"
     },
     {
       "id": "c9a17ee3-2c48-499e-b994-abbd878536dc",
       "nutrient-pump_name": "PH Down",
-      "nutrient-pump_dose-rate": 0.2,
+      "nutrient-pump_dose-rate": 1.2055,
       "nutrient-pump_state": false,
-      "output-type": { "label": "Serial", "value": 1 },
+      "output-type": {
+        "label": "Serial",
+        "value": 1
+      },
       "output_serial-command": "P",
       "output_serial-index": "3"
-    }
-  ],
-  "outlet-events": [
-    {
-      "id": "fa85a8a8-302c-408d-be8a-91f78679c9d1",
-      "outlet-event_timestamp": "2020-01-23 22:23:30.000",
-      "outlet-event_outlet_name": { "value": 0, "label": "Main Pump" },
-      "outlet-event_value": 0
-    },
-    {
-      "id": "e8772de1-fa4e-486b-a026-1639d0e8bc79",
-      "outlet-event_timestamp": "2020-01-23 22:23:00.000",
-      "outlet-event_outlet_name": { "value": 0, "label": "Main Pump" },
-      "outlet-event_value": 1
-    },
-    {
-      "id": "5ce73bf0-86b9-4d28-b093-7159ca8aae12",
-      "outlet-event_timestamp": "2020-01-23 22:13:00.000",
-      "outlet-event_outlet_name": { "value": 0, "label": "Main Pump" },
-      "outlet-event_value": 0
     }
   ],
   "nutrient-pumps_events": [
@@ -166,10 +159,170 @@
       "nutrient-pump_dose": 2
     }
   ],
+  "outlets": [
+    {
+      "id": 0,
+      "outlet_name": "Main Pump",
+      "outlet_state": false,
+      "output-type": {
+        "label": "GPIO",
+        "value": 0
+      },
+      "output_gpio-pin": "7",
+      "output_gpio-on-state": {
+        "label": "High",
+        "value": 1
+      },
+      "output_gpio-startup-state": {
+        "label": "Off",
+        "value": 1
+      },
+      "output_gpio-shutdown-state": {
+        "label": "Off",
+        "value": 1
+      },
+      "automation_timer-type": {
+        "label": "Cycle",
+        "value": 0
+      },
+      "automation_timer_enabled": true,
+      "automation_timer_cycle-time-on": 15,
+      "automation_timer_cycle-time-off": 300
+    },
+    {
+      "id": 1,
+      "outlet_name": "Lights",
+      "outlet_state": true,
+      "output-type": {
+        "label": "GPIO",
+        "value": 0
+      },
+      "output_gpio-pin": "8",
+      "output_gpio-on-state": {
+        "label": "High",
+        "value": 1
+      },
+      "output_gpio-startup-state": {
+        "label": "On",
+        "value": 0
+      },
+      "output_gpio-shutdown-state": {
+        "label": "Off",
+        "value": 1
+      },
+      "automation_timer-type": {
+        "label": "Schedule",
+        "value": 1
+      },
+      "automation_timer_enabled": true,
+      "automation_timer_schedule-start-time": "08:30",
+      "automation_timer_schedule-start-state": {
+        "label": "On",
+        "value": 0
+      },
+      "automation_timer_schedule-stop-time": "20:30",
+      "automation_timer_schedule-stop-state": {
+        "label": "Off",
+        "value": 1
+      }
+    },
+    {
+      "id": 2,
+      "outlet_name": "Nutrient Mixer",
+      "outlet_state": false,
+      "output-type": {
+        "label": "GPIO",
+        "value": 0
+      },
+      "output_gpio-pin": "9",
+      "output_gpio-on-state": {
+        "label": "High",
+        "value": 1
+      },
+      "output_gpio-startup-state": {
+        "label": "Off",
+        "value": 1
+      },
+      "output_gpio-shutdown-state": {
+        "label": "Off",
+        "value": 1
+      },
+      "automation_timer-type": {
+        "label": "Cycle",
+        "value": 0
+      },
+      "automation_timer_enabled": true,
+      "automation_timer_cycle-time-on": 15,
+      "automation_timer_cycle-time-off": 1800
+    },
+    {
+      "id": 3,
+      "outlet_name": "Fan",
+      "outlet_state": false,
+      "output-type": {
+        "label": "GPIO",
+        "value": 0
+      },
+      "output_gpio-pin": "10",
+      "output_gpio-on-state": {
+        "label": "High",
+        "value": 1
+      },
+      "output_gpio-startup-state": {
+        "label": "Off",
+        "value": 1
+      },
+      "output_gpio-shutdown-state": {
+        "label": "Off",
+        "value": 1
+      },
+      "automation_timer-type": {
+        "label": "Cycle",
+        "value": 0
+      },
+      "automation_timer_enabled": true,
+      "automation_timer_cycle-time-on": 1800,
+      "automation_timer_cycle-time-off": 7200
+    }
+  ],
+  "outlet-events": [
+    {
+      "id": "fa85a8a8-302c-408d-be8a-91f78679c9d1",
+      "outlet-event_timestamp": "2020-01-23 22:23:30.000",
+      "outlet-event_outlet_name": {
+        "value": 0,
+        "label": "Main Pump"
+      },
+      "outlet-event_value": 0
+    },
+    {
+      "id": "e8772de1-fa4e-486b-a026-1639d0e8bc79",
+      "outlet-event_timestamp": "2020-01-23 22:23:00.000",
+      "outlet-event_outlet_name": {
+        "value": 0,
+        "label": "Main Pump"
+      },
+      "outlet-event_value": 1
+    },
+    {
+      "id": "5ce73bf0-86b9-4d28-b093-7159ca8aae12",
+      "outlet-event_timestamp": "2020-01-23 22:13:00.000",
+      "outlet-event_outlet_name": {
+        "value": 0,
+        "label": "Main Pump"
+      },
+      "outlet-event_value": 0
+    }
+  ],
+  "id": 0,
+  "name": "Jalepenos",
   "test__text-numeric": 1232,
   "test__checkbox": true,
   "test__text1": "test text value that is specific to this garden!!!",
-  "test__autocomplete": { "label": "option 1", "value": 0 },
+  "test__autocomplete": {
+    "label": "option 1",
+    "value": 0
+  },
   "test__select": 1,
   "test__text-dollar": 123.98
 }
