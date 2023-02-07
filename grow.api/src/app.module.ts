@@ -8,6 +8,7 @@ import { EventsModule } from './events/events.module';
 import { OutletsModule } from './outlets/outlets.module';
 import { PumpsModule } from './pumps/pumps.module';
 import { SensorsModule } from './sensors/sensors.module';
+import { DynamicModule } from './dynamic/dynamic.module';
 
 @Module({
   imports: [
@@ -56,7 +57,8 @@ import { SensorsModule } from './sensors/sensors.module';
     EventsModule,
     OutletsModule,
     PumpsModule,
-    SensorsModule
+    SensorsModule,
+    DynamicModule
   ],
   controllers: [AppController],
   providers: [AppService],

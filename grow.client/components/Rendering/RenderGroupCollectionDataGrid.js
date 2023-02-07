@@ -103,6 +103,8 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
     // console.log(collectionFields);
   }, [JSON.stringify(group)])
 
+  let sortModel = [{ field: 'id', sort: 'desc' }]
+
   let columns = []
   if (groupCollectionFields?.collection !== undefined) {
     columns.push({ field: 'id', headerName: 'id', flex: 1 })
@@ -117,6 +119,9 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
       // }
       // TODO: Go through all watchCollectionFields and if a specific field is not visible for any row, don't show the column.
       // Or could be okay to just hide the column by default
+      if (fieldDefinition.name.includes('_timestamp')) {
+        sortModel[0].field = fieldDefinition.name
+      }
 
       return {
         field: fieldDefinition.name, headerName: fieldDefinition.props?.label, flex: 1
@@ -136,6 +141,7 @@ export function RenderGroupCollectionDataGrid({ group, fieldArrayName }) {
       }}>
         <Typography variant='h5' sx={{ p: 1 }}>{group.label}</Typography>
         <DataGrid
+          sortModel={sortModel}
           rows={rows ?? []}
           columns={columns}
           pageSize={10}

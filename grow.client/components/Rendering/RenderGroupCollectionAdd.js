@@ -23,7 +23,7 @@ export function RenderGroupCollectionAdd({ group, fieldArrayName }) {
 
   let collectionName = group.name ?? "collection";
 
-  const { prepend } = useFieldArray({
+  const { append } = useFieldArray({
     control,
     name: collectionName
   });
@@ -42,7 +42,7 @@ export function RenderGroupCollectionAdd({ group, fieldArrayName }) {
   function onSubmit(data) {
     // console.log(data, data.editing[0])
 
-    prepend({ id: uuidv4(), ...data.editing[0] });
+    append({ id: uuidv4(), ...data.editing[0] });
   };
 
   // console.log(editingForm)

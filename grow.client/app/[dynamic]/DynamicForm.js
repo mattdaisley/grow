@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
+import { flatten } from "flat";
 import Box from "@mui/material/Box";
 import Grid from '@mui/material/Unstable_Grid2';
 
@@ -17,7 +18,8 @@ export function DynamicForm({ dynamicFormData, onSubmit, children, ...props }) {
   // console.log(fields)
 
   useEffect(() => {
-    if (!isFirstLoad && !formState.isDirty) {
+    // console.log('check to reset', !isFirstLoad, !formState.isSubmitting)
+    if (!isFirstLoad && !formState.isSubmitting) {
       // console.log('resetting')
       formMethods.reset({ ...dynamicFormData.fieldValues });
     }
@@ -31,7 +33,7 @@ export function DynamicForm({ dynamicFormData, onSubmit, children, ...props }) {
     // console.log('formchange', formState.isDirty)
     if (formState.isDirty) {
       timer = setTimeout(() => {
-        // console.log('in timeout')
+        // console.log(flatten(formState.dirtyFields))
         formMethods.handleSubmit(onSubmit)();
       }, 1000);
     }

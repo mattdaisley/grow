@@ -8,7 +8,7 @@
         "value": 0
       },
       "input_gpio-pin": "11",
-      "sensor_state": true
+      "sensor_state": false
     },
     {
       "id": "9756f7a6-c24b-4bf2-98e3-4122dce51bff",

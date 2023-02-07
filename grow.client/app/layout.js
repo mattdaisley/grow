@@ -4,6 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Toolbar from "@mui/material/Toolbar";
 
+import { SocketContext, socket } from './SocketContext';
 import ResponsiveAppBar from '../components/ResponsiveAppBar'
 import Footer from '../components/Footer'
 
@@ -55,14 +56,16 @@ export default function Layout({ children }) {
   return (
     <html lang="en">
       <body>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <div>
-            <ResponsiveAppBar />
-            {children}
-          </div>
-          <Footer />
-        </ThemeProvider>
+        <SocketContext.Provider value={socket}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <div>
+              <ResponsiveAppBar />
+              {children}
+            </div>
+            <Footer />
+          </ThemeProvider>
+        </SocketContext.Provider>
       </body>
     </html >
   )
