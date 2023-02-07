@@ -38,9 +38,17 @@ export default function EditPagePage({ params }) {
   }
   const json = JSON.stringify(page, null, 2);
 
-  function handleSetItem(newPage) {
+  function handleSetItem(newItem) {
     try {
-      // console.log(newPage)
+      console.log(newItem)
+      let newPage
+      if (typeof newItem !== 'string') {
+        // console.log(newItem);
+        newPage = newItem
+      }
+      else {
+        newPage = JSON.parse(newItem);
+      }
       const newAllPages = allPages.item.pages?.map(page => {
         if (page.id === newPage.id) {
           return newPage;
@@ -161,7 +169,7 @@ export default function EditPagePage({ params }) {
 
 
 function setDynamicFormData(newValue, setItem) {
-  // console.log(newValue)
+  console.log(newValue)
 
   const newGroups = newValue.groups.map(group => {
 

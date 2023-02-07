@@ -119,7 +119,7 @@ export default function EditViewPage({ params }) {
         newView = newItem.groups[0].views[0]
       }
       else {
-        newView = JSON.parse(rawJson);
+        newView = JSON.parse(newItem);
       }
       // console.log(newItem, newView, allViews)
       const newAllViews = allViews.item.views?.map(view => {

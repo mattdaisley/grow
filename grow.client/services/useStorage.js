@@ -62,7 +62,7 @@ export default function useStorage(key) {
     }
     // const data = JSON.stringify(newItem, null, 2);
     // // console.log(data);
-    localStorage.setItem(key, data);
+    // localStorage.setItem(key, data);
   }
 
   return {
