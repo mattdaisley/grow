@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { flatten, unflatten } from "flat";
+
 export default function useStorage(key) {
 
   const [cache, setCache] = useState({ json: "", item: undefined, timestamp: Date.now() })
@@ -80,6 +82,13 @@ const GetItem = (key) => {
     try {
       var item = JSON.parse(json);
       // console.log(key, json, item)
+
+      // var flattened = flatten(item);
+      // console.log(flattened);
+
+      // var unflattened = unflatten(flattened);
+      // console.log(unflattened)
+
       return { json, item };
     }
     catch (e) {
