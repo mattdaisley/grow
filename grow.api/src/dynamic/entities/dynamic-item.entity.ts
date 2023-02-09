@@ -1,18 +1,24 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 
 @Entity()
 export class DynamicItem {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Index()
     @Column()
-    ItemKey: string;
+    itemKey: string;
 
     @Column()
-    ValueKey: string;
+    valueKey: string;
 
     @Column({nullable: true})
-    Value!: string | null;
+    value!: string | null;
 
+    @CreateDateColumn()
+    createdDate: Date
+    
+    @UpdateDateColumn()
+    updatedDate: Date
 }
 

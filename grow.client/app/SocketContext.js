@@ -4,5 +4,7 @@ import { createContext } from "react"
 
 import io from "socket.io-client";
 
-export const socket = io("http://localhost:3001/dynamic");
+const isSSR = () => typeof window === 'undefined';
+
+export const socket = !isSSR() ? io("http://localhost:3001/dynamic") : undefined;
 export const SocketContext = createContext();

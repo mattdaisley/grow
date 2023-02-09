@@ -3,11 +3,11 @@ import { IsString } from "class-validator";
 export class CreateDynamicItemDto {
 
     @IsString()
-    ItemKey: string;
+    itemKey: string;
 
     @IsString()
-    ValueKey: string;
+    valueKey: string;
 
     @IsString()
-    Value: string;
+    value: string;
 }

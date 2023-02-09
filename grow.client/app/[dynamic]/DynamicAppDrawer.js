@@ -76,7 +76,8 @@ export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {
     </Box>
   );
 
-  const container = window !== undefined ? () => window.document.body : undefined;
+  const isSSR = () => typeof window === 'undefined';
+  const container = !isSSR() ? () => window.document.body : undefined;
 
   return (
     <Box

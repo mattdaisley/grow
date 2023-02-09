@@ -16,8 +16,8 @@ export class DynamicService {
 
   async create(createDynamicItemDto: CreateDynamicItemDto): Promise<DynamicItem> {
     const newDynamicItem = plainToClass(DynamicItem, createDynamicItemDto);
-    // console.log(dynamicItem)
-    var existingItem = await this.dynamicItemRepository.findOneBy({ ItemKey: newDynamicItem.ItemKey, ValueKey: newDynamicItem.ValueKey });
+    // console.log(createDynamicItemDto, newDynamicItem)
+    var existingItem = await this.dynamicItemRepository.findOneBy({ itemKey: newDynamicItem.itemKey, valueKey: newDynamicItem.valueKey });
     if (existingItem) {
       // console.log(existingItem)
       await this.dynamicItemRepository.update(existingItem.id, newDynamicItem);
@@ -30,6 +30,10 @@ export class DynamicService {
 
   async findAll(): Promise<DynamicItem[]> {
     return await this.dynamicItemRepository.find();
+  }
+
+  async findManyByItemKey(itemKey: string): Promise<DynamicItem[]> {
+    return await this.dynamicItemRepository.findBy({ itemKey });
   }
 
   async findOne(id: number): Promise<DynamicItem> {

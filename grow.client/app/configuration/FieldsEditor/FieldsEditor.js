@@ -20,12 +20,14 @@ export default function FieldsEditor(props) {
 
 function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonChange, onAddGroup, ...props }) {
 
+  const [isLoading, setIsLoading] = useState(true);
   const [openField, setOpenField] = useState([]);
   const [editMode, setEditMode] = useState('editor')
   // console.log(dynamicFormData.currentPage)
-  const formMethods = useForm({ defaultValues: { ...dynamicFormData.currentPage } });
+  const formMethods = useForm();
 
   const watchFields = formMethods.watch();
+  const stringWatchFields = JSON.stringify(watchFields)
   // console.log(watchFields)
 
   useEffect(() => {
@@ -33,14 +35,16 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
     timeout = setTimeout(() => {
       // console.log('onEditorChange', watchFields)
       onEditorChange && onEditorChange(watchFields)
+      // This is triggering an extra change event when it shouldn't need to but we'll accept that for now.
     }, 500)
 
     return () => { clearTimeout(timeout) }
-  }, [watchFields])
+  }, [stringWatchFields, isLoading])
 
   useEffect(() => {
     // console.log('reset', dynamicFormData.currentPage)
     formMethods.reset({ ...dynamicFormData.currentPage })
+    setIsLoading(false);
   }, [dynamicFormData.currentPage])
 
   const handleClick = (id) => {
@@ -96,6 +100,10 @@ function FieldsEditorComponent({ dynamicFormData, json, onEditorChange, onJsonCh
     onEditorChange(newFields)
 
     handleClick(newId);
+  }
+
+  if (isLoading) {
+    return null;
   }
 
   return (

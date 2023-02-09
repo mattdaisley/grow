@@ -1,8 +1,9 @@
 'use client'
 
+import { v4 as uuidv4 } from 'uuid';
+
 import useStorage from '../../../services/useStorage';
 import { DynamicFieldsForm } from '../DynamicFieldsForm';
-
 import { getAllFieldsDynamicFormData } from './getAllFieldsDynamicFormData';
 
 export default function AllFieldsPage() {
@@ -10,8 +11,25 @@ export default function AllFieldsPage() {
   const allFields = useStorage('allfields');
   // console.log(allFields);
 
+  if (allFields.requestState === 'no-results') {
+    allFields.setItem({
+      fields: [{
+        id: uuidv4(),
+        name: "example_text",
+        type: "text",
+        props: {
+          label: "Example Text Field"
+        },
+      }]
+    })
+  }
+
   if (allFields?.item === undefined) {
     return null;
+  }
+
+  if (allFields?.item === null) {
+    return <div>Unable to load items</div>;
   }
 
   const dynamicItem = { item: { name: "Configuration" } };

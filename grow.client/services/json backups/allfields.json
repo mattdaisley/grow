@@ -6,9 +6,6 @@
       "type": "autocomplete",
       "props": {
         "label": "test autocomplete",
-        "autoComplete": true,
-        "autoSelect": true,
-        "autoHighlight": true,
         "options": [
           {
             "label": "option 1",
@@ -221,9 +218,6 @@
       "type": "autocomplete",
       "props": {
         "label": "Outlet",
-        "autoComplete": true,
-        "autoSelect": true,
-        "autoHighlight": true,
         "computedOptions": {
           "key": "outlets",
           "label": "outlet_name"

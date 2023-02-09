@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
@@ -38,19 +39,71 @@ export class DynamicGateway {
   findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
     return from([1, 2, 3]).pipe(map(item => ({ event: 'reading', data: item })));
   }
+
+  @SubscribeMessage('all-items')
+  async handleGetAllItemsEvent(
+    @MessageBody() data: unknown,
+    @ConnectedSocket() client: Socket
+  ): Promise<unknown> {
+
+    // console.log('handleGetAllItemsEvent', data)
+    const event = 'all-items';
+
+    var getAllItems = new Promise((resolve, reject) => {
+      const allItems = {};
+      Object.keys(data).forEach(async (itemKey, index, array) => {
+        const dynamicItems = await this.dynamicService.findManyByItemKey(itemKey)
+        // console.log(dynamicItems)
+        allItems[itemKey] = dynamicItems
+        if (index === array.length -1) {
+          resolve(allItems);
+        }
+      });
+    });
+
+    getAllItems.then((allItems) => {
+      // console.log('returning', allItems)
+      client.emit(event, allItems)
+      return data;
+    });
+
+    return data;
+    //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
+    // Object.keys(data).forEach(async itemKey => {
+    //   const dynamicItems = await this.dynamicService.findManyByItemKey(itemKey)
+    //   console.log(dynamicItems)
+    //   allItems[itemKey] = { ...dynamicItems }
+    //   // client.emit('all-items', dynamicItems)
+    // })
+  }
   
   @SubscribeMessage('set-item')
-  async handleEvent(@MessageBody() data: unknown): Promise<WsResponse<unknown>> {
+  async handleSetItemEvent(@MessageBody() data: unknown): Promise<WsResponse<unknown>> {
     const event = 'set-item';
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
-    Object.keys(data).forEach(async itemKey => {
-      const values = data[itemKey]
-      Object.keys(values).forEach(async valueKey => {
-        const createDynamicItemDto: CreateDynamicItemDto = { ItemKey: itemKey, ValueKey: valueKey, Value: values[valueKey]}
-        const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
-        this.server.emit('item-set', dynamicItem)
+    
+    var saveItems = new Promise((resolve, reject) => {
+      const items = {};
+      Object.keys(data).forEach(async (itemKey, i, a) => {
+
+        items[itemKey] = [];
+        const values = data[itemKey]
+        Object.keys(values).forEach(async (valueKey, j, b) => {
+          const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value: values[valueKey] }
+          const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
+          items[itemKey].push(dynamicItem)
+          if (i === a.length -1 && j === b.length -1) {
+            resolve(items);
+          }
+        })
       })
-    })
+    });
+
+    saveItems.then((items) => {
+      this.server.emit('item-set', items)
+      // console.log('returning', items);
+      return data;
+    });
     return { event, data };
   }
 }
