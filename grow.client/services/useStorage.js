@@ -88,7 +88,7 @@ export default function useStorage(key) {
       socket?.off('all-items', handleRecieveAllItems)
       socket?.off('item-deleted', handleItemDeleted)
     };
-  }, [socket, handleItemSet, handleRecieveAllItems])
+  }, [socket, handleItemSet, handleRecieveAllItems, handleItemDeleted])
 
   useEffect(() => {
     // console.log(cache);
