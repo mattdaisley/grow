@@ -39,4 +39,9 @@ export class DynamicService {
   async findOne(id: number): Promise<DynamicItem> {
     return await this.dynamicItemRepository.findOneBy({ id });
   }
+
+  async delete(itemKey: string, valueKey: string): Promise<DeleteResult> {
+    return await this.dynamicItemRepository.delete({ itemKey, valueKey });
+  }
+
 }

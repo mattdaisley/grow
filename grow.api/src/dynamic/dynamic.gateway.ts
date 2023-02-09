@@ -106,4 +106,35 @@ export class DynamicGateway {
     });
     return { event, data };
   }
+  
+  @SubscribeMessage('delete-item')
+  async handleDeleteItemEvent(@MessageBody() data: unknown): Promise<WsResponse<unknown>> {
+    const event = 'delete-item';
+    //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
+    
+    var deleteItems = new Promise((resolve, reject) => {
+      const items = {};
+      Object.keys(data).forEach(async (itemKey, i, a) => {
+
+        items[itemKey] = [];
+        const values = data[itemKey]
+        Object.keys(values).forEach(async (valueKey, j, b) => {
+          // const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value: values[valueKey] }
+          // const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
+          await this.dynamicService.delete(itemKey, valueKey)
+          items[itemKey].push({ valueKey })
+          if (i === a.length -1 && j === b.length -1) {
+            resolve(items);
+          }
+        })
+      })
+    });
+
+    deleteItems.then((items) => {
+      this.server.emit('item-deleted', items)
+      // console.log('returning', items);
+      return data;
+    });
+    return { event, data };
+  }
 }

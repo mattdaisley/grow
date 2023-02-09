@@ -51,7 +51,26 @@ export default function useStorage(key) {
       setCache({ requestState: "complete", json, item, flattened, timestamp: Date.now() })
     }
 
-  }, []);
+  }, [key, cache]);
+
+  const handleItemDeleted = useCallback((data) => {
+    // console.log(data);
+    if (!data.hasOwnProperty(key) || data[key].length === 0) {
+      return;
+    }
+
+    let flattened = { ...cache.flattened }
+    data[key].forEach(dataItem => {
+      // console.log(item)
+      delete flattened[dataItem.valueKey]
+    })
+    const item = unflatten(flattened);
+    const json = JSON.stringify(item, null, 2);
+    // console.log(item)
+    if (json !== cache.json) {
+      setCache({ ...cache, json, item, flattened, timestamp: Date.now() })
+    }
+  }, [key, cache])
 
   useEffect(() => {
     socket?.emit('all-items', { [key]: {} })
@@ -61,11 +80,13 @@ export default function useStorage(key) {
     // console.log('register item-set handler', key)
     socket?.on('item-set', handleItemSet)
     socket?.on('all-items', handleRecieveAllItems)
+    socket?.on('item-deleted', handleItemDeleted)
     // socket.emit('all-items', { [key]: {} })
 
     return () => {
       socket?.off('item-set', handleItemSet);
       socket?.off('all-items', handleRecieveAllItems)
+      socket?.off('item-deleted', handleItemDeleted)
     };
   }, [socket, handleItemSet, handleRecieveAllItems])
 
@@ -122,6 +143,20 @@ export default function useStorage(key) {
           socket.emit('set-item', { [key]: { ...dirty } })
         }
         // console.log(dirty);
+
+        if (!!cache?.flattened) {
+          var deleted = {};
+          Object.keys(cache.flattened).forEach(itemKey => {
+            if (!newFlattened.hasOwnProperty(itemKey)) {
+              deleted[itemKey] = cache.flattened[itemKey]
+            }
+          });
+
+          if (Object.keys(deleted).length > 0) {
+            socket.emit('delete-item', { [key]: { ...deleted } })
+          }
+          // console.log(deleted);
+        }
       }
       catch (e) {
         console.log(e)
