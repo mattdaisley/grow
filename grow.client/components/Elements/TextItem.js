@@ -14,6 +14,10 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
   const pageFormContext = useFormContext();
   const fields = pageFormContext.watch();
   // const currentField = pageFormContext.watch(controllerName);
+  if (!fields.hasOwnProperty(controllerName)) {
+    // console.log(controllerName, fields)
+    return null;
+  }
 
   const handleFieldChanged = (event) => {
     const targetValue = event.target.value;
@@ -33,8 +37,8 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
   }
 
   // if (currentField === undefined) {
-    // console.log(controllerName, currentField)
-    // return null;
+  // console.log(controllerName, currentField)
+  // return null;
   // }
 
   // console.log(controllerName)
@@ -48,9 +52,9 @@ export const TextItem = ({ appField, control, fieldArrayName }) => {
           fullWidth={true}
           size="small"
           {...props}
-          // value={value}
           // onChange={handleFieldChanged}
           {...field}
+          value={field.value ?? ""}
           InputProps={inputProps}
           sx={{ fontSize: 'small' }}
         />

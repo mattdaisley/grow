@@ -1,208 +1,208 @@
 {
   "views": [
     {
-      "id": 0,
+      "id": "0",
       "name": "Summary Details",
       "groups": [
         {
           "label": "",
-          "id": 0,
-          "width": 4,
+          "id": "0",
+          "width": "4",
           "fields": [
             {
-              "fieldId": 8
+              "fieldId": "8"
             },
             {
-              "fieldId": 15
+              "fieldId": "15"
             }
           ]
         }
       ]
     },
     {
-      "id": 3,
+      "id": "3",
       "name": "Nutrient Pump Details",
       "groups": [
         {
           "label": "Details",
-          "id": 0,
+          "id": "0",
           "fields": [
             {
-              "fieldId": 11
+              "fieldId": "11"
             },
             {
-              "fieldId": 14
+              "fieldId": "14"
             },
             {
-              "fieldId": 12
+              "fieldId": "12"
             }
           ]
         }
       ]
     },
     {
-      "id": 4,
+      "id": "4",
       "name": "Outlet details",
       "groups": [
         {
-          "id": 0,
+          "id": "0",
           "fields": [
             {
-              "fieldId": 9
+              "fieldId": "9"
             },
             {
-              "fieldId": 10
+              "fieldId": "10"
             }
           ]
         }
       ]
     },
     {
-      "id": 5,
+      "id": "5",
       "name": "Outlet Event",
       "label": "Outlet Event",
       "groups": [
         {
           "label": "",
-          "id": 0,
+          "id": "0",
           "fields": [
             {
-              "fieldId": 16
+              "fieldId": "16"
             },
             {
-              "fieldId": 20
+              "fieldId": "20"
             },
             {
-              "fieldId": 17
+              "fieldId": "17"
             }
           ]
         }
       ]
     },
     {
-      "id": 6,
+      "id": "6",
       "name": "Nutrient Pump Event",
       "label": "Nutrient Pump Event",
       "groups": [
         {
           "label": "New Group",
-          "id": 0,
+          "id": "0",
           "fields": [
             {
-              "fieldId": 18
+              "fieldId": "18"
             },
             {
-              "fieldId": 19
+              "fieldId": "19"
             },
             {
-              "fieldId": 14
+              "fieldId": "14"
             },
             {
-              "fieldId": 13
+              "fieldId": "13"
             }
           ]
         }
       ]
     },
     {
-      "id": 7,
+      "id": "7",
       "name": "Output Configuration",
       "label": "Output Configuration",
       "groups": [
         {
-          "id": 0,
-          "width": 4,
+          "id": "0",
+          "width": "4",
           "fields": [
             {
-              "fieldId": 21
+              "fieldId": "21"
             }
           ]
         },
         {
-          "id": 1,
-          "width": 2,
+          "id": "1",
+          "width": "2",
           "fields": [
             {
-              "fieldId": 22,
+              "fieldId": "22",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "output-type",
                   "comparison": "equals",
-                  "value": 0
+                  "value": "0"
                 }
               ]
             },
             {
-              "fieldId": 26,
+              "fieldId": "26",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "output-type",
                   "comparison": "equals",
-                  "value": 1
+                  "value": "1"
                 }
               ]
             }
           ]
         },
         {
-          "id": 2,
-          "width": 2,
+          "id": "2",
+          "width": "2",
           "fields": [
             {
-              "fieldId": 23,
+              "fieldId": "23",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "output-type",
                   "comparison": "equals",
-                  "value": 0
+                  "value": "0"
                 }
               ]
             },
             {
-              "fieldId": 27,
+              "fieldId": "27",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "output-type",
                   "comparison": "equals",
-                  "value": 1
+                  "value": "1"
                 }
               ]
             }
           ]
         },
         {
-          "id": 3,
-          "width": 2,
+          "id": "3",
+          "width": "2",
           "fields": [
             {
-              "fieldId": 24,
+              "fieldId": "24",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "output-type",
                   "comparison": "equals",
-                  "value": 0
+                  "value": "0"
                 }
               ]
             }
           ]
         },
         {
-          "id": 4,
-          "width": 2,
+          "id": "4",
+          "width": "2",
           "fields": [
             {
-              "fieldId": 25,
+              "fieldId": "25",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "output-type",
                   "comparison": "equals",
-                  "value": 0
+                  "value": "0"
                 }
               ]
             }
@@ -211,139 +211,139 @@
       ]
     },
     {
-      "id": 8,
+      "id": "8",
       "name": "Output Automation Timer Configuration",
       "label": "Timer Configuration",
       "groups": [
         {
-          "id": 0,
-          "width": 4,
+          "id": "0",
+          "width": "4",
           "fields": [
             {
-              "fieldId": 28
+              "fieldId": "28"
             }
           ]
         },
         {
-          "id": 1,
-          "width": 3,
+          "id": "1",
+          "width": "3",
           "fields": [
             {
-              "fieldId": 29,
+              "fieldId": "29",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "automation_timer-type",
                   "comparison": "equals",
-                  "value": 0
+                  "value": "0"
                 }
               ]
             }
           ]
         },
         {
-          "id": 2,
-          "width": 1.5,
+          "id": "2",
+          "width": "1.5",
           "fields": [
             {
-              "fieldId": 32,
+              "fieldId": "32",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "automation_timer-type",
                   "comparison": "equals",
-                  "value": 1
+                  "value": "1"
                 }
               ]
             }
           ]
         },
         {
-          "id": 3,
-          "width": 1.5,
+          "id": "3",
+          "width": "1.5",
           "fields": [
             {
-              "fieldId": 33,
+              "fieldId": "33",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "automation_timer-type",
                   "comparison": "equals",
-                  "value": 1
+                  "value": "1"
                 }
               ]
             }
           ]
         },
         {
-          "id": 4,
-          "width": 3,
+          "id": "4",
+          "width": "3",
           "fields": [
             {
-              "fieldId": 30,
+              "fieldId": "30",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "automation_timer-type",
                   "comparison": "equals",
-                  "value": 0
+                  "value": "0"
                 }
               ]
             }
           ]
         },
         {
-          "id": 5,
-          "width": 1.5,
+          "id": "5",
+          "width": "1.5",
           "fields": [
             {
-              "fieldId": 34,
+              "fieldId": "34",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "automation_timer-type",
                   "comparison": "equals",
-                  "value": 1
+                  "value": "1"
                 }
               ]
             }
           ]
         },
         {
-          "id": 6,
-          "width": 1.5,
+          "id": "6",
+          "width": "1.5",
           "fields": [
             {
-              "fieldId": 35,
+              "fieldId": "35",
               "conditions": [
                 {
                   "type": "visibility",
                   "key": "automation_timer-type",
                   "comparison": "equals",
-                  "value": 1
+                  "value": "1"
                 }
               ]
             }
           ]
         },
         {
-          "id": 7,
-          "width": 2,
+          "id": "7",
+          "width": "2",
           "fields": [
             {
-              "fieldId": 31
+              "fieldId": "31"
             }
           ]
         }
       ]
     },
     {
-      "id": 9,
+      "id": "9",
       "name": "Sensor Details",
       "groups": [
         {
           "label": "",
-          "id": 0,
+          "id": "0",
           "fields": [
             {
               "fieldId": "a0c786cd-faa8-43b5-afec-7ecbfd1dbb3a"
@@ -356,13 +356,13 @@
       ]
     },
     {
-      "id": 10,
+      "id": "10",
       "name": "Input Configuration",
       "groups": [
         {
           "label": "",
-          "id": 0,
-          "width": 4,
+          "id": "0",
+          "width": "4",
           "fields": [
             {
               "fieldId": "6ade559f-afb7-4441-b25e-e9e17b42191c"
@@ -372,7 +372,7 @@
         {
           "label": "",
           "id": "b91b213e-2946-4725-af8a-01c2429a48de",
-          "width": 2,
+          "width": "2",
           "fields": [
             {
               "fieldId": "c5a4dcbe-f8ca-4633-a0fa-d1d5dad85465"
@@ -382,13 +382,13 @@
       ]
     },
     {
-      "id": 11,
+      "id": "11",
       "name": "Sensor Event",
       "label": "Add Sensor Event",
       "groups": [
         {
           "label": "Add Sensor Event",
-          "id": 0,
+          "id": "0",
           "fields": [
             {
               "fieldId": "b5f90eb9-5c8b-473e-8507-a59323871261"

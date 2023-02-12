@@ -49,6 +49,21 @@ export default function AllViewsPage() {
   const allViews = useStorage('allviews');
   console.log(allViews);
 
+  if (allViews.requestState === 'no-results') {
+    allViews.setItem({
+      views: [{
+        id: 0,
+        name: "Example View",
+        groups: [{
+          label: "",
+          id: '0',
+          width: 12,
+          fields: [{ fieldId: 0 }]
+        }]
+      }]
+    })
+  }
+
   if (allViews?.item?.views === undefined) {
     return null;
   }

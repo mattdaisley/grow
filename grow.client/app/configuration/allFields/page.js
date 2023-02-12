@@ -1,28 +1,30 @@
 'use client'
 
+import { useState } from 'react';
+
 import { v4 as uuidv4 } from 'uuid';
 
 import useStorage from '../../../services/useStorage';
 import { DynamicFieldsForm } from '../DynamicFieldsForm';
 import { getAllFieldsDynamicFormData } from './getAllFieldsDynamicFormData';
 
+const defaultFields = {
+  fields: [{
+    id: uuidv4(),
+    name: "example_text",
+    type: "text",
+    props: {
+      label: "Example Text Field"
+    },
+  }]
+}
+
 export default function AllFieldsPage() {
 
-  const allFields = useStorage('allfields');
-  // console.log(allFields);
+  const [allFields, setAllFields] = useState();
 
-  if (allFields.requestState === 'no-results') {
-    allFields.setItem({
-      fields: [{
-        id: uuidv4(),
-        name: "example_text",
-        type: "text",
-        props: {
-          label: "Example Text Field"
-        },
-      }]
-    })
-  }
+  const fieldsStorage = useStorage('allfields', { onSuccess: setAllFields, default: defaultFields });
+  console.log(allFields);
 
   if (allFields?.item === undefined) {
     return null;
@@ -38,7 +40,7 @@ export default function AllFieldsPage() {
     // console.log(fieldId)
     const newFields = allFields.item.fields.filter(field => field.id !== fieldId)
     // console.log(newFields, allFields.item)
-    allFields.setItem({ fields: [...newFields] })
+    fieldsStorage.setItem({ fields: [...newFields] })
   }
 
   return (
@@ -48,7 +50,8 @@ export default function AllFieldsPage() {
       setDynamicFormData={setDynamicFormData}
       deps={[allFields.timestamp]}
       onDeleteField={handleDeleteField}
-      {...allFields} />
+      {...allFields}
+      setItem={fieldsStorage.setItem} />
   )
 }
 

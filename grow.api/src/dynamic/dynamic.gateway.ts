@@ -46,7 +46,7 @@ export class DynamicGateway {
     @ConnectedSocket() client: Socket
   ): Promise<unknown> {
 
-    // console.log('handleGetAllItemsEvent', data)
+    console.log('handleGetAllItemsEvent', data)
     const event = 'all-items';
 
     var getAllItems = new Promise((resolve, reject) => {
@@ -79,6 +79,7 @@ export class DynamicGateway {
   
   @SubscribeMessage('set-item')
   async handleSetItemEvent(@MessageBody() data: unknown): Promise<WsResponse<unknown>> {
+    console.log('handleSetItemEvent', data)
     const event = 'set-item';
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
     
@@ -90,6 +91,7 @@ export class DynamicGateway {
         const values = data[itemKey]
         Object.keys(values).forEach(async (valueKey, j, b) => {
           const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value: values[valueKey] }
+          console.log('creating item', createDynamicItemDto)
           const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
           items[itemKey].push(dynamicItem)
           if (i === a.length -1 && j === b.length -1) {

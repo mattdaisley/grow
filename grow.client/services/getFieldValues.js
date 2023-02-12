@@ -8,7 +8,7 @@ export function getFieldValues(fields, allFields) {
     if (field) {
       let fieldDefinition
       let fieldDefault
-      // console.log(field)
+      // console.log(allFields, field)
       if (field.fieldId !== undefined) {
         // assume this is a field defined in a view and not the full field definition so look it up
         fieldDefinition = allFields.find(f => f.id === field.fieldId);

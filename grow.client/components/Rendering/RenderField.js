@@ -7,7 +7,7 @@ import { SelectItem } from '../Elements/SelectItem';
 import { TextItem } from '../Elements/TextItem';
 
 export const RenderField = ({ field, control, fieldArrayName }) => {
-  // console.log(field);
+  // console.log(field?.name);
   const getItem = () => {
     switch (field.type) {
       case 'text':

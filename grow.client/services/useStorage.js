@@ -1,20 +1,29 @@
 'use client'
 
-import { useEffect, useState, useCallback, useContext } from "react";
+import { useEffect, useState, useCallback, useMemo, useContext } from "react";
 
 import { flatten, unflatten } from "flat";
 import { SocketContext } from "../app/SocketContext";
 
+const isSSR = () => typeof window === 'undefined';
 
-export default function useStorage(key) {
+export default function useStorageInternal(key, options) {
+  // console.log('useStorage: ', key)
 
-  const [cache, setCache] = useState({ requestState: "loading", json: "", item: undefined, flattened: undefined, timestamp: Date.now() })
+  const [cache, setStateCache] = useState({ requestState: "loading", json: "", item: undefined, flattened: undefined, timestamp: Date.now() })
+
+  function setCache(newState) {
+    console.log('called setCache:', key, newState)
+    options?.onSuccess?.({ ...newState })
+    setStateCache(newState);
+  }
 
   const socket = useContext(SocketContext);
 
   const handleItemSet = useCallback((data) => {
-    // console.log(key, data);
+    console.log('handleItemSet', key, data);
     if (!data.hasOwnProperty(key) || data[key].length === 0) {
+      setCache({ ...cache, requestState: 'complete' })
       return;
     }
 
@@ -28,22 +37,31 @@ export default function useStorage(key) {
     // console.log(item, cache)
     const json = JSON.stringify(item, null, 2);
     if (json !== cache.json) {
-      setCache({ ...cache, json, item, flattened, timestamp: Date.now() })
+      setCache({ ...cache, requestState: 'complete', json, item, flattened, timestamp: Date.now() })
+    }
+    else {
+      setCache({ ...cache, requestState: 'complete' })
     }
   }, [key, cache]);
 
   const handleRecieveAllItems = useCallback((data) => {
-    // console.log(key, data);
+    console.log('handleRecieveAllItems:', key, data);
 
-    if (!data.hasOwnProperty(key) || data[key].length === 0) {
-      setCache({ ...cache, requestState: "no-results" })
+    if (!data.hasOwnProperty(key)) {
+      // setItem(options.default)
+      return;
+    }
+
+    if (data[key].length === 0) {
+      setItem(options.default)
       return;
     }
 
     let flattened = {}
     data[key].forEach(dataItem => {
       // console.log(item)
-      flattened[dataItem.valueKey] = dataItem.value
+      let value = dataItem.value;
+      flattened[dataItem.valueKey] = value
     })
     const item = unflatten(flattened);
     const json = JSON.stringify(item, null, 2);
@@ -56,6 +74,7 @@ export default function useStorage(key) {
   const handleItemDeleted = useCallback((data) => {
     // console.log(data);
     if (!data.hasOwnProperty(key) || data[key].length === 0) {
+      setCache({ ...cache, requestState: 'complete' })
       return;
     }
 
@@ -68,25 +87,33 @@ export default function useStorage(key) {
     const json = JSON.stringify(item, null, 2);
     // console.log(item)
     if (json !== cache.json) {
-      setCache({ ...cache, json, item, flattened, timestamp: Date.now() })
+      setCache({ ...cache, requestState: 'complete', json, item, flattened, timestamp: Date.now() })
     }
   }, [key, cache])
 
   useEffect(() => {
-    socket?.emit('all-items', { [key]: {} })
+    function loadItems() {
+      const data = { [key]: {} };
+      console.log('emit all-items', data)
+      socket?.emit('all-items', data)
+    }
+
+    const timeout = setTimeout(loadItems, 100)
+
+    return () => clearTimeout(timeout);
   }, [socket])
 
   useEffect(() => {
     // console.log('register item-set handler', key)
     socket?.on('item-set', handleItemSet)
     socket?.on('all-items', handleRecieveAllItems)
-    socket?.on('item-deleted', handleItemDeleted)
+    // socket?.on('item-deleted', handleItemDeleted)
     // socket.emit('all-items', { [key]: {} })
 
     return () => {
       socket?.off('item-set', handleItemSet);
       socket?.off('all-items', handleRecieveAllItems)
-      socket?.off('item-deleted', handleItemDeleted)
+      // socket?.off('item-deleted', handleItemDeleted)
     };
   }, [socket, handleItemSet, handleRecieveAllItems, handleItemDeleted])
 
@@ -117,11 +144,16 @@ export default function useStorage(key) {
   }, [cache.json]);
 
   function setItem(newItem) {
-    // console.log(newItem)
+    console.log('setItem:', key, cache.requestState, newItem)
+    if (cache.requestState === 'submitting') {
+      return;
+    }
+
     if (typeof newItem !== 'string') {
 
       const json = JSON.stringify(newItem, null, 2);
       if (json === cache.json) {
+        console.log('setItem: json = cache.json, returning')
         return;
       }
 
@@ -140,12 +172,14 @@ export default function useStorage(key) {
         });
 
         if (Object.keys(dirty).length > 0) {
-          socket.emit('set-item', { [key]: { ...dirty } })
+          const newItem = { [key]: { ...dirty } }
+          console.log('emit set-item: ', newItem, dirty)
+          socket.emit('set-item', newItem)
         }
         // console.log(dirty);
 
+        var deleted = {};
         if (!!cache?.flattened) {
-          var deleted = {};
           Object.keys(cache.flattened).forEach(itemKey => {
             if (!newFlattened.hasOwnProperty(itemKey)) {
               deleted[itemKey] = cache.flattened[itemKey]
@@ -157,6 +191,11 @@ export default function useStorage(key) {
           }
           // console.log(deleted);
         }
+
+        if (Object.keys(dirty).length > 0 || Object.keys(deleted).length > 0) {
+          console.log('setItem: setting cache', newItem)
+          setCache({ ...cache, requestState: 'submitting', json, item: newItem, flattened: newFlattened, timestamp: Date.now() })
+        }
       }
       catch (e) {
         console.log(e)
@@ -166,14 +205,13 @@ export default function useStorage(key) {
       // console.log(unflattened)
 
       // console.log(newItem);
-      // console.log(data)
-      setCache({ ...cache, json, item: newItem, flattened: newFlattened, timestamp: Date.now() })
       // localStorage.setItem(key, data);
       return
     }
 
     // new item is a JSON string
     if (newItem === cache.json) {
+      console.log('setItem: new json matches cache. returning.')
       return;
     }
 
@@ -200,7 +238,7 @@ export default function useStorage(key) {
         socket.emit('set-item', { [key]: { ...dirty } })
       }
 
-      setCache({ ...cache, json, item: parsedJson, flattened: newFlattened, timestamp: Date.now() })
+      setCache({ ...cache, requestState: 'submitting', json, item: parsedJson, flattened: newFlattened, timestamp: Date.now() })
 
       // console.log(formattedJson)
       // localStorage.setItem(key, formattedJson);
@@ -217,9 +255,26 @@ export default function useStorage(key) {
     // localStorage.setItem(key, data);
   }
 
+  const [tempNewItem, setTempNewItem] = useState();
+
+  function debouncedSetItem(newItem) {
+    console.log('debouncedSetItem', key, newItem)
+    setTempNewItem(newItem)
+  }
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (tempNewItem !== undefined) {
+        setItem(tempNewItem)
+      }
+    }, 500)
+
+    return () => clearTimeout(timeout)
+  }, [key, JSON.stringify(tempNewItem), cache.requestState])
+
   return {
     ...cache,
-    setItem
+    setItem: debouncedSetItem
   }
 }
 

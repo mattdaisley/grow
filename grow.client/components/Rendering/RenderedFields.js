@@ -29,7 +29,13 @@ export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
           return null;
         }
 
-        return <RenderField field={fieldDefinition} key={`${group.id}-${fieldDefinition.id}`} control={control} fieldArrayName={fieldArrayName} />;
+        return (
+          <RenderField
+            field={fieldDefinition}
+            key={`${group.id}-${fieldDefinition.id}`}
+            control={control}
+            fieldArrayName={fieldArrayName} />
+        );
       }
     }).filter(field => field !== null)
   }
@@ -63,7 +69,7 @@ export const RenderedFields = ({ viewDefinition, control, fieldArrayName }) => {
     {groupFields.map(({ group, fields }) => {
       // console.log(group, fields)
       return (
-        <Grid xs={group.width ?? 12} key={group.id}>
+        <Grid xs={Number(group?.width) ?? 12} key={group.id}>
           {fields}
         </Grid>
       );

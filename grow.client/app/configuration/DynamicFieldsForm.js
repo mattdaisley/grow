@@ -14,7 +14,7 @@ import FieldsEditor from './FieldsEditor/FieldsEditor';
 
 export function DynamicFieldsForm({ getDynamicFormData, setDynamicFormData, json, setItem, deps, ...props }) {
 
-  const [currentJson, setCurrentJson] = useState("");
+  const [currentJson, setCurrentJson] = useState(json);
 
   const dynamicFormData = useMemo(() => getDynamicFormData(props), [
     ...deps
@@ -38,15 +38,17 @@ export function DynamicFieldsForm({ getDynamicFormData, setDynamicFormData, json
   function handleJsonChanged(event) {
     const newJson = event.target.value;
     setCurrentJson(newJson);
-    // console.log('handleJsonChanged', newJson)
+    console.log('handleJsonChanged', newJson)
     setItem && setItem(newJson);
   }
 
   function handleFieldsEditorChange(newValue) {
     // setCurrentJson(newJson);
-    // console.log('handleFieldsEditorChange', newValue)
+    console.log('handleFieldsEditorChange', newValue)
     setDynamicFormData && setDynamicFormData(newValue, setItem);
   }
+
+  // console.log(dynamicFormData)
 
   if (dynamicFormData)
     return (

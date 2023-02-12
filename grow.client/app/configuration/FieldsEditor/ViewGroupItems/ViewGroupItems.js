@@ -11,12 +11,17 @@ export function ViewGroupItems({ groupId, viewId, viewGroup, viewGroupControlNam
     <>
       {viewGroup.fields?.map((field, fieldIndex) => {
         const fieldControlName = `${viewGroupControlName}.fields.${fieldIndex}`;
+        if (field?.id === undefined) {
+          // field is likely not ready to be shown yet
+          return null;
+        }
+
         return (
           <FieldListItem
             key={field.id}
             field={field}
             fieldControlName={fieldControlName}
-            {...props}/>
+            {...props} />
         );
       })}
       <Box sx={{ p: 2 }}>

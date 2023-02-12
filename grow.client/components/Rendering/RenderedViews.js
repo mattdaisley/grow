@@ -25,7 +25,7 @@ export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
         switch (group.type) {
           case 'collection-tabs':
             return (
-              <Grid xs={group.width || 12} spacing={2}>
+              <Grid xs={Number(group?.width) || 12} spacing={2}>
                 <Paper sx={{ width: '100%' }}>
                   <RenderGroupCollectionTabs group={group} control={control} fieldArrayName={fieldArrayName} />
                 </Paper>
@@ -33,13 +33,13 @@ export const RenderedViews = ({ pageDefinition, control, fieldArrayName }) => {
             )
           case 'collection-grid':
             return (
-              <Grid xs={group.width || 12}>
+              <Grid xs={Number(group?.width) || 12}>
                 <RenderGroupCollectionDataGrid group={group} control={control} fieldArrayName={fieldArrayName} />
               </Grid>
             )
           case 'collection-add':
             return (
-              <Grid xs={group.width || 12} spacing={0}>
+              <Grid xs={Number(group?.width) || 12} spacing={0}>
                 <Paper sx={{ width: '100%' }}>
                   <RenderGroupCollectionAdd group={group} control={control} fieldArrayName={fieldArrayName} />
                 </Paper>
