@@ -11,6 +11,8 @@ import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { DynamicService } from './dynamic.service';
 import { CreateDynamicItemDto } from './dto/create-dynamic-item.dto';
+import { DynamicItemsRequest } from './dto/dynamic-items-request.dto';
+import { DynamicItemsResponse } from './dto/dynamic-items-response.dto';
 
 @WebSocketGateway({
   namespace: 'dynamic',
@@ -39,6 +41,62 @@ export class DynamicGateway {
   findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
     return from([1, 2, 3]).pipe(map(item => ({ event: 'reading', data: item })));
   }
+
+
+  @SubscribeMessage('get-items')
+  async handleGetItemsEvent(
+    @MessageBody() data: DynamicItemsRequest,
+    @ConnectedSocket() client: Socket
+  ): Promise<DynamicItemsResponse> {
+
+    console.log('handleGetItemsEvent', data)
+    const event = `items-${data.itemKey}`;
+
+    const allItems: DynamicItemsResponse = { [data.itemKey]: [] };
+
+    const dynamicItems = await this.dynamicService.findManyByItemKey(data.itemKey)
+    allItems[data.itemKey] = dynamicItems
+    // console.log(dynamicItems)
+
+    console.log('handleGetItemsEvent returning', event, allItems[data.itemKey].length)
+    client.emit(event, allItems)
+    return allItems;
+  }
+
+  @SubscribeMessage('set-items')
+  async handleSetItemsEvent(@MessageBody() data: DynamicItemsRequest): Promise<DynamicItemsResponse> {
+    console.log('handleSetItemsEvent', data)
+
+    const itemKey = data.itemKey;
+    const values = data.values;
+    const event = `items-${itemKey}`;
+    //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
+
+    const allItems: DynamicItemsResponse = { [itemKey]: [] };
+    
+    return new Promise<DynamicItemsResponse>((resolve, reject) => {
+
+      Object.keys(values).forEach(async (valueKey, index, array) => {
+        const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value: values[valueKey] }
+
+        console.log('handleSetItemsEvent creating item', createDynamicItemDto)
+        const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
+
+        allItems[itemKey].push(dynamicItem)
+        
+        if (index === array.length -1) {
+          resolve(allItems);
+        }
+      })
+    })
+    .then((items) => {
+      this.server.emit(event, allItems)
+      // console.log('returning', items);
+      return items;
+    });
+  }
+
+
 
   @SubscribeMessage('all-items')
   async handleGetAllItemsEvent(

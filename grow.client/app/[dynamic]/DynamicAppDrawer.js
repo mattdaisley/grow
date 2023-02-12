@@ -22,15 +22,14 @@ export const drawerWidth = 240;
 export const globalPages = [
   { name: "Gardens", path: "/gardens" },
   // { name: "Contexts", path: "/configuration/contexts" },
-  { name: "Pages", path: "/configuration/allPages" },
-  { name: "Views", path: "/configuration/allViews" },
-  { name: "Fields", path: "/configuration/allFields" },
+  { name: "Pages", path: "/admin/pages" },
+  { name: "Views", path: "/admin/views" },
+  { name: "Fields", path: "/admin/fields" },
 ];
 
 export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {
 
   const [mobileOpen, setMobileOpen] = useState(false);
-
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -66,7 +65,7 @@ export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {
         {globalPages.map((page) => (
           <ListItem key={page.name} disablePadding>
             <ListItemButton>
-              <Link href={page.path}>
+              <Link href={page.path} style={{width: '100%'}}>
                 <ListItemText primary={page.name} sx={{ '& .MuiListItemText-primary': { fontWeight: 'light' } }} />
               </Link>
             </ListItemButton>
