@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import useItems from './useItems';
 
 const defaultPages = () => ({
-  Pages: {
+  pages: {
     [uuidv4()]: {
       name: "Example Page",
       groups: {
