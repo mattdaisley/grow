@@ -10,7 +10,7 @@ const defaultPages = () => ({
   pages: {
     [uuidv4()]: {
       name: "Example Page",
-      groups: {
+      sections: {
         [uuidv4()]: {
           label: "",
           width: "12",
@@ -35,9 +35,11 @@ export default function usePages() {
       setAllPages(data);
     }
   }
-  console.log('usePages', allPages);
+  console.log('usePages', allPages, pagesItems);
 
   return {
-    allPages
+    allPages,
+    addItem: pagesItems.addItem,
+    setItems: pagesItems.setItems
   }
 }

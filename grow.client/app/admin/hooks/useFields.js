@@ -27,7 +27,15 @@ export default function useFields() {
   function handleSocketSuccess(data) {
     console.log('useFields.handleSocketSuccess', data)
     if (Object.keys(data.item).length === 0) {
-      fieldsItems.setItems(defaultFields())
+      const nextItem = defaultFields()
+      console.log(nextItem);
+      fieldsItems.setItems(nextItem)
+    }
+    else if (Object.keys(data.item.fields).length === 1) {
+      const nextItem = defaultFields()
+      const newItems = { fields: { ...data.item.fields, ...nextItem.fields } };
+      console.log(newItems);
+      fieldsItems.setItems(newItems)
     }
     else {
       setAllFields(data);
@@ -36,6 +44,8 @@ export default function useFields() {
   console.log('useFields', allFields);
 
   return {
-    allFields
+    allFields,
+    addItem: fieldsItems.addItem,
+    setItems: fieldsItems.setItems
   }
 }

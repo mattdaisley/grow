@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useMemo, useContext } from "react";
 
 import { flatten, unflatten } from "flat";
+import merge from "lodash.merge"
 import { SocketContext } from "../../SocketContext";
 
 export default function useItems(key, options) {
@@ -9,13 +10,14 @@ export default function useItems(key, options) {
   const socket = useContext(SocketContext);
 
   const [tempNewItems, setTempNewItems] = useState();
+  const [tempReceivedItems, setTempReceivedItems] = useState();
   const [cache, setStateCache] = useState({ requestState: "loading", json: "", item: undefined, flattened: undefined, timestamp: Date.now() })
 
   useEffect(() => {
     function loadItems() {
       const data = { itemKey: key };
       socket?.emit('get-items', data)
-      console.log('useSocket emit get-items', data)
+      console.log('useItems emit get-items', data)
     }
 
     const timeout = setTimeout(loadItems, 200)
@@ -38,6 +40,17 @@ export default function useItems(key, options) {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
+      if (tempReceivedItems !== undefined) {
+        processReceivedItems(tempReceivedItems)
+        setTempReceivedItems(undefined)
+      }
+    }, 500)
+
+    return () => clearTimeout(timeout)
+  }, [key, JSON.stringify(tempReceivedItems)])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
       if (tempNewItems !== undefined) {
         setItems(tempNewItems)
         setTempNewItems(undefined)
@@ -48,14 +61,23 @@ export default function useItems(key, options) {
   }, [key, JSON.stringify(tempNewItems)])
 
   const setCache = useCallback((newState) => {
-    console.log('useSocket.setCache:', key, newState)
-    options?.onSuccess?.({ ...newState })
+    console.log('useItems.setCache:', key, newState)
     setStateCache(newState);
   }, [key, options.onSuccess, setStateCache])
 
 
   function handleRecieveAllItems(data) {
-    console.log('useSocket.handleRecieveAllItems:', key, data);
+    if (tempReceivedItems === null) {
+      setTempReceivedItems(data)
+    }
+    else {
+      const newData = merge(tempReceivedItems, data)
+      setTempReceivedItems(newData);
+    }
+  }
+
+  function processReceivedItems(data) {
+    console.log('useItems.processReceivedItems:', key, data);
 
     if (!data.hasOwnProperty(key)) {
       return;
@@ -78,11 +100,12 @@ export default function useItems(key, options) {
         flattened,
         timestamp: Date.now()
       }
+      options?.onSuccess?.(newCache)
       setCache(newCache)
-      console.log('useSocket.handleRecieveAllItems setting cache', newCache)
+      console.log('useItems.processReceivedItems setting cache', newCache)
     }
     else {
-      console.log('useSocket.handleRecieveAllItems json matches cache')
+      console.log('useItems.processReceivedItems json matches cache')
     }
 
   }
@@ -159,8 +182,15 @@ export default function useItems(key, options) {
     }
   }
 
+  function addItem(name, value) {
+    const addItemEvent = { itemKey: key, valueKeyPrefix: name, value }
+    socket.emit('add-item', addItemEvent)
+    setCache({ ...cache, requestState: 'submitting' })
+  }
+
   return {
-    setItems: debouncedSetItems
+    setItems: debouncedSetItems,
+    addItem
   }
 }
 

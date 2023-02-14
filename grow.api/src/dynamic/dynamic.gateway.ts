@@ -9,10 +9,13 @@ import {
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
+import { v4 as uuidv4 } from 'uuid';
+
 import { DynamicService } from './dynamic.service';
 import { CreateDynamicItemDto } from './dto/create-dynamic-item.dto';
 import { DynamicItemsRequest } from './dto/dynamic-items-request.dto';
 import { DynamicItemsResponse } from './dto/dynamic-items-response.dto';
+import { DynamicItemsAddRequest } from './dto/dynamic-items-add-request.dto';
 
 @WebSocketGateway({
   namespace: 'dynamic',
@@ -88,6 +91,37 @@ export class DynamicGateway {
           resolve(allItems);
         }
       })
+    })
+    .then((items) => {
+      this.server.emit(event, allItems)
+      // console.log('returning', items);
+      return items;
+    });
+  }
+
+  @SubscribeMessage('add-item')
+  async handleAddItemEvent(@MessageBody() data: DynamicItemsAddRequest): Promise<DynamicItemsResponse> {
+    console.log('handleSetItemsEvent', data)
+
+    const itemKey = data.itemKey;
+    const valueKeyPrefix = data.valueKeyPrefix;
+    const value = data.value;
+    const event = `items-${itemKey}`;
+    //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
+
+    const allItems: DynamicItemsResponse = { [itemKey]: [] };
+    
+    return new Promise<DynamicItemsResponse>(async (resolve, reject) => {
+      const valueKey = `${valueKeyPrefix}.${uuidv4()}.name`;
+
+      const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value }
+
+      console.log('handleAddItemEvent creating item', createDynamicItemDto)
+      const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
+
+      allItems[itemKey].push(dynamicItem)
+      
+      resolve(allItems);
     })
     .then((items) => {
       this.server.emit(event, allItems)
