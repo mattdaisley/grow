@@ -10,8 +10,6 @@ import Button from "@mui/material/Button";
 import Grid from '@mui/material/Unstable_Grid2';
 import List from '@mui/material/List';
 import Paper from '@mui/material/Paper';
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -20,7 +18,10 @@ import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Stack from '@mui/material/Stack';
+import { styled } from '@mui/material/styles';
 import TextField from "@mui/material/TextField";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
 
 import TextFormControl from "./TextFormControl";
 
@@ -155,7 +156,16 @@ function ShowSections({ name, ...props }) {
   return (
     <>
       {Object.keys(props.data).map(key => {
-        return <ShowControls {...props} key={key} name={`${name}.${key}`} data={{ ...props.data[key] }} />;
+        const controlData = props.data[key]
+        return (
+          <Grid key={key} xs={Number(controlData.width) || 12} alignContent={'flex-start'}>
+            <Paper sx={{ width: '100%' }}>
+              <Grid container spacing={1} xs={12} sx={{ p: 1 }}>
+                <ShowControls {...props} name={`${name}.${key}`} data={controlData} />
+              </Grid>
+            </Paper>
+          </Grid>
+        )
       })}
     </>
   );
@@ -171,13 +181,21 @@ function ShowViews({ name, ...props }) {
       {Object.keys(props.data).map(key => {
         let controlName = `${name}.${key}`;
         let controlData = props.data[key];
+        let view;
 
         if (nameSplit[1] === 'pages') {
           controlName = `views.${props.data[key].id}`;
           controlData = props.allViews[props.data[key].id];
         }
         return (
-          <ShowControls {...props} key={key} name={controlName} data={controlData} />
+          <>
+            {controlData?.label && (
+              <Grid xs={12}>
+                <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{controlData.label}</Typography>
+              </Grid>
+            )}
+            <ShowControls {...props} key={key} name={controlName} data={controlData} />
+          </>
         );
       })}
     </>
@@ -189,7 +207,12 @@ function ShowGroups({ name, ...props }) {
   return (
     <>
       {Object.keys(props.data).map(key => {
-        return <ShowControls {...props} key={key} name={`${name}.${key}`} data={{ ...props.data[key] }} />;
+        const controlData = props.data[key]
+        return (
+          <Grid xs={Number(controlData?.width) ?? 12} key={key}>
+            <ShowControls {...props} key={key} name={`${name}.${key}`} data={controlData} />
+          </Grid>
+        )
       })}
     </>
   );
@@ -200,11 +223,23 @@ function ShowFields({ name, ...props }) {
   return (
     <>
       {Object.keys(props.data).map(key => {
-        return <DynamicFieldControl {...props} key={key} name={`${name}.${key}`} data={{ ...props.allFields[props.data[key].id] }} />;
+        return (
+          <FieldWrapper>
+            <DynamicFieldControl {...props} key={key} name={`${name}.${key}`} data={{ ...props.allFields[props.data[key].id] }} />
+          </FieldWrapper>
+        )
       })}
     </>
   );
 }
+
+const FieldWrapper = styled(Box)(({ theme }) => ({
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  boxSizing: 'border-box',
+  textAlign: 'left',
+  color: theme.palette.text.secondary,
+}));
 
 function DynamicFieldControl({ ...props }) {
   console.log('DynamicFieldControl', props)
@@ -243,7 +278,7 @@ function DynamicFieldsEditor({ ...props }) {
   const [editMode, setEditMode] = useState('editor');
 
   return (
-    <Box sx={{ flexGrow: 1, pt: 4, pr: { xs: 2, md: 4 }, mt: -.5 }}>
+    <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
       <Paper sx={{ width: '100%' }}>
         <Grid container sx={{ borderBottom: 1, borderColor: 'grey.300', px: 2, pt: 1, justifyContent: "space-around" }}>
           <Button variant={editMode === 'editor' ? "solid" : "text"} onClick={() => setEditMode('editor')}>Editor</Button>
@@ -409,7 +444,9 @@ function EditSections({ name, ...props }) {
       <EditorList>
         {Object.keys(props.data).map(key => {
           return (
-            <EditListItem key={key} {...props} name={`${name}.${key}`} data={{ ...props.data[key] }} />
+            <EditListItem key={key} {...props} name={`${name}.${key}`} data={{ ...props.data[key] }}>
+              <EditWidthProperty />
+            </EditListItem>
           );
         })}
       </EditorList>
@@ -457,7 +494,9 @@ function EditGroups({ name, ...props }) {
       <EditorList>
         {Object.keys(props.data).map(key => {
           return (
-            <EditListItem key={key} {...props} name={`${name}.${key}`} data={{ ...props.data[key] }} />
+            <EditListItem key={key} {...props} name={`${name}.${key}`} data={{ ...props.data[key] }}>
+              <EditWidthProperty />
+            </EditListItem>
           );
         })}
       </EditorList>
@@ -690,7 +729,7 @@ function EditorList({ ...props }) {
   );
 }
 
-function EditListItem({ ...props }) {
+function EditListItem({ children, ...props }) {
   // console.log('EditListItem', name, data)
 
   const formMethods = useFormContext();
@@ -712,7 +751,7 @@ function EditListItem({ ...props }) {
     onClick && onClick(name);
   }
 
-  const childrenWithProps = Children.map(props.children, child => {
+  const childrenWithProps = Children.map(children, child => {
     // Checking isValidElement is the safe way and avoids a
     // typescript error too.
     if (isValidElement(child)) {
@@ -818,6 +857,24 @@ function EditFieldTypeProperty(props) {
             isOptionEqualToValue={(option, testValue) => option === testValue}
             renderInput={(params) => <TextField {...params} label="type" />} />
         );
+      }} />
+  )
+}
+
+function EditWidthProperty(props) {
+  // console.log('EditWidthProperty', props)
+  return (
+    <Controller
+      name={`${props.name}.width`}
+      control={props.formMethods.control}
+      defaultValue={Number(props.data.width) || 12}
+      render={({ field }) => {
+        // console.log(fieldArrayName, appField, field);
+        return <TextField
+          label="width"
+          size="small"
+          fullWidth
+          {...field} />;
       }} />
   )
 }
