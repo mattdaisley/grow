@@ -9,5 +9,8 @@ export class DynamicItemsAddRequest {
     valueKeyPrefix: string;
 
     @IsString()
+    valueKeySuffix: string;
+
+    @IsString()
     value: string;
 }

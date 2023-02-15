@@ -38,6 +38,8 @@ export default function useViews() {
   console.log('useViews', allViews);
 
   return {
-    allViews
+    allViews,
+    addItem: viewsItems.addItem,
+    setItems: viewsItems.setItems
   }
 }

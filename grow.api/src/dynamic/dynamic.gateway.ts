@@ -105,6 +105,7 @@ export class DynamicGateway {
 
     const itemKey = data.itemKey;
     const valueKeyPrefix = data.valueKeyPrefix;
+    const valueKeySuffix = data.valueKeySuffix;
     const value = data.value;
     const event = `items-${itemKey}`;
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
@@ -112,7 +113,7 @@ export class DynamicGateway {
     const allItems: DynamicItemsResponse = { [itemKey]: [] };
     
     return new Promise<DynamicItemsResponse>(async (resolve, reject) => {
-      const valueKey = `${valueKeyPrefix}.${uuidv4()}.name`;
+      const valueKey = `${valueKeyPrefix}.${uuidv4()}.${valueKeySuffix}`;
 
       const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value }
 
