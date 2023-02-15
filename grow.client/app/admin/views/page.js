@@ -9,7 +9,7 @@ export default function AdminViewsPage() {
   const dynamicItemsName = "Admin"
 
   const { allViews, addItem: addViewItem, setItems: setViewsItems } = useViews()
-  const { allFields, addItem: addFieldItem } = useFields()
+  const { allFields, addItem: addFieldItem, setItems: setFieldsItems } = useFields()
   console.log(allViews, allFields)
 
   if (allViews?.item === undefined || allFields?.item === undefined) {
@@ -17,7 +17,7 @@ export default function AdminViewsPage() {
   }
 
   const dynamicItem = { item: { name: dynamicItemsName }, timestamp: Date.now(), setItem: () => { } }
-  const dynamicFormData = { currentPage: { name: "Views" }, timestamp: Date.now(), data: allViews.item }
+  const dynamicFormData = { currentPage: { name: "Views" }, timestamp: Date.now(), json: allViews.json, data: allViews.item }
 
   const actions = {
     setItems: (newItems) => {

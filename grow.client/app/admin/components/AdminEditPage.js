@@ -34,7 +34,7 @@ export function AdminEditPage({ ...props }) {
             {/* <DynamicFields data={props.dynamicFormData.data} /> */}
           </Grid>
           <Grid xs={4}>
-            <DynamicFieldsEditor data={props.dynamicFormData.data} {...props} />
+            <DynamicFieldsEditor data={props.dynamicFormData.data} json={props.dynamicFormData.json} {...props} />
           </Grid>
           {/* <FieldsEditor
               dynamicFormData={dynamicFormData}
@@ -178,15 +178,16 @@ function DynamicFieldsEditor({ ...props }) {
         )}
         {editMode === 'json' && (
           <Box sx={{ flexGrow: 1, p: 2 }}>
-            {/* <TextField
-                      id="json-input"
-                      label="JSON"
-                      placeholder="{}"
-                      multiline
-                      fullWidth
-                      maxRows={38}
-                      value={json}
-                      onChange={onJsonChange} /> */}
+            <TextField
+              id="json-input"
+              label="JSON"
+              placeholder="{}"
+              multiline
+              fullWidth
+              maxRows={38}
+              value={props.json}
+            // onChange={onJsonChange} 
+            />
           </Box>
         )}
       </Paper>
@@ -238,7 +239,7 @@ function AddMissingNestedElements(props) {
   if (nameSplit[nameSplit.length - 2] === 'sections') {
     return (
       <Box sx={{ flexGrow: 1, border: 1, borderRadius: 1, pt: 0, borderColor: 'grey.300' }}>
-        <AddExistingItemControl name={`${props.name}.views`} type="View" actions={props.actions} existingItems={props.allViews} />
+        <AddItemControl name={`${props.name}.views`} type="View" actions={props.actions} existingItems={props.allViews} />
       </Box>
     )
   }
@@ -254,7 +255,7 @@ function AddMissingNestedElements(props) {
   if (nameSplit[nameSplit.length - 2] === 'groups') {
     return (
       <Box sx={{ flexGrow: 1, border: 1, borderRadius: 1, pt: 0, borderColor: 'grey.300' }}>
-        <AddExistingItemControl name={`${props.name}.fields`} type="Field" actions={props.actions} existingItems={props.allFields} />
+        <AddItemControl name={`${props.name}.fields`} type="Field" actions={props.actions} existingItems={props.allFields} />
       </Box>
     )
   }
@@ -344,33 +345,30 @@ function EditSections({ name, ...props }) {
 function EditViews({ name, ...props }) {
   console.log('EditViews', name, props);
 
-  const nameSplit = name.split('.');
+  let existingItems = undefined;
 
+  const nameSplit = name.split('.');
   if (nameSplit[0] === 'pages') {
-    return (
-      <>
-        <EditorList>
-          {Object.keys(props.data).map(key => {
-            return (
-              <EditListItem key={key} {...props} name={`views.${props.data[key].id}`} data={{ ...props.allViews[props.data[key].id] }} />
-            );
-          })}
-        </EditorList>
-        <AddExistingItemControl name={name} type="View" actions={props.actions} existingItems={props.allViews} />
-      </>
-    );
+    existingItems = props.allViews;
   }
 
   return (
     <>
       <EditorList>
         {Object.keys(props.data).map(key => {
+          let listItemName = `${name}.${key}`;
+          let listItemData = props.data[key];
+
+          if (nameSplit[0] === 'pages') {
+            listItemName = `views.${props.data[key].id}`;
+            listItemData = props.allViews[props.data[key].id];
+          }
           return (
-            <EditListItem key={key} {...props} name={`${name}.${key}`} data={{ ...props.data[key] }} />
+            <EditListItem key={key} {...props} name={listItemName} data={listItemData} />
           );
         })}
       </EditorList>
-      <AddItemControl name={name} type="View" actions={props.actions} />
+      <AddItemControl name={name} type="View" actions={props.actions} existingItems={existingItems} />
     </>
   );
 }
@@ -407,7 +405,7 @@ function EditFields({ name, ...props }) {
             );
           })}
         </EditorList>
-        <AddExistingItemControl name={name} type="Field" actions={props.actions} existingItems={props.allFields} />
+        <AddItemControl name={name} type="Field" actions={props.actions} existingItems={props.allFields} />
       </>
     );
   }
@@ -427,55 +425,11 @@ function EditFields({ name, ...props }) {
 }
 
 function AddItemControl({ ...props }) {
+  if (props.existingItems !== undefined) {
+    return <AddExistingItemControl {...props} />
+  }
 
-  const [addingItem, setAddingItem] = useState(false);
-  const [itemName, setItemName] = useState("");
-
-  const handleAddItemConfirmClick = () => {
-    // console.log(addingViewValue)
-    setAddingItem(false);
-    setItemName("");
-    props.actions.onAddItem && props.actions.onAddItem(props.name, "name", itemName);
-  };
-
-  const handleAddItemCancelClick = () => {
-    // console.log(addingViewValue)
-    setAddingItem(false);
-    setItemName("");
-  };
-
-  return (
-    <Box sx={{ py: 2, px: 2 }}>
-      {!addingItem && (
-        <Button variant="outlined" color="secondary" size="small" onClick={() => setAddingItem(true)}>Add {props.type}</Button>
-      )}
-      {addingItem && (
-        <>
-          <TextField
-            label="Name"
-            fullWidth
-            size="small"
-            value={itemName}
-            onChange={(event) => setItemName(event.target.value)} />
-          <Button
-            color="secondary"
-            size="small"
-            sx={{ mt: 1 }}
-            disabled={itemName === ""}
-            onClick={handleAddItemConfirmClick}>
-            Confirm
-          </Button>
-          <Button
-            size="small"
-            sx={{ mt: 1 }}
-            onClick={handleAddItemCancelClick}>
-            Cancel
-          </Button>
-        </>
-      )}
-    </Box>
-
-  );
+  return <AddNewItemControl {...props} />
 }
 
 function AddExistingItemControl({ ...props }) {
@@ -553,6 +507,58 @@ function AddExistingItemControl({ ...props }) {
             size="small"
             sx={{ mt: 1 }}
             disabled={itemValue.value === null}
+            onClick={handleAddItemConfirmClick}>
+            Confirm
+          </Button>
+          <Button
+            size="small"
+            sx={{ mt: 1 }}
+            onClick={handleAddItemCancelClick}>
+            Cancel
+          </Button>
+        </>
+      )}
+    </Box>
+
+  );
+}
+
+function AddNewItemControl({ ...props }) {
+
+  const [addingItem, setAddingItem] = useState(false);
+  const [itemName, setItemName] = useState("");
+
+  const handleAddItemConfirmClick = () => {
+    // console.log(addingViewValue)
+    setAddingItem(false);
+    setItemName("");
+    props.actions.onAddItem && props.actions.onAddItem(props.name, "name", itemName);
+  };
+
+  const handleAddItemCancelClick = () => {
+    // console.log(addingViewValue)
+    setAddingItem(false);
+    setItemName("");
+  };
+
+  return (
+    <Box sx={{ py: 2, px: 2 }}>
+      {!addingItem && (
+        <Button variant="outlined" color="secondary" size="small" onClick={() => setAddingItem(true)}>Add {props.type}</Button>
+      )}
+      {addingItem && (
+        <>
+          <TextField
+            label="Name"
+            fullWidth
+            size="small"
+            value={itemName}
+            onChange={(event) => setItemName(event.target.value)} />
+          <Button
+            color="secondary"
+            size="small"
+            sx={{ mt: 1 }}
+            disabled={itemName === ""}
             onClick={handleAddItemConfirmClick}>
             Confirm
           </Button>
@@ -663,7 +669,12 @@ function EditListItem({ ...props }) {
           secondaryAction={<ListItemIcon sx={{ justifyContent: 'flex-end' }}>
             <ExpandMore />
           </ListItemIcon>}>
-          <ListItemText primary={primary} secondary={secondary} />
+          <ListItemText
+            primary={primary}
+            primaryTypographyProps={{ noWrap: true }}
+            secondary={secondary}
+            secondaryTypographyProps={{ noWrap: true }}
+          />
         </ListItem>
       )}
 

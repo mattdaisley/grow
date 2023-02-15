@@ -15,7 +15,7 @@ export default function AdminFieldsPage() {
   }
 
   const dynamicItem = { item: { name: dynamicItemsName }, timestamp: Date.now(), setItem: () => { } }
-  const dynamicFormData = { currentPage: { name: "Fields" }, timestamp: Date.now(), data: allFields.item }
+  const dynamicFormData = { currentPage: { name: "Fields" }, timestamp: Date.now(), json: allFields.json, data: allFields.item }
 
   const actions = {
     setItems: setFieldsItems,

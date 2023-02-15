@@ -1,10 +1,5 @@
 'use client'
 
-
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Edit from '@mui/icons-material/Edit';
-
 import useFields from '../hooks/useFields';
 import usePages from '../hooks/usePages';
 import useViews from "../hooks/useViews";
@@ -24,7 +19,7 @@ export default function AdminPagesPage() {
   }
 
   const dynamicItem = { item: { name: dynamicItemsName }, timestamp: Date.now(), setItem: () => { } }
-  const dynamicFormData = { currentPage: { name: "Pages" }, timestamp: Date.now(), data: allPages.item }
+  const dynamicFormData = { currentPage: { name: "Pages" }, timestamp: Date.now(), json: allPages.json, data: allPages.item }
 
   const actions = {
     setItems: (newItems) => {
