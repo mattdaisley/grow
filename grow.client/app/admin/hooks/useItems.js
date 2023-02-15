@@ -185,6 +185,7 @@ export default function useItems(key, options) {
   function addItem(prefix, suffix, value) {
     const addItemEvent = { itemKey: key, valueKeyPrefix: prefix, valueKeySuffix: suffix, value }
     socket.emit('add-item', addItemEvent)
+    console.log('addItem emit add-item:', addItemEvent)
     setCache({ ...cache, requestState: 'submitting' })
   }
 

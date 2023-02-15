@@ -28,6 +28,8 @@ export default function TextFormControl({ name, ...props }) {
   }
   let defaultValue = props.default ?? ""
 
+  const componentProps = { ...rest.props, label: props.label }
+
   return (
     <Controller
       name={controllerName}
@@ -36,13 +38,12 @@ export default function TextFormControl({ name, ...props }) {
       render={({ field }) => {
         // console.log(field);
         return <>
-          <span>{Date.now()}</span>
           <TextField
             fullWidth={true}
             size="small"
             sx={{ fontSize: 'small' }}
             // onChange={handleFieldChanged}
-            {...rest.props}
+            {...componentProps}
             {...field}
             value={field?.value ?? ""}
             InputProps={inputProps}

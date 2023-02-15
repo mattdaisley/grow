@@ -31,10 +31,10 @@ export function AdminEditPage({ ...props }) {
       <DynamicForm {...props}>
         <Grid container xs={12} spacing={0}>
           <Grid xs={8}>
-            {/* <DynamicFields data={props.dynamicFormData.data} /> */}
+            <DynamicFields {...props} name={'editor'} data={props.dynamicFormData.data} />
           </Grid>
           <Grid xs={4}>
-            <DynamicFieldsEditor data={props.dynamicFormData.data} json={props.dynamicFormData.json} {...props} />
+            <DynamicFieldsEditor {...props} data={props.dynamicFormData.data} json={props.dynamicFormData.json} />
           </Grid>
           {/* <FieldsEditor
               dynamicFormData={dynamicFormData}
@@ -85,56 +85,132 @@ function DynamicForm({ ...props }) {
 }
 
 function DynamicFields({ ...props }) {
-
+  console.log('DynamicFields', props)
   return (
     <Grid container spacing={4} sx={{ width: '100%' }}>
-      {Object.keys(props.data)
-        .map(key => {
-          console.log('DynamicFields data:', key, props.data[key]);
-          switch (key) {
-
-            case 'sections':
-            case 'views':
-            case 'groups':
-              return null;
-
-            case 'fields':
-              return <FieldsInGroup key={key} name={key} {...props.data[key]} />;
-
-            default:
-              return null;
-          }
-        })
-        .filter(item => item !== null)}
+      <ShowControls {...props} />
     </Grid>
   );
 }
 
-function SectionsInPage(props) {
+function ShowControls(props) {
+  console.log('ShowControls', props)
+
+  let namePrefix = "";
+  if (props.name !== undefined) {
+    namePrefix = `${props.name}.`;
+  }
+
+  const getShowControl = () => {
+    const pagesKey = 'pages'
+    if (props.data.hasOwnProperty(pagesKey)) {
+      return { key: pagesKey, ShowControl: ShowPages }
+    }
+
+    const sectionsKey = 'sections'
+    if (props.data.hasOwnProperty(sectionsKey)) {
+      return { key: sectionsKey, ShowControl: ShowSections }
+    }
+
+    const viewsKey = 'views'
+    if (props.data.hasOwnProperty(viewsKey)) {
+      return { key: viewsKey, ShowControl: ShowViews }
+    }
+
+    const groupsKey = 'groups'
+    if (props.data.hasOwnProperty(groupsKey)) {
+      return { key: groupsKey, ShowControl: ShowGroups }
+    }
+
+    const fieldsKey = 'fields'
+    if (props.data.hasOwnProperty(fieldsKey)) {
+      return { key: fieldsKey, ShowControl: ShowFields }
+    }
+
+    return { key: null, ShowControl: null };
+  }
+
+  const { key, ShowControl } = getShowControl();
+  if (ShowControl === null) {
+    return null;
+  }
+
+  return <ShowControl {...props} name={`${namePrefix}${key}`} data={{ ...props.data[key] }} />;
 }
 
-function ViewsInSection(props) {
-}
-
-function GroupsInView(props) {
-}
-
-function FieldsInGroup({ name, ...props }) {
-  console.log('FieldsInGroup', name, props);
+function ShowPages({ name, ...props }) {
+  console.log('ShowPages', name, props);
   return (
     <>
-      {Object.keys(props).map(key => {
-        return <DynamicFieldControl key={key} name={`${name}.${key}`} {...props[key]} />;
+      {Object.keys(props.data).map(key => {
+        return <ShowControls {...props} key={key} name={`${name}.${key}`} data={{ ...props.data[key] }} />;
+      })}
+    </>
+  );
+
+}
+
+function ShowSections({ name, ...props }) {
+  console.log('ShowSections', name, props);
+  return (
+    <>
+      {Object.keys(props.data).map(key => {
+        return <ShowControls {...props} key={key} name={`${name}.${key}`} data={{ ...props.data[key] }} />;
+      })}
+    </>
+  );
+}
+
+function ShowViews({ name, ...props }) {
+  console.log('ShowViews', name, props);
+
+  const nameSplit = name.split('.');
+
+  return (
+    <>
+      {Object.keys(props.data).map(key => {
+        let controlName = `${name}.${key}`;
+        let controlData = props.data[key];
+
+        if (nameSplit[1] === 'pages') {
+          controlName = `views.${props.data[key].id}`;
+          controlData = props.allViews[props.data[key].id];
+        }
+        return (
+          <ShowControls {...props} key={key} name={controlName} data={controlData} />
+        );
+      })}
+    </>
+  );
+}
+
+function ShowGroups({ name, ...props }) {
+  console.log('ShowGroups', name, props);
+  return (
+    <>
+      {Object.keys(props.data).map(key => {
+        return <ShowControls {...props} key={key} name={`${name}.${key}`} data={{ ...props.data[key] }} />;
+      })}
+    </>
+  );
+}
+
+function ShowFields({ name, ...props }) {
+  console.log('ShowFields', name, props);
+  return (
+    <>
+      {Object.keys(props.data).map(key => {
+        return <DynamicFieldControl {...props} key={key} name={`${name}.${key}`} data={{ ...props.allFields[props.data[key].id] }} />;
       })}
     </>
   );
 }
 
 function DynamicFieldControl({ ...props }) {
+  console.log('DynamicFieldControl', props)
 
-  // console.log(field?.name);
   const getFieldControl = () => {
-    switch (props.type) {
+    switch (props.data.type) {
       case 'text':
       case 'numeric':
         return TextFormControl;
@@ -158,7 +234,7 @@ function DynamicFieldControl({ ...props }) {
     return null;
   }
 
-  return <FieldControl {...props} />;
+  return <FieldControl {...props.data} />;
 
 }
 
@@ -393,33 +469,33 @@ function EditGroups({ name, ...props }) {
 function EditFields({ name, ...props }) {
   console.log('EditFields', name, props);
 
-  const nameSplit = name.split('.');
+  let existingItems = undefined;
 
+  const nameSplit = name.split('.');
   if (nameSplit[0] === 'views') {
-    return (
-      <>
-        <EditorList>
-          {Object.keys(props.data).map(key => {
-            return (
-              <EditListItem key={key} {...props} name={`fields.${props.data[key].id}`} data={{ ...props.allFields[props.data[key].id] }} />
-            );
-          })}
-        </EditorList>
-        <AddItemControl name={name} type="Field" actions={props.actions} existingItems={props.allFields} />
-      </>
-    );
+    existingItems = props.allFields;
   }
 
   return (
     <>
       <EditorList>
         {Object.keys(props.data).map(key => {
+          let listItemName = `${name}.${key}`;
+          let listItemData = props.data[key];
+
+          if (nameSplit[0] === 'views') {
+            listItemName = `fields.${props.data[key].id}`;
+            listItemData = props.allFields[props.data[key].id];
+          }
+
           return (
-            <EditListItem key={key} {...props} name={`${name}.${key}`} data={{ ...props.data[key] }} />
+            <EditListItem key={key} {...props} name={listItemName} data={listItemData}>
+              <EditFieldTypeProperty />
+            </EditListItem>
           );
         })}
       </EditorList>
-      <AddItemControl name={name} type="Field" actions={props.actions} />
+      <AddItemControl name={name} type="Field" actions={props.actions} existingItems={props.allFields} />
     </>
   );
 }
@@ -491,7 +567,7 @@ function AddExistingItemControl({ ...props }) {
             value={itemValue.value}
             inputValue={itemValue.label}
             onChange={handleItemValueChange}
-            isOptionEqualToValue={(option, testValue) => { console.log(option, testValue); return option?.value === testValue }}
+            isOptionEqualToValue={(option, testValue) => option?.value === testValue}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -636,6 +712,15 @@ function EditListItem({ ...props }) {
     onClick && onClick(name);
   }
 
+  const childrenWithProps = Children.map(props.children, child => {
+    // Checking isValidElement is the safe way and avoids a
+    // typescript error too.
+    if (isValidElement(child)) {
+      return cloneElement(child, { name, data, formMethods });
+    }
+    return child;
+  });
+
   return (
     <>
       {isOpen ? (
@@ -681,22 +766,58 @@ function EditListItem({ ...props }) {
       <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <Stack spacing={2} sx={{ px: 2, py: 2 }}>
 
-          <Controller
-            name={`${name}.name`}
-            control={formMethods.control}
-            defaultValue={data.name ?? ""}
-            render={({ field }) => {
-              // console.log(fieldArrayName, appField, field);
-              return <TextField
-                label="name"
-                size="small"
-                fullWidth
-                {...field} />;
-            }} />
+          <EditNameProperty name={name} data={data} formMethods={formMethods} />
+
+          {childrenWithProps}
 
           <EditorControls {...props} name={name} />
         </Stack>
       </Collapse>
     </>
   );
+}
+
+function EditNameProperty(props) {
+  // console.log('EditNameProperty', props)
+  return (
+    <Controller
+      name={`${props.name}.name`}
+      control={props.formMethods.control}
+      defaultValue={props.data.name ?? ""}
+      render={({ field }) => {
+        // console.log(fieldArrayName, appField, field);
+        return <TextField
+          label="name"
+          size="small"
+          fullWidth
+          {...field} />;
+      }} />
+  )
+}
+
+function EditFieldTypeProperty(props) {
+  // console.log('EditFieldTypeProperty', props)
+  return (
+    <Controller
+      name={`${props.name}.type`}
+      control={props.formMethods.control}
+      defaultValue={props.data.type ?? null}
+      render={({ field: { value, onChange } }) => {
+
+        return (
+          <Autocomplete
+            label="type"
+            autoComplete
+            autoSelect
+            autoHighlight
+            fullWidth
+            size="small"
+            options={["autocomplete", "select", "text", "numeric", "checkbox", "label"]}
+            value={value}
+            onChange={(_, newValue) => onChange(newValue)}
+            isOptionEqualToValue={(option, testValue) => option === testValue}
+            renderInput={(params) => <TextField {...params} label="type" />} />
+        );
+      }} />
+  )
 }
