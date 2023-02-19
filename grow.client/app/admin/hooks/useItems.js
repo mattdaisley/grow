@@ -52,10 +52,14 @@ export default function useItems(key, options) {
     return () => clearTimeout(timeout)
   }, [key, JSON.stringify(tempReceivedItems)])
 
-  const setCache = useCallback((newState) => {
+  // const setCache = useCallback((newState) => {
+  //   logger.log('useItems.setCache:', key, newState)
+  //   setStateCache(newState);
+  // }, [key, options.onSuccess, setStateCache])
+  const setCache = (newState) => {
     logger.log('useItems.setCache:', key, newState)
     setStateCache(newState);
-  }, [key, options.onSuccess, setStateCache])
+  }
 
 
   function handleReceiveAllItems(data) {
@@ -107,8 +111,8 @@ export default function useItems(key, options) {
         flattened,
         timestamp: Date.now()
       }
-      options?.onSuccess?.(newCache, updated)
       setCache(newCache)
+      options?.onSuccess?.(newCache, updated)
       logger.log('socket processReceivedItems setting cache', newCache, updated)
     }
     else {
@@ -118,10 +122,19 @@ export default function useItems(key, options) {
   }
 
 
-  const debouncedEventHandler = useMemo(() => {
-    // logger.log('debouncedSetItems debouncedEventHandler memo run')
-    return debounce(setItems, 300)
-  }, [key, socket, setCache, cache]);
+  // key, newItems, socket, cache, debouncedItemsToSet, setCache
+  // const debouncedEventHandler = useCallback((newItems) => {
+  //   logger.log('debouncedSetItems useCallback', key, cache?.flattened)
+
+  //   return setItems(key, newItems, socket, cache, debouncedItemsToSet, setCache);
+  // }, [key, socket, setCache, cache])
+
+  const debouncedEventHandler = useCallback(
+    debounce((newItems) => {
+      return setItems(key, newItems, socket, cache, debouncedItemsToSet, setCache)
+    }, 300)
+    , [key, socket, setCache, cache]
+  )
 
   function debouncedSetItems(data) {
     let newData;
@@ -136,78 +149,6 @@ export default function useItems(key, options) {
     debouncedEventHandler(newData)
   }
 
-  function setItems(newItems) {
-    logger.log('setItems', key, newItems)
-
-    if (!isEqual(debouncedItemsToSet.current, newItems)) {
-      logger.log('setItems debouncedItemsToSet not equal to newItems', key, debouncedItemsToSet.current, newItems)
-      //alert('debouncedItemsToSet not equal to newItems')
-      return;
-    }
-    // else {
-    logger.log('setItems debouncedItemsToSet to null', key, debouncedItemsToSet.current)
-    debouncedItemsToSet.current = null;
-    // }
-
-    if (typeof newItems === 'string') {
-      setItemsAsJson(newItems)
-    }
-    else {
-      setItemsAsObject(newItems)
-    }
-  }
-
-  function setItemsAsJson(newItems) {
-
-    if (newItems === cache.json) {
-      logger.log('setItemsAsJson: json = cache.json, returning')
-      return;
-    }
-
-    try {
-      const parsedItems = JSON.parse(newItems);
-      setItemsAsObject(parsedItems)
-    }
-    catch (e) {
-      if (e instanceof SyntaxError) {
-        // SyntaxErrors are expected and can be ignored
-      } else {
-        logger.log(e)
-      }
-    }
-  }
-
-  function setItemsAsObject(newItems) {
-
-    try {
-      var newFlattened = flatten(newItems);
-      // logger.log(newFlattened, cache.flattened);
-
-      var dirtyItems = getDirtyItems(newFlattened, cache);
-      if (Object.keys(dirtyItems).length > 0) {
-        logger.log('setItemsAsObject dirtyItems:', key, dirtyItems)
-        const setItemsEvent = { itemKey: key, values: { ...dirtyItems } }
-        socket.emit('set-items', setItemsEvent)
-        logger.log('setItemsAsObject socket emit set-item:', key, setItemsEvent)
-      }
-      // logger.log(dirty);
-
-      var deletedItems = getDeletedItems(cache, newFlattened, socket, key);
-      deleteItems(deletedItems, key, socket)
-
-      if (Object.keys(dirtyItems).length > 0 || Object.keys(deletedItems).length > 0) {
-        logger.log('setItemsAsObject: submitting', key, cache)
-        setCache({ ...cache, requestState: 'submitting' })
-      }
-      else {
-        logger.log(key, 'setItemsAsObject: no dirty or deleted items')
-      }
-    }
-    catch (e) {
-      logger.log(e)
-    }
-  }
-
   // const debouncedEventHandler = useMemo(
   //   () => debounce(setItems, 500)
   //   , [key, socket, setCache, cache]);
@@ -216,6 +157,80 @@ export default function useItems(key, options) {
     setItems: useCallback((newItems) => debouncedSetItems(newItems), [key, socket, setCache, cache]),
     addItems: useCallback((addedItems) => addItems(addedItems, key, socket, setCache, cache), [key, socket, setCache, cache]),
     deleteItems: useCallback((deletedItems) => deleteItems(deletedItems, key, socket, setCache, cache), [key, socket, setCache, cache])
+  }
+}
+
+
+
+function setItems(key, newItems, socket, cache, debouncedItemsToSet, setCache) {
+  logger.log('setItems', key, newItems, cache?.flattened)
+
+  if (!isEqual(debouncedItemsToSet.current, newItems)) {
+    logger.log('setItems debouncedItemsToSet not equal to newItems', key, debouncedItemsToSet.current, newItems)
+    //alert('debouncedItemsToSet not equal to newItems')
+    return;
+  }
+  // else {
+  logger.log('setItems debouncedItemsToSet to null', key, debouncedItemsToSet.current)
+  debouncedItemsToSet.current = null;
+  // }
+
+  if (typeof newItems === 'string') {
+    setItemsAsJson(key, newItems, socket, cache, setCache)
+  }
+  else {
+    setItemsAsObject(key, newItems, socket, cache, setCache)
+  }
+}
+
+function setItemsAsJson(key, newItems, socket, cache, setCache) {
+
+  if (newItems === cache.json) {
+    logger.log('setItemsAsJson: json = cache.json, returning')
+    return;
+  }
+
+  try {
+    const parsedItems = JSON.parse(newItems);
+    setItemsAsObject(key, parsedItems, socket, cache, setCache)
+  }
+  catch (e) {
+    if (e instanceof SyntaxError) {
+      // SyntaxErrors are expected and can be ignored
+    } else {
+      logger.log(e)
+    }
+  }
+}
+
+function setItemsAsObject(key, newItems, socket, cache, setCache) {
+
+  try {
+    var newFlattened = flatten(newItems);
+    logger.log('setItemsAsObject flattened', newFlattened, cache.flattened);
+
+    var dirtyItems = getDirtyItems(newFlattened, cache);
+    if (Object.keys(dirtyItems).length > 0) {
+      logger.log('setItemsAsObject dirtyItems:', key, dirtyItems)
+      const setItemsEvent = { itemKey: key, values: { ...dirtyItems } }
+      socket.emit('set-items', setItemsEvent)
+      logger.log('setItemsAsObject socket emit set-item:', key, setItemsEvent)
+    }
+    // logger.log(dirty);
+
+    var deletedItems = getDeletedItems(cache, newFlattened, socket, key);
+    deleteItems(deletedItems, key, socket)
+
+    if (Object.keys(dirtyItems).length > 0 || Object.keys(deletedItems).length > 0) {
+      logger.log('setItemsAsObject: submitting', key, cache)
+      setCache({ ...cache, requestState: 'submitting' })
+    }
+    else {
+      logger.log(key, 'setItemsAsObject: no dirty or deleted items')
+    }
+  }
+  catch (e) {
+    logger.log(e)
   }
 }
 

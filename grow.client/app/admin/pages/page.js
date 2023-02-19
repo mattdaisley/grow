@@ -23,7 +23,7 @@ export default function AdminPagesPage() {
   }
 
   const dynamicItem = { item: { name: dynamicItemsName }, timestamp: Date.now(), setItem: () => { } }
-  const dynamicFormData = { currentPage: { name: "Pages" }, timestamp: Date.now(), json: allPages.json, data: allPages.item, dynamicData: allDynamicItems.flattened }
+  const dynamicFormData = { currentPage: { name: "Pages" }, timestamp: Date.now(), json: allPages.json + allDynamicItems.json, data: allPages.item, dynamicData: allDynamicItems.flattened }
 
   const actions = {
     setItems: (newItems) => {
@@ -82,12 +82,13 @@ export default function AdminPagesPage() {
       // console.log('onFieldChange register', name)
 
       let setItems
+      let register
 
       const nameContext = name.split('.')[0]
       switch (nameContext) {
         case dynamicItemsKey:
           setItems = setDynamicItems;
-          registerDynamic(name, onChangeCallback)
+          register = registerDynamic;
           break;
         case 'pages':
           setItems = setPagesItems;
@@ -115,6 +116,7 @@ export default function AdminPagesPage() {
             break;
         }
 
+        register && register(name, onChangeCallback, Date.now())
         setItems && setItems({ [name]: newValue })
         onChangeCallback && onChangeCallback(event, value)
       }

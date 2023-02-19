@@ -22,16 +22,21 @@ export default function useDynamicItems(key) {
     Object.keys(updated).map(updatedKey => {
       // console.log(useDynamic.handleSocketSuccess)
       if (allItems?.flattened !== undefined && updated[updatedKey] !== allItems.flattened[updatedKey]) {
-        logger.log('useDynamic.handleSocketSuccess updated', updatedKey, updated[updatedKey])
-        const onChangeCallback = onChangeCallbacks?.current[updatedKey]
-        onChangeCallback && onChangeCallback({ target: { value: updated[updatedKey] } }, updated[updatedKey])
+        // logger.log('useDynamic.handleSocketSuccess updated', updatedKey, updated[updatedKey])
+        if (onChangeCallbacks?.current?.hasOwnProperty(updatedKey)) {
+          const { onChangeCallback, timestamp } = onChangeCallbacks?.current[updatedKey]
+          logger.log('useDynamic.handleSocketSuccess updated', updatedKey, updated[updatedKey], timestamp, Date.now(), timestamp < Date.now())
+          if (timestamp < Date.now()) {
+            onChangeCallback && onChangeCallback({ target: { value: updated[updatedKey] } }, updated[updatedKey])
+          }
+        }
       }
     })
   }
 
-  function register(controllerName, onChangeCallback) {
+  function register(controllerName, onChangeCallback, timestamp) {
     if (onChangeCallbacks.current !== null) {
-      onChangeCallbacks.current[controllerName] = onChangeCallback
+      onChangeCallbacks.current[controllerName] = { onChangeCallback, timestamp }
     }
   }
 

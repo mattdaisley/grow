@@ -1,6 +1,6 @@
 'use client';
 
-import { Children, cloneElement, Fragment, isValidElement, useState, useEffect } from "react";
+import { Children, cloneElement, Fragment, isValidElement, useState, useEffect, useMemo, useCallback } from "react";
 import { FormProvider, useForm, Controller, useFormContext, useFieldArray } from "react-hook-form";
 
 import AddIcon from '@mui/icons-material/Add';
@@ -36,7 +36,7 @@ export function AdminEditPage(props) {
     <>
       <DynamicAppBar dynamicItem={props.dynamicItem} dynamicFormData={props.dynamicFormData} />
       <DynamicForm {...props}>
-        <DynamicFields {...props} name={'editor'} data={props.dynamicFormData.data} dynamicData={props.dynamicFormData.dynamicData} />
+        <DynamicFields {...props} {...props.dynamicFormData } name={'editor'} />
         <DynamicFieldsEditor {...props} data={props.dynamicFormData.data} json={props.dynamicFormData.json} />
       </DynamicForm>
     </>
@@ -88,6 +88,13 @@ function DynamicForm({ children, ...props }) {
 
 function DynamicFields(props) {
   logger.log('DynamicFields', props)
+  return useMemo(() => (
+    <DynamicFieldsComponent {...props} />
+  ), [props.json])
+}
+
+function DynamicFieldsComponent(props) {
+  logger.log('DynamicFieldsComponent', props)
   return (
     <Grid xs={8}>
       <Grid container spacing={4} sx={{ width: '100%' }}>
@@ -321,7 +328,15 @@ function DynamicFieldControl({ ...props }) {
 
 }
 
-function DynamicFieldsEditor({ ...props }) {
+function DynamicFieldsEditor(props) {
+  logger.log('DynamicFieldsEditor', props)
+  return useMemo(() => (
+    <DynamicFieldsEditorComponent {...props} />
+  ), [props.json])
+}
+
+function DynamicFieldsEditorComponent({ ...props }) {
+  logger.log('DynamicFieldsEditorComponent', props)
 
   const [editMode, setEditMode] = useState('editor');
 

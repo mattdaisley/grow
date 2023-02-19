@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Controller, useFormContext } from "react-hook-form";
 
 import Autocomplete from '@mui/material/Autocomplete';
@@ -23,22 +23,24 @@ export default function AutocompleteFormControl({ name, data, ...props }) {
     label: data.label
   }
 
-  let menuItems = [
-    ...getConfiguredMenuItems(data.options),
-    ...getComputedMenuItems(data.computedOptions ?? [], fields)
-  ]
+  let menuItems = useMemo(() => {
+    return [
+      ...getConfiguredMenuItems(data.options),
+      ...getComputedMenuItems(data.computedOptions ?? [], fields)
+    ]
+  }, [data.options, data.computedOptions])
 
   let defaultValue = getSelectedItem(menuItems, props.dynamicData[controllerValueName]) ?? data.default ?? null
 
   logger.log('AutocompleteFormControl menuItems', menuItems)
-  function setupHandleChange(onChange) {
+  const setupHandleChange = useCallback((onChange) => {
     logger.log('AutocompleteFormControl setupHandleChange', controllerValueName)
     const action = props.actions.onFieldChange(controllerValueName, handleRemoteChange(onChange))
     return (_, newValue) => {
       logger.log('AutocompleteFormControl handleChange', _, newValue)
       action(_, newValue?.value ?? null)
     }
-  }
+  }, [controllerValueName, menuItems, props.actions.onFieldChange])
 
   function handleRemoteChange(onChange) {
     return (_, value) => {
