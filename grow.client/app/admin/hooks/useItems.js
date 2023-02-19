@@ -1,16 +1,18 @@
 
-import { useEffect, useState, useCallback, useMemo, useContext } from "react";
+import { useEffect, useState, useCallback, useMemo, useContext, useRef } from "react";
 
 import { flatten, unflatten } from "flat";
 import merge from "lodash.merge"
 import { SocketContext } from "../../SocketContext";
 import logger from "../../../../grow.api/src/logger";
+import debounce from "lodash.debounce";
+import isEqual from "lodash.isequal";
 
 export default function useItems(key, options) {
 
   const socket = useContext(SocketContext);
 
-  const [tempNewItems, setTempNewItems] = useState();
+  const debouncedItemsToSet = useRef(null);
   const [tempReceivedItems, setTempReceivedItems] = useState();
   const [cache, setStateCache] = useState({ requestState: "loading", json: "", item: undefined, flattened: undefined, timestamp: Date.now() })
 
@@ -49,17 +51,6 @@ export default function useItems(key, options) {
 
     return () => clearTimeout(timeout)
   }, [key, JSON.stringify(tempReceivedItems)])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (tempNewItems !== undefined) {
-        setItems(tempNewItems)
-        setTempNewItems(undefined)
-      }
-    }, 500)
-
-    return () => clearTimeout(timeout)
-  }, [key, JSON.stringify(tempNewItems)])
 
   const setCache = useCallback((newState) => {
     logger.log('useItems.setCache:', key, newState)
@@ -124,14 +115,38 @@ export default function useItems(key, options) {
 
   }
 
-  function debouncedSetItems(newItems) {
-    logger.log('debouncedSetItems', key, newItems)
-    setTempNewItems(newItems)
+
+  const debouncedEventHandler = useMemo(() => {
+    // logger.log('debouncedSetItems debouncedEventHandler memo run')
+    return debounce(setItems, 300)
+  }, [key, socket, setCache, cache]);
+
+  function debouncedSetItems(data) {
+    let newData;
+    if (debouncedItemsToSet.current === null) {
+      newData = data;
+    }
+    else {
+      newData = merge(debouncedItemsToSet.current, data)
+    }
+    logger.log('debouncedSetItems debouncedItemsToSet', key, newData)
+    debouncedItemsToSet.current = newData;
+    debouncedEventHandler(newData)
   }
 
   function setItems(newItems) {
-
     logger.log('setItems', key, newItems)
+
+    if (!isEqual(debouncedItemsToSet.current, newItems)) {
+      logger.log('setItems debouncedItemsToSet not equal to newItems', key, debouncedItemsToSet.current, newItems)
+      //alert('debouncedItemsToSet not equal to newItems')
+      return;
+    }
+    // else {
+    logger.log('setItems debouncedItemsToSet to null', key, debouncedItemsToSet.current)
+    debouncedItemsToSet.current = null;
+    // }
+
     if (typeof newItems === 'string') {
       setItemsAsJson(newItems)
     }
@@ -191,6 +206,10 @@ export default function useItems(key, options) {
     }
   }
 
+  // const debouncedEventHandler = useMemo(
+  //   () => debounce(setItems, 500)
+  //   , [key, socket, setCache, cache]);
+
   return {
     setItems: useCallback((newItems) => debouncedSetItems(newItems), [key, socket, setCache, cache]),
     addItems: useCallback((addedItems) => addItems(addedItems, key, socket, setCache, cache), [key, socket, setCache, cache]),
@@ -218,8 +237,8 @@ function getDeletedItems(cache, newFlattened, socket, key) {
   logger.log('getDeletedItems', cache?.flattened, newFlattened)
   var deleted = {};
   if (cache?.flattened !== undefined) {
-    Object.keys(cache.flattened).forEach(itemKey => {
-      if (!newFlattened.hasOwnProperty(itemKey)) {
+    Object.keys(newFlattened).forEach(itemKey => {
+      if (!cache.flattened.hasOwnProperty(itemKey)) {
         deleted[itemKey] = cache.flattened[itemKey];
       }
     });
@@ -243,7 +262,7 @@ function deleteItems(deletedItems, key, socket, setCache, cache) {
   if (Object.keys(deletedItems).length > 0) {
     logger.log('deletedItems:', deletedItems)
     const deleteItemsEvent = { itemKey: key, items: { ...deletedItems } }
-    // socket.emit('delete-items', deleteItemsEvent);
+    socket.emit('delete-items', deleteItemsEvent);
     logger.log('emit socket delete-items:', deleteItemsEvent)
     // setCache && setCache({ ...cache, requestState: 'submitting' })
   }

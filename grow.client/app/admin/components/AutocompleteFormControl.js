@@ -46,7 +46,7 @@ export default function AutocompleteFormControl({ name, data, ...props }) {
             {...componentProps}
             options={menuItems}
             value={value ?? null}
-            onChange={(_, newValue) => onChange(newValue)}
+            onChange={props.actions.onFieldChange(controllerName, (_, newValue) => onChange(newValue))}
             isOptionEqualToValue={(option, testValue) => option?.label === testValue?.label}
             renderInput={(params) => <TextField size="small" {...params} sx={{ fontSize: 'small' }} label={data.label} />}
           />

@@ -8,7 +8,7 @@ export default function AdminFieldsPage() {
 
   const dynamicItemsName = "Admin"
 
-  const { allFields, addItems: addFieldItems, setItems: setFieldsItems, deleteItems: deleteFieldItems } = useFields()
+  const { allFields, addItems: addFieldItems, setItems: setFieldsItems, deleteItems: deleteFieldsItems } = useFields()
   logger.log('AdminFieldsPage', allFields)
 
   if (allFields?.item === undefined) {
@@ -32,11 +32,40 @@ export default function AdminFieldsPage() {
       const addedFieldItems = addedItems.filter(item => item.prefix.split('.')[0] === 'fields');
       addFieldItems(addedFieldItems)
     },
-    onDeleteItems: (deletedItems) => {
-      logger.log('onDeleteItems:', deletedItems)
-      // if (name.split('.')[0] === 'fields') {
-      deleteFieldItems(deletedItems)
-      // }
+    onDeleteItem: (deletedItems) => {
+      logger.log('onDeleteItem:', deletedItems)
+
+      const deletedFieldsItems = deletedItems.filter(item => item.prefix.split('.')[0] === 'fields');
+      deleteFieldsItems(deletedFieldsItems)
+    },
+    onFieldChange: (name, onChangeCallback) => {
+      let setItems
+
+      const nameContext = name.split('.')[0]
+      switch (nameContext) {
+        case 'fields':
+          setItems = setFieldsItems;
+          break;
+      }
+
+      // logger.log('onFieldChange', name)
+      return (event, value) => {
+        let newValue
+        switch (event.type) {
+          case 'click':
+            logger.log('onFieldChange click', name, value);
+            newValue = value;
+            break;
+          case 'change':
+          default:
+            logger.log('onFieldChange change', name, event.target.value);
+            newValue = event.target.value;
+            break;
+        }
+
+        setItems && setItems({ [name]: newValue })
+        onChangeCallback && onChangeCallback(event, value)
+      }
     }
   }
 

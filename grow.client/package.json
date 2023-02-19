@@ -18,8 +18,10 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.9",
     "@mui/x-data-grid": "^5.17.17",
+    "bufferutil": "^4.0.7",
     "chart.js": "^3.9.1",
     "flat": "^5.0.2",
+    "lodash.debounce": "^4.0.8",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.2",
     "next": "^13.1.1",
@@ -29,6 +31,7 @@
     "react-hook-form": "^7.41.2",
     "react-number-format": "^5.1.2",
     "socket.io-client": "^4.5.3",
+    "utf-8-validate": "^5.0.10",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

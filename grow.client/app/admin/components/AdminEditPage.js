@@ -58,13 +58,13 @@ function DynamicForm({ children, ...props }) {
   const dynamicFormData = props.dynamicFormData;
 
   const formMethods = useForm();
-  const fields = formMethods.watch();
+  // const fields = formMethods.watch();
 
-  useEffect(() => {
-    logger.log('DynamicForm formstate fields', fields, props);
-    props.actions.setItems && props.actions.setItems(fields);
-  }, [JSON.stringify(fields)]);
-  logger.log('DynamicForm form fields:', fields)
+  // useEffect(() => {
+  //   logger.log('DynamicForm formstate fields', fields, props);
+  //   props.actions.setItems && props.actions.setItems(fields);
+  // }, [JSON.stringify(fields)]);
+  // logger.log('DynamicForm form fields:', fields)
 
   const childrenWithProps = Children.map(children, child => {
     if (isValidElement(child)) {
@@ -838,28 +838,34 @@ function EditListItem({ children, ...props }) {
         <ListItem
           key={name}
           sx={{ height: '55px' }}
-          secondaryAction={<ListItemIcon sx={{ justifyContent: 'flex-end' }} onClick={handleClick}>
-            <ExpandLess />
-          </ListItemIcon>}>
+          secondaryAction={(
+            <ListItemIcon sx={{ justifyContent: 'flex-end' }} onClick={handleClick}>
+              <ExpandLess />
+            </ListItemIcon>
+          )}>
           <Controller
             name={`${name}.label`}
             control={props.formMethods.control}
             defaultValue={data.label ?? primary}
             render={({ field }) => {
-              logger.log('EditListItem label field', field, data, primary);
-              return <TextField
-                label="label"
-                variant="standard"
-                size="small"
-                sx={{ fontSize: 'small' }}
-                fullWidth
-                placeholder={primary}
-                {...field} />;
+              // logger.log('EditListItem label field', field, data, primary);
+              return (
+                <TextField
+                  label="label"
+                  variant="standard"
+                  size="small"
+                  sx={{ fontSize: 'small' }}
+                  fullWidth
+                  placeholder={primary}
+                  {...field}
+                  onChange={props.actions.onFieldChange(`${name}.label`, field.onChange)}
+                />
+              )
             }} />
         </ListItem>
         <Stack spacing={2} sx={{ px: 2, py: 2 }}>
 
-          <EditNameProperty name={name} data={data} formMethods={props.formMethods} />
+          <EditNameProperty {...props} />
 
           {childrenWithProps}
 
@@ -879,11 +885,15 @@ function EditNameProperty(props) {
       defaultValue={props.data.name ?? ""}
       render={({ field }) => {
         // logger.log(fieldArrayName, appField, field);
-        return <TextField
-          label="name"
-          size="small"
-          fullWidth
-          {...field} />;
+        return (
+          <TextField
+            label="name"
+            size="small"
+            fullWidth
+            {...field}
+            onChange={props.actions.onFieldChange(`${props.name}.name`, field.onChange)}
+          />
+        )
       }} />
   )
 }
@@ -907,7 +917,7 @@ function EditFieldTypeProperty(props) {
             size="small"
             options={["autocomplete", "select", "text", "numeric", "checkbox", "label"]}
             value={value}
-            onChange={(_, newValue) => onChange(newValue)}
+            onChange={props.actions.onFieldChange(`${props.name}.type`, (_, newValue) => onChange(newValue))}
             isOptionEqualToValue={(option, testValue) => option === testValue}
             renderInput={(params) => <TextField {...params} label="type" />} />
         );
@@ -924,11 +934,15 @@ function EditWidthProperty(props) {
       defaultValue={props.data.width ?? "12"}
       render={({ field }) => {
         // logger.log(fieldArrayName, appField, field);
-        return <TextField
-          label="width"
-          size="small"
-          fullWidth
-          {...field} />;
+        return (
+          <TextField
+            label="width"
+            size="small"
+            fullWidth
+            {...field}
+            onChange={props.actions.onFieldChange(`${props.name}.width`, field.onChange)}
+          />
+        )
       }} />
   )
 }
@@ -954,13 +968,13 @@ function EditAutocompleteOptionsProperty(props) {
     // append({ label: "", value: uuidv4() })
   }
 
-  function handleRemoveOptionClick(key) {
-    logger.log('EditAutocompleteOptionsProperty.handleRemoveOptionClick', key)
+  function handleRemoveOptionClick(controllerName) {
+    logger.log('EditAutocompleteOptionsProperty.handleRemoveOptionClick', controllerName)
     const itemsToDelete = {
-      [`${props.name}.options.${key}.label`]: {}
+      [controllerName]: {}
     }
     props.actions.onDeleteItems && props.actions.onDeleteItems(itemsToDelete)
-    setDeletedItems({ ...deletedItems, [key]: {} })
+    setDeletedItems({ ...deletedItems, [controllerName]: {} })
   }
 
   let optionsMap = {}
@@ -977,8 +991,8 @@ function EditAutocompleteOptionsProperty(props) {
     logger.log('EditAutocompleteOptionsProperty unregister', deletedItems, props.data.options)
     Object.keys(deletedItems).forEach(key => {
       if (!props.data.options.hasOwnProperty(key)) {
-        logger.log('EditAutocompleteOptionsProperty formstate unregister', `${props.name}.options.${key}.label`)
-        props.formMethods.unregister(`${props.name}.options.${key}.label`);
+        logger.log('EditAutocompleteOptionsProperty formstate unregister', key)
+        props.formMethods.unregister(key);
         itemsUnregistered = true;
       }
       else {
@@ -1003,7 +1017,7 @@ function EditAutocompleteOptionsProperty(props) {
         Object.keys(optionsMap).map(key => {
           const option = optionsMap[key]
           logger.log('EditAutocompleteOptionsProperty option:', key, option)
-
+          const controllerName = `${props.name}.options.${key}.label`;
           return (
             <Box
               key={key}
@@ -1011,7 +1025,7 @@ function EditAutocompleteOptionsProperty(props) {
               <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                 <Controller
                   control={props.formMethods.control}
-                  name={`${props.name}.options.${key}.label`}
+                  name={controllerName}
                   defaultValue={option.label ?? ""}
                   style={{ flex: 1 }}
                   render={({ field }) => {
@@ -1020,11 +1034,12 @@ function EditAutocompleteOptionsProperty(props) {
                       <TextField
                         size="small"
                         {...field}
+                        onChange={props.actions.onFieldChange(controllerName, field.onChange)}
                       />
                     )
                   }} />
               </Box>
-              <IconButton onClick={() => handleRemoveOptionClick(key)}>
+              <IconButton onClick={() => handleRemoveOptionClick(controllerName)}>
                 <DeleteIcon fontSize='small' />
               </IconButton>
             </Box>

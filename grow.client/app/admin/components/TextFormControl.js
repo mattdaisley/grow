@@ -45,8 +45,8 @@ export default function TextFormControl({ name, data, ...props }) {
             sx={{ fontSize: 'small' }}
             InputProps={inputProps}
             {...componentProps}
-            {...field}
             value={field?.value ?? ""}
+            onChange={props.actions.onFieldChange(controllerName, field.onChange)}
           />
         </>
       }}
