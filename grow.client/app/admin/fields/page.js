@@ -2,13 +2,14 @@
 
 import useFields from '../hooks/useFields';
 import { AdminEditPage } from "../components/AdminEditPage";
+import logger from '../../../../grow.api/src/logger';
 
 export default function AdminFieldsPage() {
 
   const dynamicItemsName = "Admin"
 
-  const { allFields, addItem: addFieldItem, setItems: setFieldsItems } = useFields()
-  console.log('AdminFieldsPage', allFields)
+  const { allFields, addItems: addFieldItems, setItems: setFieldsItems, deleteItems: deleteFieldItems } = useFields()
+  logger.log('AdminFieldsPage', allFields)
 
   if (allFields?.item === undefined) {
     return null;
@@ -18,15 +19,24 @@ export default function AdminFieldsPage() {
   const dynamicFormData = { currentPage: { name: "Fields" }, timestamp: Date.now(), json: allFields.json, data: allFields.item }
 
   const actions = {
-    setItems: setFieldsItems,
-    onAddItem: (prefix, suffix, value) => {
-      console.log('onAddItem:', prefix, suffix, value)
-      if (prefix.split('.')[0] === 'fields') {
-        addFieldItem(prefix, suffix, value)
+    setItems: (newItems) => {
+      logger.log('AdminFieldsPage setItems:', newItems)
+      const fieldsKey = 'fields'
+      if (newItems.hasOwnProperty(fieldsKey)) {
+        // setFieldsItems({ [fieldsKey]: newItems[fieldsKey] })
       }
     },
-    onDeleteItem: (name) => {
-      console.log('onDeleteItem:', name)
+    onAddItems: (addedItems) => {
+      logger.log('onAddItems:', addedItems)
+
+      const addedFieldItems = addedItems.filter(item => item.prefix.split('.')[0] === 'fields');
+      addFieldItems(addedFieldItems)
+    },
+    onDeleteItems: (deletedItems) => {
+      logger.log('onDeleteItems:', deletedItems)
+      // if (name.split('.')[0] === 'fields') {
+      deleteFieldItems(deletedItems)
+      // }
     }
   }
 

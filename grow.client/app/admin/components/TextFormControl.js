@@ -4,20 +4,21 @@ import { Controller, useFormContext } from "react-hook-form";
 import TextField from '@mui/material/TextField';
 
 import { NumberFormatCustom } from '../../../components/Elements/util/NumberFormatCustom';
+import logger from '../../../../grow.api/src/logger';
 
 
-export default function TextFormControl({ name, ...props }) {
+export default function TextFormControl({ name, data, ...props }) {
 
-  // console.log('TextFormControl', name, props)
+  logger.log('TextFormControl', name, data, props)
 
-  const controllerName = (name !== undefined) ? `${name}.${props.name}` : props.name;
+  const controllerName = (name !== undefined) ? `${name}.${data.name}` : data.name;
 
-  const formMethods = useFormContext();
+  // const formMethods = useFormContext();
   // const fields = pageFormContext.watch();
 
   let inputProps = {};
-  const { prefix, thousandsGroupStyle, thousandSeparator, decimalScale, ...rest } = props ?? {};
-  if (props.type === 'numeric') {
+  const { prefix, thousandsGroupStyle, thousandSeparator, decimalScale, ...rest } = data ?? {};
+  if (data.type === 'numeric') {
     inputProps.inputComponent = NumberFormatCustom;
     inputProps.inputProps = {
       prefix: prefix ?? "",
@@ -26,27 +27,26 @@ export default function TextFormControl({ name, ...props }) {
       decimalScale: decimalScale !== undefined ? Number(decimalScale) : 2
     }
   }
-  let defaultValue = props.default ?? ""
+  let defaultValue = data.default ?? ""
 
-  const componentProps = { ...rest.props, label: props.label }
+  const componentProps = { ...rest.data, label: data.label }
 
   return (
     <Controller
       name={controllerName}
-      control={formMethods.control}
+      control={props.formMethods.control}
       defaultValue={defaultValue}
       render={({ field }) => {
-        // console.log(field);
+        // logger.log(field);
         return <>
           <TextField
             fullWidth={true}
             size="small"
             sx={{ fontSize: 'small' }}
-            // onChange={handleFieldChanged}
+            InputProps={inputProps}
             {...componentProps}
             {...field}
             value={field?.value ?? ""}
-            InputProps={inputProps}
           />
         </>
       }}

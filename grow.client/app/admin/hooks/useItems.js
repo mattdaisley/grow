@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo, useContext } from "react";
 import { flatten, unflatten } from "flat";
 import merge from "lodash.merge"
 import { SocketContext } from "../../SocketContext";
+import logger from "../../../../grow.api/src/logger";
 
 export default function useItems(key, options) {
 
@@ -17,7 +18,7 @@ export default function useItems(key, options) {
     function loadItems() {
       const data = { itemKey: key };
       socket?.emit('get-items', data)
-      console.log('useItems emit get-items', data)
+      logger.log('useItems socket emit get-items', data)
     }
 
     const timeout = setTimeout(loadItems, 200)
@@ -26,17 +27,17 @@ export default function useItems(key, options) {
   }, [key, socket])
 
   useEffect(() => {
-    socket?.on(`items-${key}`, handleRecieveAllItems)
+    socket?.on(`items-${key}`, handleReceiveAllItems)
     // socket?.on('item-set', handleItemSet)
     // socket?.on('item-deleted', handleItemDeleted)
     // socket.emit('all-items', { [key]: {} })
 
     return () => {
-      socket?.off(`items-${key}`, handleRecieveAllItems)
+      socket?.off(`items-${key}`, handleReceiveAllItems)
       // socket?.off('item-set', handleItemSet);
       // socket?.off('item-deleted', handleItemDeleted)
     };
-  }, [key, socket, handleRecieveAllItems])
+  }, [key, socket, handleReceiveAllItems, cache.json])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -44,7 +45,7 @@ export default function useItems(key, options) {
         processReceivedItems(tempReceivedItems)
         setTempReceivedItems(undefined)
       }
-    }, 500)
+    }, 100)
 
     return () => clearTimeout(timeout)
   }, [key, JSON.stringify(tempReceivedItems)])
@@ -61,23 +62,25 @@ export default function useItems(key, options) {
   }, [key, JSON.stringify(tempNewItems)])
 
   const setCache = useCallback((newState) => {
-    console.log('useItems.setCache:', key, newState)
+    logger.log('useItems.setCache:', key, newState)
     setStateCache(newState);
   }, [key, options.onSuccess, setStateCache])
 
 
-  function handleRecieveAllItems(data) {
+  function handleReceiveAllItems(data) {
     if (tempReceivedItems === null) {
+      logger.log('socket handleReceiveAllItems', data)
       setTempReceivedItems(data)
     }
     else {
       const newData = merge(tempReceivedItems, data)
+      logger.log('socket handleReceiveAllItems', data, newData)
       setTempReceivedItems(newData);
     }
   }
 
   function processReceivedItems(data) {
-    console.log('useItems.processReceivedItems:', key, data);
+    logger.log('useItems.processReceivedItems:', key, data);
 
     if (!data.hasOwnProperty(key)) {
       return;
@@ -85,10 +88,21 @@ export default function useItems(key, options) {
 
     let flattened = { ...cache.flattened }
     data[key].forEach(dataItem => {
-      let value = dataItem.value;
-      flattened[dataItem.valueKey] = value
+      // logger.log('useItems.processReceivedItems dataItem:', dataItem)
+
+      if (Boolean(dataItem.deleted) === true) {
+        delete flattened[dataItem.valueKey]
+      }
+      else {
+        const value = dataItem.value;
+        flattened[dataItem.valueKey] = value
+      }
+
     })
+
+    logger.log('useItems.processReceivedItems flattened:', flattened);
     const item = unflatten(flattened, { object: true });
+    logger.log('useItems.processReceivedItems item:', item);
     const json = JSON.stringify(item, null, 2);
 
     if (json !== cache.json) {
@@ -102,22 +116,22 @@ export default function useItems(key, options) {
       }
       options?.onSuccess?.(newCache)
       setCache(newCache)
-      console.log('useItems.processReceivedItems setting cache', newCache)
+      logger.log('useItems.processReceivedItems setting cache', newCache)
     }
     else {
-      console.log('useItems.processReceivedItems json matches cache')
+      logger.log('useItems.processReceivedItems json matches cache')
     }
 
   }
 
   function debouncedSetItems(newItems) {
-    console.log('debouncedSetItems', key, newItems)
+    logger.log('debouncedSetItems', key, newItems)
     setTempNewItems(newItems)
   }
 
   function setItems(newItems) {
 
-    console.log('setItems', newItems)
+    logger.log('setItems', key, newItems)
     if (typeof newItems === 'string') {
       setItemsAsJson(newItems)
     }
@@ -129,7 +143,7 @@ export default function useItems(key, options) {
   function setItemsAsJson(newItems) {
 
     if (newItems === cache.json) {
-      console.log('setItemsAsJson: json = cache.json, returning')
+      logger.log('setItemsAsJson: json = cache.json, returning')
       return;
     }
 
@@ -141,7 +155,7 @@ export default function useItems(key, options) {
       if (e instanceof SyntaxError) {
         // SyntaxErrors are expected and can be ignored
       } else {
-        console.log(e)
+        logger.log(e)
       }
     }
   }
@@ -150,48 +164,37 @@ export default function useItems(key, options) {
 
     try {
       var newFlattened = flatten(newItems);
-      // console.log(newFlattened, cache.flattened);
+      // logger.log(newFlattened, cache.flattened);
 
       var dirtyItems = getDirtyItems(newFlattened, cache);
       if (Object.keys(dirtyItems).length > 0) {
-        console.log('setItemsAsObject dirtyItems:', dirtyItems)
+        logger.log('setItemsAsObject dirtyItems:', key, dirtyItems)
         const setItemsEvent = { itemKey: key, values: { ...dirtyItems } }
         socket.emit('set-items', setItemsEvent)
-        console.log('setItemsAsObject emit set-item:', setItemsEvent)
+        logger.log('setItemsAsObject socket emit set-item:', key, setItemsEvent)
       }
-      // console.log(dirty);
+      // logger.log(dirty);
 
       var deletedItems = getDeletedItems(cache, newFlattened, socket, key);
-      if (Object.keys(deletedItems).length > 0) {
-        console.log('setItemsAsObject dirtyItems:', deletedItems)
-        const deleteItemsEvent = { itemKey: key, values: { ...deletedItems } }
-        // socket.emit('delete-items', deletedItems);
-        console.log('setItemsAsObject emit delete-items:', deleteItemsEvent)
-      }
+      deleteItems(deletedItems, key, socket)
 
       if (Object.keys(dirtyItems).length > 0 || Object.keys(deletedItems).length > 0) {
-        console.log('setItemsAsObject: submitting')
+        logger.log('setItemsAsObject: submitting', key, cache)
         setCache({ ...cache, requestState: 'submitting' })
       }
       else {
-        console.log('setItemsAsObject: no dirty or deleted items')
+        logger.log(key, 'setItemsAsObject: no dirty or deleted items')
       }
     }
     catch (e) {
-      console.log(e)
+      logger.log(e)
     }
   }
 
-  function addItem(prefix, suffix, value) {
-    const addItemEvent = { itemKey: key, valueKeyPrefix: prefix, valueKeySuffix: suffix, value }
-    socket.emit('add-item', addItemEvent)
-    console.log('addItem emit add-item:', addItemEvent)
-    setCache({ ...cache, requestState: 'submitting' })
-  }
-
   return {
-    setItems: debouncedSetItems,
-    addItem
+    setItems: useCallback((newItems) => debouncedSetItems(newItems), [key, socket, setCache, cache]),
+    addItems: useCallback((addedItems) => addItems(addedItems, key, socket, setCache, cache), [key, socket, setCache, cache]),
+    deleteItems: useCallback((deletedItems) => deleteItems(deletedItems, key, socket, setCache, cache), [key, socket, setCache, cache])
   }
 }
 
@@ -202,6 +205,9 @@ function getDirtyItems(newFlattened, cache) {
     if (!cache?.flattened
       || !cache.flattened.hasOwnProperty(itemKey)
       || newFlattened[itemKey] !== cache.flattened[itemKey]) {
+      if (Array.isArray(newFlattened[itemKey]) && newFlattened[itemKey].length == 0) {
+        return;
+      }
       dirty[itemKey] = newFlattened[itemKey];
     }
   });
@@ -209,15 +215,36 @@ function getDirtyItems(newFlattened, cache) {
 }
 
 function getDeletedItems(cache, newFlattened, socket, key) {
-
+  logger.log('getDeletedItems', cache?.flattened, newFlattened)
   var deleted = {};
-  if (!!cache?.flattened) {
+  if (cache?.flattened !== undefined) {
     Object.keys(cache.flattened).forEach(itemKey => {
       if (!newFlattened.hasOwnProperty(itemKey)) {
         deleted[itemKey] = cache.flattened[itemKey];
       }
     });
-    // console.log(deleted);
+    // logger.log(deleted);
   }
   return deleted;
+}
+
+
+function addItems(addedItems, key, socket, setCache, cache) {
+  if (Object.keys(addedItems).length > 0) {
+    // const { prefix, suffix, value } = addedItems
+    const addItemsEvent = { itemKey: key, items: addedItems }
+    socket.emit('add-items', addItemsEvent)
+    logger.log('addItems socket emit add-items:', addItemsEvent)
+    setCache && setCache({ ...cache, requestState: 'submitting' })
+  }
+}
+
+function deleteItems(deletedItems, key, socket, setCache, cache) {
+  if (Object.keys(deletedItems).length > 0) {
+    logger.log('deletedItems:', deletedItems)
+    const deleteItemsEvent = { itemKey: key, items: { ...deletedItems } }
+    // socket.emit('delete-items', deleteItemsEvent);
+    logger.log('emit socket delete-items:', deleteItemsEvent)
+    // setCache && setCache({ ...cache, requestState: 'submitting' })
+  }
 }

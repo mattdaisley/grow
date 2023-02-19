@@ -4,15 +4,16 @@ import useFields from '../hooks/useFields';
 import usePages from '../hooks/usePages';
 import useViews from "../hooks/useViews";
 import { AdminEditPage } from "../components/AdminEditPage";
+import logger from '../../../../grow.api/src/logger';
 
 export default function AdminPagesPage() {
 
   const dynamicItemsName = "Admin"
 
-  const { allPages, addItem: addPageItem, setItems: setPagesItems } = usePages()
-  const { allViews, addItem: addViewItem, setItems: setViewsItems } = useViews()
-  const { allFields, addItem: addFieldItem, setItems: setFieldsItems } = useFields()
-  console.log(allPages, allViews, allFields)
+  const { allPages, addItems: addPageItems, setItems: setPagesItems } = usePages()
+  const { allViews, addItems: addViewItems, setItems: setViewsItems } = useViews()
+  const { allFields, addItems: addFieldItems, setItems: setFieldsItems } = useFields()
+  logger.log(allPages, allViews, allFields)
 
   if (allPages?.item === undefined || allViews?.item === undefined || allFields?.item === undefined) {
     return null;
@@ -23,7 +24,7 @@ export default function AdminPagesPage() {
 
   const actions = {
     setItems: (newItems) => {
-      console.log('setItems:', newItems)
+      logger.log('setItems:', newItems)
       const pagesKey = 'pages'
       if (newItems.hasOwnProperty(pagesKey)) {
         setPagesItems({ [pagesKey]: newItems[pagesKey] })
@@ -39,20 +40,20 @@ export default function AdminPagesPage() {
         setFieldsItems({ [fieldsKey]: newItems[fieldsKey] })
       }
     },
-    onAddItem: (prefix, suffix, value) => {
-      console.log('onAddItem:', prefix, suffix, value)
-      if (prefix.split('.')[0] === 'pages') {
-        addPageItem(prefix, suffix, value)
-      }
-      if (prefix.split('.')[0] === 'views') {
-        addViewItem(prefix, suffix, value)
-      }
-      if (prefix.split('.')[0] === 'fields') {
-        addFieldItem(prefix, suffix, value)
-      }
+    onAddItems: (addedItems) => {
+      logger.log('onAddItems:', addedItems)
+
+      const addedPageItems = addedItems.filter(item => item.prefix.split('.')[0] === 'pages');
+      addPageItems(addedPageItems)
+
+      const addedViewItems = addedItems.filter(item => item.prefix.split('.')[0] === 'views');
+      addViewItems(addedViewItems)
+
+      const addedFieldItems = addedItems.filter(item => item.prefix.split('.')[0] === 'fields');
+      addFieldItems(addedFieldItems)
     },
     onDeleteItem: (name) => {
-      console.log('onDeleteItem:', name)
+      logger.log('onDeleteItem:', name)
     }
   }
 

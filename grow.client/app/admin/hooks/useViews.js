@@ -3,16 +3,19 @@
 import { useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
+import logger from '../../../../grow.api/src/logger';
 
 import useItems from './useItems';
 
 const defaultViews = () => ({
   views: {
     [uuidv4()]: {
-      name: "Example View",
+      label: "Example View",
+      name: "example_view",
       groups: {
         [uuidv4()]: {
-          label: "",
+          label: "Example Group",
+          name: "example_group",
           width: "12",
         }
       }
@@ -27,7 +30,7 @@ export default function useViews() {
   const viewsItems = useItems('allviews', { onSuccess: handleSocketSuccess });
 
   function handleSocketSuccess(data) {
-    console.log('useViews.handleSocketSuccess', data)
+    logger.log('useViews.handleSocketSuccess', data)
     if (Object.keys(data.item).length === 0) {
       viewsItems.setItems(defaultViews())
     }
@@ -35,11 +38,12 @@ export default function useViews() {
       setAllViews(data);
     }
   }
-  console.log('useViews', allViews);
+  logger.log('useViews', allViews);
 
   return {
     allViews,
-    addItem: viewsItems.addItem,
-    setItems: viewsItems.setItems
+    addItems: viewsItems.addItems,
+    setItems: viewsItems.setItems,
+    deleteItems: viewsItems.deleteItems
   }
 }
