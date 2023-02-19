@@ -5,26 +5,34 @@ import usePages from '../hooks/usePages';
 import useViews from "../hooks/useViews";
 import { AdminEditPage } from "../components/AdminEditPage";
 import logger from '../../../../grow.api/src/logger';
+import useDynamicItems from '../hooks/useDynamicItems';
 
 export default function AdminPagesPage() {
 
   const dynamicItemsName = "Admin"
+  const dynamicItemsKey = 'editor'
 
+  const { allItems: allDynamicItems, addItems: addDynamicItems, setItems: setDynamicItems, deleteItems: deleteDynamicItems, register: registerDynamic } = useDynamicItems(dynamicItemsKey)
   const { allPages, addItems: addPageItems, setItems: setPagesItems, deleteItems: deletePagesItems } = usePages()
   const { allViews, addItems: addViewItems, setItems: setViewsItems, deleteItems: deleteViewsItems } = useViews()
   const { allFields, addItems: addFieldItems, setItems: setFieldsItems, deleteItems: deleteFieldsItems } = useFields()
-  logger.log(allPages, allViews, allFields)
+  logger.log('AdminPagesPage', allDynamicItems, allPages, allViews, allFields)
 
-  if (allPages?.item === undefined || allViews?.item === undefined || allFields?.item === undefined) {
+  if (allDynamicItems?.item === undefined || allPages?.item === undefined || allViews?.item === undefined || allFields?.item === undefined) {
     return null;
   }
 
   const dynamicItem = { item: { name: dynamicItemsName }, timestamp: Date.now(), setItem: () => { } }
-  const dynamicFormData = { currentPage: { name: "Pages" }, timestamp: Date.now(), json: allPages.json, data: allPages.item }
+  const dynamicFormData = { currentPage: { name: "Pages" }, timestamp: Date.now(), json: allPages.json, data: allPages.item, dynamicData: allDynamicItems.flattened }
 
   const actions = {
     setItems: (newItems) => {
       logger.log('setItems:', newItems)
+
+      if (newItems.hasOwnProperty(dynamicItemsKey)) {
+        setDynamicItems({ [dynamicItemsKey]: newItems[dynamicItemsKey] })
+      }
+
       const pagesKey = 'pages'
       if (newItems.hasOwnProperty(pagesKey)) {
         setPagesItems({ [pagesKey]: newItems[pagesKey] })
@@ -43,6 +51,9 @@ export default function AdminPagesPage() {
     onAddItems: (addedItems) => {
       logger.log('onAddItems:', addedItems)
 
+      const addedDynamicItems = addedItems.filter(item => item.prefix.split('.')[0] === dynamicItemsKey);
+      addDynamicItems(addedDynamicItems)
+
       const addedPageItems = addedItems.filter(item => item.prefix.split('.')[0] === 'pages');
       addPageItems(addedPageItems)
 
@@ -55,6 +66,9 @@ export default function AdminPagesPage() {
     onDeleteItem: (deletedItems) => {
       logger.log('onDeleteItem:', deletedItems)
 
+      const deletedDynamicItems = deletedItems.filter(item => item.prefix.split('.')[0] === dynamicItemsKey);
+      deleteDynamicItems(deletedDynamicItems)
+
       const deletedPagesItems = deletedItems.filter(item => item.prefix.split('.')[0] === 'pages');
       deletePagesItems(deletedPagesItems)
 
@@ -65,10 +79,16 @@ export default function AdminPagesPage() {
       deleteFieldsItems(deletedFieldsItems)
     },
     onFieldChange: (name, onChangeCallback) => {
+      // console.log('onFieldChange register', name)
+
       let setItems
 
       const nameContext = name.split('.')[0]
       switch (nameContext) {
+        case dynamicItemsKey:
+          setItems = setDynamicItems;
+          registerDynamic(name, onChangeCallback)
+          break;
         case 'pages':
           setItems = setPagesItems;
           break;
@@ -80,8 +100,8 @@ export default function AdminPagesPage() {
           break;
       }
 
-      // logger.log('onFieldChange', name)
       return (event, value) => {
+        console.log('onFieldChange', event, value)
         let newValue
         switch (event.type) {
           case 'click':

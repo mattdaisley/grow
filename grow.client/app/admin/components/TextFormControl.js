@@ -27,7 +27,7 @@ export default function TextFormControl({ name, data, ...props }) {
       decimalScale: decimalScale !== undefined ? Number(decimalScale) : 2
     }
   }
-  let defaultValue = data.default ?? ""
+  let defaultValue = props.dynamicData[controllerName] ?? data.default ?? ""
 
   const componentProps = { ...rest.data, label: data.label }
 

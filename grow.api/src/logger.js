@@ -1,6 +1,6 @@
 const logger = {
   log: function () {
-    // console.log(...arguments);
+    console.log(...arguments);
   }
 }
 

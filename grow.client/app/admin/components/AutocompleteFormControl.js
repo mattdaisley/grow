@@ -10,11 +10,10 @@ export default function AutocompleteFormControl({ name, data, ...props }) {
   logger.log('AutocompleteFormControl', name, data, props)
 
   const controllerName = (name !== undefined) ? `${name}.${data.name}` : data.name;
+  const controllerValueName = `${controllerName}.value`
 
   // const formMethods = useFormContext();
   const fields = props.formMethods.watch();
-
-  let defaultValue = data.default ?? null
 
   const componentProps = {
     autoComplete: true,
@@ -29,7 +28,29 @@ export default function AutocompleteFormControl({ name, data, ...props }) {
     ...getComputedMenuItems(data.computedOptions ?? [], fields)
   ]
 
+  let defaultValue = getSelectedItem(menuItems, props.dynamicData[controllerValueName]) ?? data.default ?? null
+
   logger.log('AutocompleteFormControl menuItems', menuItems)
+  function setupHandleChange(onChange) {
+    logger.log('AutocompleteFormControl setupHandleChange', controllerValueName)
+    const action = props.actions.onFieldChange(controllerValueName, handleRemoteChange(onChange))
+    return (_, newValue) => {
+      logger.log('AutocompleteFormControl handleChange', _, newValue)
+      action(_, newValue?.value ?? null)
+    }
+  }
+
+  function handleRemoteChange(onChange) {
+    return (_, value) => {
+      const newValue = getSelectedItem(menuItems, value)
+      logger.log('AutocompleteFormControl handleRemoteChange', value, newValue)
+      onChange(newValue)
+    }
+  }
+
+  function getSelectedItem(menuItems, value) {
+    return menuItems?.find(item => item.value === value) ?? null;
+  }
 
   return (
     <Controller
@@ -46,7 +67,7 @@ export default function AutocompleteFormControl({ name, data, ...props }) {
             {...componentProps}
             options={menuItems}
             value={value ?? null}
-            onChange={props.actions.onFieldChange(controllerName, (_, newValue) => onChange(newValue))}
+            onChange={setupHandleChange(onChange)}
             isOptionEqualToValue={(option, testValue) => option?.label === testValue?.label}
             renderInput={(params) => <TextField size="small" {...params} sx={{ fontSize: 'small' }} label={data.label} />}
           />

@@ -36,7 +36,7 @@ export function AdminEditPage(props) {
     <>
       <DynamicAppBar dynamicItem={props.dynamicItem} dynamicFormData={props.dynamicFormData} />
       <DynamicForm {...props}>
-        <DynamicFields {...props} name={'editor'} data={props.dynamicFormData.data} />
+        <DynamicFields {...props} name={'editor'} data={props.dynamicFormData.data} dynamicData={props.dynamicFormData.dynamicData} />
         <DynamicFieldsEditor {...props} data={props.dynamicFormData.data} json={props.dynamicFormData.json} />
       </DynamicForm>
     </>
@@ -55,7 +55,7 @@ function DynamicAppBar({ dynamicItem, dynamicFormData }) {
 }
 
 function DynamicForm({ children, ...props }) {
-  const dynamicFormData = props.dynamicFormData;
+  logger.log('DynamicFormComponent', props)
 
   const formMethods = useForm();
   // const fields = formMethods.watch();
@@ -64,7 +64,6 @@ function DynamicForm({ children, ...props }) {
   //   logger.log('DynamicForm formstate fields', fields, props);
   //   props.actions.setItems && props.actions.setItems(fields);
   // }, [JSON.stringify(fields)]);
-  // logger.log('DynamicForm form fields:', fields)
 
   const childrenWithProps = Children.map(children, child => {
     if (isValidElement(child)) {
@@ -99,7 +98,7 @@ function DynamicFields(props) {
 }
 
 function ShowControls(props) {
-  logger.log('ShowControls', props)
+  logger.log('ShowControls', props.data, props)
 
   let namePrefix = "";
   if (props.name !== undefined) {
@@ -244,15 +243,17 @@ function ShowFields({ name, ...props }) {
     <>
       <FieldsContainer context={nameSplit[1]}>
         {Object.keys(props.data).map(key => {
+          let controlName = `${name}.${key}`;
           let controlData = props.data[key];
 
           if (nameSplit[1] === 'views') {
+            controlName = `${nameSplit[0]}.fields.${props.data[key].id}`;
             controlData = props.allFields[props.data[key].id];
           }
 
           return (
             <FieldWrapper key={key}>
-              <DynamicFieldControl {...props} name={`${name}.${key}`} data={controlData} />
+              <DynamicFieldControl {...props} name={controlName} data={controlData} />
             </FieldWrapper>
           )
         })}
@@ -315,7 +316,8 @@ function DynamicFieldControl({ ...props }) {
     return null;
   }
 
-  return <FieldControl name={`${props.name}.${props.data.name}`} {...props} />;
+  // return <FieldControl name={`${props.name}.${props.data.name}`} {...props} />; // include name if the field ID is not unique enough
+  return <FieldControl name={`${props.name}`} {...props} />;
 
 }
 
@@ -900,9 +902,11 @@ function EditNameProperty(props) {
 
 function EditFieldTypeProperty(props) {
   // logger.log('EditFieldTypeProperty', props)
+  const controllerName = `${props.name}.type`
+
   return (
     <Controller
-      name={`${props.name}.type`}
+      name={controllerName}
       control={props.formMethods.control}
       defaultValue={props.data.type ?? null}
       render={({ field: { value, onChange } }) => {
@@ -917,7 +921,7 @@ function EditFieldTypeProperty(props) {
             size="small"
             options={["autocomplete", "select", "text", "numeric", "checkbox", "label"]}
             value={value}
-            onChange={props.actions.onFieldChange(`${props.name}.type`, (_, newValue) => onChange(newValue))}
+            onChange={props.actions.onFieldChange(controllerName, (_, newValue) => onChange(newValue))}
             isOptionEqualToValue={(option, testValue) => option === testValue}
             renderInput={(params) => <TextField {...params} label="type" />} />
         );

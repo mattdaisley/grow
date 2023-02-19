@@ -71,15 +71,16 @@ export default function useItems(key, options) {
   }
 
   function processReceivedItems(data) {
-    logger.log('useItems.processReceivedItems:', key, data);
+    logger.log('socket processReceivedItems:', key, data);
 
     if (!data.hasOwnProperty(key)) {
       return;
     }
 
+    let updated = {}
     let flattened = { ...cache.flattened }
     data[key].forEach(dataItem => {
-      // logger.log('useItems.processReceivedItems dataItem:', dataItem)
+      logger.log('socket processReceivedItems dataItem:', dataItem)
 
       if (Boolean(dataItem.deleted) === true) {
         delete flattened[dataItem.valueKey]
@@ -87,13 +88,14 @@ export default function useItems(key, options) {
       else {
         const value = dataItem.value;
         flattened[dataItem.valueKey] = value
+        updated[dataItem.valueKey] = value
       }
 
     })
 
-    logger.log('useItems.processReceivedItems flattened:', flattened);
+    logger.log('socket processReceivedItems flattened:', flattened);
     const item = unflatten(flattened, { object: true });
-    logger.log('useItems.processReceivedItems item:', item);
+    logger.log('socket processReceivedItems item:', item);
     const json = JSON.stringify(item, null, 2);
 
     if (json !== cache.json) {
@@ -105,12 +107,12 @@ export default function useItems(key, options) {
         flattened,
         timestamp: Date.now()
       }
-      options?.onSuccess?.(newCache)
+      options?.onSuccess?.(newCache, updated)
       setCache(newCache)
-      logger.log('useItems.processReceivedItems setting cache', newCache)
+      logger.log('socket processReceivedItems setting cache', newCache, updated)
     }
     else {
-      logger.log('useItems.processReceivedItems json matches cache')
+      logger.log('socket processReceivedItems json matches cache')
     }
 
   }
