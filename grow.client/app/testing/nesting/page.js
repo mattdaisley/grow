@@ -289,15 +289,24 @@ function ShowControls({ name, fields, ...props }) {
         logger.log('ShowControls rendering', 'fieldKey:', fieldKey, 'itemKeys:', itemKeys)
         switch (props.itemKey) {
           case 'pages':
-          case 'sections':
             return (
               <EditPage key={fieldKey} {...props} keyPrefix={`${name}.${fieldKey}`} fieldKey={fieldKey} itemKeys={itemKeys} />
             )
-          case 'views':
+          case 'sections':
+            return (
+              <EditSection key={fieldKey} {...props} keyPrefix={`${name}.${fieldKey}`} fieldKey={fieldKey} itemKeys={itemKeys} />
+            )
           case 'groups':
-          case 'fields':
+            return (
+              <EditGroup key={fieldKey} {...props} keyPrefix={`${name}.${fieldKey}`} fieldKey={fieldKey} itemKeys={itemKeys} />
+            )
+          case 'views':
             return (
               <EditView key={fieldKey} {...props} keyPrefix={`${name}.${fieldKey}`} fieldKey={fieldKey} itemKeys={itemKeys} />
+            )
+          case 'fields':
+            return (
+              <EditField key={fieldKey} {...props} keyPrefix={`${name}.${fieldKey}`} fieldKey={fieldKey} itemKeys={itemKeys} />
             )
 
           default:
@@ -308,31 +317,18 @@ function ShowControls({ name, fields, ...props }) {
   )
 }
 
-function EditPage({ keyPrefix, fieldKey, itemKeys, ...props }) {
-  logger.log('EditPage', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
-  const { name: nameProperty, label: labelProperty, width: widthProperty, ...rest } = itemKeys;
-  return (
-    <div key={fieldKey} style={{ border: '1px solid black', padding: '10px' }}>
-      <div>{props.itemKey}.{fieldKey}</div>
-      <div style={{ padding: '10px' }}>
-        <EditProperty {...props} controllerName={`${keyPrefix}.name`} label="Name" />
-        <EditProperty {...props} controllerName={`${keyPrefix}.label`} label="Label" />
-        <EditProperty {...props} controllerName={`${keyPrefix}.width`} label="Width" />
-      </div>
-      <div style={{ paddingLeft: '10px' }}>
-        {Object.keys(rest).map(itemKey => {
-          return (
-            <ShowItems key={itemKey} {...props} keyPrefix={keyPrefix} itemKey={itemKey} />
-          )
-        })}
-      </div>
-    </div>
-  )
-}
+function EditItem({ children, keyPrefix, fieldKey, itemKeys, ...props }) {
+  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
 
-function EditView({ keyPrefix, fieldKey, itemKeys, ...props }) {
-  logger.log('EditView', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
-  const { id: idProperty, name: nameProperty, label: labelProperty, width: widthProperty, ...rest } = itemKeys;
+  const childrenWithProps = Children.map(children, child => {
+    if (isValidElement(child)) {
+      const newChild = cloneElement(child, { ...props });
+      return newChild
+    }
+    return child;
+  });
+
+  const { id: idProperty, name: nameProperty, label: labelProperty, width: widthProperty, type: typeProperty, ...rest } = itemKeys;
   return (
     <div key={fieldKey} style={{ border: '1px solid black', padding: '10px' }}>
       {
@@ -342,9 +338,7 @@ function EditView({ keyPrefix, fieldKey, itemKeys, ...props }) {
             <>
               <div>{props.itemKey}.{fieldKey}</div>
               <div style={{ padding: '10px' }}>
-                <EditProperty {...props} controllerName={`${keyPrefix}.name`} label="Name" />
-                <EditProperty {...props} controllerName={`${keyPrefix}.label`} label="Label" />
-                <EditProperty {...props} controllerName={`${keyPrefix}.width`} label="Width" />
+                {childrenWithProps}
               </div>
             </>
           )
@@ -361,12 +355,76 @@ function EditView({ keyPrefix, fieldKey, itemKeys, ...props }) {
   )
 }
 
+function EditPage(props) {
+  logger.log('EditPage', 'props:', props)
+  return (
+    <EditItem {...props}>
+      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
+      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
+    </EditItem>
+  )
+}
+
+function EditSection(props) {
+  logger.log('EditSection', 'props:', props)
+  return (
+    <EditItem {...props}>
+      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
+      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
+      <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
+    </EditItem>
+  )
+}
+
+function EditView(props) {
+  logger.log('EditView', 'props:', props)
+  return (
+    <EditItem {...props}>
+      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
+      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
+    </EditItem>
+  )
+}
+
+function EditGroup(props) {
+  logger.log('EditGroup', 'props:', props)
+  return (
+    <EditItem {...props}>
+      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
+      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
+      <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
+    </EditItem>
+  )
+}
+
+function EditField(props) {
+  logger.log('EditField', 'props:', props)
+  return (
+    <EditItem {...props}>
+      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
+      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
+      <EditFieldTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
+    </EditItem>
+  )
+}
+
 function EditProperty({ controllerName, label, ...props }) {
   return <FieldItem
     {...props}
     name={controllerName}
     render={(nextProps) => {
       return <ControlledTextField {...nextProps} label={label} />
+    }}
+  />
+}
+
+function EditFieldTypeProperty({ controllerName, label, ...props }) {
+  const menuItems = [{ value: '0', label: 'text' }, { value: '1', label: 'autocomplete' }]
+  return <FieldItem
+    {...props}
+    name={controllerName}
+    render={(nextProps) => {
+      return <ControlledAutocompleteField {...nextProps} label={label} menuItems={menuItems} />
     }}
   />
 }
@@ -422,7 +480,7 @@ function NestLevel3({ children, ...props }) {
           case 'text':
             return <ControlledTextField {...nextProps} />
           case 'autocomplete':
-            return <ControlledAutocomplete {...nextProps} />
+            return <ControlledAutocompleteField {...nextProps} />
         }
         return null;
       }}
@@ -480,13 +538,13 @@ function ControlledTextField({ name, ...props }) {
   )
 }
 
-function ControlledAutocomplete({ name, ...props }) {
+function ControlledAutocompleteField({ name, ...props }) {
 
   const defaultValue = props.getData(name) ?? null
+  const label = props.label ?? name
   logger.log('ControlledTextField', name, defaultValue)
 
-
-  const menuItems = [{ value: '0', label: 'test0' }, { value: '1', label: 'test1' }, { value: '2', label: 'test2' },
+  const menuItems = props.menuItems ?? [{ value: '0', label: 'test0' }, { value: '1', label: 'test1' }, { value: '2', label: 'test2' },
   { value: '3', label: 'test3' }, { value: '4', label: 'test4' }, { value: '5', label: 'test5' }]
 
   const componentProps = {
@@ -528,7 +586,7 @@ function ControlledAutocomplete({ name, ...props }) {
                 variant="standard"
                 size="small"
                 sx={{ fontSize: 'small' }}
-                label={`${name} label`}
+                label={label}
                 {...params}
               />
             )}
