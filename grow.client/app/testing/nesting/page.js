@@ -30,34 +30,27 @@ import logger from "../../../../grow.api/src/logger";
 import { SocketContext } from "../../SocketContext";
 import { unflatten } from 'flat';
 
+const itemTypes = ['pages', 'sections', 'views', 'groups', 'fields'];
 const fieldTypes = [{ value: '0', label: 'textfield' }, { value: '1', label: 'autocomplete' }]
 
 export default function TestingNestingPage() {
 
-  // const itemKeys = ['pages', 'test0', 'test1']
   const itemKeys = ['preview', 'pages', 'views', 'fields']
-
 
   const items = useItems(itemKeys);
 
   logger.log('TestingNestingPage', items)
-  const contexts = ['pages', 'sections', 'views', 'groups', 'fields']
-  const types = ['textfield', 'autocomplete']
-  const randomWords = ['guest', 'art', 'mud', 'length', 'dirt', 'child', 'lab', 'depth', 'bath']
-
-  const names = []
-  for (let i = 0; i < 10; i++) {
-    const itemIndex = Math.floor(i / 5)
-    const prefix = contexts[Math.round(i % 3)]
-    const randomWord = randomWords[Math.floor(i / 2)]
-    const type = types[Math.round(i % 2)]
-    names.push({ name: `test${itemIndex}.${prefix}.${randomWord}`, type })
-  }
 
   return (
     <Grid xs={12} container sx={{ width: '100%' }}>
       <Grid xs={8}>
-        <ShowItems contextKey={'preview'} itemKey={'pages'} {...items} />
+        <Box sx={{ flexGrow: 1, py: 4, pl: { xs: 2, md: 4 } }}>
+          <Grid container xs={12} spacing={0}>
+            <Grid container spacing={4} xs={12} sx={{ width: '100%' }}>
+              <ShowItems contextKey={'preview'} itemKey={'pages'} {...items} />
+            </Grid>
+          </Grid>
+        </Box>
       </Grid>
       <Grid xs={4}>
         <EditItems itemKey={'pages'} {...items} />
@@ -347,44 +340,81 @@ function ShowControls({ name, fields, ...props }) {
 }
 
 function ShowPage(props) {
-  logger.log('ShowPage', 'props:', props)
+  const itemKey = `${props.itemKey}.${props.fieldKey}`
+  const keyPrefix = undefined
+  const searchSuffix = 'label'
+  const { name: labelName, fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix })
+
+  logger.log('ShowPage', 'labelName:', labelName, 'labelFields:', labelFields, 'props:', props)
+
   return (
-    <ShowItem {...props}>
-      {/* <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" /> */}
-      {/* <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" /> */}
-    </ShowItem>
+    <>
+      {
+        labelFields?.label && (
+          <Grid xs={12} sx={{ mb: -1 }}>
+            <Typography variant="h5" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{labelFields.label}</Typography>
+          </Grid>
+        )
+      }
+      <ShowItem {...props} />
+    </>
   )
 }
 
 function ShowSection(props) {
-  logger.log('ShowSection', 'props:', props)
+  const itemKey = `${props.keyPrefix}`
+  const keyPrefix = undefined
+  const searchSuffix = 'width'
+  const { name: widthName, fields: widthFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix })
+
+  logger.log('ShowSection', 'widthName:', widthName, 'widthFields:', widthFields, 'props:', props)
+
   return (
-    <ShowItem {...props}>
-      {/* <ShowProperty controllerName={`${props.keyPrefix}.name`} label="Name" /> */}
-      {/* <ShowProperty controllerName={`${props.keyPrefix}.label`} label="Label" /> */}
-      {/* <ShowProperty controllerName={`${props.keyPrefix}.width`} label="Width" /> */}
-    </ShowItem>
+    <Grid xs={Number(widthFields.width) || 12} alignContent={'flex-start'}>
+      <Paper sx={{ width: '100%' }}>
+        <Grid container spacing={1} xs={12} sx={{ p: 1 }}>
+          <ShowItem {...props}>
+            {/* <ShowProperty controllerName={`${props.keyPrefix}.name`} label="Name" /> */}
+            {/* <ShowProperty controllerName={`${props.keyPrefix}.label`} label="Label" /> */}
+            {/* <ShowProperty controllerName={`${props.keyPrefix}.width`} label="Width" /> */}
+          </ShowItem>
+        </Grid>
+      </Paper>
+    </Grid>
   )
 }
 
 function ShowView(props) {
-  logger.log('ShowView', 'props:', props)
+  const itemKey = `${props.itemKey}.${props.fieldKey}`
+  const keyPrefix = undefined
+  const searchSuffix = 'label'
+  const { name: labelName, fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix })
+
+  logger.log('ShowView', 'labelName:', labelName, 'labelFields:', labelFields, 'props:', props)
   return (
-    <ShowItem {...props}>
-      {/* <ShowProperty controllerName={`${props.keyPrefix}.name`} label="Name" /> */}
-      {/* <ShowProperty controllerName={`${props.keyPrefix}.label`} label="Label" /> */}
-    </ShowItem>
+    <>
+      {labelFields?.label && (
+        <Grid xs={12}>
+          <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{labelFields.label}</Typography>
+        </Grid>
+      )}
+      <ShowItem {...props} />
+    </>
   )
 }
 
 function ShowGroup(props) {
-  logger.log('ShowGroup', 'props:', props)
+  const itemKey = `${props.keyPrefix}`
+  const keyPrefix = undefined
+  const searchSuffix = 'width'
+  const { name: widthName, fields: widthFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix })
+
+  logger.log('ShowGroup', 'widthName:', widthName, 'widthFields:', widthFields, 'props:', props)
+
   return (
-    <ShowItem {...props}>
-      {/* <ShowProperty controllerName={`${props.keyPrefix}.name`} label="Name" /> */}
-      {/* <ShowProperty controllerName={`${props.keyPrefix}.label`} label="Label" /> */}
-      {/* <ShowProperty controllerName={`${props.keyPrefix}.width`} label="Width" /> */}
-    </ShowItem>
+    <Grid xs={Number(widthFields?.width) ?? 12}>
+      <ShowItem {...props} />
+    </Grid>
   )
 }
 
@@ -410,38 +440,46 @@ function ShowField(props) {
 }
 
 function ShowFieldControl(props) {
-  const { name: fieldName, fields } = useSubscription({ ...props })
-  const { name: labelName, fields: labelFields } = useSubscription({ ...props, searchSuffix: `label` })
-  logger.log('ShowFieldControl', 'name:', name, 'fields:', fields, 'labelName:', labelName, 'labelFields:', labelFields, 'props:', props)
+  const itemKey = `${props.itemKey}`
+  const keyPrefix = undefined
 
-  if (Object.keys(fields).length === 0 || Object.keys(labelFields).length === 0) {
+  const { name: typeName, fields: typeFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'type' })
+  const { name: nameName, fields: nameFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'name' })
+  const { name: labelName, fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: `label` })
+  logger.log('ShowFieldControl', 'nameName:', nameName, 'nameFields:', nameFields, 'labelName:', labelName, 'labelFields:', labelFields, 'props:', props)
+
+  if (Object.keys(typeFields).length === 0 || Object.keys(labelFields).length === 0) {
     return null;
   }
 
-  const controllerName = `${props.contextKey}.${fields.name}`
-  const label = labelFields.label ?? fields.name
+  const controllerName = `${props.contextKey}.${nameFields.name}`
+  const label = labelFields.label ?? nameFields.name
 
-  return <FieldItem
-    {...props}
-    name={controllerName}
-    render={(nextProps) => {
-      return <ControlledField {...nextProps} type={fields.type} label={label} />
-    }}
-  />
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledField {...nextProps} type={typeFields.type} label={label} />
+        }}
+      />
+    </FieldWrapper>
+  )
 }
 
 function ShowItem({ children, keyPrefix, fieldKey, itemKeys, ...props }) {
   logger.log('ShowItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
 
   return (
-    <div style={{ border: '1px solid black', padding: '10px' }}>
+    <>
       <ShowReferencedItem {...props} itemKeys={itemKeys} />
       <ShowItemProperties {...props} itemKeys={itemKeys} fieldKey={fieldKey}>
         {children}
       </ShowItemProperties>
 
       <ShowNestedItems {...props} itemKeys={itemKeys} keyPrefix={keyPrefix} />
-    </div>
+    </>
   )
 }
 
@@ -460,12 +498,9 @@ function ShowItemProperties({ itemKeys, fieldKey, children, ...props }) {
   if (itemKeys.id === undefined) {
     return (
       <>
-        <div>{props.itemKey}.{fieldKey}</div>
-        <div style={{ padding: '10px' }}>
-          <ChildrenWithProps {...props}>
-            {children}
-          </ChildrenWithProps>
-        </div>
+        <ChildrenWithProps {...props}>
+          {children}
+        </ChildrenWithProps>
       </>
     )
   }
@@ -475,10 +510,10 @@ function ShowItemProperties({ itemKeys, fieldKey, children, ...props }) {
 
 function ShowNestedItems({ itemKeys, keyPrefix, ...props }) {
   return (
-    <div style={{ paddingLeft: '10px' }}>
+    <>
       {Object.keys(itemKeys).map(itemKey => {
         logger.log('ShowNestedItems nested itemKey:', itemKey)
-        if (['pages', 'sections', 'views', 'groups', 'fields'].includes(itemKey) === false) {
+        if (itemTypes.includes(itemKey) === false) {
           return null;
         }
 
@@ -486,7 +521,7 @@ function ShowNestedItems({ itemKeys, keyPrefix, ...props }) {
           <ShowItems key={itemKey} {...props} keyPrefix={keyPrefix} itemKey={itemKey} />
         )
       })}
-    </div>
+    </>
   )
 }
 
@@ -656,7 +691,7 @@ function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
     <div style={{ paddingLeft: '10px' }}>
       {Object.keys(itemKeys).map(itemKey => {
         // logger.log('EditNestedItems nested itemKey:', itemKey)k
-        if (['pages', 'sections', 'views', 'groups', 'fields'].includes(itemKey) === false) {
+        if (itemTypes.includes(itemKey) === false) {
           return null;
         }
 
@@ -669,24 +704,32 @@ function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
 }
 
 function EditProperty({ controllerName, label, ...props }) {
-  return <FieldItem
-    {...props}
-    name={controllerName}
-    render={(nextProps) => {
-      return <ControlledTextField {...nextProps} label={label} />
-    }}
-  />
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledTextField {...nextProps} label={label} />
+        }}
+      />
+    </FieldWrapper>
+  )
 }
 
 function EditFieldTypeProperty({ controllerName, label, ...props }) {
 
-  return <FieldItem
-    {...props}
-    name={controllerName}
-    render={(nextProps) => {
-      return <ControlledAutocompleteField {...nextProps} label={label} menuItems={fieldTypes} />
-    }}
-  />
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledAutocompleteField {...nextProps} label={label} menuItems={fieldTypes} />
+        }}
+      />
+    </FieldWrapper>
+  )
 }
 
 
@@ -742,7 +785,6 @@ function ControlledTextField({ name, ...props }) {
         return (
           <TextField
             label={label}
-            variant="standard"
             size="small"
             sx={{ fontSize: 'small' }}
             fullWidth
@@ -794,13 +836,14 @@ function ControlledAutocompleteField({ name, ...props }) {
         return (
           <Autocomplete
             fullWidth
+            size="small"
+            sx={{ fontSize: 'small' }}
             {...componentProps}
             value={getSelectedItem(menuItems, value)}
             onChange={handleChange}
             isOptionEqualToValue={(option, testValue) => option?.id === testValue?.id}
             renderInput={(params) => (
               <TextField
-                variant="standard"
                 size="small"
                 sx={{ fontSize: 'small' }}
                 label={label}
@@ -813,6 +856,14 @@ function ControlledAutocompleteField({ name, ...props }) {
     />
   )
 }
+
+const FieldWrapper = styled(Box)(({ theme }) => ({
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  boxSizing: 'border-box',
+  textAlign: 'left',
+  color: theme.palette.text.secondary,
+}));
 
 
 
