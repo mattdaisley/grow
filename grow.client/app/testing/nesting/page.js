@@ -32,6 +32,42 @@ import { unflatten } from 'flat';
 
 const fieldTypes = [{ value: '0', label: 'textfield' }, { value: '1', label: 'autocomplete' }]
 
+export default function TestingNestingPage() {
+
+  // const itemKeys = ['pages', 'test0', 'test1']
+  const itemKeys = ['preview', 'pages', 'views', 'fields']
+
+
+  const items = useItems(itemKeys);
+
+  logger.log('TestingNestingPage', items)
+  const contexts = ['pages', 'sections', 'views', 'groups', 'fields']
+  const types = ['textfield', 'autocomplete']
+  const randomWords = ['guest', 'art', 'mud', 'length', 'dirt', 'child', 'lab', 'depth', 'bath']
+
+  const names = []
+  for (let i = 0; i < 10; i++) {
+    const itemIndex = Math.floor(i / 5)
+    const prefix = contexts[Math.round(i % 3)]
+    const randomWord = randomWords[Math.floor(i / 2)]
+    const type = types[Math.round(i % 2)]
+    names.push({ name: `test${itemIndex}.${prefix}.${randomWord}`, type })
+  }
+
+  return (
+    <Grid xs={12} container sx={{ width: '100%' }}>
+      <Grid xs={8}>
+        <ShowItems contextKey={'preview'} itemKey={'pages'} {...items} />
+      </Grid>
+      <Grid xs={4}>
+        <EditItems itemKey={'pages'} {...items} />
+      </Grid>
+    </Grid>
+  )
+}
+
+
+
 function useItems(itemKeys) {
   logger.log('useItems', itemKeys)
 
@@ -204,40 +240,6 @@ function useItems(itemKeys) {
   return itemsRef.current;
 }
 
-export default function TestingNestingPage() {
-
-  // const itemKeys = ['pages', 'test0', 'test1']
-  const itemKeys = ['preview', 'pages', 'views', 'fields']
-
-
-  const items = useItems(itemKeys);
-
-  logger.log('TestingNestingPage', items)
-  const contexts = ['pages', 'sections', 'views', 'groups', 'fields']
-  const types = ['textfield', 'autocomplete']
-  const randomWords = ['guest', 'art', 'mud', 'length', 'dirt', 'child', 'lab', 'depth', 'bath']
-
-  const names = []
-  for (let i = 0; i < 10; i++) {
-    const itemIndex = Math.floor(i / 5)
-    const prefix = contexts[Math.round(i % 3)]
-    const randomWord = randomWords[Math.floor(i / 2)]
-    const type = types[Math.round(i % 2)]
-    names.push({ name: `test${itemIndex}.${prefix}.${randomWord}`, type })
-  }
-
-  return (
-    <Grid xs={12} container sx={{ width: '100%' }}>
-      <Grid xs={8}>
-        <ShowItems contextKey={'preview'} itemKey={'pages'} {...items} />
-      </Grid>
-      <Grid xs={4}>
-        <EditItems itemKey={'pages'} {...items} />
-      </Grid>
-    </Grid>
-  )
-}
-
 function useSubscription(props) {
 
   const [fields, setFields] = useState({})
@@ -278,6 +280,8 @@ function updateFields(_ref, newFields, setFunc) {
     setFunc(unflatten(_ref.current, { object: true }))
   }
 }
+
+
 
 
 function ShowItems({ searchSuffix, ...props }) {
@@ -488,6 +492,7 @@ function ShowNestedItems({ itemKeys, keyPrefix, ...props }) {
 
 
 
+
 function EditItems({ searchSuffix, ...props }) {
 
   const { name, fields } = useSubscription({ searchSuffix, ...props })
@@ -683,6 +688,7 @@ function EditFieldTypeProperty({ controllerName, label, ...props }) {
     }}
   />
 }
+
 
 
 
