@@ -43,18 +43,24 @@ export default function TestingNestingPage() {
 
   return (
     <Grid xs={12} container sx={{ width: '100%' }}>
-      <Grid xs={8}>
-        <Box sx={{ flexGrow: 1, py: 4, pl: { xs: 2, md: 4 } }}>
-          <Grid container xs={12} spacing={0}>
+      <Box sx={{ flexGrow: 1, py: 4, pl: { xs: 2, md: 4 } }}>
+        <Grid container xs={12} spacing={0}>
+          <Grid xs={8}>
             <Grid container spacing={4} xs={12} sx={{ width: '100%' }}>
               <ShowItems contextKey={'preview'} itemKey={'pages'} {...items} />
             </Grid>
           </Grid>
-        </Box>
-      </Grid>
-      <Grid xs={4}>
-        <EditItems itemKey={'pages'} {...items} />
-      </Grid>
+          <Grid xs={4}>
+            <Grid container spacing={0} xs={12} sx={{ width: '100%' }}>
+              <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
+                <Paper sx={{ width: '100%' }}>
+                  <EditItems itemKey={'pages'} {...items} />
+                </Paper>
+              </Box>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Box>
     </Grid>
   )
 }
@@ -339,23 +345,14 @@ function ShowControls({ name, fields, ...props }) {
   )
 }
 
-function ShowPage(props) {
-  const itemKey = `${props.itemKey}.${props.fieldKey}`
-  const keyPrefix = undefined
-  const searchSuffix = 'label'
-  const { name: labelName, fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix })
 
-  logger.log('ShowPage', 'labelName:', labelName, 'labelFields:', labelFields, 'props:', props)
+function ShowPage(props) {
+
+  logger.log('ShowPage', 'props:', props)
 
   return (
     <>
-      {
-        labelFields?.label && (
-          <Grid xs={12} sx={{ mb: -1 }}>
-            <Typography variant="h5" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{labelFields.label}</Typography>
-          </Grid>
-        )
-      }
+      <ShowItemLabel {...props} />
       <ShowItem {...props} />
     </>
   )
@@ -372,12 +369,8 @@ function ShowSection(props) {
   return (
     <Grid xs={Number(widthFields.width) || 12} alignContent={'flex-start'}>
       <Paper sx={{ width: '100%' }}>
-        <Grid container spacing={1} xs={12} sx={{ p: 1 }}>
-          <ShowItem {...props}>
-            {/* <ShowProperty controllerName={`${props.keyPrefix}.name`} label="Name" /> */}
-            {/* <ShowProperty controllerName={`${props.keyPrefix}.label`} label="Label" /> */}
-            {/* <ShowProperty controllerName={`${props.keyPrefix}.width`} label="Width" /> */}
-          </ShowItem>
+        <Grid container spacing={1} xs={12} sx={{ py: 1, px: 2 }}>
+          <ShowItem {...props} />
         </Grid>
       </Paper>
     </Grid>
@@ -385,19 +378,11 @@ function ShowSection(props) {
 }
 
 function ShowView(props) {
-  const itemKey = `${props.itemKey}.${props.fieldKey}`
-  const keyPrefix = undefined
-  const searchSuffix = 'label'
-  const { name: labelName, fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix })
+  logger.log('ShowView', 'props:', props)
 
-  logger.log('ShowView', 'labelName:', labelName, 'labelFields:', labelFields, 'props:', props)
   return (
     <>
-      {labelFields?.label && (
-        <Grid xs={12}>
-          <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{labelFields.label}</Typography>
-        </Grid>
-      )}
+      <ShowItemLabel {...props} />
       <ShowItem {...props} />
     </>
   )
@@ -412,7 +397,7 @@ function ShowGroup(props) {
   logger.log('ShowGroup', 'widthName:', widthName, 'widthFields:', widthFields, 'props:', props)
 
   return (
-    <Grid xs={Number(widthFields?.width) ?? 12}>
+    <Grid xs={Number(widthFields?.width) ?? 12} sx={{ mt: 1 }}>
       <ShowItem {...props} />
     </Grid>
   )
@@ -426,12 +411,7 @@ function ShowField(props) {
       {
         props.itemKeys.hasOwnProperty('type')
           ? <ShowFieldControl {...props} itemKey={`${props.itemKey}.${props.fieldKey}`} keyPrefix={undefined} searchSuffix={undefined} />
-          : <ShowItem {...props}>
-            {/* <ShowProperty controllerName={`${props.keyPrefix}.name`} label="Name" /> */}
-            {/* <ShowProperty controllerName={`${props.keyPrefix}.label`} label="Label" /> */}
-            {/* <ShowFieldTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" /> */}
-
-          </ShowItem>
+          : <ShowItem {...props} />
       }
 
 
@@ -480,6 +460,25 @@ function ShowItem({ children, keyPrefix, fieldKey, itemKeys, ...props }) {
 
       <ShowNestedItems {...props} itemKeys={itemKeys} keyPrefix={keyPrefix} />
     </>
+  )
+}
+
+function ShowItemLabel(props) {
+  const itemKey = `${props.itemKey}.${props.fieldKey}`
+  const keyPrefix = undefined
+  const searchSuffix = 'label'
+  const { fields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix })
+
+  logger.log('ItemLabel', 'labelFields:', fields, 'props:', props)
+
+  if (fields?.label === undefined) {
+    return null;
+  }
+
+  return (
+    <Grid xs={12} sx={{ mb: -1 }}>
+      <Typography variant="h5" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{fields.label}</Typography>
+    </Grid>
   )
 }
 
@@ -565,7 +564,7 @@ function EditControls({ name, fields, ...props }) {
 
   return (
     <>
-      {Object.keys(fields).map(fieldKey => {
+      {Object.keys(fields).map((fieldKey, index) => {
 
         const keyPrefix = `${name}.${fieldKey}`
         const itemKeys = fields[fieldKey]
@@ -584,7 +583,12 @@ function EditControls({ name, fields, ...props }) {
           // )
         }
 
-        return <EditControl key={fieldKey} {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} itemKeys={itemKeys} />
+        return (
+          <Fragment key={fieldKey}>
+            <EditControl {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} itemKeys={itemKeys} />
+            {index !== Object.keys(fields).length - 1 && <Divider />}
+          </Fragment>
+        )
       })}
     </>
   )
@@ -593,10 +597,7 @@ function EditControls({ name, fields, ...props }) {
 function EditPage(props) {
   logger.log('EditPage', 'props:', props)
   return (
-    <EditItem {...props}>
-      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
-      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
-    </EditItem>
+    <EditItem {...props} />
   )
 }
 
@@ -604,8 +605,6 @@ function EditSection(props) {
   logger.log('EditSection', 'props:', props)
   return (
     <EditItem {...props}>
-      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
-      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
       <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
     </EditItem>
   )
@@ -614,10 +613,7 @@ function EditSection(props) {
 function EditView(props) {
   logger.log('EditView', 'props:', props)
   return (
-    <EditItem {...props}>
-      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
-      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
-    </EditItem>
+    <EditItem {...props} />
   )
 }
 
@@ -625,8 +621,6 @@ function EditGroup(props) {
   logger.log('EditGroup', 'props:', props)
   return (
     <EditItem {...props}>
-      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
-      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
       <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
     </EditItem>
   )
@@ -636,25 +630,24 @@ function EditField(props) {
   logger.log('EditField', 'props:', props)
   return (
     <EditItem {...props}>
-      <EditProperty controllerName={`${props.keyPrefix}.name`} label="Name" />
-      <EditProperty controllerName={`${props.keyPrefix}.label`} label="Label" />
       <EditFieldTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
     </EditItem>
   )
 }
 
-function EditItem({ children, keyPrefix, fieldKey, itemKeys, ...props }) {
-  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
+function EditItem({ children, fieldKey, itemKeys, ...props }) {
+  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
 
   return (
-    <div style={{ border: '1px solid black', padding: '10px' }}>
+    <>
       <EditReferencedItem {...props} itemKeys={itemKeys} />
+
       <EditItemProperties {...props} itemKeys={itemKeys} fieldKey={fieldKey}>
         {children}
+        <EditNestedItems {...props} itemKeys={itemKeys} />
       </EditItemProperties>
 
-      <EditNestedItems {...props} itemKeys={itemKeys} keyPrefix={keyPrefix} />
-    </div>
+    </>
   )
 }
 
@@ -670,25 +663,116 @@ function EditReferencedItem({ itemKeys, ...props }) {
 function EditItemProperties({ itemKeys, fieldKey, children, ...props }) {
   logger.log('EditItemProperties', 'itemKeys:', itemKeys, 'fieldKey:', fieldKey, 'props:', props)
 
-  if (itemKeys.id === undefined) {
-    return (
-      <>
-        <div>{props.itemKey}.{fieldKey}</div>
-        <div style={{ padding: '10px' }}>
-          <ChildrenWithProps {...props}>
-            {children}
-          </ChildrenWithProps>
-        </div>
-      </>
-    )
+  const [openFields, setOpenFields] = useState([]);
+
+  if (itemKeys.id !== undefined) {
+    return null
   }
 
-  return null;
+  const handleClick = () => {
+    logger.log('EditorList handleClick', fieldKey);
+    const openFieldIndex = openFields.indexOf(fieldKey);
+    let currentOpenFields = [...openFields];
+    if (openFieldIndex > -1) {
+      currentOpenFields.splice(openFieldIndex, 1);
+      setOpenFields(currentOpenFields);
+    }
+    else {
+      currentOpenFields = currentOpenFields.filter(x => fieldKey.indexOf(x) === 0);
+      setOpenFields([...currentOpenFields, fieldKey]);
+    }
+  };
+
+  const isOpen = openFields?.includes(fieldKey) ?? false;
+
+  return (
+    <Grid container spacing={0} sx={{ width: '100%', m: 0 }}>
+      <Box sx={{ width: '100%', py: 1 }}>
+
+        <Collapse in={!isOpen} timeout="auto">
+          <EditItemHeader {...props} onClick={handleClick} />
+        </Collapse>
+
+        <Collapse in={isOpen} timeout="auto">
+          <EditItemLabel {...props} onClick={handleClick} />
+
+          <Stack spacing={0} sx={{ px: 2, py: 2 }}>
+            <EditProperty {...props} controllerName={`${props.keyPrefix}.name`} label="Name" />
+
+            <ChildrenWithProps {...props} openFields={openFields}>
+              {children}
+            </ChildrenWithProps>
+          </Stack>
+        </Collapse>
+      </Box>
+    </Grid>
+  )
+}
+
+function EditItemHeader({ onClick, ...props }) {
+  const itemKey = `${props.keyPrefix}`
+  const keyPrefix = undefined
+  const { fields: nameFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'name' })
+  const { fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'label' })
+
+  logger.log('EditItemHeader', 'nameFields:', nameFields, 'labelFields:', labelFields, 'props:', props)
+
+  if (labelFields?.label === undefined || nameFields?.name === undefined) {
+    return null;
+  }
+
+  let primary = labelFields.label ?? nameFields.name;
+  let secondary;
+  if (primary === labelFields.label) {
+    secondary = nameFields.name;
+  }
+
+  return (
+    <ListItem
+      sx={{ height: '55px' }}
+      onClick={onClick}
+      secondaryAction={(
+        <ListItemIcon sx={{ justifyContent: 'flex-end' }}>
+          <ExpandMore />
+        </ListItemIcon>
+      )}>
+      <ListItemText
+        primary={primary}
+        primaryTypographyProps={{ noWrap: true }}
+        secondary={secondary}
+        secondaryTypographyProps={{ noWrap: true }}
+      />
+    </ListItem>
+  )
+}
+
+function EditItemLabel({ onClick, ...props }) {
+  const itemKey = `${props.keyPrefix}`
+  const keyPrefix = undefined
+  const { fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'label' })
+
+  logger.log('EditItemLabel', 'labelFields:', labelFields, 'props:', props)
+
+  if (labelFields?.label === undefined) {
+    return null;
+  }
+
+  return (
+    <ListItem
+      sx={{ px: 2, height: '55px', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'center' }}
+      secondaryAction={(
+        <ListItemIcon sx={{ justifyContent: 'flex-end' }} onClick={onClick}>
+          <ExpandLess />
+        </ListItemIcon>
+      )}>
+      <EditProperty {...props} controllerName={`${props.keyPrefix}.label`} label="Label" inputProps={{ variant: "standard" }} />
+    </ListItem>
+  )
 }
 
 function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
   return (
-    <div style={{ paddingLeft: '10px' }}>
+    <>
       {Object.keys(itemKeys).map(itemKey => {
         // logger.log('EditNestedItems nested itemKey:', itemKey)k
         if (itemTypes.includes(itemKey) === false) {
@@ -696,10 +780,12 @@ function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
         }
 
         return (
-          <EditItems key={itemKey} {...props} keyPrefix={keyPrefix} itemKey={itemKey} />
+          <Box sx={{ mt: 1, flexGrow: 1, border: 1, borderRadius: 1, borderColor: 'grey.300' }}>
+            <EditItems key={itemKey} {...props} keyPrefix={keyPrefix} itemKey={itemKey} />
+          </Box>
         )
       })}
-    </div>
+    </>
   )
 }
 
@@ -788,6 +874,7 @@ function ControlledTextField({ name, ...props }) {
             size="small"
             sx={{ fontSize: 'small' }}
             fullWidth
+            {...props.inputProps}
             value={value}
             onChange={handleChange}
           />
@@ -859,7 +946,7 @@ function ControlledAutocompleteField({ name, ...props }) {
 
 const FieldWrapper = styled(Box)(({ theme }) => ({
   ...theme.typography.body2,
-  padding: theme.spacing(1),
+  padding: `${theme.spacing(1)} ${theme.spacing(0)}`,
   boxSizing: 'border-box',
   textAlign: 'left',
   color: theme.palette.text.secondary,
@@ -878,5 +965,15 @@ function ChildrenWithProps({ children, ...props }) {
     return child;
   });
 
-  return childrenWithProps;
+  logger.log('ChildrenWithProps', 'render:', props.render === undefined, 'props:', props)
+  if (props.render === undefined) {
+    return childrenWithProps;
+  }
+
+  logger.log('ChildrenWithProps', 'childrenWithProps:', childrenWithProps)
+  return Children.map(childrenWithProps, child => {
+    logger.log('ChildrenWithProps', 'child:', child)
+    return props.render(child)
+  })
+
 }
