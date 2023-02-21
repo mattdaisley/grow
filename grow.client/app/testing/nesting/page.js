@@ -30,7 +30,7 @@ import logger from "../../../../grow.api/src/logger";
 import { SocketContext } from "../../SocketContext";
 import { unflatten } from 'flat';
 
-const fieldTypes = [{ value: '0', label: 'text' }, { value: '1', label: 'autocomplete' }]
+const fieldTypes = [{ value: '0', label: 'textfield' }, { value: '1', label: 'autocomplete' }]
 
 function useItems(itemKeys) {
   logger.log('useItems', itemKeys)
@@ -207,14 +207,14 @@ function useItems(itemKeys) {
 export default function TestingNestingPage() {
 
   // const itemKeys = ['pages', 'test0', 'test1']
-  const itemKeys = ['pages', 'views', 'fields']
+  const itemKeys = ['preview', 'pages', 'views', 'fields']
 
 
   const items = useItems(itemKeys);
 
   logger.log('TestingNestingPage', items)
   const contexts = ['pages', 'sections', 'views', 'groups', 'fields']
-  const types = ['text', 'autocomplete']
+  const types = ['textfield', 'autocomplete']
   const randomWords = ['guest', 'art', 'mud', 'length', 'dirt', 'child', 'lab', 'depth', 'bath']
 
   const names = []
@@ -228,13 +228,10 @@ export default function TestingNestingPage() {
 
   return (
     <Grid xs={12} container sx={{ width: '100%' }}>
-      <Grid xs={6}>
-        {/* {names.map((name, index) => (
-          <NestLevel1 key={index} {...name} {...items} />
-        ))} */}
+      <Grid xs={8}>
         <ShowItems contextKey={'preview'} itemKey={'pages'} {...items} />
       </Grid>
-      <Grid xs={6}>
+      <Grid xs={4}>
         <EditItems itemKey={'pages'} {...items} />
       </Grid>
     </Grid>
@@ -429,17 +426,6 @@ function ShowFieldControl(props) {
   />
 }
 
-function ControlledField(props) {
-  switch (props.type) {
-    case "0":
-      return <ControlledTextField {...props} />
-    case "1":
-      return <ControlledAutocompleteField {...props} />
-  }
-
-  return null;
-}
-
 function ShowItem({ children, keyPrefix, fieldKey, itemKeys, ...props }) {
   logger.log('ShowItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
 
@@ -499,6 +485,7 @@ function ShowNestedItems({ itemKeys, keyPrefix, ...props }) {
     </div>
   )
 }
+
 
 
 function EditItems({ searchSuffix, ...props }) {
@@ -698,47 +685,6 @@ function EditFieldTypeProperty({ controllerName, label, ...props }) {
 }
 
 
-function NestLevel1({ children, ...props }) {
-  logger.log('NestLevel1', props)
-
-  return <div>
-    <NestLevel2 secondProp={'test2'} {...props} />
-    <ChildrenWithProps {...props}>{children}</ChildrenWithProps>
-  </div>
-}
-
-function NestLevel2({ children, ...props }) {
-  logger.log('NestLevel2', props)
-
-  return <div>
-    <NestLevel3 thirdProp={'test3'} {...props} />
-    <ChildrenWithProps {...props}>{children}</ChildrenWithProps>
-  </div>
-
-}
-
-function NestLevel3({ children, ...props }) {
-
-  logger.log('NestLevel3', props)
-
-  const controllerName = `${props.name}.${props.type}`
-
-  return (
-    <FieldItem
-      {...props}
-      name={controllerName}
-      render={(nextProps) => {
-        switch (props.type) {
-          case 'text':
-            return <ControlledTextField {...nextProps} />
-          case 'autocomplete':
-            return <ControlledAutocompleteField {...nextProps} />
-        }
-        return null;
-      }}
-    />
-  )
-}
 
 function FieldItem({ render, ...props }) {
   logger.log('FieldItem', props)
@@ -757,6 +703,17 @@ function FieldItem({ render, ...props }) {
   }
 
   return render({ ...props, onChange: handleChange })
+}
+
+function ControlledField(props) {
+  switch (props.type) {
+    case "0":
+      return <ControlledTextField {...props} />
+    case "1":
+      return <ControlledAutocompleteField {...props} />
+  }
+
+  return null;
 }
 
 function ControlledTextField({ name, ...props }) {
