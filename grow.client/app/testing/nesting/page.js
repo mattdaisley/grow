@@ -543,23 +543,27 @@ function EditItems({ searchSuffix, ...props }) {
 }
 
 function EditControls({ name, fields, ...props }) {
-  logger.log('EditControls', 'name:', name, 'itemKey:', props.itemKey, 'fields:', fields)
+  logger.log('EditControls', 'name:', name, 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props)
 
-  function getEditControl(itemKey) {
-    switch (itemKey) {
-      case 'pages':
-        return EditPage
-      case 'sections':
-        return EditSection
-      case 'groups':
-        return EditGroup
-      case 'views':
-        return EditView
-      case 'fields':
-        return EditField
-      default:
-        return null;
-    }
+  const itemKey = props.itemKey
+
+  let EditControl = null
+  switch (itemKey) {
+    case 'pages':
+      EditControl = EditPage
+      break;
+    case 'sections':
+      EditControl = EditSection
+      break;
+    case 'groups':
+      EditControl = EditGroup
+      break;
+    case 'views':
+      EditControl = EditView
+      break;
+    case 'fields':
+      EditControl = EditField
+      break;
   }
 
   return (
@@ -570,8 +574,6 @@ function EditControls({ name, fields, ...props }) {
         const itemKeys = fields[fieldKey]
 
         logger.log('EditControls rendering', 'fieldKey:', fieldKey, 'itemKeys:', itemKeys)
-
-        const EditControl = getEditControl(props.itemKey)
 
         if (EditControl === null) {
           return null;
@@ -586,10 +588,22 @@ function EditControls({ name, fields, ...props }) {
         return (
           <Fragment key={fieldKey}>
             <EditControl {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} itemKeys={itemKeys} />
-            {index !== Object.keys(fields).length - 1 && <Divider />}
+            <Divider />
           </Fragment>
         )
       })}
+
+      {['pages', 'sections', 'groups'].includes(itemKey) && (
+        <Box sx={{ py: 2, px: 2 }}>
+          <Button variant="outlined" color="secondary" size="small">Add {itemKey.substring(0, itemKey.length - 1)}</Button>
+        </Box>
+      )}
+
+      {['views', 'fields'].includes(itemKey) && (name !== itemKey) && (
+        <Box sx={{ py: 2, px: 2 }}>
+          <Button variant="outlined" color="secondary" size="small">Add {itemKey.substring(0, itemKey.length - 1)}</Button>
+        </Box>
+      )}
     </>
   )
 }
@@ -655,7 +669,11 @@ function EditReferencedItem({ itemKeys, ...props }) {
   logger.log('EditReferencedItem', 'itemKeys:', itemKeys, 'props:', props)
 
   if (itemKeys.id !== undefined) {
-    return <EditItems {...props} keyPrefix={undefined} searchSuffix={itemKeys.id} />;
+    return (
+      <>
+        <EditItems {...props} keyPrefix={undefined} searchSuffix={itemKeys.id} />
+      </>
+    )
   }
   return null;
 }
@@ -704,6 +722,7 @@ function EditItemProperties({ itemKeys, fieldKey, children, ...props }) {
             </ChildrenWithProps>
           </Stack>
         </Collapse>
+
       </Box>
     </Grid>
   )
@@ -780,8 +799,8 @@ function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
         }
 
         return (
-          <Box sx={{ mt: 1, flexGrow: 1, border: 1, borderRadius: 1, borderColor: 'grey.300' }}>
-            <EditItems key={itemKey} {...props} keyPrefix={keyPrefix} itemKey={itemKey} />
+          <Box key={itemKey} sx={{ mt: 1, flexGrow: 1, border: 1, borderRadius: 1, borderColor: 'grey.300' }}>
+            <EditItems {...props} keyPrefix={keyPrefix} itemKey={itemKey} />
           </Box>
         )
       })}
