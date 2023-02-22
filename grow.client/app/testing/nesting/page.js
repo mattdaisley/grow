@@ -123,6 +123,14 @@ function useItems(itemKeys) {
     logger.log('broadcast socket emit set-item:', itemKey, setItemsEvent)
   }
 
+  itemsRef.current.addItems = (itemKey, items) => {
+    if (Object.keys(items).length > 0) {
+      const addItemsEvent = { itemKey, items }
+      socket.emit('add-items', addItemsEvent)
+      logger.log('addItems socket emit add-items:', addItemsEvent)
+    }
+  }
+
   itemsRef.current.subscribe = (valueKey, callback) => {
     // itemsRef.current.subscriptions[valueKey] = callback
     if (itemsRef.current.subscriptions[valueKey] === undefined) {
@@ -485,7 +493,7 @@ function ShowItemLabel(props) {
 function ShowReferencedItem({ itemKeys, ...props }) {
   logger.log('ShowReferencedItem', 'itemKeys:', itemKeys, 'props:', props)
 
-  if (itemKeys.id !== undefined) {
+  if (itemKeys !== null && itemKeys?.id !== undefined) {
     return <ShowItems {...props} keyPrefix={undefined} searchSuffix={itemKeys.id} />;
   }
   return null;
@@ -494,7 +502,7 @@ function ShowReferencedItem({ itemKeys, ...props }) {
 function ShowItemProperties({ itemKeys, fieldKey, children, ...props }) {
   logger.log('ShowItemProperties', 'itemKeys:', itemKeys, 'fieldKey:', fieldKey, 'props:', props)
 
-  if (itemKeys.id === undefined) {
+  if (itemKeys !== null && itemKeys?.id === undefined) {
     return (
       <>
         <ChildrenWithProps {...props}>
@@ -510,7 +518,7 @@ function ShowItemProperties({ itemKeys, fieldKey, children, ...props }) {
 function ShowNestedItems({ itemKeys, keyPrefix, ...props }) {
   return (
     <>
-      {Object.keys(itemKeys).map(itemKey => {
+      {itemKeys !== null && Object.keys(itemKeys).map(itemKey => {
         logger.log('ShowNestedItems nested itemKey:', itemKey)
         if (itemTypes.includes(itemKey) === false) {
           return null;
@@ -594,9 +602,7 @@ function EditControls({ name, fields, ...props }) {
       })}
 
       {['pages', 'sections', 'groups'].includes(itemKey) && (
-        <Box sx={{ py: 2, px: 2 }}>
-          <Button variant="outlined" color="secondary" size="small">Add {itemKey.substring(0, itemKey.length - 1)}</Button>
-        </Box>
+        <AddNewItemControl {...props} fields={fields} />
       )}
 
       {['views', 'fields'].includes(itemKey) && (name !== itemKey) && (
@@ -608,10 +614,130 @@ function EditControls({ name, fields, ...props }) {
   )
 }
 
+function AddNewItemControl({ ...props }) {
+  logger.log('AddNewItemControl', 'props:', props)
+
+  const [addingItem, setAddingItem] = useState(false);
+
+  const handleAddItemConfirmClick = (addedProperties) => {
+    logger.log('AddNewItemControl handleAddItemConfirmClick', 'addedProperties:', addedProperties)
+
+    const itemKey = props.keyPrefix
+      ? `${props.keyPrefix.split('.')[0]}`
+      : props.itemKey
+
+    const keyPrefix = props.keyPrefix
+      ? `${props.keyPrefix}.${props.itemKey}`
+      : props.itemKey
+
+    if (props.itemKey === 'pages') {
+      addedProperties.sections = { label: 'Section 1', name: 'section_1', width: '12' }
+    }
+
+    if (props.itemKey === 'sections' || props.itemKey === 'groups') {
+      addedProperties.width = '12'
+    }
+
+    const itemsToAdd = {
+      [keyPrefix]: addedProperties
+    }
+
+    props.addItems(itemKey, itemsToAdd)
+
+    setAddingItem(false);
+  };
+
+  const handleAddItemCancelClick = () => {
+    logger.log('AddNewItemControl handleAddItemCancelClick')
+    setAddingItem(false);
+  };
+
+  return (
+    <Box sx={{ py: 2, px: 2 }}>
+      {!addingItem && (
+        <Button variant="outlined" color="secondary" size="small" onClick={() => setAddingItem(true)}>
+          Add {props.itemKey.substring(0, props.itemKey.length - 1)}
+        </Button>
+      )}
+      {addingItem && (
+        <AddNewItemProperties
+          {...props}
+          addingItem={addingItem}
+          onAddItemConfirmClick={handleAddItemConfirmClick}
+          onAddItemCancelClick={handleAddItemCancelClick}
+        />
+      )}
+    </Box>
+
+  );
+}
+
+function AddNewItemProperties(props) {
+
+  const [itemName, setItemName] = useState(getNextItemName(props.itemKey, props.fields));
+  const [itemLabel, setItemLabel] = useState(getNextItemLabel(props.itemKey, props.fields));
+
+  return (
+    <>
+      <FieldWrapper>
+        <TextField
+          label="Label"
+          fullWidth
+          size="small"
+          value={itemLabel}
+          onChange={(event) => setItemLabel(event.target.value)} />
+      </FieldWrapper>
+      <FieldWrapper>
+        <TextField
+          label="Name"
+          fullWidth
+          size="small"
+          value={itemName}
+          onChange={(event) => setItemName(event.target.value)} />
+      </FieldWrapper>
+      <Button
+        color="secondary"
+        size="small"
+        sx={{ mt: 1 }}
+        disabled={itemName === ""}
+        onClick={() => props.onAddItemConfirmClick({ label: itemLabel, name: itemName })}>
+        Confirm
+      </Button>
+      <Button
+        size="small"
+        sx={{ mt: 1 }}
+        onClick={props.onAddItemCancelClick}>
+        Cancel
+      </Button>
+    </>
+  )
+}
+
+function getNextItemName(itemKey, fields) {
+  return getNextItemLabel(itemKey, fields).split(' ').join('_').toLowerCase();
+}
+
+function getNextItemLabel(itemKey, fields) {
+  const existingNames = fields !== undefined
+    ? Object.keys(fields).map(field => field?.name ?? "")
+    : []
+
+  let nextItemIndex = existingNames.length + 1
+  let nextItemName = `${itemKey.substring(0, itemKey.length - 1)} ${nextItemIndex}`
+  while (existingNames.includes(nextItemName)) {
+    nextItemIndex++
+    nextItemName = `${itemKey}${nextItemIndex}`
+  }
+
+  return nextItemName.charAt(0).toUpperCase() + nextItemName.substring(1);
+}
+
 function EditPage(props) {
   logger.log('EditPage', 'props:', props)
   return (
-    <EditItem {...props} />
+    <>
+      <EditItem {...props} />
+    </>
   )
 }
 
@@ -668,7 +794,7 @@ function EditItem({ children, fieldKey, itemKeys, ...props }) {
 function EditReferencedItem({ itemKeys, ...props }) {
   logger.log('EditReferencedItem', 'itemKeys:', itemKeys, 'props:', props)
 
-  if (itemKeys.id !== undefined) {
+  if (itemKeys !== null && itemKeys?.id !== undefined) {
     return (
       <>
         <EditItems {...props} keyPrefix={undefined} searchSuffix={itemKeys.id} />
@@ -683,7 +809,7 @@ function EditItemProperties({ itemKeys, fieldKey, children, ...props }) {
 
   const [openFields, setOpenFields] = useState([]);
 
-  if (itemKeys.id !== undefined) {
+  if (itemKeys !== null && itemKeys?.id !== undefined) {
     return null
   }
 
@@ -790,10 +916,10 @@ function EditItemLabel({ onClick, ...props }) {
 }
 
 function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
+  logger.log('EditNestedItems', 'itemKeys:', itemKeys, 'keyPrefix:', keyPrefix, 'props:', props)
   return (
     <>
-      {Object.keys(itemKeys).map(itemKey => {
-        // logger.log('EditNestedItems nested itemKey:', itemKey)k
+      {itemKeys !== null && Object.keys(itemKeys).map(itemKey => {
         if (itemTypes.includes(itemKey) === false) {
           return null;
         }
@@ -804,6 +930,10 @@ function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
           </Box>
         )
       })}
+
+      {/* {!itemKeys.hasOwnProperty('sections') && (
+        <AddNewItemControl {...props} />
+      )} */}
     </>
   )
 }

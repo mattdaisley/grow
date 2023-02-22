@@ -13,11 +13,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { DynamicService } from './dynamic.service';
 import { CreateDynamicItemDto } from './dto/create-dynamic-item.dto';
-import { DynamicItemsAddRequest } from './dto/dynamic-items-add-request.dto';
+import { DynamicAddItem, DynamicItemsAddRequest } from './dto/dynamic-items-add-request.dto';
 import { DynamicItemsDeleteRequest } from './dto/dynamic-items-delete-request.dto';
 import { DynamicItemsDeleteResponse } from './dto/dynamic-items-delete-response.dto';
 import { DynamicItemsRequest } from './dto/dynamic-items-request.dto';
 import { DynamicItemsResponse } from './dto/dynamic-items-response.dto';
+import { DynamicItem } from './entities/dynamic-item.entity';
 
 @WebSocketGateway({
   namespace: 'dynamic',
@@ -108,38 +109,80 @@ export class DynamicGateway {
     const itemKey = data.itemKey;
     const event = `items-${itemKey}`;
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
-
-    const allItems: DynamicItemsResponse = { [itemKey]: [] };
     
     return new Promise<DynamicItemsResponse>(async (resolve, reject) => {
       
-      data.items.map(async addedItem => {
+      const addedItems = await this.addItems(itemKey, data.items)
 
-        const valueKeyPrefix = addedItem.prefix;
-        const valueKeySuffix = addedItem.suffix;
-        const value = addedItem.value;
+      const allItems: DynamicItemsResponse = { 
+        [itemKey]: addedItems 
+      };
 
-        const valueKey = `${valueKeyPrefix}.${uuidv4()}.${valueKeySuffix}`;
+      resolve(allItems);
+      
+    })
+    .then((items) => {
+      this.server.emit(event, items)
+      console.log('handleAddItemsEvent emit', event, items);
+      return items;
+    });
+  }
 
-        const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value }
+  async addItems(itemKey: string, items: DynamicAddItem, prefix?: string) {
+    console.log('addItems', itemKey, items, prefix)
 
-        console.log('handleAddItemsEvent creating item', createDynamicItemDto)
-        const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
+    return new Promise<DynamicItem[]>(async (resolve, reject) => {
+      
+      let addedItems: DynamicItem[] = []
+      let itemsToAdd: number = 0;
 
-        allItems[itemKey].push(dynamicItem)
+      const nextId = uuidv4()
 
-        if (allItems[itemKey].length === data.items.length) {
-          resolve(allItems);
+      Object.keys(items).map(async valueKeyPrefix => {
+
+        const itemToAdd = items[valueKeyPrefix]
+        itemsToAdd += Object.keys(itemToAdd).length
+
+        let itemPrefix = `${valueKeyPrefix}.${nextId}`;
+        if (prefix !== undefined) {
+          itemPrefix = `${prefix}.${itemPrefix}`
         }
+        
+        console.log('itemToAdd', valueKeyPrefix, itemPrefix, itemToAdd)
+
+        Object.keys(itemToAdd).map(async valueKeySuffix => {
+
+          const valueKey = `${itemPrefix}.${valueKeySuffix}`;
+          const value = itemToAdd[valueKeySuffix];
+
+          if (typeof value === "string") {
+
+            const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value }
+
+            console.log('handleAddItemsEvent creating item', createDynamicItemDto)
+            const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
+
+            addedItems.push(dynamicItem)
+          }
+          else {
+            const nestedItems = await this.addItems(itemKey, { [valueKeySuffix]: value }, itemPrefix);
+            itemsToAdd += nestedItems.length - 1 // subtract one because we already counted the valueSuffix as one
+
+            addedItems = [
+              ...addedItems,
+              ...nestedItems
+            ]
+          }
+
+          console.log('should resolve?', addedItems.length === itemsToAdd, addedItems.length, itemsToAdd)
+          if (addedItems.length === itemsToAdd) {
+            resolve(addedItems);
+          }
+        })
 
       })
       
     })
-    .then((items) => {
-      this.server.emit(event, allItems)
-      console.log('handleAddItemsEvent emit', event, items);
-      return items;
-    });
   }
   
   @SubscribeMessage('delete-items')

@@ -5,17 +5,10 @@ export class DynamicItemsAddRequest {
     @IsString()
     itemKey: string;
 
-    items: DynamicAddItem[]
+    items: DynamicAddItem;
 }
 
-class DynamicAddItem {
+export class DynamicAddItem {
 
-    @IsString()
-    prefix: string;
-
-    @IsString()
-    suffix: string;
-
-    @IsString()
-    value: string;
+    [valueKey: string]: DynamicAddItem | string;
 }
