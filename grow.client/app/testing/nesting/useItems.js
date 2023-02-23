@@ -76,6 +76,13 @@ export function useItems(itemKeys) {
     itemsRef.current.subscriptions[valueKey].push(callback);
   };
 
+  itemsRef.current.unsubscribe = (valueKey, callback) => {
+    const callbackIndex = itemsRef.current.subscriptions[valueKey]?.indexOf(callback);
+    if (callbackIndex > -1) {
+      delete itemsRef.current.subscriptions[valueKey][callbackIndex]
+    }
+  }
+
   function runSubscriptions(subscriptions, data, valueKey, value) {
     logger.log('runSubscriptions', 'subscriptions:', subscriptions, 'valueKey:', valueKey, 'value:', value, 'data:', data);
     // if (subscriptions.hasOwnProperty(valueKey)) {
@@ -164,8 +171,9 @@ export function useItems(itemKeys) {
           runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, value);
         }
         else if (broadcastedValue === value) {
+          logger.log('handleReceiveAllItems confirm broadcasted value', valueKey, itemsRef.current.broadcasted[valueKey]);
           delete itemsRef.current.broadcasted[valueKey];
-          runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, value);
+          // runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, value);
         }
         else {
           logger.log('handleReceiveAllItems received value out of date', broadcastedValue, value);

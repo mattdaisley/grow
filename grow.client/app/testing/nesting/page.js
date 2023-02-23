@@ -88,11 +88,17 @@ function useSubscription(props) {
     updateFields(_fieldsRef, newFields, setFields)
     logger.log('useSubscription useEffect', 'name:', name, 'newFields:', newFields, 'nestedData:', nestedData)
 
-    props.subscribe(searchName, (valueKey, value) => {
+    const callback = (valueKey, value) => {
       logger.log('useSubscription subscribed change', searchName, valueKey, value)
       const trimmedKey = valueKey.substring(name.length + 1, valueKey.length)
       updateFields(_fieldsRef, { ..._fieldsRef.current, [trimmedKey]: value }, setFields)
-    })
+    }
+
+    props.subscribe(searchName, callback)
+
+    return () => {
+      props.unsubscribe(searchName, callback)
+    }
   }, [name, searchName])
 
   return {
@@ -857,7 +863,7 @@ function EditItemProperties({ itemKeys, fieldKey, children, ...props }) {
           <EditItemHeader {...props} onClick={handleClick} />
         </Collapse>
 
-        <Collapse in={isOpen} timeout="auto">
+        {isOpen && (<>
           <EditItemLabel {...props} onClick={handleClick} />
 
           <Stack spacing={0} sx={{ px: 2, py: 2 }}>
@@ -867,7 +873,7 @@ function EditItemProperties({ itemKeys, fieldKey, children, ...props }) {
               {children}
             </ChildrenWithProps>
           </Stack>
-        </Collapse>
+        </>)}
 
       </Box>
     </Grid>
