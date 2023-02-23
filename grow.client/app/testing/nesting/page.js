@@ -1,7 +1,7 @@
 'use client';
 
-import { Children, cloneElement, Fragment, isValidElement, useRef, useState, useEffect, useContext, useMemo, useCallback } from "react";
-import { FormProvider, useForm, Controller, useFormContext, useFieldArray, useWatch } from "react-hook-form";
+import { Children, cloneElement, Fragment, isValidElement, useRef, useState, useEffect, useMemo, useCallback } from "react";
+import { FormProvider, Controller, useFormContext, useFieldArray, useWatch } from "react-hook-form";
 import { v4 as uuidv4 } from 'uuid';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -27,8 +27,8 @@ import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import logger from "../../../../grow.api/src/logger";
-import { SocketContext } from "../../SocketContext";
 import { unflatten } from 'flat';
+import { useItems } from "./useItems";
 
 const itemTypes = ['pages', 'sections', 'views', 'groups', 'fields'];
 const fieldTypes = [{ value: '0', label: 'textfield' }, { value: '1', label: 'autocomplete' }]
@@ -66,186 +66,6 @@ export default function TestingNestingPage() {
 }
 
 
-
-function useItems(itemKeys) {
-  logger.log('useItems', itemKeys)
-
-  const socket = useContext(SocketContext);
-
-  const itemsRef = useRef({ itemKeys })
-  itemsRef.current = {
-    itemKeys,
-    data: {},
-    broadcasted: {},
-    subscriptions: {}
-  }
-
-  const formMethods = useForm();
-  itemsRef.current.formMethods = formMethods;
-
-  itemsRef.current.getData = (name) => {
-    logger.log('getData', name, itemsRef.current.data?.[name])
-    return itemsRef.current.data?.[name];
-  }
-
-  itemsRef.current.getNestedData = (name) => {
-    // logger.log('getNestedData', name, itemsRef.current.data)
-    const nestedData = {};
-    Object.keys(itemsRef.current.data)
-      .filter((dataKey) => dataKey.startsWith(name))
-      .map(dataKey => nestedData[dataKey] = itemsRef.current.data[dataKey])
-    return nestedData
-  }
-
-  itemsRef.current.broadcast = (valueKey, event, value) => {
-    logger.log('broadcast', valueKey, event.type, event?.target?.value, value)
-
-    const itemKey = valueKey.split('.')[0]
-
-    let newValue
-    switch (event.type) {
-      case 'change':
-        newValue = event.target.value;
-        break;
-      case 'click':
-      default:
-        newValue = value;
-        break;
-    }
-
-    runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, newValue)
-
-    itemsRef.current.data[valueKey] = newValue
-    itemsRef.current.broadcasted[valueKey] = newValue
-
-    const setItemsEvent = { itemKey, values: { [valueKey]: newValue } }
-    socket?.emit('set-items', setItemsEvent)
-    logger.log('broadcast socket emit set-item:', itemKey, setItemsEvent)
-  }
-
-  itemsRef.current.addItems = (itemKey, items) => {
-    if (Object.keys(items).length > 0) {
-      const addItemsEvent = { itemKey, items }
-      socket.emit('add-items', addItemsEvent)
-      logger.log('addItems socket emit add-items:', addItemsEvent)
-    }
-  }
-
-  itemsRef.current.subscribe = (valueKey, callback) => {
-    // itemsRef.current.subscriptions[valueKey] = callback
-    if (itemsRef.current.subscriptions[valueKey] === undefined) {
-      itemsRef.current.subscriptions[valueKey] = []
-    }
-    itemsRef.current.subscriptions[valueKey].push(callback)
-  }
-
-  function runSubscriptions(subscriptions, data, valueKey, value) {
-    logger.log('runSubscriptions', subscriptions, valueKey, value, data)
-    // if (subscriptions.hasOwnProperty(valueKey)) {
-    // const callback = subscriptions[valueKey]
-    // callback(valueKey, value)
-    // }
-    // else {
-    Object.keys(subscriptions).map(subscriptionKey => {
-      if (subscriptionKey === valueKey) {
-        // const callback = subscriptions[valueKey]
-        // callback(valueKey, value)
-        const callbacks = subscriptions[valueKey]
-        callbacks?.map(callback => callback(valueKey, value))
-      }
-      else if (valueKey.startsWith(subscriptionKey)) {
-        const nestedDataKeys = {};
-        Object.keys(data)
-          .filter((dataKey) => dataKey.startsWith(subscriptionKey))
-          .map(dataKey => nestedDataKeys[dataKey] = data[dataKey])
-        logger.log('runSubscriptions nestedData', subscriptionKey, valueKey, nestedDataKeys)
-        if (nestedDataKeys.length === 0 || !nestedDataKeys.hasOwnProperty(valueKey)) {
-          // an item was updated
-          // const callback = subscriptions[subscriptionKey]
-          // callback(valueKey, value)
-          const callbacks = subscriptions[subscriptionKey]
-          callbacks?.map(callback => callback(valueKey, value))
-        }
-        else {
-          // a new item was added
-        }
-      }
-    })
-
-    // Object.keys(data).map(dataKey => {
-    //   if (valueKey.startsWith(dataKey)) {
-    //     const callback = subscriptions[subscriptionKey]
-    //     callback(valueKey, value)
-    //   }
-    // })
-
-    // Object.keys(subscriptions).map(subscriptionKey => {
-    //   if (valueKey.startsWith(subscriptionKey)) {
-    //     const callback = subscriptions[subscriptionKey]
-    //     callback(valueKey, value)
-    //   }
-    // })
-    // }
-  }
-
-  useEffect(() => {
-    function loadItems() {
-      itemKeys.map(itemKey => {
-        const data = { itemKey };
-        socket?.emit('get-items', data)
-        logger.log('useItems socket emit get-items', data)
-      })
-    }
-
-    loadItems()
-  }, [JSON.stringify(itemKeys), socket])
-
-  useEffect(() => {
-    itemKeys.map(itemKey => {
-      socket?.on(`items-${itemKey}`, handleReceiveAllItems)
-    })
-
-    return () => {
-      itemKeys.map(itemKey => {
-        socket?.off(`items-${itemKey}`, handleReceiveAllItems)
-      })
-    };
-  }, [JSON.stringify(itemKeys), socket, handleReceiveAllItems])
-
-  function handleReceiveAllItems(data) {
-    logger.log('handleReceiveAllItems socket', data)
-
-    const newData = {}
-    Object.keys(data).map(itemKey => {
-      data[itemKey].map(item => {
-        const valueKey = item.valueKey
-        const value = item.value
-        const broadcastedValue = itemsRef.current.broadcasted[valueKey]
-        if (broadcastedValue === undefined) {
-          newData[valueKey] = value;
-          const { setValue } = itemsRef.current.formMethods
-          setValue(valueKey, value)
-          runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, value)
-        }
-        else if (broadcastedValue === value) {
-          delete itemsRef.current.broadcasted[valueKey]
-          runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, value)
-        }
-        else {
-          logger.log('handleReceiveAllItems received value out of date', broadcastedValue, value)
-        }
-      })
-    })
-
-    itemsRef.current.data = {
-      ...itemsRef.current.data,
-      ...newData
-    }
-    logger.log('handleReceiveAllItems newData', itemsRef.current.data)
-  }
-
-  return itemsRef.current;
-}
 
 function useSubscription(props) {
 
@@ -542,7 +362,13 @@ function EditItems({ searchSuffix, ...props }) {
   logger.log('EditItems', 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props)
 
   if (Object.keys(fields).length === 0) {
-    return null;
+    return (
+      <>
+        <AddItemActions {...props} fields={fields}>
+          <AddNewItemControl />
+        </AddItemActions>
+      </>
+    );
   }
 
   return (
@@ -602,22 +428,41 @@ function EditControls({ name, fields, ...props }) {
       })}
 
       {['pages', 'sections', 'groups'].includes(itemKey) && (
-        <AddNewItemControl {...props} fields={fields} />
+        <AddItemActions {...props} fields={fields}>
+          <AddNewItemControl />
+        </AddItemActions>
+
       )}
 
       {['views', 'fields'].includes(itemKey) && (name !== itemKey) && (
-        <Box sx={{ py: 2, px: 2 }}>
-          <Button variant="outlined" color="secondary" size="small">Add {itemKey.substring(0, itemKey.length - 1)}</Button>
-        </Box>
+        <AddItemActions {...props} fields={fields}>
+          <AddExistingItemControl />
+          <AddNewItemControl />
+        </AddItemActions>
       )}
     </>
   )
 }
 
-function AddNewItemControl({ ...props }) {
-  logger.log('AddNewItemControl', 'props:', props)
+function AddItemActions({ children, ...props }) {
 
   const [addingItem, setAddingItem] = useState(false);
+
+  const handleSetAddingItem = (newAddingItem) => {
+    setAddingItem(newAddingItem)
+  }
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+      <ChildrenWithProps {...props} addingItem={addingItem} setAddingItem={handleSetAddingItem}>
+        {children}
+      </ChildrenWithProps>
+    </Box>
+  )
+}
+
+function AddNewItemControl({ addingItem, setAddingItem, ...props }) {
+  logger.log('AddNewItemControl', 'props:', props)
 
   const handleAddItemConfirmClick = (addedProperties) => {
     logger.log('AddNewItemControl handleAddItemConfirmClick', 'addedProperties:', addedProperties)
@@ -630,16 +475,37 @@ function AddNewItemControl({ ...props }) {
       ? `${props.keyPrefix}.${props.itemKey}`
       : props.itemKey
 
+    let propertiesToAdd;
     if (props.itemKey === 'pages') {
-      addedProperties.sections = { label: 'Section 1', name: 'section_1', width: '12' }
+      propertiesToAdd = {
+        ...addedProperties,
+        sections: { label: 'Section 1', name: 'section_1', width: '12' }
+      }
     }
-
-    if (props.itemKey === 'sections' || props.itemKey === 'groups') {
-      addedProperties.width = '12'
+    else if (props.itemKey === 'sections' || props.itemKey === 'groups') {
+      propertiesToAdd = {
+        ...addedProperties,
+        width: '12'
+      }
+    }
+    else if (props.itemKey === 'views') {
+      propertiesToAdd = {
+        id: {
+          ...addedProperties,
+          groups: { label: 'Group 1', name: 'group_1', width: '12' }
+        }
+      }
+    }
+    else if (props.itemKey === 'fields') {
+      propertiesToAdd = {
+        id: {
+          ...addedProperties
+        }
+      }
     }
 
     const itemsToAdd = {
-      [keyPrefix]: addedProperties
+      [keyPrefix]: propertiesToAdd
     }
 
     props.addItems(itemKey, itemsToAdd)
@@ -653,22 +519,25 @@ function AddNewItemControl({ ...props }) {
   };
 
   return (
-    <Box sx={{ py: 2, px: 2 }}>
+    <>
       {!addingItem && (
-        <Button variant="outlined" color="secondary" size="small" onClick={() => setAddingItem(true)}>
-          Add {props.itemKey.substring(0, props.itemKey.length - 1)}
-        </Button>
+        <Box sx={{ py: 2, px: 2 }}>
+          <Button variant="outlined" color="secondary" size="small" onClick={() => setAddingItem('new')}>
+            Add New {props.itemKey.substring(0, props.itemKey.length - 1)}
+          </Button>
+        </Box>
       )}
-      {addingItem && (
-        <AddNewItemProperties
-          {...props}
-          addingItem={addingItem}
-          onAddItemConfirmClick={handleAddItemConfirmClick}
-          onAddItemCancelClick={handleAddItemCancelClick}
-        />
+      {addingItem === 'new' && (
+        <Box sx={{ py: 2, px: 2, width: '100%' }}>
+          <AddNewItemProperties
+            {...props}
+            addingItem={addingItem}
+            onAddItemConfirmClick={handleAddItemConfirmClick}
+            onAddItemCancelClick={handleAddItemCancelClick}
+          />
+        </Box>
       )}
-    </Box>
-
+    </>
   );
 }
 
@@ -732,6 +601,132 @@ function getNextItemLabel(itemKey, fields) {
   return nextItemName.charAt(0).toUpperCase() + nextItemName.substring(1);
 }
 
+function AddExistingItemControl({ addingItem, setAddingItem, ...props }) {
+  logger.log('AddExistingItemControl', 'props:', props)
+
+  const handleAddItemConfirmClick = (addedProperties) => {
+    logger.log('AddExistingItemControl handleAddItemConfirmClick', 'addedProperties:', addedProperties)
+
+    const itemKey = props.keyPrefix
+      ? `${props.keyPrefix.split('.')[0]}`
+      : props.itemKey
+
+    const keyPrefix = props.keyPrefix
+      ? `${props.keyPrefix}.${props.itemKey}`
+      : props.itemKey
+
+    const itemsToAdd = {
+      [keyPrefix]: addedProperties
+    }
+
+    props.addItems(itemKey, itemsToAdd)
+
+    setAddingItem(false);
+  };
+
+  const handleAddItemCancelClick = () => {
+    logger.log('AddExistingItemControl handleAddItemCancelClick')
+    setAddingItem(false);
+  };
+
+  return (
+    <>
+      {!addingItem && (
+        <Box sx={{ py: 2, px: 2 }}>
+          <Button variant="outlined" color="secondary" size="small" onClick={() => setAddingItem('existing')}>
+            Add {props.itemKey.substring(0, props.itemKey.length - 1)}
+          </Button>
+        </Box>
+      )}
+      {addingItem === 'existing' && (
+        <Box sx={{ py: 2, px: 2, width: '100%' }}>
+          <AddExistingItemProperties
+            {...props}
+            addingItem={addingItem}
+            onAddItemConfirmClick={handleAddItemConfirmClick}
+            onAddItemCancelClick={handleAddItemCancelClick}
+          />
+        </Box>
+      )}
+    </>
+  );
+}
+
+function AddExistingItemProperties(props) {
+
+  const [itemValue, setItemValue] = useState({ value: null, label: "" });
+  const { fields: currentItems } = useSubscription({ ...props, itemKey: props.itemKey, keyPrefix: props.keyPrefix })
+  const { fields: existingItems } = useSubscription({ ...props, itemKey: props.itemKey, keyPrefix: undefined })
+  logger.log('AddExistingItemProperties', 'props:', props, 'currentItems:', currentItems, 'existingItems:', existingItems)
+
+  const handleItemValueChange = (_, newValue) => {
+    // logger.log('AddExistingItemControl handleItemValueChange', newValue)
+    if (newValue === null) {
+      setItemValue({ value: null, label: "" });
+    }
+    else {
+      setItemValue(newValue)
+    }
+  }
+
+  const handleItemTextChange = (event) => {
+    setItemValue({ ...itemValue, label: event.target.value ?? "" })
+  }
+
+  const handleAddItemConfirmClick = () => {
+    logger.log('AddExistingItemProperties handleAddItemConfirmClick', 'itemKey:', props.itemKey, 'itemValue:', itemValue)
+    props.onAddItemConfirmClick && props.onAddItemConfirmClick(
+      { id: itemValue.value }
+    );
+    setItemValue({ value: null, label: "" });
+  };
+
+  const options = Object.keys(existingItems).map(existingItemKey => {
+    return { value: existingItemKey, label: existingItems[existingItemKey].label ?? existingItems[existingItemKey].name }
+  })
+
+  return (
+    <>
+      <FieldWrapper>
+        <Autocomplete
+          label={props.itemKey}
+          autoComplete
+          autoSelect
+          autoHighlight
+          fullWidth
+          size="small"
+          options={options}
+          value={itemValue.value}
+          inputValue={itemValue.label}
+          onChange={handleItemValueChange}
+          isOptionEqualToValue={(option, testValue) => option?.value === testValue}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={props.type}
+              onChange={handleItemTextChange}
+            />
+          )}
+        />
+      </FieldWrapper>
+      <Button
+        color="secondary"
+        size="small"
+        sx={{ mt: 1 }}
+        disabled={itemValue.value === null}
+        onClick={handleAddItemConfirmClick}>
+        Confirm
+      </Button>
+      <Button
+        size="small"
+        sx={{ mt: 1 }}
+        onClick={props.onAddItemCancelClick}>
+        Cancel
+      </Button>
+    </>
+  )
+}
+
 function EditPage(props) {
   logger.log('EditPage', 'props:', props)
   return (
@@ -775,8 +770,14 @@ function EditField(props) {
   )
 }
 
-function EditItem({ children, fieldKey, itemKeys, ...props }) {
-  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
+function EditItem({ children, fieldKey, ...props }) {
+  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', props.itemKeys, 'props:', props)
+
+  const missingNestedItems = getMissingNestedItems(props)
+  const itemKeys = {
+    ...props.itemKeys,
+    ...missingNestedItems
+  }
 
   return (
     <>
@@ -789,6 +790,25 @@ function EditItem({ children, fieldKey, itemKeys, ...props }) {
 
     </>
   )
+}
+
+function getMissingNestedItems({ itemKey, itemKeys }) {
+  switch (itemKey) {
+    case 'sections':
+      if (!itemKeys.hasOwnProperty('views')) {
+        return { ...itemKeys, views: {} }
+      }
+      break;
+    case 'groups':
+      if (!itemKeys.hasOwnProperty('fields')) {
+        return { ...itemKeys, fields: {} }
+      }
+      break;
+    default:
+      break;
+  }
+
+  return {}
 }
 
 function EditReferencedItem({ itemKeys, ...props }) {

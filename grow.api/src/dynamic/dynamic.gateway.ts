@@ -138,14 +138,43 @@ export class DynamicGateway {
 
       const nextId = uuidv4()
 
-      Object.keys(items).map(async valueKeyPrefix => {
+      Object.keys(items).map(async nestedItemPrefix => {
+
+        let valueKeyPrefix = nestedItemPrefix
 
         const itemToAdd = items[valueKeyPrefix]
         itemsToAdd += Object.keys(itemToAdd).length
 
-        let itemPrefix = `${valueKeyPrefix}.${nextId}`;
-        if (prefix !== undefined) {
-          itemPrefix = `${prefix}.${itemPrefix}`
+        let finalItemKey: string;
+        let itemPrefix: string;
+
+        if (valueKeyPrefix === 'id') {
+          console.log('itemToAdd relatedItem', 'valueKeyPrefix:', valueKeyPrefix)
+
+          itemsToAdd += 1
+
+          let valueKey = `id`; // use a new uuid just for this
+          if (prefix !== undefined) {
+            valueKey = `${prefix}.${valueKey}`
+          }
+          const value = nextId
+
+          const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value }
+
+          console.log('handleAddItemsEvent creating item', createDynamicItemDto)
+          const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
+
+          addedItems.push(dynamicItem)
+           
+          finalItemKey = valueKey.split('.').slice(-3)[0]
+          itemPrefix = `${finalItemKey}.${nextId}`;
+        }
+        else {
+          finalItemKey = itemKey
+          itemPrefix = `${valueKeyPrefix}.${nextId}`;
+          if (prefix !== undefined) {
+            itemPrefix = `${prefix}.${itemPrefix}`
+          }
         }
         
         console.log('itemToAdd', valueKeyPrefix, itemPrefix, itemToAdd)
@@ -157,7 +186,7 @@ export class DynamicGateway {
 
           if (typeof value === "string") {
 
-            const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value }
+            const createDynamicItemDto: CreateDynamicItemDto = { itemKey: finalItemKey, valueKey, value }
 
             console.log('handleAddItemsEvent creating item', createDynamicItemDto)
             const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
@@ -165,7 +194,7 @@ export class DynamicGateway {
             addedItems.push(dynamicItem)
           }
           else {
-            const nestedItems = await this.addItems(itemKey, { [valueKeySuffix]: value }, itemPrefix);
+            const nestedItems = await this.addItems(finalItemKey, { [valueKeySuffix]: value }, itemPrefix);
             itemsToAdd += nestedItems.length - 1 // subtract one because we already counted the valueSuffix as one
 
             addedItems = [
@@ -185,6 +214,12 @@ export class DynamicGateway {
     })
   }
   
+  async addItemReference() {
+
+  }
+
+
+
   @SubscribeMessage('delete-items')
   async handleDeleteItemsEvent(@MessageBody() data: DynamicItemsDeleteRequest): Promise<DynamicItemsDeleteResponse> {
     console.log('handleDeleteItemsEvent', data)
