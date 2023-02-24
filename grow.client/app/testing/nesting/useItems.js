@@ -1,21 +1,24 @@
 'use client';
-import { useRef, useEffect, useContext } from "react";
+import { useRef, useEffect, useCallback, useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import logger from "../../../../grow.api/src/logger";
 import { SocketContext } from "../../SocketContext";
 
-export function useItems(itemKeys) {
-  logger.log('useItems', itemKeys);
+export function useItems(defaultItemKeys) {
+
+  const [itemKeys, setItemKeys] = useState([])
+  const [loadedItemKeys, setLoadedItemKeys] = useState([])
+
+  logger.log('useItems', 'itemKeys:', itemKeys, 'defaultItemKeys:', defaultItemKeys);
 
   const socket = useContext(SocketContext);
 
-  const itemsRef = useRef({ itemKeys });
-  itemsRef.current = {
-    itemKeys,
+  const itemsRef = useRef({
+    itemKeys: [],
     data: {},
     broadcasted: {},
     subscriptions: {}
-  };
+  });
 
   const formMethods = useForm();
   itemsRef.current.formMethods = formMethods;
@@ -33,6 +36,16 @@ export function useItems(itemKeys) {
       .map(dataKey => nestedData[dataKey] = itemsRef.current.data[dataKey]);
     return nestedData;
   };
+
+  // can probably be temporary until this is a feature of getData
+  // getData could have signature (itemKey, valueKey, callback) to support automatic subscription
+  itemsRef.current.getItems = (requestedItemKeys) => {
+    logger.log('getItems', 'requestedItemKeys:', requestedItemKeys, 'itemsRef.current.itemKeys:', itemsRef.current.itemKeys, 'itemKeys:', itemKeys)
+    const newItemKeys = requestedItemKeys.filter(requestedItemKey => !itemKeys.includes(requestedItemKey))
+    if (newItemKeys.length > 0) {
+      setItemKeys([...itemKeys, ...newItemKeys])
+    }
+  }
 
   itemsRef.current.broadcast = (itemKey, valueKey, event, value) => {
     logger.log('broadcast', itemKey, valueKey, event.type, event?.target?.value, value);
@@ -133,12 +146,22 @@ export function useItems(itemKeys) {
   }
 
   useEffect(() => {
+    setItemKeys(defaultItemKeys)
+  }, [])
+
+  useEffect(() => {
+
     function loadItems() {
-      itemKeys.map(itemKey => {
-        const data = { itemKey };
-        socket?.emit('get-items', data);
-        logger.log('useItems socket emit get-items', data);
-      });
+      itemKeys
+        .filter(itemKey => !itemsRef.current.itemKeys?.includes(itemKey))
+        .map(itemKey => {
+          const dynamicItemsRequest = { itemKey };
+          socket?.emit('get-items', dynamicItemsRequest);
+          logger.log('useItems socket emit get-items', dynamicItemsRequest);
+        });
+
+      itemsRef.current.itemKeys = itemKeys
+      setLoadedItemKeys(itemKeys)
     }
 
     loadItems();
@@ -189,5 +212,11 @@ export function useItems(itemKeys) {
     logger.log('handleReceiveAllItems newData', itemsRef.current.data);
   }
 
-  return itemsRef.current;
+  const setRef = useCallback(() => {
+    return itemsRef.current
+  }, [JSON.stringify(loadedItemKeys)])
+
+  return setRef()
+
+  // return itemsRef.current;
 }

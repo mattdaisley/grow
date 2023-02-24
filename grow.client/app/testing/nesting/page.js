@@ -2,7 +2,7 @@
 
 import { Children, cloneElement, Fragment, isValidElement, useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { FormProvider, Controller, useFormContext, useFieldArray, useWatch } from "react-hook-form";
-import { v4 as uuidv4 } from 'uuid';
+import { unflatten } from 'flat';
 
 import AddIcon from '@mui/icons-material/Add';
 import AppBar from "@mui/material/AppBar";
@@ -28,8 +28,8 @@ import Tabs from '@mui/material/Tabs';
 import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+
 import logger from "../../../../grow.api/src/logger";
-import { unflatten } from 'flat';
 import { useItems } from "./useItems";
 
 const itemTypes = ['pages', 'sections', 'views', 'groups', 'fields'];
@@ -43,6 +43,10 @@ export default function TestingNestingPage() {
   const items = useItems(itemKeys);
 
   logger.log('TestingNestingPage', items)
+
+  if (items.itemKeys.length === 0) {
+    return null;
+  }
 
   return (
     <Grid xs={12} container sx={{ width: '100%' }}>
@@ -137,7 +141,7 @@ function ShowItems({ searchSuffix, ...props }) {
 }
 
 function ShowControls({ name, fields, ...props }) {
-  logger.log('ShowControls', 'name:', name, 'itemKey:', props.itemKey, 'fields:', fields)
+  logger.log('ShowControls', 'name:', name, 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props)
 
   function getShowControl(itemKey) {
     switch (itemKey) {
@@ -161,9 +165,9 @@ function ShowControls({ name, fields, ...props }) {
       {Object.keys(fields).map(fieldKey => {
 
         const keyPrefix = `${name}.${fieldKey}`
-        const itemKeys = fields[fieldKey]
+        const valueKeys = fields[fieldKey]
 
-        logger.log('ShowControls rendering', 'fieldKey:', fieldKey, 'itemKeys:', itemKeys)
+        logger.log('ShowControls rendering', 'fieldKey:', fieldKey, 'valueKeys:', valueKeys)
 
         const ShowControl = getShowControl(props.itemKey)
 
@@ -172,12 +176,12 @@ function ShowControls({ name, fields, ...props }) {
           // use below to debug missing properties
           // return (
           //   <div key={fieldKey}>
-          //     {props.itemKey}: <TextField fullWidth multiline value={JSON.stringify(itemKeys, null, 2)} />
+          //     {props.itemKey}: <TextField fullWidth multiline value={JSON.stringify(valueKeys, null, 2)} />
           //   </div>
           // )
         }
 
-        return <ShowControl key={fieldKey} {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} itemKeys={itemKeys} />
+        return <ShowControl key={fieldKey} {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} valueKeys={valueKeys} />
       })}
     </>
   )
@@ -225,13 +229,13 @@ function ShowSection(props) {
 function ShowCollection({ ...props }) {
   logger.log('ShowCollectionTabs', 'props:', props)
 
-  // const collectionIds = props.itemKeys.collections?.map(collection => collection.id)
+  // const collectionIds = props.valueKeys.collections?.map(collection => collection.id)
 
-  if (!props.itemKeys.hasOwnProperty('collections')) {
+  if (!props.valueKeys.hasOwnProperty('collections')) {
     return null;
   }
 
-  const collectionIds = Object.keys(props.itemKeys.collections).map(key => props.itemKeys.collections[key].id)
+  const collectionIds = Object.keys(props.valueKeys.collections).map(key => props.valueKeys.collections[key].id)
 
   if (collectionIds.length === 0) {
     return null;
@@ -239,7 +243,7 @@ function ShowCollection({ ...props }) {
 
   return (
     <>
-      {props.itemKeys.type === '0' && (
+      {props.valueKeys.type === '0' && (
         <ShowCollectionTabs
           pageProps={{ ...props }}
           collectionProps={{
@@ -257,24 +261,25 @@ function ShowCollection({ ...props }) {
 
 function ShowCollectionTabs({ pageProps, collectionProps }) {
 
-  const items = useItems([collectionProps.contextKey, 'collections']);
+  logger.log('ShowCollectionTabs', 'pageProps:', pageProps, 'collectionProps:', collectionProps)
 
-  logger.log('ShowCollectionTabs', 'items:', items, 'pageProps:', pageProps, 'collectionProps:', collectionProps)
+  useEffect(() => {
+    pageProps.getItems([collectionProps.contextKey, 'collections'])
+  })
 
   return (
-    <CollectionTabs pageProps={pageProps} collectionProps={{ ...collectionProps, ...items }} />
+    <CollectionTabs pageProps={pageProps} collectionProps={{ ...collectionProps }} />
   )
 }
 
 function CollectionTabs({ pageProps, collectionProps }) {
 
   const keyPrefix = undefined
-  const { name, fields } = useSubscription({ ...collectionProps, itemKey: collectionProps.contextKey, keyPrefix: undefined })
-  const { fields: collectionLabelFields } = useSubscription({ ...collectionProps, itemKey: `${collectionProps.itemKey}.${collectionProps.fieldKey}`, keyPrefix, searchSuffix: 'label' })
+  const { name, fields } = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined })
+  const { fields: collectionLabelFields } = useSubscription({ ...pageProps, itemKey: `${collectionProps.itemKey}.${collectionProps.fieldKey}`, keyPrefix, searchSuffix: 'label' })
 
   logger.log('CollectionTabs', 'name:', name, 'fields:', fields, 'collectionLabelFields:', collectionLabelFields, 'pageProps:', pageProps, 'collectionProps:', collectionProps)
 
-  const [tabState, setTabState] = useState({ currentTab: 0, tabToRemove: undefined });
 
   const handleCollectionAdd = () => {
     logger.log('CollectionTabs handleCollectionAdd')
@@ -283,7 +288,7 @@ function CollectionTabs({ pageProps, collectionProps }) {
     const keyPrefix = collectionProps.contextKey
 
     let propertiesToAdd = {
-      type: pageProps.itemKeys.type
+      type: pageProps.valueKeys.type
     }
 
     const itemsToAdd = {
@@ -291,14 +296,31 @@ function CollectionTabs({ pageProps, collectionProps }) {
     }
 
     logger.log('CollectionTabs collectionProps.addItems( itemKey:', itemKey, ', itemsToAdd:', itemsToAdd, ')')
-    collectionProps.addItems(itemKey, itemsToAdd)
+    pageProps.addItems(itemKey, itemsToAdd)
   }
+
+  return (
+    <>
+      <ControlledTabs
+        fields={fields}
+        collectionLabelFields={collectionLabelFields}
+        onCollectionAdd={handleCollectionAdd}
+        pageProps={pageProps}
+        collectionProps={collectionProps}
+      />
+    </>
+  )
+}
+
+function ControlledTabs({ pageProps, collectionProps, ...props }) {
+
+  const [tabState, setTabState] = useState({ currentTab: 0, tabToRemove: undefined });
 
   const handleTabChange = (event, newValue) => {
     setTabState({ ...tabState, currentTab: newValue });
   };
 
-  const currentTab = (Object.keys(fields).length > tabState.currentTab) ? tabState.currentTab : Object.keys(fields).length - 1
+  const currentTab = (Object.keys(props.fields).length > tabState.currentTab) ? tabState.currentTab : Object.keys(props.fields).length - 1
 
   return (
     <>
@@ -314,9 +336,9 @@ function CollectionTabs({ pageProps, collectionProps }) {
             aria-label="basic tabs example"
             variant="scrollable"
             scrollButtons={false}>
-            {(Object.keys(fields))?.map((field, index) => {
+            {(Object.keys(props.fields))?.map((field, index) => {
               // console.log(field, group)
-              let collectionName = collectionLabelFields?.label ?? "Collection"
+              let collectionName = props.collectionLabelFields?.label ?? "Collection"
               let label = `${collectionName} ${index + 1}`
 
               return (
@@ -327,17 +349,16 @@ function CollectionTabs({ pageProps, collectionProps }) {
         </Box>
         <Box xs={1}>
           {/* <IconButton onClick={handleCollectionRemove}><RemoveIcon /></IconButton> */}
-          <IconButton onClick={handleCollectionAdd}><AddIcon /></IconButton>
+          <IconButton onClick={props.onCollectionAdd}><AddIcon /></IconButton>
         </Box>
         <Grid container spacing={1} xs={12} sx={{ pt: 1 }}>
           {
-            Object.keys(fields)?.map((field, index) => (
+            Object.keys(props.fields)?.map((field, index) => (
               <TabPanel
                 key={field}
                 currentTab={currentTab}
                 index={index}
                 {...pageProps}
-                getData={collectionProps.getData}
                 contextKey={collectionProps.contextKey}
                 contextValueKeyPrefix={`${collectionProps.contextKey}.${field}`}
               // itemKey={`${field}`}
@@ -351,10 +372,8 @@ function CollectionTabs({ pageProps, collectionProps }) {
   );
 }
 
-
-
 function TabPanel({ currentTab, index, ...props }) {
-  logger.log('TabPanel', 'currentTab:', currentTab, 'index:', index, 'props:', props)
+  // logger.log('TabPanel', 'currentTab:', currentTab, 'index:', index, 'props:', props)
 
   return <>
     {currentTab === index && (
@@ -397,7 +416,7 @@ function ShowField(props) {
   return (
     <>
       {
-        props.itemKeys.hasOwnProperty('type')
+        props.valueKeys.hasOwnProperty('type')
           ? <ShowFieldControl {...props} itemKey={`${props.itemKey}.${props.fieldKey}`} keyPrefix={undefined} searchSuffix={undefined} />
           : <ShowItem {...props} />
       }
@@ -436,17 +455,17 @@ function ShowFieldControl(props) {
   )
 }
 
-function ShowItem({ children, keyPrefix, fieldKey, itemKeys, ...props }) {
-  logger.log('ShowItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', itemKeys, 'props:', props)
+function ShowItem({ children, keyPrefix, fieldKey, valueKeys, ...props }) {
+  logger.log('ShowItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'valueKeys:', valueKeys, 'props:', props)
 
   return (
     <>
-      <ShowReferencedItem {...props} itemKeys={itemKeys} />
-      <ShowItemProperties {...props} itemKeys={itemKeys} fieldKey={fieldKey}>
+      <ShowReferencedItem {...props} valueKeys={valueKeys} />
+      <ShowItemProperties {...props} valueKeys={valueKeys} fieldKey={fieldKey}>
         {children}
       </ShowItemProperties>
 
-      <ShowNestedItems {...props} itemKeys={itemKeys} keyPrefix={keyPrefix} />
+      <ShowNestedItems {...props} valueKeys={valueKeys} keyPrefix={keyPrefix} />
     </>
   )
 }
@@ -470,19 +489,19 @@ function ShowItemLabel(props) {
   )
 }
 
-function ShowReferencedItem({ itemKeys, ...props }) {
-  logger.log('ShowReferencedItem', 'itemKeys:', itemKeys, 'props:', props)
+function ShowReferencedItem({ valueKeys, ...props }) {
+  logger.log('ShowReferencedItem', 'valueKeys:', valueKeys, 'props:', props)
 
-  if (itemKeys !== null && itemKeys?.id !== undefined) {
-    return <ShowItems {...props} keyPrefix={undefined} searchSuffix={itemKeys.id} />;
+  if (valueKeys !== null && valueKeys?.id !== undefined) {
+    return <ShowItems {...props} keyPrefix={undefined} searchSuffix={valueKeys.id} />;
   }
   return null;
 }
 
-function ShowItemProperties({ itemKeys, fieldKey, children, ...props }) {
-  logger.log('ShowItemProperties', 'itemKeys:', itemKeys, 'fieldKey:', fieldKey, 'props:', props)
+function ShowItemProperties({ valueKeys, fieldKey, children, ...props }) {
+  logger.log('ShowItemProperties', 'valueKeys:', valueKeys, 'fieldKey:', fieldKey, 'props:', props)
 
-  if (itemKeys !== null && itemKeys?.id === undefined) {
+  if (valueKeys !== null && valueKeys?.id === undefined) {
     return (
       <>
         <ChildrenWithProps {...props}>
@@ -495,17 +514,17 @@ function ShowItemProperties({ itemKeys, fieldKey, children, ...props }) {
   return null;
 }
 
-function ShowNestedItems({ itemKeys, keyPrefix, ...props }) {
+function ShowNestedItems({ valueKeys, keyPrefix, ...props }) {
   return (
     <>
-      {itemKeys !== null && Object.keys(itemKeys).map(itemKey => {
-        logger.log('ShowNestedItems nested itemKey:', itemKey)
-        if (itemTypes.includes(itemKey) === false) {
+      {valueKeys !== null && Object.keys(valueKeys).map(valueKey => {
+        logger.log('ShowNestedItems nested', 'keyPrefix:', keyPrefix, 'valueKey:', valueKey)
+        if (itemTypes.includes(valueKey) === false) {
           return null;
         }
 
         return (
-          <ShowItems key={itemKey} {...props} keyPrefix={keyPrefix} itemKey={itemKey} />
+          <ShowItems key={valueKey} {...props} keyPrefix={keyPrefix} itemKey={valueKey} />
         )
       })}
     </>
@@ -566,23 +585,23 @@ function EditControls({ name, fields, ...props }) {
       {Object.keys(fields).map((fieldKey, index) => {
 
         const keyPrefix = `${name}.${fieldKey}`
-        const itemKeys = fields[fieldKey]
+        const valueKeys = fields[fieldKey]
 
-        logger.log('EditControls rendering', 'fieldKey:', fieldKey, 'itemKeys:', itemKeys)
+        logger.log('EditControls rendering', 'fieldKey:', fieldKey, 'valueKeys:', valueKeys)
 
         if (EditControl === null) {
           return null;
           // use below to debug missing properties
           // return (
           //   <div key={fieldKey}>
-          //     {props.itemKey}: <TextField fullWidth multiline value={JSON.stringify(itemKeys, null, 2)} />
+          //     {props.itemKey}: <TextField fullWidth multiline value={JSON.stringify(valueKeys, null, 2)} />
           //   </div>
           // )
         }
 
         return (
           <Fragment key={fieldKey}>
-            <EditControl {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} itemKeys={itemKeys} />
+            <EditControl {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} valueKeys={valueKeys} />
             <Divider />
           </Fragment>
         )
@@ -1070,7 +1089,7 @@ function EditSection(props) {
   return (
     <EditItem {...props}>
       <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
-      {props.itemKeys.hasOwnProperty('type') && (
+      {props.valueKeys.hasOwnProperty('type') && (
         <EditCollectionTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
       )}
     </EditItem>
@@ -1103,37 +1122,37 @@ function EditField(props) {
 }
 
 function EditItem({ children, fieldKey, ...props }) {
-  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'itemKeys:', props.itemKeys, 'props:', props)
+  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'valueKeys:', props.valueKeys, 'props:', props)
 
   const missingNestedItems = getMissingNestedItems(props)
-  const itemKeys = {
-    ...props.itemKeys,
+  const valueKeys = {
+    ...props.valueKeys,
     ...missingNestedItems
   }
 
   return (
     <>
-      <EditReferencedItem {...props} itemKeys={itemKeys} />
+      <EditReferencedItem {...props} valueKeys={valueKeys} />
 
-      <EditItemProperties {...props} itemKeys={itemKeys} fieldKey={fieldKey}>
+      <EditItemProperties {...props} valueKeys={valueKeys} fieldKey={fieldKey}>
         {children}
-        <EditNestedItems {...props} itemKeys={itemKeys} />
+        <EditNestedItems {...props} valueKeys={valueKeys} />
       </EditItemProperties>
 
     </>
   )
 }
 
-function getMissingNestedItems({ itemKey, itemKeys }) {
+function getMissingNestedItems({ itemKey, valueKeys }) {
   switch (itemKey) {
     case 'sections':
-      if (!itemKeys.hasOwnProperty('views')) {
-        return { ...itemKeys, views: {} }
+      if (!valueKeys.hasOwnProperty('views')) {
+        return { ...valueKeys, views: {} }
       }
       break;
     case 'groups':
-      if (!itemKeys.hasOwnProperty('fields')) {
-        return { ...itemKeys, fields: {} }
+      if (!valueKeys.hasOwnProperty('fields')) {
+        return { ...valueKeys, fields: {} }
       }
       break;
     default:
@@ -1143,25 +1162,25 @@ function getMissingNestedItems({ itemKey, itemKeys }) {
   return {}
 }
 
-function EditReferencedItem({ itemKeys, ...props }) {
-  logger.log('EditReferencedItem', 'itemKeys:', itemKeys, 'props:', props)
+function EditReferencedItem({ valueKeys, ...props }) {
+  logger.log('EditReferencedItem', 'valueKeys:', valueKeys, 'props:', props)
 
-  if (itemKeys !== null && itemKeys?.id !== undefined) {
+  if (valueKeys !== null && valueKeys?.id !== undefined) {
     return (
       <>
-        <EditItems {...props} keyPrefix={undefined} searchSuffix={itemKeys.id} />
+        <EditItems {...props} keyPrefix={undefined} searchSuffix={valueKeys.id} />
       </>
     )
   }
   return null;
 }
 
-function EditItemProperties({ itemKeys, fieldKey, children, ...props }) {
-  logger.log('EditItemProperties', 'itemKeys:', itemKeys, 'fieldKey:', fieldKey, 'props:', props)
+function EditItemProperties({ valueKeys, fieldKey, children, ...props }) {
+  logger.log('EditItemProperties', 'valueKeys:', valueKeys, 'fieldKey:', fieldKey, 'props:', props)
 
   const [openFields, setOpenFields] = useState([]);
 
-  if (itemKeys !== null && itemKeys?.id !== undefined) {
+  if (valueKeys !== null && valueKeys?.id !== undefined) {
     return null
   }
 
@@ -1267,11 +1286,11 @@ function EditItemLabel({ onClick, ...props }) {
   )
 }
 
-function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
-  logger.log('EditNestedItems', 'itemKeys:', itemKeys, 'keyPrefix:', keyPrefix, 'props:', props)
+function EditNestedItems({ valueKeys, keyPrefix, ...props }) {
+  logger.log('EditNestedItems', 'valueKeys:', valueKeys, 'keyPrefix:', keyPrefix, 'props:', props)
   return (
     <>
-      {itemKeys !== null && Object.keys(itemKeys).map(itemKey => {
+      {valueKeys !== null && Object.keys(valueKeys).map(itemKey => {
         if (itemTypes.includes(itemKey) === false) {
           return null;
         }
@@ -1283,7 +1302,7 @@ function EditNestedItems({ itemKeys, keyPrefix, ...props }) {
         )
       })}
 
-      {/* {!itemKeys.hasOwnProperty('sections') && (
+      {/* {!valueKeys.hasOwnProperty('sections') && (
         <AddNewItemControl {...props} />
       )} */}
     </>
