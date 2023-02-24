@@ -4,14 +4,12 @@ import { Children, cloneElement, Fragment, isValidElement, useRef, useState, use
 import { FormProvider, Controller, useFormContext, useFieldArray, useWatch } from "react-hook-form";
 import { unflatten } from 'flat';
 
-import AddIcon from '@mui/icons-material/Add';
 import AppBar from "@mui/material/AppBar";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import Paper from '@mui/material/Paper';
 import Divider from '@mui/material/Divider';
@@ -23,14 +21,13 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 import logger from "../../../../grow.api/src/logger";
 import { useItems } from "./useItems";
+import { ShowCollection } from "./ShowCollection";
 
 const itemTypes = ['pages', 'sections', 'views', 'groups', 'fields'];
 const fieldTypes = [{ value: '0', label: 'textfield' }, { value: '1', label: 'autocomplete' }]
@@ -74,7 +71,7 @@ export default function TestingNestingPage() {
 
 
 
-function useSubscription(props) {
+export function useSubscription(props) {
 
   const [fields, setFields] = useState({})
   const _fieldsRef = useRef({})
@@ -226,164 +223,6 @@ function ShowSection(props) {
   )
 }
 
-function ShowCollection({ ...props }) {
-  logger.log('ShowCollectionTabs', 'props:', props)
-
-  // const collectionIds = props.valueKeys.collections?.map(collection => collection.id)
-
-  if (!props.valueKeys.hasOwnProperty('collections')) {
-    return null;
-  }
-
-  const collectionIds = Object.keys(props.valueKeys.collections).map(key => props.valueKeys.collections[key].id)
-
-  if (collectionIds.length === 0) {
-    return null;
-  }
-
-  return (
-    <>
-      {props.valueKeys.type === '0' && (
-        <ShowCollectionTabs
-          pageProps={{ ...props }}
-          collectionProps={{
-            contextKey: `${props.contextKey}_collections_${collectionIds[0]}`,
-            itemKey: 'collections',
-            fieldKey: collectionIds[0],
-            keyPrefix: `collections.${collectionIds[0]}`
-          }}
-        />
-      )}
-    </>
-  )
-
-}
-
-function ShowCollectionTabs({ pageProps, collectionProps }) {
-
-  logger.log('ShowCollectionTabs', 'pageProps:', pageProps, 'collectionProps:', collectionProps)
-
-  useEffect(() => {
-    pageProps.getItems([collectionProps.contextKey, 'collections'])
-  })
-
-  return (
-    <CollectionTabs pageProps={pageProps} collectionProps={{ ...collectionProps }} />
-  )
-}
-
-function CollectionTabs({ pageProps, collectionProps }) {
-
-  const keyPrefix = undefined
-  const { name, fields } = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined })
-  const { fields: collectionLabelFields } = useSubscription({ ...pageProps, itemKey: `${collectionProps.itemKey}.${collectionProps.fieldKey}`, keyPrefix, searchSuffix: 'label' })
-
-  logger.log('CollectionTabs', 'name:', name, 'fields:', fields, 'collectionLabelFields:', collectionLabelFields, 'pageProps:', pageProps, 'collectionProps:', collectionProps)
-
-
-  const handleCollectionAdd = () => {
-    logger.log('CollectionTabs handleCollectionAdd')
-
-    const itemKey = collectionProps.contextKey
-    const keyPrefix = collectionProps.contextKey
-
-    let propertiesToAdd = {
-      type: pageProps.valueKeys.type
-    }
-
-    const itemsToAdd = {
-      [keyPrefix]: propertiesToAdd
-    }
-
-    logger.log('CollectionTabs collectionProps.addItems( itemKey:', itemKey, ', itemsToAdd:', itemsToAdd, ')')
-    pageProps.addItems(itemKey, itemsToAdd)
-  }
-
-  return (
-    <>
-      <ControlledTabs
-        fields={fields}
-        collectionLabelFields={collectionLabelFields}
-        onCollectionAdd={handleCollectionAdd}
-        pageProps={pageProps}
-        collectionProps={collectionProps}
-      />
-    </>
-  )
-}
-
-function ControlledTabs({ pageProps, collectionProps, ...props }) {
-
-  const [tabState, setTabState] = useState({ currentTab: 0, tabToRemove: undefined });
-
-  const handleTabChange = (event, newValue) => {
-    setTabState({ ...tabState, currentTab: newValue });
-  };
-
-  const currentTab = (Object.keys(props.fields).length > tabState.currentTab) ? tabState.currentTab : Object.keys(props.fields).length - 1
-
-  return (
-    <>
-      <Grid container spacing={0} alignItems={'center'} sx={{ p: 1 }}>
-        <Box sx={{
-          px: 1,
-          // maxWidth: { xs: `calc(100% * 11 / var(--Grid-columns))` }
-          maxWidth: { xs: `calc(100% - 45px)` }
-        }}>
-          <Tabs
-            value={currentTab}
-            onChange={handleTabChange}
-            aria-label="basic tabs example"
-            variant="scrollable"
-            scrollButtons={false}>
-            {(Object.keys(props.fields))?.map((field, index) => {
-              // console.log(field, group)
-              let collectionName = props.collectionLabelFields?.label ?? "Collection"
-              let label = `${collectionName} ${index + 1}`
-
-              return (
-                <Tab key={index} label={label} />
-              )
-            })}
-          </Tabs>
-        </Box>
-        <Box xs={1}>
-          {/* <IconButton onClick={handleCollectionRemove}><RemoveIcon /></IconButton> */}
-          <IconButton onClick={props.onCollectionAdd}><AddIcon /></IconButton>
-        </Box>
-        <Grid container spacing={1} xs={12} sx={{ pt: 1 }}>
-          {
-            Object.keys(props.fields)?.map((field, index) => (
-              <TabPanel
-                key={field}
-                currentTab={currentTab}
-                index={index}
-                {...pageProps}
-                contextKey={collectionProps.contextKey}
-                contextValueKeyPrefix={`${collectionProps.contextKey}.${field}`}
-              // itemKey={`${field}`}
-              // keyPrefix={`${collectionProps.contextKey}`}
-              />
-            ))
-          }
-        </Grid>
-      </Grid>
-    </>
-  );
-}
-
-function TabPanel({ currentTab, index, ...props }) {
-  // logger.log('TabPanel', 'currentTab:', currentTab, 'index:', index, 'props:', props)
-
-  return <>
-    {currentTab === index && (
-      <Grid container spacing={1} xs={12} sx={{ py: 1, px: 2 }}>
-        <ShowItem {...props} />
-      </Grid>
-    )}
-  </>;
-}
-
 function ShowView(props) {
   logger.log('ShowView', 'props:', props)
 
@@ -455,7 +294,7 @@ function ShowFieldControl(props) {
   )
 }
 
-function ShowItem({ children, keyPrefix, fieldKey, valueKeys, ...props }) {
+export function ShowItem({ children, keyPrefix, fieldKey, valueKeys, ...props }) {
   logger.log('ShowItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'valueKeys:', valueKeys, 'props:', props)
 
   return (
@@ -538,7 +377,7 @@ function EditItems({ searchSuffix, ...props }) {
 
   const { name, fields } = useSubscription({ searchSuffix, ...props })
 
-  logger.log('EditItems', 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props)
+  logger.log('EditItems', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fields:', fields, 'props:', props)
 
   if (Object.keys(fields).length === 0) {
     return (
@@ -587,7 +426,7 @@ function EditControls({ name, fields, ...props }) {
         const keyPrefix = `${name}.${fieldKey}`
         const valueKeys = fields[fieldKey]
 
-        logger.log('EditControls rendering', 'fieldKey:', fieldKey, 'valueKeys:', valueKeys)
+        logger.log('EditControls rendering', 'fieldKey:', fieldKey, 'keyPrefix:', keyPrefix, 'valueKeys:', valueKeys)
 
         if (EditControl === null) {
           return null;
@@ -1079,7 +918,7 @@ function EditPage(props) {
   logger.log('EditPage', 'props:', props)
   return (
     <>
-      <EditItem {...props} />
+      <EditItem {...props} contextKey="pages" />
     </>
   )
 }
@@ -1087,7 +926,7 @@ function EditPage(props) {
 function EditSection(props) {
   logger.log('EditSection', 'props:', props)
   return (
-    <EditItem {...props}>
+    <EditItem {...props} contextKey="pages">
       <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
       {props.valueKeys.hasOwnProperty('type') && (
         <EditCollectionTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
@@ -1099,14 +938,14 @@ function EditSection(props) {
 function EditView(props) {
   logger.log('EditView', 'props:', props)
   return (
-    <EditItem {...props} />
+    <EditItem {...props} contextKey="views" />
   )
 }
 
 function EditGroup(props) {
   logger.log('EditGroup', 'props:', props)
   return (
-    <EditItem {...props}>
+    <EditItem {...props} contextKey="views">
       <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
     </EditItem>
   )
@@ -1115,7 +954,7 @@ function EditGroup(props) {
 function EditField(props) {
   logger.log('EditField', 'props:', props)
   return (
-    <EditItem {...props}>
+    <EditItem {...props} contextKey="fields">
       <EditFieldTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
     </EditItem>
   )
