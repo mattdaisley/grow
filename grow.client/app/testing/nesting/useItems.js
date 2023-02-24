@@ -21,12 +21,12 @@ export function useItems(itemKeys) {
   itemsRef.current.formMethods = formMethods;
 
   itemsRef.current.getData = (name) => {
-    logger.log('getData', name, itemsRef.current.data?.[name]);
+    logger.log('getData', 'itemKeys:', itemKeys, 'name:', name, 'data:', itemsRef.current.data?.[name]);
     return itemsRef.current.data?.[name];
   };
 
   itemsRef.current.getNestedData = (name) => {
-    // logger.log('getNestedData', name, itemsRef.current.data)
+    logger.log('getNestedData', name, itemsRef.current.data)
     const nestedData = {};
     Object.keys(itemsRef.current.data)
       .filter((dataKey) => dataKey.startsWith(name))
@@ -34,10 +34,10 @@ export function useItems(itemKeys) {
     return nestedData;
   };
 
-  itemsRef.current.broadcast = (valueKey, event, value) => {
-    logger.log('broadcast', valueKey, event.type, event?.target?.value, value);
+  itemsRef.current.broadcast = (itemKey, valueKey, event, value) => {
+    logger.log('broadcast', itemKey, valueKey, event.type, event?.target?.value, value);
 
-    const itemKey = valueKey.split('.')[0];
+    // const itemKey = valueKey.split('.')[0];
 
     let newValue;
     switch (event.type) {
@@ -70,6 +70,7 @@ export function useItems(itemKeys) {
 
   itemsRef.current.subscribe = (valueKey, callback) => {
     // itemsRef.current.subscriptions[valueKey] = callback
+    logger.log('subscribe', 'itemKeys:', itemKeys, 'subscriptions:', itemsRef.current.subscriptions, 'valueKey:', valueKey)
     if (itemsRef.current.subscriptions[valueKey] === undefined) {
       itemsRef.current.subscriptions[valueKey] = [];
     }
@@ -84,7 +85,7 @@ export function useItems(itemKeys) {
   }
 
   function runSubscriptions(subscriptions, data, valueKey, value) {
-    logger.log('runSubscriptions', 'subscriptions:', subscriptions, 'valueKey:', valueKey, 'value:', value, 'data:', data);
+    logger.log('runSubscriptions', 'itemKeys:', itemKeys, 'subscriptions:', subscriptions, 'valueKey:', valueKey, 'value:', value, 'data:', data);
     // if (subscriptions.hasOwnProperty(valueKey)) {
     // const callback = subscriptions[valueKey]
     // callback(valueKey, value)
