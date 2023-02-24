@@ -17,7 +17,7 @@ import Typography from "@mui/material/Typography";
 
 import DrawerPageList from "./DrawerPageList";
 
-export const drawerWidth = 240;
+export const drawerWidth = 200;
 
 export const globalPages = [
   { name: "Gardens", path: "/gardens" },
@@ -65,7 +65,7 @@ export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {
         {globalPages.map((page) => (
           <ListItem key={page.name} disablePadding>
             <ListItemButton>
-              <Link href={page.path} style={{width: '100%'}}>
+              <Link href={page.path} style={{ width: '100%' }}>
                 <ListItemText primary={page.name} sx={{ '& .MuiListItemText-primary': { fontWeight: 'light' } }} />
               </Link>
             </ListItemButton>

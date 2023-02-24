@@ -18,6 +18,7 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.9",
     "@mui/x-data-grid": "^5.17.17",
+    "@next/font": "^13.2.1",
     "bufferutil": "^4.0.7",
     "chart.js": "^3.9.1",
     "flat": "^5.0.2",
