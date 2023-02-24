@@ -10,7 +10,8 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 
 import logger from "../../../../grow.api/src/logger";
-import { useSubscription, ShowItem } from "./page";
+import { useSubscription } from "./useSubscription";
+import { ShowItem } from "./ShowItems";
 
 export function ShowCollection({ ...props }) {
   logger.log('ShowCollectionTabs', 'props:', props);
