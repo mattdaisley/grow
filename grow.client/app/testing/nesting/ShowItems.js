@@ -199,7 +199,7 @@ function ShowItemLabel(props) {
 
   return (
     <Grid xs={12} sx={{ mb: -1 }}>
-      <Typography variant="h5" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{fields.label}</Typography>
+      <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{fields.label}</Typography>
     </Grid>
   );
 }
