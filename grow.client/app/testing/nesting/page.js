@@ -40,7 +40,7 @@ export default function TestingNestingPage() {
       <Box container spacing={0} xs={12} sx={{ position: 'fixed', top: 0, right: 0, width: `${editDrawerWidth}px`, height: '100%', pt: '100px', overflowY: 'scroll' }}>
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
           <Paper sx={{ width: '100%' }}>
-            <EditItems itemKey={'pages'} {...items} />
+            <EditItems contextKey={'pages'} itemKey={'pages'} {...items} />
           </Paper>
         </Box>
       </Box>

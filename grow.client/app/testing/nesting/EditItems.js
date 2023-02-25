@@ -1,5 +1,6 @@
 'use client';
 import { Fragment, useState } from "react";
+import { unflatten } from "flat";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -40,8 +41,9 @@ export function EditItems({ searchSuffix, ...props }) {
   );
 }
 function EditControls({ name, fields, ...props }) {
-  logger.log('EditControls', 'name:', name, 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props);
+  logger.log('EditControls', 'name:', name, 'contextKey:', props.contextKey, 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props);
 
+  const contextKey = props.contextKey;
   const itemKey = props.itemKey;
 
   let EditControl = null;
@@ -215,8 +217,25 @@ function AddNewItemControl({ addingItem, setAddingItem, ...props }) {
 }
 function AddNewItemProperties(props) {
 
-  const [itemName, setItemName] = useState(getNextItemName(props.itemKey, props.fields));
-  const [itemLabel, setItemLabel] = useState(getNextItemLabel(props.itemKey, props.fields));
+  const itemFields = unflatten(props.getNestedData(props.itemKey))
+  logger.log('AddNewItemControl AddNewItemProperties', 'itemFields', itemFields.fields)
+
+  const [itemLabel, setItemLabel] = useState(getNextItemLabel(props.itemKey, itemFields.fields ?? props.fields));
+  const [itemName, setItemName] = useState(getNextItemName(itemLabel));
+  const [nameChanged, setNameChanged] = useState(false)
+
+  const handleLabelChanged = (event) => {
+    setItemLabel(event.target.value)
+
+    if (!nameChanged) {
+      setItemName(getNextItemName(event.target.value))
+    }
+  }
+
+  const handleNameChanged = (event) => {
+    setItemName(event.target.value)
+    setNameChanged(true)
+  }
 
   return (
     <>
@@ -226,7 +245,7 @@ function AddNewItemProperties(props) {
           fullWidth
           size="small"
           value={itemLabel}
-          onChange={(event) => setItemLabel(event.target.value)} />
+          onChange={handleLabelChanged} />
       </FieldWrapper>
       <FieldWrapper>
         <TextField
@@ -234,7 +253,7 @@ function AddNewItemProperties(props) {
           fullWidth
           size="small"
           value={itemName}
-          onChange={(event) => setItemName(event.target.value)} />
+          onChange={handleNameChanged} />
       </FieldWrapper>
       <Button
         color="secondary"
@@ -253,13 +272,12 @@ function AddNewItemProperties(props) {
     </>
   );
 }
-function getNextItemName(itemKey, fields) {
-  return getNextItemLabel(itemKey, fields).split(' ').join('_').toLowerCase();
-}
+
 function getNextItemLabel(itemKey, fields) {
   const existingNames = fields !== undefined
-    ? Object.keys(fields).map(field => field?.name ?? "")
+    ? Object.keys(fields).map(field => fields[field]?.name ?? "")
     : [];
+  // logger.log('AddNewItemControl', 'fields:', fields, 'existingNames:', existingNames)
 
   let nextItemIndex = existingNames.length + 1;
   let nextItemName = `${itemKey.substring(0, itemKey.length - 1)} ${nextItemIndex}`;
@@ -270,6 +288,11 @@ function getNextItemLabel(itemKey, fields) {
 
   return nextItemName.charAt(0).toUpperCase() + nextItemName.substring(1);
 }
+
+function getNextItemName(label) {
+  return label.split(' ').join('_').toLowerCase();
+}
+
 function AddExistingItemControl({ addingItem, setAddingItem, ...props }) {
   logger.log('AddExistingItemControl', 'props:', props);
 
