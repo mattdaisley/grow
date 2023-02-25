@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 import AddIcon from '@mui/icons-material/Add';
 import Box from "@mui/material/Box";
@@ -152,12 +152,18 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
 }
 
 function TabPanel({ currentTab, index, ...props }) {
-  // logger.log('TabPanel', 'currentTab:', currentTab, 'index:', index, 'props:', props)
-  return <>
-    {currentTab === index && (
-      <Grid container spacing={1} xs={12} sx={{ py: 1, px: 2 }}>
-        <ShowItem {...props} />
+  logger.log('TabPanel', 'currentTab:', currentTab, 'index:', index, 'props:', props)
+  const memoItems = useMemo(() => {
+    return (
+      <ShowItem {...props} />
+    )
+  }, [])
+
+  return (
+    <>
+      <Grid container spacing={1} xs={12} sx={{ py: 1, px: 2, display: (currentTab === index ? 'flex' : 'none') }}>
+        {memoItems}
       </Grid>
-    )}
-  </>;
+    </>
+  )
 }
