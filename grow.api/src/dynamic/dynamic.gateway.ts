@@ -213,12 +213,6 @@ export class DynamicGateway {
       
     })
   }
-  
-  async addItemReference() {
-
-  }
-
-
 
   @SubscribeMessage('delete-items')
   async handleDeleteItemsEvent(@MessageBody() data: DynamicItemsDeleteRequest): Promise<DynamicItemsDeleteResponse> {

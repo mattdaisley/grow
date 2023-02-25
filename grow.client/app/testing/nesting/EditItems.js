@@ -6,6 +6,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from '@mui/material/Unstable_Grid2';
 import Divider from '@mui/material/Divider';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -608,9 +610,12 @@ function EditField(props) {
 function EditItem({ children, fieldKey, ...props }) {
   logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'valueKeys:', props.valueKeys, 'props:', props);
 
-  const missingNestedItems = getMissingNestedItems(props);
+  const nestedItems = unflatten(props.getNestedDataObject(props.keyPrefix))
+  logger.log('EditItem', 'nestedItems:', nestedItems, 'valueKeys:', props.valueKeys)
+
+  const missingNestedItems = getMissingNestedItems({ itemKey: props.itemKey, valueKeys: nestedItems });
   const valueKeys = {
-    ...props.valueKeys,
+    ...nestedItems,
     ...missingNestedItems
   };
 
@@ -626,6 +631,7 @@ function EditItem({ children, fieldKey, ...props }) {
     </>
   );
 }
+
 function getMissingNestedItems({ itemKey, valueKeys }) {
   switch (itemKey) {
     case 'sections':
@@ -650,7 +656,11 @@ function EditReferencedItem({ valueKeys, ...props }) {
   if (valueKeys !== null && valueKeys?.id !== undefined) {
     return (
       <>
-        <EditItems {...props} keyPrefix={undefined} searchSuffix={valueKeys.id} />
+        <EditItems
+          {...props}
+          keyPrefix={undefined}
+          searchSuffix={valueKeys.id}
+          referenceValueKey={props.keyPrefix} />
       </>
     );
   }
@@ -686,25 +696,56 @@ function EditItemProperties({ valueKeys, fieldKey, children, ...props }) {
       <Box sx={{ width: '100%', py: 1 }}>
 
         <Collapse in={!isOpen} timeout="auto">
-          <EditItemHeader {...props} onClick={handleClick} />
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <EditItemHeader {...props} onClick={handleClick} />
+            <DeleteItemButton {...props} />
+          </Box>
         </Collapse>
 
-        {isOpen && (<>
-          <EditItemLabel {...props} onClick={handleClick} />
+        <Collapse in={isOpen} timeout="auto">
+          {isOpen && (<>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+              <EditItemLabel {...props} onClick={handleClick} />
+              <DeleteItemButton {...props} />
+            </Box>
 
-          <Stack spacing={0} sx={{ px: 2, py: 2 }}>
-            <EditProperty {...props} controllerName={`${props.keyPrefix}.name`} label="Name" />
+            <Stack spacing={0} sx={{ px: 2, py: 2 }}>
+              <EditProperty {...props} controllerName={`${props.keyPrefix}.name`} label="Name" />
 
-            <ChildrenWithProps {...props} openFields={openFields}>
-              {children}
-            </ChildrenWithProps>
-          </Stack>
-        </>)}
+              <ChildrenWithProps {...props} openFields={openFields}>
+                {children}
+              </ChildrenWithProps>
+            </Stack>
+          </>)}
+        </Collapse>
 
       </Box>
     </Grid>
   );
 }
+
+function DeleteItemButton({ onClick, ...props }) {
+
+  const searchName = props.referenceValueKey ?? props.keyPrefix
+  const deleteContextKey = searchName.split('.')[0]
+
+  const nestedValues = props.getNestedData(searchName)
+  logger.log('DeleteItemButton', 'searchName:', searchName, 'nestedValues:', nestedValues, 'props:', props)
+
+  const handleDeleteClicked = () => {
+    logger.log('DeleteItemButton', 'handleDeleteClicked', 'deleteContextKey:', deleteContextKey, 'nestedValues:', nestedValues)
+    props.deleteItems(deleteContextKey, nestedValues)
+  }
+
+  return (
+    <>
+      <IconButton sx={{ mt: -0.5, mr: 0.5 }} onClick={handleDeleteClicked}>
+        <DeleteIcon />
+      </IconButton>
+    </>
+  )
+}
+
 function EditItemHeader({ onClick, ...props }) {
   const itemKey = `${props.keyPrefix}`;
   const keyPrefix = undefined;
@@ -740,6 +781,7 @@ function EditItemHeader({ onClick, ...props }) {
     </ListItem>
   );
 }
+
 function EditItemLabel({ onClick, ...props }) {
   const itemKey = `${props.keyPrefix}`;
   const keyPrefix = undefined;
@@ -753,7 +795,7 @@ function EditItemLabel({ onClick, ...props }) {
 
   return (
     <ListItem
-      sx={{ px: 2, height: '55px', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'center' }}
+      sx={{ pl: 2, pr: 1, height: '55px', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'center' }}
       secondaryAction={(
         <ListItemIcon sx={{ justifyContent: 'flex-end' }} onClick={onClick}>
           <ExpandLess />
@@ -774,7 +816,7 @@ function EditNestedItems({ valueKeys, keyPrefix, ...props }) {
 
         return (
           <Box key={itemKey} sx={{ mt: 1, flexGrow: 1, border: 1, borderRadius: 1, borderColor: 'grey.300' }}>
-            <EditItems {...props} keyPrefix={keyPrefix} itemKey={itemKey} />
+            <EditItems {...props} keyPrefix={keyPrefix} itemKey={itemKey} referenceValueKey={undefined} />
           </Box>
         );
       })}

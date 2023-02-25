@@ -37,6 +37,15 @@ export function useItems(defaultItemKeys) {
     return nestedData;
   };
 
+  itemsRef.current.getNestedDataObject = (name) => {
+    logger.log('getNestedDataObject', name, itemsRef.current.data)
+    const nestedData = {};
+    Object.keys(itemsRef.current.data)
+      .filter((dataKey) => dataKey.startsWith(name))
+      .map(dataKey => nestedData[dataKey.replace(name+'.', '')] = itemsRef.current.data[dataKey]);
+    return nestedData;
+  }
+
   // can probably be temporary until this is a feature of getData
   // getData could have signature (itemKey, valueKey, callback) to support automatic subscription
   itemsRef.current.getItems = (requestedItemKeys) => {
@@ -78,6 +87,14 @@ export function useItems(defaultItemKeys) {
       const addItemsEvent = { itemKey, items };
       socket.emit('add-items', addItemsEvent);
       logger.log('addItems socket emit add-items:', addItemsEvent);
+    }
+  };
+
+  itemsRef.current.deleteItems = (itemKey, items) => {
+    if (Object.keys(items).length > 0) {
+      const deleteItemsEvent = { itemKey, items };
+      socket.emit('delete-items', deleteItemsEvent);
+      logger.log('deleteItems socket emit delete-items:', deleteItemsEvent);
     }
   };
 
