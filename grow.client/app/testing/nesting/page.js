@@ -23,11 +23,11 @@ export default function TestingNestingPage() {
   const itemKeys = ['preview', 'pages', 'views', 'fields']
   // const itemKeys = ['pages']
 
-  const items = useItems(itemKeys);
+  const itemsMethods = useItems(itemKeys);
 
-  logger.log('TestingNestingPage', items)
+  logger.log('TestingNestingPage', itemsMethods)
 
-  if (items.itemKeys.length === 0) {
+  if (itemsMethods.itemKeys.length === 0) {
     return null;
   }
 
@@ -35,13 +35,13 @@ export default function TestingNestingPage() {
     <Grid xs={12} container sx={{ width: '100%' }}>
       <Box sx={{ flexGrow: 1, py: 4, pl: { xs: 2, md: 4 }, pr: `${editDrawerWidth}px` }}>
         <Grid container spacing={4} xs={12} sx={{ width: '100%' }}>
-          <ShowItems contextKey={'preview'} contextValueKeyPrefix={'preview'} itemKey={'pages'} {...items} />
+          <ShowItems contextKey={'preview'} contextValueKeyPrefix={'preview'} itemKey={'pages'} itemsMethods={itemsMethods} />
         </Grid>
       </Box>
       <Box sx={{ position: 'fixed', top: 0, right: 0, width: `${editDrawerWidth}px`, height: '100%', pt: '100px', overflowY: 'scroll' }}>
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
           <Paper sx={{ width: '100%' }}>
-            <EditItems contextKey={'pages'} itemKey={'pages'} {...items} />
+            <EditItems contextKey={'pages'} itemKey={'pages'} itemsMethods={itemsMethods} />
           </Paper>
         </Box>
       </Box>

@@ -49,7 +49,7 @@ export function useSubscription(props) {
 
     //logger.log('useSubscription useEffect', 'fields:', fields, 'searchName:', searchName, 'props:', props);
 
-    setFields(getFilteredFields(props.getTreeMapItem(searchName)))
+    setFields(getFilteredFields(props.itemsMethods.getTreeMapItem(searchName)))
 
     const callback = debounce((valueKey, value) => {
       setFields(getFilteredFields(value))
@@ -57,11 +57,11 @@ export function useSubscription(props) {
       // logger.log('useSubscription callback', 'searchName:', searchName, 'valueKey:', valueKey, 'value:', value, value === fields);
     }, 100)
 
-    props.subscribeMap(searchName, callback);
+    props.itemsMethods.subscribeMap(searchName, callback);
 
     return () => {
       logger.log('useSubscription useEffect cleanup', 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
-      props.unsubscribeMap(searchName, callback);
+      props.itemsMethods.unsubscribeMap(searchName, callback);
     };
   }, [setFields, searchName]);
 

@@ -199,7 +199,7 @@ function ShowFieldControl(props) {
 
 export function ShowItem({ children, keyPrefix, fieldKey, ...props }) {
 
-  const valueKeys = unflatten(props.getNestedDataObject(keyPrefix))
+  const valueKeys = unflatten(props.itemsMethods.getNestedDataObject(keyPrefix))
 
   logger.log('ShowItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'valueKeys:', valueKeys, 'props:', props);
 

@@ -68,7 +68,7 @@ function ShowCollectionTabs({ pageProps, collectionProps }) {
   logger.log('ShowCollectionTabs', 'pageProps:', pageProps, 'collectionProps:', collectionProps);
 
   useEffect(() => {
-    pageProps.getItems([collectionProps.contextKey, 'collections']);
+    pageProps.itemsMethods.getItems([collectionProps.contextKey, 'collections']);
   });
 
   return (
@@ -103,7 +103,7 @@ function CollectionTabs({ pageProps, collectionProps }) {
     };
 
     logger.log('CollectionTabs collectionProps.addItems( itemKey:', itemKey, ', itemsToAdd:', itemsToAdd, ')');
-    pageProps.addItems(itemKey, itemsToAdd);
+    pageProps.itemsMethods.addItems(itemKey, itemsToAdd);
   };
 
   const handleCollectionRemove = (fieldKey) => {
@@ -111,7 +111,7 @@ function CollectionTabs({ pageProps, collectionProps }) {
     const itemKey = collectionProps.contextKey;
 
     logger.log('handleCollectionRemove collectionProps.deleteItems( itemKey:', itemKey, ', fieldKey:', fieldKey, ')', collectionProps);
-    pageProps.deleteItemsByFieldKey(itemKey, fieldKey)
+    pageProps.itemsMethods.deleteItemsByFieldKey(itemKey, fieldKey)
   }
 
   return (
@@ -152,7 +152,7 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
         <Box sx={{
           px: 1,
           // maxWidth: { xs: `calc(100% * 11 / var(--Grid-columns))` }
-          maxWidth: { xs: `calc(100% - 45px)` }
+          maxWidth: { xs: `calc(100% - 85px)` }
         }}>
           <Tabs
             value={currentTab}
@@ -214,7 +214,7 @@ function ShowCollectionGrid({ pageProps, collectionProps }) {
   logger.log('ShowCollectionGrid', 'pageProps:', pageProps, 'collectionProps:', collectionProps);
 
   useEffect(() => {
-    pageProps.getItems([collectionProps.contextKey, 'collections']);
+    pageProps.itemsMethods.getItems([collectionProps.contextKey, 'collections']);
   });
 
   return (
@@ -280,7 +280,7 @@ function getReferencedViewFieldColumns(pageProps) {
 
     const referencedViewId = referencedView.get('id')
 
-    const view = pageProps.getTreeMapItem(`views.${referencedViewId}`)
+    const view = pageProps.itemsMethods.getTreeMapItem(`views.${referencedViewId}`)
 
     if (view === undefined) {
       return;
@@ -303,7 +303,7 @@ function getReferencedViewFieldColumns(pageProps) {
         const referencedFieldId = referencedField.get('id')
         viewFieldIds.push(referencedFieldId)
 
-        const fields = pageProps.getTreeMapItem(`fields.${referencedFieldId}`)
+        const fields = pageProps.itemsMethods.getTreeMapItem(`fields.${referencedFieldId}`)
 
         if (fields === undefined) {
           return;

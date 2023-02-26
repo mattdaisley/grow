@@ -26,7 +26,7 @@ import { useSubscription } from "./useSubscription";
 
 export function EditItems({ fieldsControlsPrefix, searchSuffix, ...props }) {
 
-  const fields = useSubscription({ searchSuffix, ...props });
+  const fields = useSubscription({ ...props, searchSuffix });
 
   let name = props.keyPrefix === undefined ? props.itemKey : `${props.keyPrefix}.${props.itemKey}`;
 
@@ -207,7 +207,7 @@ function AddNewItemControl({ addingItem, setAddingItem, ...props }) {
       [valueKey]: propertiesToAdd
     };
 
-    props.addItems(itemKey, itemsToAdd);
+    props.itemsMethods.addItems(itemKey, itemsToAdd);
 
     setAddingItem(false);
   };
@@ -241,7 +241,7 @@ function AddNewItemControl({ addingItem, setAddingItem, ...props }) {
 
 function AddNewItemProperties(props) {
 
-  const itemFields = unflatten(props.getNestedData(props.itemKey))
+  const itemFields = unflatten(props.itemsMethods.getNestedData(props.itemKey))
   logger.log('AddNewItemControl AddNewItemProperties', 'itemFields', itemFields.fields)
 
   const [itemLabel, setItemLabel] = useState(getNextItemLabel(props.itemKey, itemFields.fields ?? props.fields));
@@ -335,7 +335,7 @@ function AddExistingItemControl({ addingItem, setAddingItem, ...props }) {
       [keyPrefix]: addedProperties
     };
 
-    props.addItems(itemKey, itemsToAdd);
+    props.itemsMethods.addItems(itemKey, itemsToAdd);
 
     setAddingItem(false);
   };
@@ -482,7 +482,7 @@ function AddCollectionItemControl({ addingItem, setAddingItem, ...props }) {
     };
 
     logger.log('AddCollectionItemControl props.addItems( itemKey:', itemKey, ', itemsToAdd:', itemsToAdd, ')');
-    props.addItems(itemKey, itemsToAdd);
+    props.itemsMethods.addItems(itemKey, itemsToAdd);
 
     setAddingItem(false);
   };
@@ -654,7 +654,7 @@ function EditField(props) {
 
 function EditItem({ children, fieldKey, ...props }) {
 
-  const nestedItems = unflatten(props.getNestedDataObject(props.keyPrefix))
+  const nestedItems = unflatten(props.itemsMethods.getNestedDataObject(props.keyPrefix))
 
   logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'nestedItems:', nestedItems, 'props:', props);
 
@@ -779,12 +779,12 @@ function DeleteItemButton({ onClick, ...props }) {
   const searchName = props.referenceValueKey ?? props.keyPrefix
   const deleteContextKey = searchName.split('.')[0]
 
-  const nestedValues = props.getNestedData(searchName)
+  const nestedValues = props.itemsMethods.getNestedData(searchName)
   logger.log('DeleteItemButton', 'searchName:', searchName, 'nestedValues:', nestedValues, 'props:', props)
 
   const handleDeleteClicked = () => {
     logger.log('DeleteItemButton', 'handleDeleteClicked', 'deleteContextKey:', deleteContextKey, 'nestedValues:', nestedValues)
-    props.deleteItems(deleteContextKey, nestedValues)
+    props.itemsMethods.deleteItems(deleteContextKey, nestedValues)
   }
 
   return (

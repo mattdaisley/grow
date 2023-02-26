@@ -20,7 +20,7 @@ export function FieldItem({ render, ...props }) {
     };
 
     return (event, newValue) => {
-      props.broadcast(props.contextKey ?? props.itemKey, props.name, event, newValue);
+      props.itemsMethods.broadcast(props.contextKey ?? props.itemKey, props.name, event, newValue);
       onChangeCallback(event, newValue);
     };
   };
@@ -39,14 +39,14 @@ export function ControlledField(props) {
 }
 export function ControlledTextField({ name, ...props }) {
 
-  const defaultValue = props.getData(name) ?? "";
+  const defaultValue = props.itemsMethods.getData(name) ?? "";
   const label = props.label ?? name;
 
   // logger.log('ControlledTextField', 'name:', name, 'defaultValue:', defaultValue, 'props:', props);
 
   return (
     <Controller
-      control={props.formMethods.control}
+      control={props.itemsMethods.formMethods.control}
       name={name}
       defaultValue={defaultValue}
       render={({ field: { value, onChange } }) => {
@@ -68,7 +68,7 @@ export function ControlledTextField({ name, ...props }) {
 }
 export function ControlledAutocompleteField({ name, ...props }) {
 
-  const defaultValue = props.getData(name) ?? props.defaultValue ?? null;
+  const defaultValue = props.itemsMethods.getData(name) ?? props.defaultValue ?? null;
   const label = props.label ?? name;
 
   // logger.log('ControlledAutocompleteField', 'name:', name, 'defaultValue:', defaultValue, 'props:', props);
@@ -89,7 +89,7 @@ export function ControlledAutocompleteField({ name, ...props }) {
 
   return (
     <Controller
-      control={props.formMethods.control}
+      control={props.itemsMethods.formMethods.control}
       name={name}
       defaultValue={defaultValue}
       render={({ field: { value, onChange } }) => {
