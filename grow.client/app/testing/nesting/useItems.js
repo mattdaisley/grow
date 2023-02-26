@@ -27,7 +27,7 @@ export function useItems(defaultItemKeys) {
 
   itemsRef.current.getData = (valueKey) => {
     const dataItem = itemsRef.current.dataMap.get(valueKey)
-    logger.log('getData', 'itemKeys:', itemKeys, 'valueKey:', valueKey, 'dataMapItem:', dataItem);
+    logger.log('getData', 'valueKey:', valueKey, 'dataMapItem:', dataItem, 'itemsRef.current.dataMap:', itemsRef.current.dataMap);
     return dataItem;
   };
 
@@ -109,6 +109,13 @@ export function useItems(defaultItemKeys) {
     }
   };
 
+  itemsRef.current.deleteItemsByFieldKey = (itemKey, fieldKey) => {
+    const items = itemsRef.current.getNestedData(`${itemKey}.${fieldKey}`)
+    const deleteItemsEvent = { itemKey, items };
+    socket.emit('delete-items', deleteItemsEvent);
+    logger.log('deleteItems socket emit delete-items:', deleteItemsEvent);
+  }
+
   itemsRef.current.subscribeMap = (valueKey, callback) => {
     const currentCallbacks = itemsRef.current.subscriptionsMap.get(valueKey) ?? []
     const newCallbacks = [...currentCallbacks, callback];
@@ -130,18 +137,19 @@ export function useItems(defaultItemKeys) {
     }
   }
 
-  itemsRef.current.runSubscriptionsMap = (valueKey) => {
+  itemsRef.current.runSubscriptionsMap = (valueKey, newValue) => {
 
     const subscriptionsMap = itemsRef.current.subscriptionsMap
 
     if (subscriptionsMap.size === 0) {
-      // logger.log('runSubscriptionsMap no subscriptions to run', 'subscriptionsMap:', subscriptionsMap);
+      logger.log('runSubscriptionsMap no subscriptions to run', 'subscriptionsMap:', subscriptionsMap);
       return;
     }
 
     const mapCallbacks = subscriptionsMap.get(valueKey)
-    const value = itemsRef.current.getTreeMapItem(valueKey)
+    const value = newValue ?? itemsRef.current.getTreeMapItem(valueKey)
 
+    logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
     mapCallbacks?.forEach(callback => callback(valueKey, value));
   }
 
@@ -189,14 +197,21 @@ export function useItems(defaultItemKeys) {
 
         const valueKey = item.valueKey;
         const value = item.value;
+        const deleted = item.deleted;
         const broadcastedValue = itemsRef.current.broadcasted[valueKey];
 
         if (broadcastedValue === undefined) {
 
           newData[valueKey] = value;
-          itemsRef.current.dataMap.set(valueKey, value)
-          updateDataMapTree(itemsRef, valueKey, value)
-          // logger.log('handleReceiveAllItems dataMapTree', itemsRef.current.dataMapTree)
+          if (deleted) {
+            itemsRef.current.dataMap.delete(valueKey)
+            deleteNodeFromTreeMap(itemsRef, valueKey)
+          }
+          else {
+            itemsRef.current.dataMap.set(valueKey, value)
+            updateDataMapTree(itemsRef, valueKey, value)
+            // logger.log('handleReceiveAllItems dataMapTree', itemsRef.current.dataMapTree)
+          }
 
           const { setValue } = itemsRef.current.formMethods;
           setValue(valueKey, value);
@@ -244,7 +259,7 @@ function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySpl
 
   if (valueKeySplitIndex === valueKeySplit.length - 1) {
     dataMapBranch.set(keyAtIndex, value)
-    itemsRef.current.runSubscriptionsMap(valueKey, value)
+    itemsRef.current.runSubscriptionsMap(valueKey)
     return dataMapBranch;
   }
 
@@ -253,7 +268,7 @@ function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySpl
   }
 
   const newDataMapBranch = updateDataMapBranch(itemsRef, dataMapBranch.get(keyAtIndex), valueKeySplit, valueKeySplitIndex + 1, value)
-  itemsRef.current.runSubscriptionsMap(valueKey, newDataMapBranch)
+  itemsRef.current.runSubscriptionsMap(valueKey)
   return newDataMapBranch;
 }
 
@@ -277,4 +292,47 @@ function getNodeFromTreeBranch(dataMapBranch, valueKeySplit) {
   }
 
   return getNodeFromTreeBranch(dataMapBranch.get(firstKey), valueKeySplit.slice(1))
+}
+
+
+function deleteNodeFromTreeMap(itemsRef, valueKey) {
+  const dataMapTree = itemsRef.current.dataMapTree
+  const valueKeySplit = valueKey.split('.');
+  const valueKeySplitIndex = 0;
+
+  deleteNodeFromTreeBranch(itemsRef, dataMapTree, valueKeySplit, valueKeySplitIndex)
+  logger.log('deleteNodeFromTreeMap', 'itemsRef.current.dataMapTree:', itemsRef.current.dataMapTree)
+
+}
+
+function deleteNodeFromTreeBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySplitIndex) {
+
+  const keyAtIndex = valueKeySplit?.[valueKeySplitIndex]
+  const valueKey = valueKeySplit.slice(0, valueKeySplitIndex + 1).join('.')
+
+  logger.log('deleteNodeFromTreeBranch', 'valueKeySplitIndex:', valueKeySplitIndex, 'keyAtIndex:', keyAtIndex, 'valueKey:', valueKey, 'valueKeySplit:', valueKeySplit, 'dataMapBranch:', dataMapBranch)
+
+  if (!dataMapBranch.has(keyAtIndex)) {
+    return dataMapBranch
+  }
+
+  if (valueKeySplitIndex === valueKeySplit.length - 1) {
+    dataMapBranch.delete(keyAtIndex)
+    itemsRef.current.runSubscriptionsMap(valueKey, dataMapBranch)
+
+    logger.log('deleteNodeFromTreeBranch deleted', 'keyAtIndex:', keyAtIndex, 'valueKey:', valueKey, 'dataMapBranch:', dataMapBranch)
+  }
+  else {
+    const newDataMapBranch = deleteNodeFromTreeBranch(itemsRef, dataMapBranch.get(keyAtIndex), valueKeySplit, valueKeySplitIndex + 1)
+    if (newDataMapBranch.size === 0) {
+      dataMapBranch.delete(keyAtIndex)
+    }
+    else {
+      dataMapBranch.set(keyAtIndex, newDataMapBranch)
+    }
+    itemsRef.current.runSubscriptionsMap(valueKey, dataMapBranch.get(keyAtIndex))
+  }
+
+  logger.log('deleteNodeFromTreeBranch returning', 'keyAtIndex:', keyAtIndex, 'valueKey:', valueKey, 'dataMapBranch:', dataMapBranch)
+  return dataMapBranch;
 }

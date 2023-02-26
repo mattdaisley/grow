@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import debounce from 'lodash.debounce';
 
 import logger from "../../../../grow.api/src/logger";
@@ -17,15 +17,21 @@ export function useSubscription(props) {
   let searchName = searchSuffix === undefined ? name : `${name}.${searchSuffix}`;
 
   const [fields, setFields] = useState();
+  const [, updateState] = useState();
+  const forceUpdate = useCallback(() => updateState({}), []);
 
-  // logger.log('useSubscription', 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
+  // logger.log('useSubscription', 'fields:', fields, 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
 
   useEffect(() => {
+
+    //logger.log('useSubscription useEffect', 'fields:', fields, 'searchName:', searchName, 'props:', props);
+
     setFields(props.getTreeMapItem(searchName))
 
     const callback = debounce((valueKey, value) => {
       setFields(value)
-      logger.log('useSubscription callback', 'searchName:', searchName, 'valueKey:', valueKey, 'value:', value);
+      forceUpdate()
+      // logger.log('useSubscription callback', 'searchName:', searchName, 'valueKey:', valueKey, 'value:', value, value === fields);
     }, 100)
 
     props.subscribeMap(searchName, callback);
@@ -34,7 +40,7 @@ export function useSubscription(props) {
       logger.log('useSubscription useEffect cleanup', 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
       props.unsubscribeMap(searchName, callback);
     };
-  }, [searchName]);
+  }, [setFields, searchName]);
 
   return fields
 }

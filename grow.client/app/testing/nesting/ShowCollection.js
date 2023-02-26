@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import Box from "@mui/material/Box";
 import Grid from '@mui/material/Unstable_Grid2';
 import IconButton from '@mui/material/IconButton';
@@ -91,12 +92,21 @@ function CollectionTabs({ pageProps, collectionProps }) {
     pageProps.addItems(itemKey, itemsToAdd);
   };
 
+  const handleCollectionRemove = (fieldKey) => {
+
+    const itemKey = collectionProps.contextKey;
+
+    logger.log('handleCollectionRemove collectionProps.deleteItems( itemKey:', itemKey, ', fieldKey:', fieldKey, ')', collectionProps);
+    pageProps.deleteItemsByFieldKey(itemKey, fieldKey)
+  }
+
   return (
     <>
       <ControlledTabs
         fields={fields}
         label={label}
         onCollectionAdd={handleCollectionAdd}
+        onCollectionRemove={handleCollectionRemove}
         pageProps={pageProps}
         collectionProps={collectionProps} />
     </>
@@ -117,6 +127,10 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
   props.fields.forEach((values, fieldKey) => {
     tabIds.push(fieldKey);
   });
+
+  const handleCollectionRemove = () => {
+    props.onCollectionRemove(tabIds[currentTab])
+  }
 
   return (
     <>
@@ -144,7 +158,7 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
           </Tabs>
         </Box>
         <Box xs={1}>
-          {/* <IconButton onClick={handleCollectionRemove}><RemoveIcon /></IconButton> */}
+          <IconButton onClick={handleCollectionRemove}><RemoveIcon /></IconButton>
           <IconButton onClick={props.onCollectionAdd}><AddIcon /></IconButton>
         </Box>
         <Grid container spacing={1} xs={12} sx={{ pt: 1 }}>
