@@ -21,6 +21,7 @@ const editDrawerWidth = 450;
 export default function TestingNestingPage() {
 
   const itemKeys = ['preview', 'pages', 'views', 'fields']
+  // const itemKeys = ['pages']
 
   const items = useItems(itemKeys);
 
@@ -37,7 +38,7 @@ export default function TestingNestingPage() {
           <ShowItems contextKey={'preview'} contextValueKeyPrefix={'preview'} itemKey={'pages'} {...items} />
         </Grid>
       </Box>
-      <Box container spacing={0} xs={12} sx={{ position: 'fixed', top: 0, right: 0, width: `${editDrawerWidth}px`, height: '100%', pt: '100px', overflowY: 'scroll' }}>
+      <Box sx={{ position: 'fixed', top: 0, right: 0, width: `${editDrawerWidth}px`, height: '100%', pt: '100px', overflowY: 'scroll' }}>
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
           <Paper sx={{ width: '100%' }}>
             <EditItems contextKey={'pages'} itemKey={'pages'} {...items} />

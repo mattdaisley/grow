@@ -16,16 +16,19 @@ export function useItems(defaultItemKeys) {
   const itemsRef = useRef({
     itemKeys: [],
     data: {},
+    dataMap: new Map(),
+    dataMapTree: new Map(),
     broadcasted: {},
-    subscriptions: {}
+    subscriptionsMap: new Map()
   });
 
   const formMethods = useForm();
   itemsRef.current.formMethods = formMethods;
 
-  itemsRef.current.getData = (name) => {
-    logger.log('getData', 'itemKeys:', itemKeys, 'name:', name, 'data:', itemsRef.current.data?.[name]);
-    return itemsRef.current.data?.[name];
+  itemsRef.current.getData = (valueKey) => {
+    const dataItem = itemsRef.current.dataMap.get(valueKey)
+    logger.log('getData', 'itemKeys:', itemKeys, 'valueKey:', valueKey, 'dataMapItem:', dataItem);
+    return dataItem;
   };
 
   itemsRef.current.getNestedData = (name) => {
@@ -42,8 +45,13 @@ export function useItems(defaultItemKeys) {
     const nestedData = {};
     Object.keys(itemsRef.current.data)
       .filter((dataKey) => dataKey.startsWith(name))
-      .map(dataKey => nestedData[dataKey.replace(name+'.', '')] = itemsRef.current.data[dataKey]);
+      .map(dataKey => nestedData[dataKey.replace(name + '.', '')] = itemsRef.current.data[dataKey]);
     return nestedData;
+  }
+
+  itemsRef.current.getTreeMapItem = (searchName) => {
+    const searchNameSplit = searchName.split('.')
+    return getNodeFromTreeMap(itemsRef, searchNameSplit)
   }
 
   // can probably be temporary until this is a feature of getData
@@ -72,10 +80,13 @@ export function useItems(defaultItemKeys) {
         break;
     }
 
-    runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, newValue);
-
+    // old data Object structure still needed by a few places
     itemsRef.current.data[valueKey] = newValue;
     itemsRef.current.broadcasted[valueKey] = newValue;
+
+    // new subscriptions and data Map structure
+    updateDataMapTree(itemsRef, valueKey, newValue)
+    itemsRef.current.dataMap.set(valueKey, newValue)
 
     const setItemsEvent = { itemKey, values: { [valueKey]: newValue } };
     socket?.emit('set-items', setItemsEvent);
@@ -98,68 +109,40 @@ export function useItems(defaultItemKeys) {
     }
   };
 
-  itemsRef.current.subscribe = (valueKey, callback) => {
-    // itemsRef.current.subscriptions[valueKey] = callback
-    logger.log('subscribe', 'itemKeys:', itemKeys, 'subscriptions:', itemsRef.current.subscriptions, 'valueKey:', valueKey)
-    if (itemsRef.current.subscriptions[valueKey] === undefined) {
-      itemsRef.current.subscriptions[valueKey] = [];
-    }
-    itemsRef.current.subscriptions[valueKey].push(callback);
-  };
+  itemsRef.current.subscribeMap = (valueKey, callback) => {
+    const currentCallbacks = itemsRef.current.subscriptionsMap.get(valueKey) ?? []
+    const newCallbacks = [...currentCallbacks, callback];
+    itemsRef.current.subscriptionsMap.set(valueKey, newCallbacks)
+    // logger.log('subscribeMap', 'valueKey:', valueKey, 'currentCallbacks:', currentCallbacks, 'callbacks:', newCallbacks)
+  }
 
-  itemsRef.current.unsubscribe = (valueKey, callback) => {
-    const callbackIndex = itemsRef.current.subscriptions[valueKey]?.indexOf(callback);
+  itemsRef.current.unsubscribeMap = (valueKey, callback) => {
+    const currentCallbacks = itemsRef.current.subscriptionsMap.get(valueKey)
+    const callbackIndex = currentCallbacks?.indexOf(callback);
     if (callbackIndex > -1) {
-      delete itemsRef.current.subscriptions[valueKey][callbackIndex]
+      const newCallbacks = [...currentCallbacks]
+      newCallbacks.splice(callbackIndex, 1)
+      itemsRef.current.subscriptionsMap.set(valueKey, newCallbacks)
+      logger.log('unsubscribeMap', 'valueKey:', valueKey, 'callbacks:', newCallbacks)
+    }
+    else {
+      logger.log('unsubscribeMap nothing to unsubscribe', 'valueKey:', valueKey, 'callbacks:', currentCallbacks)
     }
   }
 
-  function runSubscriptions(subscriptions, data, valueKey, value) {
-    logger.log('runSubscriptions', 'itemKeys:', itemKeys, 'subscriptions:', subscriptions, 'valueKey:', valueKey, 'value:', value, 'data:', data);
-    // if (subscriptions.hasOwnProperty(valueKey)) {
-    // const callback = subscriptions[valueKey]
-    // callback(valueKey, value)
-    // }
-    // else {
-    Object.keys(subscriptions).map(subscriptionKey => {
-      if (subscriptionKey === valueKey) {
-        // const callback = subscriptions[valueKey]
-        // callback(valueKey, value)
-        const callbacks = subscriptions[valueKey];
-        callbacks?.map(callback => callback(valueKey, value));
-      }
-      else if (valueKey.startsWith(subscriptionKey)) {
-        const nestedDataKeys = {};
-        Object.keys(data)
-          .filter((dataKey) => dataKey.startsWith(subscriptionKey))
-          .map(dataKey => nestedDataKeys[dataKey] = data[dataKey]);
-        logger.log('runSubscriptions nestedData', subscriptionKey, valueKey, nestedDataKeys);
-        if (nestedDataKeys.length === 0 || !nestedDataKeys.hasOwnProperty(valueKey)) {
-          // an item was updated
-          // const callback = subscriptions[subscriptionKey]
-          // callback(valueKey, value)
-          const callbacks = subscriptions[subscriptionKey];
-          callbacks?.map(callback => callback(valueKey, value));
-        }
-        else {
-          // a new item was added
-        }
-      }
-    });
+  itemsRef.current.runSubscriptionsMap = (valueKey) => {
 
-    // Object.keys(data).map(dataKey => {
-    //   if (valueKey.startsWith(dataKey)) {
-    //     const callback = subscriptions[subscriptionKey]
-    //     callback(valueKey, value)
-    //   }
-    // })
-    // Object.keys(subscriptions).map(subscriptionKey => {
-    //   if (valueKey.startsWith(subscriptionKey)) {
-    //     const callback = subscriptions[subscriptionKey]
-    //     callback(valueKey, value)
-    //   }
-    // })
-    // }
+    const subscriptionsMap = itemsRef.current.subscriptionsMap
+
+    if (subscriptionsMap.size === 0) {
+      // logger.log('runSubscriptionsMap no subscriptions to run', 'subscriptionsMap:', subscriptionsMap);
+      return;
+    }
+
+    const mapCallbacks = subscriptionsMap.get(valueKey)
+    const value = itemsRef.current.getTreeMapItem(valueKey)
+
+    mapCallbacks?.forEach(callback => callback(valueKey, value));
   }
 
   useEffect(() => {
@@ -196,25 +179,31 @@ export function useItems(defaultItemKeys) {
     };
   }, [JSON.stringify(itemKeys), socket, handleReceiveAllItems]);
 
-  function handleReceiveAllItems(data) {
-    logger.log('handleReceiveAllItems socket', data);
+  function handleReceiveAllItems(receivedData) {
+    logger.log('handleReceiveAllItems socket', 'receivedData:', receivedData);
 
     const newData = {};
-    Object.keys(data).map(itemKey => {
-      data[itemKey].map(item => {
+    Object.keys(receivedData).map(itemKey => {
+
+      receivedData[itemKey].map(item => {
+
         const valueKey = item.valueKey;
         const value = item.value;
         const broadcastedValue = itemsRef.current.broadcasted[valueKey];
+
         if (broadcastedValue === undefined) {
+
           newData[valueKey] = value;
+          itemsRef.current.dataMap.set(valueKey, value)
+          updateDataMapTree(itemsRef, valueKey, value)
+          // logger.log('handleReceiveAllItems dataMapTree', itemsRef.current.dataMapTree)
+
           const { setValue } = itemsRef.current.formMethods;
           setValue(valueKey, value);
-          runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, value);
         }
         else if (broadcastedValue === value) {
           logger.log('handleReceiveAllItems confirm broadcasted value', valueKey, itemsRef.current.broadcasted[valueKey]);
           delete itemsRef.current.broadcasted[valueKey];
-          // runSubscriptions(itemsRef.current.subscriptions, itemsRef.current.data, valueKey, value);
         }
         else {
           logger.log('handleReceiveAllItems received value out of date', broadcastedValue, value);
@@ -226,7 +215,7 @@ export function useItems(defaultItemKeys) {
       ...itemsRef.current.data,
       ...newData
     };
-    logger.log('handleReceiveAllItems newData', itemsRef.current.data);
+    logger.log('handleReceiveAllItems newData', itemsRef.current.data, 'dataMap', itemsRef.current.dataMap);
   }
 
   const setRef = useCallback(() => {
@@ -236,4 +225,56 @@ export function useItems(defaultItemKeys) {
   return setRef()
 
   // return itemsRef.current;
+}
+
+function updateDataMapTree(itemsRef, valueKey, value) {
+  const dataMapTree = itemsRef.current.dataMapTree
+  const valueKeySplit = valueKey.split('.');
+  const valueKeySplitIndex = 0;
+
+  updateDataMapBranch(itemsRef, dataMapTree, valueKeySplit, valueKeySplitIndex, value)
+}
+
+function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySplitIndex, value) {
+
+  const keyAtIndex = valueKeySplit?.[valueKeySplitIndex]
+  const valueKey = valueKeySplit.slice(0, valueKeySplitIndex + 1).join('.')
+
+  // logger.log('updateDataMapBranch', 'valueKeySplitIndex:', valueKeySplitIndex, 'valueKey:', valueKey, 'valueKeySplit:', valueKeySplit, 'value:', value, 'dataMapBranch:', dataMapBranch)
+
+  if (valueKeySplitIndex === valueKeySplit.length - 1) {
+    dataMapBranch.set(keyAtIndex, value)
+    itemsRef.current.runSubscriptionsMap(valueKey, value)
+    return dataMapBranch;
+  }
+
+  if (!dataMapBranch.has(keyAtIndex)) {
+    dataMapBranch.set(keyAtIndex, new Map())
+  }
+
+  const newDataMapBranch = updateDataMapBranch(itemsRef, dataMapBranch.get(keyAtIndex), valueKeySplit, valueKeySplitIndex + 1, value)
+  itemsRef.current.runSubscriptionsMap(valueKey, newDataMapBranch)
+  return newDataMapBranch;
+}
+
+function getNodeFromTreeMap(itemsRef, valueKeySplit) {
+  const dataMapTree = itemsRef.current.dataMapTree
+
+  return getNodeFromTreeBranch(dataMapTree, valueKeySplit)
+}
+
+function getNodeFromTreeBranch(dataMapBranch, valueKeySplit) {
+
+  // logger.log('getNodeFromTreeBranch', 'valueKeySplit:', valueKeySplit, 'dataMapBranch:', dataMapBranch)
+  const firstKey = valueKeySplit?.[0]
+
+  if (valueKeySplit.length === 1) {
+    return dataMapBranch.get(firstKey)
+  }
+
+  if (!dataMapBranch.has(firstKey)) {
+    return undefined
+  }
+
+  return getNodeFromTreeBranch(dataMapBranch.get(firstKey), valueKeySplit.slice(1))
 }

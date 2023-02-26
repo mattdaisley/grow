@@ -14,22 +14,26 @@ import { useSubscription } from "./useSubscription";
 import { ShowItem } from "./ShowItems";
 
 export function ShowCollection({ ...props }) {
-  logger.log('ShowCollectionTabs', 'props:', props);
+  logger.log('ShowCollection', 'props:', props);
 
-  // const collectionIds = props.valueKeys.collections?.map(collection => collection.id)
-  if (!props.valueKeys.hasOwnProperty('collections')) {
+  if (!props.valueKeys.has('collections')) {
     return null;
   }
 
-  const collectionIds = Object.keys(props.valueKeys.collections).map(key => props.valueKeys.collections[key].id);
+  const collectionIds = []
+  props.valueKeys.get('collections').forEach(collection => {
+    collectionIds.push(collection.get('id'));
+  });
 
   if (collectionIds.length === 0) {
     return null;
   }
 
+  const collectionType = props.valueKeys.get('type')
+
   return (
     <>
-      {props.valueKeys.type === '0' && (
+      {collectionType === '0' && (
         <ShowCollectionTabs
           pageProps={{ ...props }}
           collectionProps={{
@@ -60,11 +64,14 @@ function ShowCollectionTabs({ pageProps, collectionProps }) {
 function CollectionTabs({ pageProps, collectionProps }) {
 
   const keyPrefix = undefined;
-  const { name, fields } = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
-  const { fields: collectionLabelFields } = useSubscription({ ...pageProps, itemKey: `${collectionProps.itemKey}.${collectionProps.fieldKey}`, keyPrefix, searchSuffix: 'label' });
+  const fields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
+  const label = useSubscription({ ...pageProps, itemKey: `${collectionProps.itemKey}.${collectionProps.fieldKey}`, keyPrefix, searchSuffix: 'label' });
 
-  logger.log('CollectionTabs', 'name:', name, 'fields:', fields, 'collectionLabelFields:', collectionLabelFields, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
+  logger.log('CollectionTabs', 'name:', name, 'fields:', fields, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
 
+  if (fields === undefined) {
+    return null;
+  }
 
   const handleCollectionAdd = () => {
     logger.log('CollectionTabs handleCollectionAdd');
@@ -73,7 +80,7 @@ function CollectionTabs({ pageProps, collectionProps }) {
     const keyPrefix = collectionProps.contextKey;
 
     let propertiesToAdd = {
-      type: pageProps.valueKeys.type
+      type: pageProps.valueKeys.get('type')
     };
 
     const itemsToAdd = {
@@ -88,7 +95,7 @@ function CollectionTabs({ pageProps, collectionProps }) {
     <>
       <ControlledTabs
         fields={fields}
-        collectionLabelFields={collectionLabelFields}
+        label={label}
         onCollectionAdd={handleCollectionAdd}
         pageProps={pageProps}
         collectionProps={collectionProps} />
@@ -104,7 +111,12 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
     setTabState({ ...tabState, currentTab: newValue });
   };
 
-  const currentTab = (Object.keys(props.fields).length > tabState.currentTab) ? tabState.currentTab : Object.keys(props.fields).length - 1;
+  const currentTab = (props.fields.size > tabState.currentTab) ? tabState.currentTab : props.fields.size - 1;
+
+  const tabIds = []
+  props.fields.forEach((values, fieldKey) => {
+    tabIds.push(fieldKey);
+  });
 
   return (
     <>
@@ -120,13 +132,13 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
             aria-label="basic tabs example"
             variant="scrollable"
             scrollButtons={false}>
-            {(Object.keys(props.fields))?.map((field, index) => {
+            {tabIds.map((field, index) => {
               // console.log(field, group)
-              let collectionName = props.collectionLabelFields?.label ?? "Collection";
+              let collectionName = props?.label ?? "Collection";
               let label = `${collectionName} ${index + 1}`;
 
               return (
-                <Tab key={index} label={label} />
+                <Tab key={field} label={label} />
               );
             })}
           </Tabs>
@@ -136,7 +148,7 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
           <IconButton onClick={props.onCollectionAdd}><AddIcon /></IconButton>
         </Box>
         <Grid container spacing={1} xs={12} sx={{ pt: 1 }}>
-          {Object.keys(props.fields)?.map((field, index) => (
+          {tabIds.map((field, index) => (
             <TabPanel
               key={field}
               currentTab={currentTab}
@@ -161,7 +173,7 @@ function TabPanel({ currentTab, index, ...props }) {
 
   return (
     <>
-      <Grid container spacing={1} xs={12} sx={{ py: 1, px: 2, display: (currentTab === index ? 'flex' : 'none') }}>
+      <Grid container spacing={1} xs={12} sx={{ py: 1, px: 1.5, display: (currentTab === index ? 'flex' : 'none') }}>
         {memoItems}
       </Grid>
     </>

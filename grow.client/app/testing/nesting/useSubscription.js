@@ -1,54 +1,40 @@
 'use client';
 
-import { useRef, useState, useEffect } from "react";
-import { unflatten } from 'flat';
+import { useState, useEffect } from "react";
+import debounce from 'lodash.debounce';
 
 import logger from "../../../../grow.api/src/logger";
 
 export function useSubscription(props) {
 
-  const [fields, setFields] = useState({});
-  const _fieldsRef = useRef({});
+  const {
+    keyPrefix,
+    itemKey,
+    searchSuffix
+  } = props
 
-  let name = props.keyPrefix === undefined ? props.itemKey : `${props.keyPrefix}.${props.itemKey}`;
-  let searchName = props.searchSuffix === undefined ? name : `${name}.${props.searchSuffix}`;
+  let name = keyPrefix === undefined ? itemKey : `${keyPrefix}.${itemKey}`;
+  let searchName = searchSuffix === undefined ? name : `${name}.${searchSuffix}`;
 
-  logger.log('useSubscription', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'searchSuffix:', props.searchSuffix, 'name:', name, 'searchName:', searchName, 'props:', props);
+  const [fields, setFields] = useState();
+
+  // logger.log('useSubscription', 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
 
   useEffect(() => {
+    setFields(props.getTreeMapItem(searchName))
 
-    const callback = (valueKey, value) => {
-      logger.log('useSubscription subscribed change', searchName, valueKey, value);
-      const trimmedKey = valueKey.substring(name.length + 1, valueKey.length);
-      updateFields(_fieldsRef, { ..._fieldsRef.current, [trimmedKey]: value }, setFields);
-    };
+    const callback = debounce((valueKey, value) => {
+      setFields(value)
+      logger.log('useSubscription callback', 'searchName:', searchName, 'valueKey:', valueKey, 'value:', value);
+    }, 100)
 
-    props.subscribe(searchName, callback);
-
-    const nestedData = props.getNestedData(searchName);
-    const newFields = {};
-    Object.keys(nestedData).map(nestedDataKey => {
-      const trimmedKey = nestedDataKey.substring(name.length + 1, nestedDataKey.length);
-      newFields[trimmedKey] = nestedData[nestedDataKey];
-    });
-
-    updateFields(_fieldsRef, newFields, setFields);
-    logger.log('useSubscription useEffect', 'name:', name, 'newFields:', newFields, 'nestedData:', nestedData);
+    props.subscribeMap(searchName, callback);
 
     return () => {
-      props.unsubscribe(searchName, callback);
+      logger.log('useSubscription useEffect cleanup', 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
+      props.unsubscribeMap(searchName, callback);
     };
-  }, [name, searchName]);
+  }, [searchName]);
 
-  return {
-    name,
-    fields
-  };
-}
-
-function updateFields(_ref, newFields, setFunc) {
-  if (_ref?.current !== undefined) {
-    _ref.current = newFields;
-    setFunc(unflatten(_ref.current, { object: true }));
-  }
+  return fields
 }

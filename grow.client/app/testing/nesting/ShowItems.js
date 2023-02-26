@@ -1,5 +1,8 @@
 'use client';
 
+import { useMemo } from 'react';
+import { unflatten } from "flat";
+
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from "@mui/material/Typography";
@@ -10,20 +13,37 @@ import { FieldWrapper, FieldItem, ControlledField, ChildrenWithProps } from "./F
 import { itemTypes } from "./constants";
 import { useSubscription } from "./useSubscription";
 
-export function ShowItems({ searchSuffix, ...props }) {
+export function ShowItems({ fieldsControlsPrefix, searchSuffix, ...props }) {
 
-  const { name, fields } = useSubscription({ searchSuffix, ...props });
+  const fields = useSubscription({ searchSuffix, ...props });
+
+  let name = props.keyPrefix === undefined ? props.itemKey : `${props.keyPrefix}.${props.itemKey}`;
 
   logger.log('ShowItems', 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props);
 
-  if (Object.keys(fields).length === 0) {
+  if (fields === undefined || fields.size === 0) {
+    logger.log('ShowItems fields not set')
     return null;
   }
 
+  const fieldsControls = {}
+  if (fieldsControlsPrefix) {
+    fieldsControls[fieldsControlsPrefix] = {}
+  }
+  fields.forEach((values, fieldKey) => {
+    if (fieldsControlsPrefix) {
+      fieldsControls[fieldsControlsPrefix][fieldKey] = values
+    }
+    else {
+      fieldsControls[fieldKey] = values
+    }
+  })
+
   return (
-    <ShowControls {...props} name={name} fields={fields} />
+    <ShowControls {...props} name={name} fields={fieldsControls} />
   );
 }
+
 function ShowControls({ name, fields, ...props }) {
   logger.log('ShowControls', 'name:', name, 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props);
 
@@ -44,16 +64,14 @@ function ShowControls({ name, fields, ...props }) {
     }
   }
 
+  const ShowControl = getShowControl(props.itemKey);
+
   return (
     <>
       {Object.keys(fields).map(fieldKey => {
 
         const keyPrefix = `${name}.${fieldKey}`;
         const valueKeys = fields[fieldKey];
-
-        logger.log('ShowControls rendering', 'fieldKey:', fieldKey, 'valueKeys:', valueKeys);
-
-        const ShowControl = getShowControl(props.itemKey);
 
         if (ShowControl === null) {
           return null;
@@ -65,6 +83,7 @@ function ShowControls({ name, fields, ...props }) {
           // )
         }
 
+        logger.log('ShowControls rendering', 'fieldKey:', fieldKey, 'keyPrefix:', keyPrefix, 'valueKeys:', valueKeys);
         return <ShowControl key={fieldKey} {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} valueKeys={valueKeys} />;
       })}
     </>
@@ -84,28 +103,29 @@ function ShowPage(props) {
 function ShowSection(props) {
   const itemKey = `${props.keyPrefix}`;
   const keyPrefix = undefined;
-  const { fields: widthFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'width' });
-  const { fields: typeFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'type' });
+  const widthField = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'width' })
+  const typeField = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'type' })
 
-  logger.log('ShowSection', 'typeField:', typeFields, 'widthFields:', widthFields, 'props:', props);
+  logger.log('ShowSection', 'widthField:', widthField, 'typeField:', typeField, 'props:', props);
 
-  const width = Number(widthFields.width) || 12;
+  const width = Number(widthField) || 12;
 
   return (
     <Grid xs={width} alignContent={'flex-start'}>
       <Paper sx={{ width: '100%' }}>
-        {(typeFields?.type === undefined) && (
+        {(typeField === undefined) && (
           <Grid container spacing={1} xs={12} sx={{ py: 1, px: 2 }}>
             <ShowItem {...props} />
           </Grid>
         )}
-        {(typeFields.type !== undefined) && (
+        {(typeField !== undefined) && (
           <ShowCollection {...props} />
         )}
       </Paper>
     </Grid>
   );
 }
+
 function ShowView(props) {
   logger.log('ShowView', 'props:', props);
 
@@ -116,48 +136,54 @@ function ShowView(props) {
     </>
   );
 }
+
 function ShowGroup(props) {
   const itemKey = `${props.keyPrefix}`;
   const keyPrefix = undefined;
-  const searchSuffix = 'width';
-  const { name: widthName, fields: widthFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix });
+  const widthField = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'width' })
 
-  logger.log('ShowGroup', 'widthName:', widthName, 'widthFields:', widthFields, 'props:', props);
+  logger.log('ShowGroup', 'widthField:', widthField, 'props:', props);
+
+  const width = Number(widthField) || 12;
 
   return (
-    <Grid xs={Number(widthFields?.width) ?? 12} sx={{ mt: 1 }}>
+    <Grid xs={width} sx={{ mt: 1 }}>
       <ShowItem {...props} />
     </Grid>
   );
 }
+
 function ShowField(props) {
-  logger.log('ShowField', 'props:', props);
+  const itemKey = `${props.keyPrefix}`;
+  const keyPrefix = undefined;
+  const typeField = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'type' })
+
+  logger.log('ShowField', 'typeField:', typeField, 'props:', props);
 
   return (
     <>
-      {props.valueKeys.hasOwnProperty('type')
+      {typeField !== undefined
         ? <ShowFieldControl {...props} itemKey={`${props.itemKey}.${props.fieldKey}`} keyPrefix={undefined} searchSuffix={undefined} />
         : <ShowItem {...props} />}
-
-
     </>
   );
 }
+
 function ShowFieldControl(props) {
   const itemKey = `${props.itemKey}`;
   const keyPrefix = undefined;
+  const type = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'type' });
+  const name = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'name' });
+  const label = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: `label` });
 
-  const { name: typeName, fields: typeFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'type' });
-  const { name: nameName, fields: nameFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'name' });
-  const { name: labelName, fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: `label` });
-  logger.log('ShowFieldControl', 'nameName:', nameName, 'nameFields:', nameFields, 'labelName:', labelName, 'labelFields:', labelFields, 'props:', props);
+  logger.log('ShowFieldControl', 'type:', type, 'name:', name, 'label:', label, 'props:', props);
 
-  if (Object.keys(typeFields).length === 0 || Object.keys(labelFields).length === 0) {
+  if (type === undefined) {
     return null;
   }
 
-  const controllerName = `${props.contextValueKeyPrefix}.${nameFields.name}`;
-  const label = labelFields.label ?? nameFields.name;
+  const controllerName = `${props.contextValueKeyPrefix}.${name}`;
+  const fieldLabel = label ?? name;
 
   return (
     <FieldWrapper>
@@ -165,13 +191,16 @@ function ShowFieldControl(props) {
         {...props}
         name={controllerName}
         render={(nextProps) => {
-          return <ControlledField {...nextProps} type={typeFields.type} label={label} />;
+          return <ControlledField {...nextProps} type={type} label={fieldLabel} />;
         }} />
     </FieldWrapper>
   );
 }
 
-export function ShowItem({ children, keyPrefix, fieldKey, valueKeys, ...props }) {
+export function ShowItem({ children, keyPrefix, fieldKey, ...props }) {
+
+  const valueKeys = unflatten(props.getNestedDataObject(keyPrefix))
+
   logger.log('ShowItem', 'itemKey:', props.itemKey, 'keyPrefix:', keyPrefix, 'fieldKey:', fieldKey, 'valueKeys:', valueKeys, 'props:', props);
 
   return (
@@ -185,36 +214,50 @@ export function ShowItem({ children, keyPrefix, fieldKey, valueKeys, ...props })
     </>
   );
 }
+
 function ShowItemLabel(props) {
   const itemKey = `${props.itemKey}.${props.fieldKey}`;
   const keyPrefix = undefined;
   const searchSuffix = 'label';
-  const { fields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix });
+  const label = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix });
 
-  logger.log('ItemLabel', 'labelFields:', fields, 'props:', props);
+  logger.log('ShowItemLabel', 'label:', label, 'props:', props);
 
-  if (fields?.label === undefined || fields.label === "") {
+  if (label === undefined || label === "") {
     return null;
   }
 
   return (
     <Grid xs={12} sx={{ mb: -1 }}>
-      <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>{fields.label}</Typography>
+      <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>
+        {label}
+      </Typography>
     </Grid>
   );
 }
+
 function ShowReferencedItem({ valueKeys, ...props }) {
   logger.log('ShowReferencedItem', 'valueKeys:', valueKeys, 'props:', props);
 
-  if (valueKeys !== null && valueKeys?.id !== undefined) {
-    return <ShowItems {...props} keyPrefix={undefined} searchSuffix={valueKeys.id} />;
+  const id = valueKeys instanceof Map ? valueKeys.get('id') : valueKeys?.id
+  if (id !== undefined) {
+    return (
+      <ShowItems
+        {...props}
+        keyPrefix={undefined}
+        searchSuffix={valueKeys.id}
+        fieldsControlsPrefix={id}
+      />
+    )
   }
   return null;
 }
+
 function ShowItemProperties({ valueKeys, fieldKey, children, ...props }) {
   logger.log('ShowItemProperties', 'valueKeys:', valueKeys, 'fieldKey:', fieldKey, 'props:', props);
 
-  if (valueKeys !== null && valueKeys?.id === undefined) {
+  const id = valueKeys instanceof Map ? valueKeys.get('id') : valueKeys?.id
+  if (id === undefined) {
     return (
       <>
         <ChildrenWithProps {...props}>
@@ -226,6 +269,7 @@ function ShowItemProperties({ valueKeys, fieldKey, children, ...props }) {
 
   return null;
 }
+
 function ShowNestedItems({ valueKeys, keyPrefix, ...props }) {
   return (
     <>

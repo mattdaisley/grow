@@ -1,6 +1,8 @@
 'use client';
+
 import { Fragment, useState } from "react";
 import { unflatten } from "flat";
+
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,18 +18,22 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Stack from '@mui/material/Stack';
 import TextField from "@mui/material/TextField";
+
 import logger from "../../../../grow.api/src/logger";
 import { FieldWrapper, FieldItem, ChildrenWithProps, ControlledTextField, ControlledAutocompleteField } from "./FieldItem";
 import { collectionTypes, itemTypes, fieldTypes } from "./constants";
 import { useSubscription } from "./useSubscription";
 
-export function EditItems({ searchSuffix, ...props }) {
+export function EditItems({ fieldsControlsPrefix, searchSuffix, ...props }) {
 
-  const { name, fields } = useSubscription({ searchSuffix, ...props });
+  const fields = useSubscription({ searchSuffix, ...props });
+
+  let name = props.keyPrefix === undefined ? props.itemKey : `${props.keyPrefix}.${props.itemKey}`;
 
   logger.log('EditItems', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fields:', fields, 'props:', props);
 
-  if (Object.keys(fields).length === 0) {
+  if (fields === undefined || fields.size === 0) {
+    logger.log('EditItems fields not set')
     return (
       <>
         <AddItemActions {...props} fields={fields}>
@@ -38,10 +44,24 @@ export function EditItems({ searchSuffix, ...props }) {
     );
   }
 
+  const fieldsControls = {}
+  if (fieldsControlsPrefix) {
+    fieldsControls[fieldsControlsPrefix] = {}
+  }
+  fields.forEach((values, fieldKey) => {
+    if (fieldsControlsPrefix) {
+      fieldsControls[fieldsControlsPrefix][fieldKey] = values
+    }
+    else {
+      fieldsControls[fieldKey] = values
+    }
+  })
+
   return (
-    <EditControls {...props} name={name} fields={fields} />
+    <EditControls {...props} name={name} fields={fieldsControls} />
   );
 }
+
 function EditControls({ name, fields, ...props }) {
   logger.log('EditControls', 'name:', name, 'contextKey:', props.contextKey, 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props);
 
@@ -69,14 +89,12 @@ function EditControls({ name, fields, ...props }) {
 
   return (
     <>
-      {Object.keys(fields).map((fieldKey, index) => {
-
+      {Object.keys(fields).map(fieldKey => {
         const keyPrefix = `${name}.${fieldKey}`;
         const valueKeys = fields[fieldKey];
 
-        logger.log('EditControls rendering', 'fieldKey:', fieldKey, 'keyPrefix:', keyPrefix, 'valueKeys:', valueKeys);
-
         if (EditControl === null) {
+          logger.log('EditControl not set', 'itemKey:', itemKey)
           return null;
           // use below to debug missing properties
           // return (
@@ -86,12 +104,13 @@ function EditControls({ name, fields, ...props }) {
           // )
         }
 
+        logger.log('EditControls rendering', 'fieldKey:', fieldKey, 'keyPrefix:', keyPrefix, 'valueKeys:', valueKeys);
         return (
           <Fragment key={fieldKey}>
             <EditControl {...props} keyPrefix={keyPrefix} fieldKey={fieldKey} valueKeys={valueKeys} />
             <Divider />
           </Fragment>
-        );
+        )
       })}
 
       {['pages', 'groups'].includes(itemKey) && (
@@ -116,6 +135,7 @@ function EditControls({ name, fields, ...props }) {
     </>
   );
 }
+
 function AddItemActions({ children, ...props }) {
 
   const [addingItem, setAddingItem] = useState(false);
@@ -132,6 +152,7 @@ function AddItemActions({ children, ...props }) {
     </Box>
   );
 }
+
 function AddNewItemControl({ addingItem, setAddingItem, ...props }) {
   logger.log('AddNewItemControl', 'props:', props);
 
@@ -217,6 +238,7 @@ function AddNewItemControl({ addingItem, setAddingItem, ...props }) {
     </>
   );
 }
+
 function AddNewItemProperties(props) {
 
   const itemFields = unflatten(props.getNestedData(props.itemKey))
@@ -344,12 +366,13 @@ function AddExistingItemControl({ addingItem, setAddingItem, ...props }) {
     </>
   );
 }
+
 function AddExistingItemProperties(props) {
 
   const [itemValue, setItemValue] = useState({ value: null, label: "" });
-  const { fields: currentItems } = useSubscription({ ...props, itemKey: props.itemKey, keyPrefix: props.keyPrefix });
-  const { fields: existingItems } = useSubscription({ ...props, itemKey: props.itemKey, keyPrefix: undefined });
-  logger.log('AddExistingItemProperties', 'props:', props, 'currentItems:', currentItems, 'existingItems:', existingItems);
+  const existingItems = useSubscription({ ...props, itemKey: props.itemKey, keyPrefix: undefined });
+
+  logger.log('AddExistingItemProperties', 'props:', props, 'existingItems:', existingItems);
 
   const handleItemValueChange = (_, newValue) => {
     // logger.log('AddExistingItemControl handleItemValueChange', newValue)
@@ -373,8 +396,9 @@ function AddExistingItemProperties(props) {
     setItemValue({ value: null, label: "" });
   };
 
-  const options = Object.keys(existingItems).map(existingItemKey => {
-    return { value: existingItemKey, label: existingItems[existingItemKey].label ?? existingItems[existingItemKey].name };
+  const options = []
+  existingItems.forEach((values, existingItemKey) => {
+    options.push({ value: existingItemKey, label: values.get('label') ?? values.get('name') });
   });
 
   return (
@@ -416,6 +440,7 @@ function AddExistingItemProperties(props) {
     </>
   );
 }
+
 function AddCollectionItemControl({ addingItem, setAddingItem, ...props }) {
   logger.log('AddCollectionItemControl', 'props:', props);
 
@@ -480,6 +505,7 @@ function AddCollectionItemControl({ addingItem, setAddingItem, ...props }) {
     </>
   );
 }
+
 function AddCollectionItemProperties(props) {
 
   const [itemName, setItemName] = useState(getNextItemName('collections', props.fields));
@@ -566,6 +592,7 @@ function AddCollectionItemProperties(props) {
     </>
   );
 }
+
 function EditPage(props) {
   logger.log('EditPage', 'props:', props);
   return (
@@ -574,23 +601,31 @@ function EditPage(props) {
     </>
   );
 }
+
 function EditSection(props) {
-  logger.log('EditSection', 'props:', props);
+  const itemKey = `${props.keyPrefix}`;
+  const keyPrefix = undefined;
+  const typeField = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'type' })
+
+  logger.log('EditSection', 'typeField:', typeField, 'props:', props);
+
   return (
     <EditItem {...props} contextKey="pages">
       <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
-      {props.valueKeys.hasOwnProperty('type') && (
+      {typeField !== undefined && (
         <EditCollectionTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
       )}
     </EditItem>
   );
 }
+
 function EditView(props) {
   logger.log('EditView', 'props:', props);
   return (
     <EditItem {...props} contextKey="views" />
   );
 }
+
 function EditGroup(props) {
   logger.log('EditGroup', 'props:', props);
   return (
@@ -599,6 +634,7 @@ function EditGroup(props) {
     </EditItem>
   );
 }
+
 function EditField(props) {
   logger.log('EditField', 'props:', props);
   return (
@@ -607,11 +643,12 @@ function EditField(props) {
     </EditItem>
   );
 }
+
 function EditItem({ children, fieldKey, ...props }) {
-  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'valueKeys:', props.valueKeys, 'props:', props);
 
   const nestedItems = unflatten(props.getNestedDataObject(props.keyPrefix))
-  logger.log('EditItem', 'nestedItems:', nestedItems, 'valueKeys:', props.valueKeys)
+
+  logger.log('EditItem', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'nestedItems:', nestedItems, 'props:', props);
 
   const missingNestedItems = getMissingNestedItems({ itemKey: props.itemKey, valueKeys: nestedItems });
   const valueKeys = {
@@ -650,28 +687,33 @@ function getMissingNestedItems({ itemKey, valueKeys }) {
 
   return {};
 }
-function EditReferencedItem({ valueKeys, ...props }) {
-  logger.log('EditReferencedItem', 'valueKeys:', valueKeys, 'props:', props);
 
-  if (valueKeys !== null && valueKeys?.id !== undefined) {
+function EditReferencedItem({ valueKeys, ...props }) {
+
+  const id = valueKeys instanceof Map ? valueKeys.get('id') : valueKeys?.id
+
+  logger.log('EditReferencedItem', 'id:', id, 'valueKeys:', valueKeys, 'props:', props);
+
+  if (id !== undefined) {
     return (
-      <>
-        <EditItems
-          {...props}
-          keyPrefix={undefined}
-          searchSuffix={valueKeys.id}
-          referenceValueKey={props.keyPrefix} />
-      </>
+      <EditItems
+        {...props}
+        keyPrefix={undefined}
+        searchSuffix={id}
+        fieldsControlsPrefix={id}
+        referenceValueKey={props.keyPrefix} />
     );
   }
   return null;
 }
+
 function EditItemProperties({ valueKeys, fieldKey, children, ...props }) {
   logger.log('EditItemProperties', 'valueKeys:', valueKeys, 'fieldKey:', fieldKey, 'props:', props);
 
   const [openFields, setOpenFields] = useState([]);
 
-  if (valueKeys !== null && valueKeys?.id !== undefined) {
+  const id = valueKeys instanceof Map ? valueKeys.get('id') : valueKeys?.id
+  if (id !== undefined) {
     return null;
   }
 
@@ -749,19 +791,19 @@ function DeleteItemButton({ onClick, ...props }) {
 function EditItemHeader({ onClick, ...props }) {
   const itemKey = `${props.keyPrefix}`;
   const keyPrefix = undefined;
-  const { fields: nameFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'name' });
-  const { fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'label' });
+  const name = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'name' })
+  const label = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'label' })
 
-  logger.log('EditItemHeader', 'nameFields:', nameFields, 'labelFields:', labelFields, 'props:', props);
+  logger.log('EditItemHeader', 'name:', name, 'label:', label, 'props:', props);
 
-  if (labelFields?.label === undefined || nameFields?.name === undefined) {
+  if (name === undefined) {
     return null;
   }
 
-  let primary = labelFields.label ?? nameFields.name;
+  let primary = label ?? name;
   let secondary;
-  if (primary === labelFields.label) {
-    secondary = nameFields.name;
+  if (primary === label) {
+    secondary = name;
   }
 
   return (
@@ -783,15 +825,7 @@ function EditItemHeader({ onClick, ...props }) {
 }
 
 function EditItemLabel({ onClick, ...props }) {
-  const itemKey = `${props.keyPrefix}`;
-  const keyPrefix = undefined;
-  const { fields: labelFields } = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'label' });
-
-  logger.log('EditItemLabel', 'labelFields:', labelFields, 'props:', props);
-
-  if (labelFields?.label === undefined) {
-    return null;
-  }
+  logger.log('EditItemLabel', 'props:', props);
 
   return (
     <ListItem
@@ -805,8 +839,10 @@ function EditItemLabel({ onClick, ...props }) {
     </ListItem>
   );
 }
+
 function EditNestedItems({ valueKeys, keyPrefix, ...props }) {
   logger.log('EditNestedItems', 'valueKeys:', valueKeys, 'keyPrefix:', keyPrefix, 'props:', props);
+
   return (
     <>
       {valueKeys !== null && Object.keys(valueKeys).map(itemKey => {
@@ -827,6 +863,7 @@ function EditNestedItems({ valueKeys, keyPrefix, ...props }) {
     </>
   );
 }
+
 function EditProperty({ controllerName, label, ...props }) {
   return (
     <FieldWrapper>
@@ -839,6 +876,7 @@ function EditProperty({ controllerName, label, ...props }) {
     </FieldWrapper>
   );
 }
+
 function EditCollectionTypeProperty({ controllerName, label, ...props }) {
 
   return (
@@ -852,6 +890,7 @@ function EditCollectionTypeProperty({ controllerName, label, ...props }) {
     </FieldWrapper>
   );
 }
+
 function EditFieldTypeProperty({ controllerName, label, ...props }) {
 
   return (

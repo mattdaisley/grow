@@ -42,8 +42,7 @@ export function ControlledTextField({ name, ...props }) {
   const defaultValue = props.getData(name) ?? "";
   const label = props.label ?? name;
 
-  logger.log('ControlledTextField', 'name:', name, 'defaultValue:', defaultValue, 'props:', props);
-
+  // logger.log('ControlledTextField', 'name:', name, 'defaultValue:', defaultValue, 'props:', props);
 
   return (
     <Controller
@@ -71,7 +70,8 @@ export function ControlledAutocompleteField({ name, ...props }) {
 
   const defaultValue = props.getData(name) ?? props.defaultValue ?? null;
   const label = props.label ?? name;
-  logger.log('ControlledAutocompleteField', 'name:', name, 'defaultValue:', defaultValue, 'props:', props);
+
+  // logger.log('ControlledAutocompleteField', 'name:', name, 'defaultValue:', defaultValue, 'props:', props);
 
   const menuItems = props.menuItems ?? [{ value: '0', label: 'test0' }, { value: '1', label: 'test1' }, { value: '2', label: 'test2' },
   { value: '3', label: 'test3' }, { value: '4', label: 'test4' }, { value: '5', label: 'test5' }];
@@ -140,14 +140,14 @@ export function ChildrenWithProps({ children, ...props }) {
     return child;
   });
 
-  logger.log('ChildrenWithProps', 'render:', props.render === undefined, 'props:', props);
+  // logger.log('ChildrenWithProps', 'render:', props.render === undefined, 'props:', props);
   if (props.render === undefined) {
     return childrenWithProps;
   }
 
-  logger.log('ChildrenWithProps', 'childrenWithProps:', childrenWithProps);
+  // logger.log('ChildrenWithProps', 'childrenWithProps:', childrenWithProps);
   return Children.map(childrenWithProps, child => {
-    logger.log('ChildrenWithProps', 'child:', child);
+    // logger.log('ChildrenWithProps', 'child:', child);
     return props.render(child);
   });
 
