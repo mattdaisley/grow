@@ -67,6 +67,7 @@ export function ControlledTextField({ name, ...props }) {
   );
 }
 export function ControlledAutocompleteField({ name, ...props }) {
+  // logger.log('ControlledAutocompleteField', 'name:', name, 'props:', props);
 
   const defaultValue = props.itemsMethods.getData(name) ?? props.defaultValue ?? null;
   const label = props.label ?? name;
@@ -134,7 +135,7 @@ export function ChildrenWithProps({ children, ...props }) {
 
   const childrenWithProps = Children.map(children, child => {
     if (isValidElement(child)) {
-      const newChild = cloneElement(child, { ...props });
+      const newChild = cloneElement(child, { ...props, ...child.props });
       return newChild;
     }
     return child;

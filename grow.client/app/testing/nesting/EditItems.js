@@ -670,6 +670,9 @@ function EditSection(props) {
     <EditItem {...props} contextKey="pages">
       <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
       {typeField !== undefined && (
+        <EditReferencedCollectionProperty />
+      )}
+      {typeField !== undefined && (
         <EditCollectionTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
       )}
     </EditItem>
@@ -948,15 +951,51 @@ function EditCollectionTypeProperty({ controllerName, label, ...props }) {
   );
 }
 
-function EditReferencedCollectionProperty({ controllerName, label, ...props }) {
+function EditReferencedCollectionProperty({ ...props }) {
+
+  const itemKey = `${props.keyPrefix}`;
+  const keyPrefix = undefined;
+  const referencedCollections = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'collections' });
+
+  const collections = useSubscription({ ...props, itemKey: 'collections', keyPrefix: undefined });
+  
+  logger.log('EditReferencedCollectionProperty', 'referencedCollections:', referencedCollections, 'collections:', collections, 'props:', props)
+
+  if (referencedCollections === undefined || collections === undefined) {
+    return null;
+  }
+
+  const collectionIds = []
+  referencedCollections.forEach((_, key) => {
+    collectionIds.push(key);
+  });
+
+  if (collectionIds.length === 0) {
+    return null;
+  }
+
+  const options = []
+  collections.forEach((values, collection) => {
+    let label = values.get('label')
+    if (label === undefined || label === "") {
+      label = values.get('name')
+    }
+    options.push({ value: collection, label });
+  });
 
   return (
     <FieldWrapper>
       <FieldItem
         {...props}
-        name={controllerName}
+        name={`${props.keyPrefix}.collections.${collectionIds[0]}.id`}
         render={(nextProps) => {
-          return <ControlledAutocompleteField {...nextProps} label={label} menuItems={collectionTypes} defaultValue={collectionTypes[0]?.value} />;
+          return (
+            <ControlledAutocompleteField
+              {...nextProps}
+              label={'Collection'}
+              menuItems={options}
+              defaultValue={null} />
+          )
         }} />
     </FieldWrapper>
   );
