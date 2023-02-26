@@ -10,7 +10,8 @@ export function useSubscription(props) {
   const {
     keyPrefix,
     itemKey,
-    searchSuffix
+    searchSuffix,
+    filter
   } = props
 
   let name = keyPrefix === undefined ? itemKey : `${keyPrefix}.${itemKey}`;
@@ -20,16 +21,38 @@ export function useSubscription(props) {
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);
 
-  // logger.log('useSubscription', 'fields:', fields, 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
+  logger.log('useSubscription', 'fields:', fields, 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
+  const getFilteredFields = useCallback((value) => {
+
+    if (filter === undefined || value === undefined) {
+      return value;
+    }
+
+    if (value instanceof Map) {
+      value.forEach((_, key) => {
+        if (key !== filter) {
+          value.delete(key)
+        }
+      });
+      return value
+    }
+
+    if (value === filter) {
+      return value
+    }
+
+    return undefined;
+
+  }, [filter])
 
   useEffect(() => {
 
     //logger.log('useSubscription useEffect', 'fields:', fields, 'searchName:', searchName, 'props:', props);
 
-    setFields(props.getTreeMapItem(searchName))
+    setFields(getFilteredFields(props.getTreeMapItem(searchName)))
 
     const callback = debounce((valueKey, value) => {
-      setFields(value)
+      setFields(getFilteredFields(value))
       forceUpdate()
       // logger.log('useSubscription callback', 'searchName:', searchName, 'valueKey:', valueKey, 'value:', value, value === fields);
     }, 100)

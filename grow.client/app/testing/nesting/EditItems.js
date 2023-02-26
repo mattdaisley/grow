@@ -374,6 +374,10 @@ function AddExistingItemProperties(props) {
 
   logger.log('AddExistingItemProperties', 'props:', props, 'existingItems:', existingItems);
 
+  if (existingItems === undefined) {
+    return null;
+  }
+
   const handleItemValueChange = (_, newValue) => {
     // logger.log('AddExistingItemControl handleItemValueChange', newValue)
     if (newValue === null) {
@@ -398,7 +402,11 @@ function AddExistingItemProperties(props) {
 
   const options = []
   existingItems.forEach((values, existingItemKey) => {
-    options.push({ value: existingItemKey, label: values.get('label') ?? values.get('name') });
+    let label = values.get('label')
+    if (label === undefined || label === "") {
+      label = values.get('name')
+    }
+    options.push({ value: existingItemKey, label });
   });
 
   return (

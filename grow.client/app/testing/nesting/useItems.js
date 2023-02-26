@@ -142,14 +142,14 @@ export function useItems(defaultItemKeys) {
     const subscriptionsMap = itemsRef.current.subscriptionsMap
 
     if (subscriptionsMap.size === 0) {
-      logger.log('runSubscriptionsMap no subscriptions to run', 'subscriptionsMap:', subscriptionsMap);
+      // logger.log('runSubscriptionsMap no subscriptions to run', 'subscriptionsMap:', subscriptionsMap);
       return;
     }
 
     const mapCallbacks = subscriptionsMap.get(valueKey)
     const value = newValue ?? itemsRef.current.getTreeMapItem(valueKey)
 
-    logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
+    // logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
     mapCallbacks?.forEach(callback => callback(valueKey, value));
   }
 

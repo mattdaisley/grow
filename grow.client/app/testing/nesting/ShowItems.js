@@ -13,13 +13,13 @@ import { FieldWrapper, FieldItem, ControlledField, ChildrenWithProps } from "./F
 import { itemTypes } from "./constants";
 import { useSubscription } from "./useSubscription";
 
-export function ShowItems({ fieldsControlsPrefix, searchSuffix, ...props }) {
+export function ShowItems({ fieldsControlsPrefix, searchSuffix, filter, ...props }) {
 
-  const fields = useSubscription({ searchSuffix, ...props });
+  const fields = useSubscription({ searchSuffix, filter, ...props });
 
   let name = props.keyPrefix === undefined ? props.itemKey : `${props.keyPrefix}.${props.itemKey}`;
 
-  logger.log('ShowItems', 'itemKey:', props.itemKey, 'fields:', fields, 'props:', props);
+  logger.log('ShowItems', 'itemKey:', props.itemKey, 'fieldsControlsPrefix:', fieldsControlsPrefix, 'searchSuffix:', searchSuffix, 'fields:', fields, 'props:', props);
 
   if (fields === undefined || fields.size === 0) {
     logger.log('ShowItems fields not set')
