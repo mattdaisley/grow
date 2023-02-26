@@ -265,7 +265,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
 }
 
 function getReferencedViewFieldColumns(pageProps) {
-  logger.log('getReferencedViewFields', 'valueKeys:', pageProps.valueKeys, 'pageProps:', pageProps)
+  // logger.log('getReferencedViewFields', 'valueKeys:', pageProps.valueKeys, 'pageProps:', pageProps)
 
   const referencedViews = pageProps.valueKeys.get('views')
 
@@ -286,11 +286,11 @@ function getReferencedViewFieldColumns(pageProps) {
       return;
     }
 
-    logger.log('getReferencedViewFields', 'view:', view)
+    // logger.log('getReferencedViewFields', 'view:', view)
 
     const groups = view.get('groups')
     groups.forEach((group) => {
-      logger.log('getReferencedViewFields', 'group:', group)
+      // logger.log('getReferencedViewFields', 'group:', group)
 
       const referencedFields = group.get('fields')
 
@@ -320,7 +320,7 @@ function getReferencedViewFieldColumns(pageProps) {
 
   });
 
-  logger.log('getReferencedViewFields', 'viewFieldIds:', viewFieldIds, 'viewFields:', viewFields)
+  // logger.log('getReferencedViewFields', 'viewFieldIds:', viewFieldIds, 'viewFields:', viewFields)
   return viewFields
 }
 

@@ -85,6 +85,9 @@ function EditControls({ name, fields, ...props }) {
     case 'fields':
       EditControl = EditField;
       break;
+    case 'collections':
+      EditControl = EditPage;
+      break;
   }
 
   return (
@@ -113,7 +116,7 @@ function EditControls({ name, fields, ...props }) {
         )
       })}
 
-      {['pages', 'groups'].includes(itemKey) && (
+      {['pages', 'groups', 'collections'].includes(itemKey) && (
         <AddItemActions {...props} fields={fields}>
           <AddNewItemControl />
         </AddItemActions>
@@ -200,6 +203,11 @@ function AddNewItemControl({ addingItem, setAddingItem, ...props }) {
         id: {
           ...addedProperties
         }
+      };
+    }
+    else if (props.itemKey === 'collections') {
+      propertiesToAdd = {
+        ...addedProperties,
       };
     }
 
@@ -369,36 +377,71 @@ function AddExistingItemControl({ addingItem, setAddingItem, ...props }) {
 
 function AddExistingItemProperties(props) {
 
+  const [itemValue, setItemValue] = useState(null);
+
+  logger.log('AddExistingItemProperties', 'props:', props);
+
+  const handleItemValueChange = (newValue) => {
+    setItemValue(newValue);
+  };
+
+  const handleAddItemConfirmClick = () => {
+    logger.log('AddExistingItemProperties handleAddItemConfirmClick', 'itemKey:', props.itemKey, 'itemValue:', itemValue);
+    props.onAddItemConfirmClick && props.onAddItemConfirmClick(
+      { id: itemValue }
+    );
+  };
+
+  return (
+    <>
+      <EditReferencedItemProperty {...props} onChange={handleItemValueChange} />
+      <Button
+        color="secondary"
+        size="small"
+        sx={{ mt: 1 }}
+        disabled={itemValue === null}
+        onClick={handleAddItemConfirmClick}>
+        Confirm
+      </Button>
+      <Button
+        size="small"
+        sx={{ mt: 1 }}
+        onClick={props.onAddItemCancelClick}>
+        Cancel
+      </Button>
+    </>
+  );
+}
+
+function EditReferencedItemProperty({ ...props }) {
+
   const [itemValue, setItemValue] = useState({ value: null, label: "" });
   const existingItems = useSubscription({ ...props, itemKey: props.itemKey, keyPrefix: undefined });
 
-  logger.log('AddExistingItemProperties', 'props:', props, 'existingItems:', existingItems);
+  logger.log('EditReferencedItemProperty', 'props:', props, 'existingItems:', existingItems);
 
   if (existingItems === undefined) {
     return null;
   }
 
   const handleItemValueChange = (_, newValue) => {
-    // logger.log('AddExistingItemControl handleItemValueChange', newValue)
+    // logger.log('EditReferencedItemProperty handleItemValueChange', newValue)
+    let value = newValue;
+
     if (newValue === null) {
-      setItemValue({ value: null, label: "" });
+      value = { value: null, label: "" }
     }
-    else {
-      setItemValue(newValue);
-    }
+
+    setItemValue(value);
+    props.onChange && props.onChange(value.value)
   };
 
   const handleItemTextChange = (event) => {
     setItemValue({ ...itemValue, label: event.target.value ?? "" });
   };
 
-  const handleAddItemConfirmClick = () => {
-    logger.log('AddExistingItemProperties handleAddItemConfirmClick', 'itemKey:', props.itemKey, 'itemValue:', itemValue);
-    props.onAddItemConfirmClick && props.onAddItemConfirmClick(
-      { id: itemValue.value }
-    );
-    setItemValue({ value: null, label: "" });
-  };
+  let label = props.itemKey.substring(0, props.itemKey.length - 1)
+  label = `${label.substring(0, 1).toUpperCase()}${label.substring(1)}`
 
   const options = []
   existingItems.forEach((values, existingItemKey) => {
@@ -413,7 +456,6 @@ function AddExistingItemProperties(props) {
     <>
       <FieldWrapper>
         <Autocomplete
-          label={props.itemKey}
           autoComplete
           autoSelect
           autoHighlight
@@ -427,26 +469,12 @@ function AddExistingItemProperties(props) {
           renderInput={(params) => (
             <TextField
               {...params}
-              label={props.type}
+              label={label}
               onChange={handleItemTextChange} />
           )} />
       </FieldWrapper>
-      <Button
-        color="secondary"
-        size="small"
-        sx={{ mt: 1 }}
-        disabled={itemValue.value === null}
-        onClick={handleAddItemConfirmClick}>
-        Confirm
-      </Button>
-      <Button
-        size="small"
-        sx={{ mt: 1 }}
-        onClick={props.onAddItemCancelClick}>
-        Cancel
-      </Button>
     </>
-  );
+  )
 }
 
 function AddCollectionItemControl({ addingItem, setAddingItem, ...props }) {
@@ -468,13 +496,13 @@ function AddCollectionItemControl({ addingItem, setAddingItem, ...props }) {
 
     propertiesToAdd = {
       ...addedProperties,
-      width: '12',
-      collections: {
-        id: {
-          name: addedProperties.name,
-          label: addedProperties.label
-        }
-      }
+      // width: '12',
+      // collections: {
+      //   id: {
+      //     name: addedProperties.name,
+      //     label: addedProperties.label
+      //   }
+      // }
     };
 
     const itemsToAdd = {
@@ -516,31 +544,51 @@ function AddCollectionItemControl({ addingItem, setAddingItem, ...props }) {
 
 function AddCollectionItemProperties(props) {
 
-  const [itemName, setItemName] = useState(getNextItemName('collections', props.fields));
   const [itemLabel, setItemLabel] = useState(getNextItemLabel('collections', props.fields));
-  const [itemValue, setItemValue] = useState({ value: null, label: "" });
+  const [itemName, setItemName] = useState(getNextItemName(itemLabel));
+  const [nameChanged, setNameChanged] = useState(false)
+  const [type, setType] = useState({ value: null, label: "" });
+  const [referencedCollection, setReferencedCollection] = useState(null);
   logger.log('AddCollectionItemProperties', 'props:', props);
 
-  const handleItemValueChange = (_, newValue) => {
+
+  const handleLabelChanged = (event) => {
+    setItemLabel(event.target.value)
+
+    if (!nameChanged) {
+      setItemName(getNextItemName(event.target.value))
+    }
+  }
+
+  const handleNameChanged = (event) => {
+    setItemName(event.target.value)
+    setNameChanged(true)
+  }
+
+  const handleTypeChanged = (_, newValue) => {
     // logger.log('AddExistingItemControl handleItemValueChange', newValue)
     if (newValue === null) {
-      setItemValue({ value: null, label: "" });
+      setType({ value: null, label: "" });
     }
     else {
-      setItemValue(newValue);
+      setType(newValue);
     }
   };
 
   const handleItemTextChange = (event) => {
-    setItemValue({ ...itemValue, label: event.target.value ?? "" });
+    setType({ ...type, label: event.target.value ?? "" });
   };
 
+  const handelReferencedCollectionChange = (newValue) => {
+    setReferencedCollection(newValue);
+  }
+
   const handleAddItemConfirmClick = () => {
-    logger.log('AddExistingItemProperties handleAddItemConfirmClick', 'itemKey:', props.itemKey, 'itemValue:', itemValue);
+    logger.log('AddCollectionItemProperties handleAddItemConfirmClick', 'itemKey:', props.itemKey, 'type:', type, 'referencedCollection:', referencedCollection);
     props.onAddItemConfirmClick && props.onAddItemConfirmClick(
-      { label: itemLabel, name: itemName, type: itemValue.value, width: '12' }
+      { label: itemLabel, name: itemName, type: type.value, width: '12', collections: { id: referencedCollection } }
     );
-    setItemValue({ value: null, label: "" });
+    setType({ value: null, label: "" });
   };
 
   const options = collectionTypes;
@@ -553,7 +601,7 @@ function AddCollectionItemProperties(props) {
           fullWidth
           size="small"
           value={itemLabel}
-          onChange={(event) => setItemLabel(event.target.value)} />
+          onChange={handleLabelChanged} />
       </FieldWrapper>
       <FieldWrapper>
         <TextField
@@ -561,8 +609,9 @@ function AddCollectionItemProperties(props) {
           fullWidth
           size="small"
           value={itemName}
-          onChange={(event) => setItemName(event.target.value)} />
+          onChange={handleNameChanged} />
       </FieldWrapper>
+      <EditReferencedItemProperty {...props} itemKey={'collections'} onChange={handelReferencedCollectionChange} />
       <FieldWrapper>
         <Autocomplete
           label={props.itemKey}
@@ -572,9 +621,9 @@ function AddCollectionItemProperties(props) {
           fullWidth
           size="small"
           options={options}
-          value={itemValue.value}
-          inputValue={itemValue.label}
-          onChange={handleItemValueChange}
+          value={type.value}
+          inputValue={type.label}
+          onChange={handleTypeChanged}
           isOptionEqualToValue={(option, testValue) => option?.value === testValue}
           renderInput={(params) => (
             <TextField
@@ -587,7 +636,7 @@ function AddCollectionItemProperties(props) {
         color="secondary"
         size="small"
         sx={{ mt: 1 }}
-        disabled={itemValue.value === null}
+        disabled={type.value === null || referencedCollection === null}
         onClick={handleAddItemConfirmClick}>
         Confirm
       </Button>
@@ -886,6 +935,20 @@ function EditProperty({ controllerName, label, ...props }) {
 }
 
 function EditCollectionTypeProperty({ controllerName, label, ...props }) {
+
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledAutocompleteField {...nextProps} label={label} menuItems={collectionTypes} defaultValue={collectionTypes[0]?.value} />;
+        }} />
+    </FieldWrapper>
+  );
+}
+
+function EditReferencedCollectionProperty({ controllerName, label, ...props }) {
 
   return (
     <FieldWrapper>

@@ -54,8 +54,6 @@ export function useItems(defaultItemKeys) {
     return getNodeFromTreeMap(itemsRef, searchNameSplit)
   }
 
-  // can probably be temporary until this is a feature of getData
-  // getData could have signature (itemKey, valueKey, callback) to support automatic subscription
   itemsRef.current.getItems = (requestedItemKeys) => {
     logger.log('getItems', 'requestedItemKeys:', requestedItemKeys, 'itemsRef.current.itemKeys:', itemsRef.current.itemKeys, 'itemKeys:', itemKeys)
     const newItemKeys = requestedItemKeys.filter(requestedItemKey => !itemKeys.includes(requestedItemKey))

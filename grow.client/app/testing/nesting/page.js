@@ -20,7 +20,7 @@ const editDrawerWidth = 450;
 
 export default function TestingNestingPage() {
 
-  const itemKeys = ['preview', 'pages', 'views', 'fields']
+  const itemKeys = ['preview', 'pages', 'views', 'fields', 'collections']
   // const itemKeys = ['pages']
 
   const itemsMethods = useItems(itemKeys);
@@ -42,6 +42,11 @@ export default function TestingNestingPage() {
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
           <Paper sx={{ width: '100%' }}>
             <EditItems contextKey={'pages'} itemKey={'pages'} itemsMethods={itemsMethods} />
+          </Paper>
+        </Box>
+        <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: 2 }}>
+          <Paper sx={{ width: '100%' }}>
+            <EditItems contextKey={'collections'} itemKey={'collections'} itemsMethods={itemsMethods} />
           </Paper>
         </Box>
       </Box>
