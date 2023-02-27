@@ -1,5 +1,5 @@
 'use client';
-import { Children, cloneElement, isValidElement } from "react";
+import { useEffect, Children, cloneElement, isValidElement } from "react";
 import { Controller } from "react-hook-form";
 
 import Autocomplete from "@mui/material/Autocomplete";
@@ -70,12 +70,26 @@ export function ControlledTextField({ name, ...props }) {
   );
 }
 
-export function ControlledAutocompleteField({ name, ...props }) {
-  logger.log('ControlledAutocompleteField', 'name:', name, 'props:', props);
+
+export function ControlledAutocompleteField(props) {
 
   const referencedCollection = useSubscription({ ...props, searchSuffix: 'options-collection' })
 
-  const collectionContextKey = `${props.contextKey}_collections_${(referencedCollection ?? '0')}`
+  const contextKey = props.pageContextKey ?? props.contextKey
+  const collectionContextKey = `${contextKey}_collections_${(referencedCollection ?? '0')}`
+
+  useEffect(() => {
+    props.itemsMethods.getItems([collectionContextKey, 'collections']);
+  }, [collectionContextKey]);
+
+  return (
+    <ControlledAutocompleteFieldComponent {...props} collectionContextKey={collectionContextKey} />
+  );
+}
+
+export function ControlledAutocompleteFieldComponent({ name, collectionContextKey, ...props }) {
+  logger.log('ControlledAutocompleteField', 'name:', name, 'collectionContextKey:', collectionContextKey, 'props:', props);
+
   const collectionFields = useSubscription({ ...props, itemKey: collectionContextKey, keyPrefix: undefined });
 
   const referencedLabelField = useSubscription({ ...props, searchSuffix: 'options-label' })
@@ -85,10 +99,10 @@ export function ControlledAutocompleteField({ name, ...props }) {
   const label = props.label ?? name;
 
   // logger.log('ControlledAutocompleteField', 'name:', name, 'defaultValue:', defaultValue, 'props:', props);
+  logger.log('ControlledAutocompleteField', 'label:', label, 'labelField:', labelField, 'collectionFields:', collectionFields, 'props:', props)
 
   let menuItems = props.menuItems ?? []
   if (collectionFields !== undefined && labelField !== undefined) {
-    // logger.log('ControlledAutocompleteField', 'referencedCollection:', referencedCollection, 'labelField:', labelField, 'collectionFields:', collectionFields)
 
     const labelKey = labelField.get('name') ?? ""
 

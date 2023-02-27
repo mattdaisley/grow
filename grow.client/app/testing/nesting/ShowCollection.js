@@ -69,7 +69,7 @@ function ShowCollectionTabs({ pageProps, collectionProps }) {
 
   useEffect(() => {
     pageProps.itemsMethods.getItems([collectionProps.contextKey, 'collections']);
-  });
+  }, [collectionProps.contextKey]);
 
   return (
     <CollectionTabs pageProps={pageProps} collectionProps={collectionProps} />
@@ -83,10 +83,6 @@ function CollectionTabs({ pageProps, collectionProps }) {
   const label = useSubscription({ ...pageProps, itemKey: `${collectionProps.itemKey}.${collectionProps.fieldKey}`, keyPrefix, searchSuffix: 'label' });
 
   logger.log('CollectionTabs', 'fields:', fields, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
-
-  if (fields === undefined) {
-    return null;
-  }
 
   const handleCollectionAdd = () => {
     logger.log('CollectionTabs handleCollectionAdd');
@@ -135,10 +131,11 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
     setTabState({ ...tabState, currentTab: newValue });
   };
 
-  const currentTab = (props.fields.size > tabState.currentTab) ? tabState.currentTab : props.fields.size - 1;
+  const fields = props.fields ?? new Map()
+  const currentTab = (fields.size > tabState.currentTab) ? tabState.currentTab : fields.size - 1;
 
   const tabIds = []
-  props.fields.forEach((values, fieldKey) => {
+  fields.forEach((_, fieldKey) => {
     tabIds.push(fieldKey);
   });
 
@@ -182,6 +179,7 @@ function ControlledTabs({ pageProps, collectionProps, ...props }) {
               currentTab={currentTab}
               index={index}
               {...pageProps}
+              pageContextKey={pageProps.contextKey}
               contextKey={collectionProps.contextKey}
               contextValueKeyPrefix={`${collectionProps.contextKey}.${field}`} />
           ))}

@@ -15,6 +15,7 @@ export function useItems(defaultItemKeys) {
 
   const itemsRef = useRef({
     itemKeys: [],
+    requestedItemKeys: [],
     data: {},
     dataMap: new Map(),
     dataMapTree: new Map(),
@@ -55,10 +56,11 @@ export function useItems(defaultItemKeys) {
   }
 
   itemsRef.current.getItems = (requestedItemKeys) => {
-    logger.log('getItems', 'requestedItemKeys:', requestedItemKeys, 'itemsRef.current.itemKeys:', itemsRef.current.itemKeys, 'itemKeys:', itemKeys)
     const newItemKeys = requestedItemKeys.filter(requestedItemKey => !itemKeys.includes(requestedItemKey))
+    logger.log('getItems', 'requestedItemKeys:', requestedItemKeys, 'itemKeys:', itemKeys, 'newItemKeys:', newItemKeys, 'itemsRef.current', itemsRef.current)
     if (newItemKeys.length > 0) {
-      setItemKeys([...itemKeys, ...newItemKeys])
+      itemsRef.current.requestedItemKeys = [...itemsRef.current.requestedItemKeys, ...newItemKeys]
+      setItemKeys([...itemKeys, ...itemsRef.current.requestedItemKeys])
     }
   }
 
@@ -164,6 +166,11 @@ export function useItems(defaultItemKeys) {
           const dynamicItemsRequest = { itemKey };
           socket?.emit('get-items', dynamicItemsRequest);
           logger.log('useItems socket emit get-items', dynamicItemsRequest);
+
+          const requestedItemKeysIndex = itemsRef.current.requestedItemKeys.indexOf(itemKey)
+          if (requestedItemKeysIndex > -1) {
+            itemsRef.current.requestedItemKeys.splice(requestedItemKeysIndex, 1)
+          }
         });
 
       itemsRef.current.itemKeys = itemKeys
