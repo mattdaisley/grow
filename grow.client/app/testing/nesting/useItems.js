@@ -56,7 +56,7 @@ export function useItems(defaultItemKeys) {
   }
 
   itemsRef.current.getItems = (requestedItemKeys) => {
-    const newItemKeys = requestedItemKeys.filter(requestedItemKey => !itemKeys.includes(requestedItemKey))
+    const newItemKeys = requestedItemKeys.filter(requestedItemKey => !itemKeys.includes(requestedItemKey) && !itemsRef.current.requestedItemKeys.includes(requestedItemKey))
     logger.log('getItems', 'requestedItemKeys:', requestedItemKeys, 'itemKeys:', itemKeys, 'newItemKeys:', newItemKeys, 'itemsRef.current', itemsRef.current)
     if (newItemKeys.length > 0) {
       itemsRef.current.requestedItemKeys = [...itemsRef.current.requestedItemKeys, ...newItemKeys]

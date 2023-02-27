@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -215,25 +215,37 @@ function ShowCollectionGrid({ pageProps, collectionProps }) {
     pageProps.itemsMethods.getItems([collectionProps.contextKey, 'collections']);
   });
 
-  return (
+  return useMemo(() => (
     <CollectionGrid pageProps={pageProps} collectionProps={collectionProps} />
-  );
+  ), []);
 }
 
 function CollectionGrid({ pageProps, collectionProps }) {
-  const keyPrefix = undefined;
   const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
   // const fields = useSubscription({ ...pageProps, itemKey: undefined, searchSuffix: undefined });
+  const _collectionsRef = useRef({})
+  const [_, updateState] = useState();
+  const forceUpdate = useCallback(() => updateState({}), []);
+
+  useEffect(() => {
+    if (_collectionsRef.current !== undefined) {
+      Object.keys(_collectionsRef.current).map(collectionContextKey => {
+        pageProps.itemsMethods.getItems([collectionContextKey, 'collections']);
+      })
+    }
+  })
 
   const grouplabel = pageProps.valueKeys.get('label')
 
   let columns = [{ field: 'id', headerName: 'id', flex: 1 }]
-  const viewFieldColumns = getReferencedViewFieldColumns(pageProps)
-  if (viewFieldColumns !== undefined) {
-    columns = [...columns, ...viewFieldColumns]
+  const viewFieldColumns = getReferencedViewFieldColumns(pageProps, _collectionsRef, forceUpdate)
+  if (viewFieldColumns.size !== 0) {
+    viewFieldColumns.forEach((viewFieldColumn) => {
+      columns.push(viewFieldColumn.columnDefinition)
+    });
   }
 
-  const rows = getCollectionRows(collectionFields)
+  const rows = getCollectionRows(collectionFields, viewFieldColumns)
 
   logger.log('CollectionGrid', 'collectionFields:', collectionFields, 'valueKeys:', pageProps.valueKeys, 'columns:', columns, 'rows:', rows, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
 
@@ -262,13 +274,13 @@ function CollectionGrid({ pageProps, collectionProps }) {
   )
 }
 
-function getReferencedViewFieldColumns(pageProps) {
-  // logger.log('getReferencedViewFields', 'valueKeys:', pageProps.valueKeys, 'pageProps:', pageProps)
+function getReferencedViewFieldColumns(pageProps, _collectionsRef, forceUpdate) {
+  logger.log('getReferencedViewFields', 'valueKeys:', pageProps.valueKeys, 'pageProps:', pageProps)
 
   const referencedViews = pageProps.valueKeys.get('views')
 
   const viewFieldIds = []
-  const viewFields = []
+  const viewFields = new Map()
 
   if (referencedViews === undefined) {
     return viewFields
@@ -306,13 +318,36 @@ function getReferencedViewFieldColumns(pageProps) {
         if (fields === undefined) {
           return;
         }
+        // logger.log('getReferencedViewFields', 'fields:', fields, 'pageProps:', pageProps)
 
         const fieldName = fields.get('name')
         const headerName = fields.get('label') ?? fieldName
 
-        viewFields.push({
-          field: fieldName, headerName, flex: 1
-        })
+        let viewField = {
+          columnDefinition: {
+            field: fieldName, headerName, flex: 1
+          }
+        }
+
+        const referencedCollection = fields.get('options-collection')
+        const referencedLabelField = fields.get('options-label')
+        if (referencedCollection !== undefined && referencedLabelField !== undefined) {
+          const contextKey = pageProps.pageContextKey ?? pageProps.contextKey
+          const collectionContextKey = `${contextKey}_collections_${(referencedCollection ?? '0')}`
+
+          // pageProps.itemsMethods.getItems([collectionContextKey, 'collections']);
+          _collectionsRef.current[collectionContextKey] = true;
+          pageProps.itemsMethods.subscribeMap(collectionContextKey, forceUpdate);
+
+          const referencedCollectionFields = pageProps.itemsMethods.getTreeMapItem(collectionContextKey)
+          const labelField = pageProps.itemsMethods.getTreeMapItem(`fields.${referencedLabelField}`)
+
+          // logger.log('getReferencedViewFields', 'referencedCollectionFields:', referencedCollectionFields, 'labelField:', labelField)
+          viewField.referencedCollectionFields = referencedCollectionFields
+          viewField.labelField = labelField
+        }
+
+        viewFields.set(viewField.columnDefinition.field, viewField)
       });
     });
 
@@ -322,17 +357,37 @@ function getReferencedViewFieldColumns(pageProps) {
   return viewFields
 }
 
-function getCollectionRows(collectionFields) {
+function getCollectionRows(collectionFields, viewFieldColumns) {
   const rows = []
 
   if (collectionFields === undefined) {
     return rows;
   }
 
+  logger.log('getCollectionRows', 'collectionFields:', collectionFields, 'viewFieldColumns:', viewFieldColumns)
+
   collectionFields.forEach((collectionField, collectionFieldKey) => {
     const row = { id: collectionFieldKey }
     collectionField.forEach((fieldValue, fieldKey) => {
-      row[fieldKey] = fieldValue
+      // logger.log('getCollectionRows', 'fieldValue:', fieldValue, 'fieldKey:', fieldKey, 'collectionFields:', collectionFields, 'viewFieldColumns:', viewFieldColumns)
+      const column = viewFieldColumns.get(fieldKey)
+      if (column === undefined || fieldValue === null) {
+        row[fieldKey] = fieldValue ?? ""
+      }
+      else {
+        const labelField = column.labelField
+        const referencedCollectionFields = column.referencedCollectionFields
+        // logger.log('getCollectionRows', 'fieldValue:', fieldValue, 'fieldKey:', fieldKey, 'labelField:', labelField, 'referencedCollectionFields:', referencedCollectionFields)
+
+        if (labelField !== undefined && referencedCollectionFields !== undefined) {
+          const referencedCollectionField = referencedCollectionFields.get(fieldValue)
+          const referencedCollectionValue = referencedCollectionField.get(labelField.get('name'))
+          row[fieldKey] = referencedCollectionValue
+        }
+        else {
+          row[fieldKey] = fieldValue
+        }
+      }
     });
 
     rows.push(row)

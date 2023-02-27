@@ -229,6 +229,11 @@ function ShowItemLabel(props) {
 
   return (
     <Grid xs={12} sx={{ mb: -1 }}>
+      {props.contextKey === 'preview' && (
+        <Typography variant="subtitle2" sx={{ px: 1 }}>
+          {props.fieldKey}
+        </Typography>
+      )}
       <Typography variant="h6" sx={{ borderBottom: 1, borderColor: 'grey.300', px: 1 }}>
         {label}
       </Typography>
