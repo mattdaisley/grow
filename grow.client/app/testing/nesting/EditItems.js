@@ -21,7 +21,7 @@ import TextField from "@mui/material/TextField";
 
 import logger from "../../../../grow.api/src/logger";
 import { FieldWrapper, FieldItem, ChildrenWithProps, ControlledTextField, ControlledAutocompleteField } from "./FieldItem";
-import { collectionTypes, itemTypes, fieldTypes } from "./constants";
+import { collectionTypes, itemTypes, fieldTypes, fieldOptionsTypes } from "./constants";
 import { useSubscription } from "./useSubscription";
 
 export function EditItems({ fieldsControlsPrefix, searchSuffix, ...props }) {
@@ -700,6 +700,7 @@ function EditField(props) {
   return (
     <EditItem {...props} contextKey="fields">
       <EditFieldTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
+      <EditAutocompleteFieldOptionsProperty />
     </EditItem>
   );
 }
@@ -958,7 +959,7 @@ function EditReferencedCollectionProperty({ ...props }) {
   const referencedCollections = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'collections' });
 
   const collections = useSubscription({ ...props, itemKey: 'collections', keyPrefix: undefined });
-  
+
   logger.log('EditReferencedCollectionProperty', 'referencedCollections:', referencedCollections, 'collections:', collections, 'props:', props)
 
   if (referencedCollections === undefined || collections === undefined) {
@@ -1010,6 +1011,133 @@ function EditFieldTypeProperty({ controllerName, label, ...props }) {
         name={controllerName}
         render={(nextProps) => {
           return <ControlledAutocompleteField {...nextProps} label={label} menuItems={fieldTypes} />;
+        }} />
+    </FieldWrapper>
+  );
+}
+
+function EditAutocompleteFieldOptionsProperty(props) {
+  const itemKey = `${props.keyPrefix}`;
+  const keyPrefix = undefined;
+  const typeField = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'type' })
+
+  // logger.log('EditAutocompleteFieldOptionsProperty', 'typeField:', typeField, 'props:', props)
+
+  if (typeField === undefined || typeField === '0') {
+    return null;
+  }
+
+  if (typeField === '1') {
+    return (
+      <>
+        <EditFieldOptionsTypeProperty {...props} />
+        <EditFieldOptionsProperty {...props} />
+        <EditFieldOptionsLabelProperty {...props} />
+      </>
+    )
+  }
+
+  return null;
+}
+
+function EditFieldOptionsTypeProperty(props) {
+  const label = 'Options Type'
+  const controllerName = `${props.keyPrefix}.options-type`
+
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledAutocompleteField {...nextProps} label={label} menuItems={fieldOptionsTypes} defaultValue={fieldOptionsTypes[0].value} />;
+        }} />
+    </FieldWrapper>
+  );
+}
+
+function EditFieldOptionsProperty(props) {
+  const itemKey = `${props.keyPrefix}`;
+  const keyPrefix = undefined;
+  const optionsTypeField = useSubscription({ ...props, itemKey, keyPrefix, searchSuffix: 'options-type' })
+
+  // logger.log('EditFieldOptionsProperty', 'optionsTypeField:', optionsTypeField, 'props:', props)
+
+  if (optionsTypeField === undefined) {
+    return null;
+  }
+
+  if (optionsTypeField === '0') {
+    return (
+      <>
+        <EditFieldOptionsCollectionProperty {...props} />
+      </>
+    )
+  }
+
+  return null;
+}
+
+function EditFieldOptionsCollectionProperty(props) {
+
+  const collections = useSubscription({ ...props, itemKey: 'collections', keyPrefix: undefined });
+
+  if (collections === undefined) {
+    return null;
+  }
+
+  const options = []
+  collections.forEach((values, collection) => {
+    let label = values.get('label')
+    if (label === undefined || label === "") {
+      label = values.get('name')
+    }
+    options.push({ value: collection, label });
+  });
+
+  const label = 'Options Collection'
+  const controllerName = `${props.keyPrefix}.options-collection`
+
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledAutocompleteField {...nextProps} label={label} menuItems={options} defaultValue={null} />;
+        }} />
+    </FieldWrapper>
+  );
+}
+
+
+function EditFieldOptionsLabelProperty(props) {
+
+  const collections = useSubscription({ ...props, itemKey: 'fields', keyPrefix: undefined });
+
+  if (collections === undefined) {
+    return null;
+  }
+
+  const options = []
+  collections.forEach((values, collection) => {
+    let label = values.get('label')
+    if (label === undefined || label === "") {
+      label = values.get('name')
+    }
+    options.push({ value: collection, label });
+  });
+
+  const label = 'Field for Label'
+  const controllerName = `${props.keyPrefix}.options-label`
+
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledAutocompleteField {...nextProps} label={label} menuItems={options} defaultValue={null} />;
         }} />
     </FieldWrapper>
   );

@@ -7,6 +7,7 @@ import Box from "@mui/material/Box";
 import { styled } from '@mui/material/styles';
 import TextField from "@mui/material/TextField";
 
+import { useSubscription } from "./useSubscription";
 import logger from "../../../../grow.api/src/logger";
 
 export function FieldItem({ render, ...props }) {
@@ -27,6 +28,7 @@ export function FieldItem({ render, ...props }) {
 
   return render({ ...props, onChange: handleChange });
 }
+
 export function ControlledField(props) {
   switch (props.type) {
     case "0":
@@ -37,6 +39,7 @@ export function ControlledField(props) {
 
   return null;
 }
+
 export function ControlledTextField({ name, ...props }) {
 
   const defaultValue = props.itemsMethods.getData(name) ?? "";
@@ -66,16 +69,35 @@ export function ControlledTextField({ name, ...props }) {
       }} />
   );
 }
+
 export function ControlledAutocompleteField({ name, ...props }) {
-  // logger.log('ControlledAutocompleteField', 'name:', name, 'props:', props);
+  logger.log('ControlledAutocompleteField', 'name:', name, 'props:', props);
+
+  const referencedCollection = useSubscription({ ...props, searchSuffix: 'options-collection' })
+
+  const collectionContextKey = `${props.contextKey}_collections_${(referencedCollection ?? '0')}`
+  const collectionFields = useSubscription({ ...props, itemKey: collectionContextKey, keyPrefix: undefined });
+
+  const referencedLabelField = useSubscription({ ...props, searchSuffix: 'options-label' })
+  const labelField = useSubscription({ ...props, itemKey: 'fields', keyPrefix: undefined, searchSuffix: referencedLabelField });
 
   const defaultValue = props.itemsMethods.getData(name) ?? props.defaultValue ?? null;
   const label = props.label ?? name;
 
   // logger.log('ControlledAutocompleteField', 'name:', name, 'defaultValue:', defaultValue, 'props:', props);
 
-  const menuItems = props.menuItems ?? [{ value: '0', label: 'test0' }, { value: '1', label: 'test1' }, { value: '2', label: 'test2' },
-  { value: '3', label: 'test3' }, { value: '4', label: 'test4' }, { value: '5', label: 'test5' }];
+  let menuItems = props.menuItems ?? []
+  if (collectionFields !== undefined && labelField !== undefined) {
+    // logger.log('ControlledAutocompleteField', 'referencedCollection:', referencedCollection, 'labelField:', labelField, 'collectionFields:', collectionFields)
+
+    const labelKey = labelField.get('name') ?? ""
+
+    menuItems = []
+    collectionFields.forEach((values, collectionKey) => {
+      let label = values.get(labelKey)
+      menuItems.push({ value: collectionKey, label });
+    });
+  }
 
   const componentProps = {
     autoComplete: true,
@@ -124,6 +146,7 @@ export function ControlledAutocompleteField({ name, ...props }) {
       }} />
   );
 }
+
 export const FieldWrapper = styled(Box)(({ theme }) => ({
   ...theme.typography.body2,
   padding: `${theme.spacing(1)} ${theme.spacing(0)}`,
@@ -131,6 +154,7 @@ export const FieldWrapper = styled(Box)(({ theme }) => ({
   textAlign: 'left',
   color: theme.palette.text.secondary,
 }));
+
 export function ChildrenWithProps({ children, ...props }) {
 
   const childrenWithProps = Children.map(children, child => {
