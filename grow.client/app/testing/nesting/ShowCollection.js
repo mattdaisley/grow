@@ -3,11 +3,12 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
 import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import RemoveIcon from '@mui/icons-material/Remove';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Box from "@mui/material/Box";
-import { DataGrid } from '@mui/x-data-grid';
+import { GridActionsCellItem, DataGrid } from '@mui/x-data-grid';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -234,6 +235,14 @@ function CollectionGrid({ pageProps, collectionProps }) {
     }
   })
 
+  const handleCollectionRemove = (fieldKey) => {
+
+    const itemKey = collectionProps.contextKey;
+
+    logger.log('handleCollectionRemove collectionProps.deleteItems( itemKey:', itemKey, ', fieldKey:', fieldKey, ')', collectionProps);
+    pageProps.itemsMethods.deleteItemsByFieldKey(itemKey, fieldKey)
+  }
+
   const grouplabel = pageProps.valueKeys.get('label')
 
   let columns = [{ field: 'id', headerName: 'id', flex: 1 }]
@@ -243,6 +252,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
       columns.push(viewFieldColumn.columnDefinition)
     });
   }
+  columns.push(getActionsColumn(handleCollectionRemove))
 
   const rows = getCollectionRows(collectionFields, viewFieldColumns)
 
@@ -254,7 +264,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
     <>
       <Paper sx={{
         width: '100%',
-
+        pb: 2, px: 2
       }}>
         <Typography variant='h6' sx={{ p: 1 }}>{grouplabel}</Typography>
         <DataGrid
@@ -380,8 +390,10 @@ function getCollectionRows(collectionFields, viewFieldColumns) {
 
         if (labelField !== undefined && referencedCollectionFields !== undefined) {
           const referencedCollectionField = referencedCollectionFields.get(fieldValue)
-          const referencedCollectionValue = referencedCollectionField.get(labelField.get('name'))
-          row[fieldKey] = referencedCollectionValue
+          if (referencedCollectionField !== undefined) {
+            const referencedCollectionValue = referencedCollectionField.get(labelField.get('name'))
+            row[fieldKey] = referencedCollectionValue
+          }
         }
         else {
           row[fieldKey] = fieldValue
@@ -395,6 +407,26 @@ function getCollectionRows(collectionFields, viewFieldColumns) {
   return rows
 }
 
+function getActionsColumn(handleCollectionRemove) {
+  return {
+    field: 'actions',
+    type: 'actions',
+    headerName: 'Actions',
+    width: 100,
+    cellClassName: 'actions',
+    getActions: ({ id }) => {
+
+      return [
+        <GridActionsCellItem
+          icon={<DeleteOutlinedIcon />}
+          label="Delete"
+          onClick={() => handleCollectionRemove(id)}
+          color="inherit"
+        />,
+      ];
+    },
+  }
+}
 
 function CollectionAdd({ pageProps, collectionProps }) {
 
@@ -431,8 +463,8 @@ function CollectionAdd({ pageProps, collectionProps }) {
           contextValueKeyPrefix={draftCollectionContextKey}
         />
       </Grid>
-      <Box sx={{ px: 2, py: 1, borderTop: 1, borderColor: 'grey.300' }}>
-        <Button onClick={handleCollectionAdd}>{'Add Item'}</Button>
+      <Box sx={{ px: 2, py: 2, borderTop: 1, borderColor: 'grey.300' }}>
+        <Button variant="outlined" color="secondary" size="small" onClick={handleCollectionAdd}>{'Add Item'}</Button>
       </Box>
     </>
   )

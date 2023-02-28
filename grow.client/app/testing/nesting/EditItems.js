@@ -8,7 +8,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from '@mui/material/Unstable_Grid2';
 import Divider from '@mui/material/Divider';
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -843,7 +843,7 @@ function DeleteItemButton({ onClick, ...props }) {
   return (
     <>
       <IconButton sx={{ mt: -0.5, mr: 0.5 }} onClick={handleDeleteClicked}>
-        <DeleteIcon />
+        <DeleteOutlinedIcon />
       </IconButton>
     </>
   )
