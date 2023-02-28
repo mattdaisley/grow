@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Box from "@mui/material/Box";
 import { DataGrid } from '@mui/x-data-grid';
@@ -16,6 +17,7 @@ import Typography from '@mui/material/Typography';
 import logger from "../../../../grow.api/src/logger";
 import { useSubscription } from "./useSubscription";
 import { ShowItem } from "./ShowItems";
+import { flatten } from 'flat';
 
 export function ShowCollection({ ...props }) {
   logger.log('ShowCollection', 'props:', props);
@@ -33,60 +35,69 @@ export function ShowCollection({ ...props }) {
     return null;
   }
 
+  const collectionContextKey = `${props.contextKey}_collections_${collectionIds[0]}`
+
+  const collectionProps = {
+    contextKey: collectionContextKey,
+    itemKey: 'collections',
+    fieldKey: collectionIds[0],
+    keyPrefix: `collections.${collectionIds[0]}`
+  }
+
   const collectionType = props.valueKeys.get('type')
 
   return (
     <>
       {collectionType === '0' && (
-        <ShowCollectionTabs
-          pageProps={{ ...props }}
-          collectionProps={{
-            contextKey: `${props.contextKey}_collections_${collectionIds[0]}`,
-            itemKey: 'collections',
-            fieldKey: collectionIds[0],
-            keyPrefix: `collections.${collectionIds[0]}`
-          }} />
+        <CollectionWrapper pageProps={{ ...props }} collectionContextKey={collectionContextKey}>
+          <CollectionTabs
+            pageProps={{ ...props }}
+            collectionProps={collectionProps} />
+        </CollectionWrapper>
       )}
 
       {collectionType === '1' && (
-        <ShowCollectionGrid
-          pageProps={{ ...props }}
-          collectionProps={{
-            contextKey: `${props.contextKey}_collections_${collectionIds[0]}`,
-            itemKey: 'collections',
-            fieldKey: collectionIds[0],
-            keyPrefix: `collections.${collectionIds[0]}`
-          }} />
+        <CollectionWrapper pageProps={{ ...props }} collectionContextKey={collectionContextKey}>
+          <CollectionGrid
+            pageProps={{ ...props }}
+            collectionProps={collectionProps} />
+        </CollectionWrapper>
+      )}
+
+      {collectionType === '2' && (
+        <CollectionWrapper pageProps={{ ...props }} collectionContextKey={collectionContextKey}>
+          <CollectionAdd
+            pageProps={{ ...props }}
+            collectionProps={collectionProps} />
+        </CollectionWrapper>
       )}
     </>
   );
 
 }
 
-function ShowCollectionTabs({ pageProps, collectionProps }) {
+function CollectionWrapper({ pageProps, collectionContextKey, children }) {
 
-  logger.log('ShowCollectionTabs', 'pageProps:', pageProps, 'collectionProps:', collectionProps);
+  logger.log('ShowCollectionTabs', 'collectionContextKey:', collectionContextKey);
 
   useEffect(() => {
-    pageProps.itemsMethods.getItems([collectionProps.contextKey, 'collections']);
-  }, [collectionProps.contextKey]);
+    pageProps.itemsMethods.getItems([collectionContextKey, `${collectionContextKey}_drafts`, 'collections']);
+  }, [collectionContextKey]);
 
-  return (
-    <CollectionTabs pageProps={pageProps} collectionProps={collectionProps} />
-  );
+  return useMemo(() => (
+    <>{children}</>
+  ), []);
 }
 
 function CollectionTabs({ pageProps, collectionProps }) {
 
   const keyPrefix = undefined;
-  const fields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
+  const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
   const label = useSubscription({ ...pageProps, itemKey: `${collectionProps.itemKey}.${collectionProps.fieldKey}`, keyPrefix, searchSuffix: 'label' });
 
-  logger.log('CollectionTabs', 'fields:', fields, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
+  logger.log('CollectionTabs', 'collectionFields:', collectionFields, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
 
   const handleCollectionAdd = () => {
-    logger.log('CollectionTabs handleCollectionAdd');
-
     const itemKey = collectionProps.contextKey;
     const keyPrefix = collectionProps.contextKey;
 
@@ -113,7 +124,7 @@ function CollectionTabs({ pageProps, collectionProps }) {
   return (
     <>
       <ControlledTabs
-        fields={fields}
+        fields={collectionFields}
         label={label}
         onCollectionAdd={handleCollectionAdd}
         onCollectionRemove={handleCollectionRemove}
@@ -207,18 +218,6 @@ function TabPanel({ currentTab, index, ...props }) {
 }
 
 
-function ShowCollectionGrid({ pageProps, collectionProps }) {
-
-  logger.log('ShowCollectionGrid', 'pageProps:', pageProps, 'collectionProps:', collectionProps);
-
-  useEffect(() => {
-    pageProps.itemsMethods.getItems([collectionProps.contextKey, 'collections']);
-  });
-
-  return useMemo(() => (
-    <CollectionGrid pageProps={pageProps} collectionProps={collectionProps} />
-  ), []);
-}
 
 function CollectionGrid({ pageProps, collectionProps }) {
   const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
@@ -394,4 +393,47 @@ function getCollectionRows(collectionFields, viewFieldColumns) {
   });
 
   return rows
+}
+
+
+function CollectionAdd({ pageProps, collectionProps }) {
+
+  const draftCollectionContextKey = `${collectionProps.contextKey}_drafts`
+  const collectionFields = useSubscription({ ...pageProps, itemKey: draftCollectionContextKey, keyPrefix: undefined });
+
+  logger.log('CollectionAdd', 'collectionFields:', collectionFields, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
+
+  const handleCollectionAdd = () => {
+    const draftValues = pageProps.itemsMethods.getNestedDataObject(draftCollectionContextKey)
+
+    const itemKey = collectionProps.contextKey;
+
+    const itemsToAdd = { [itemKey]: { ...draftValues } };
+
+    logger.log('CollectionAdd collectionProps.addItems( itemKey:', itemKey, ', itemsToAdd:', itemsToAdd, ')');
+    pageProps.itemsMethods.addItems(itemKey, itemsToAdd);
+
+    const draftValuesFlattened = flatten(draftValues)
+    const itemsToDelete = {}
+    Object.keys(draftValuesFlattened).forEach(draftValueKey => {
+      itemsToDelete[`${draftCollectionContextKey}.${draftValueKey}`] = draftValuesFlattened[draftValueKey]
+    })
+    logger.log('CollectionAdd collectionProps.deleteItems( itemKey:', draftCollectionContextKey, ', itemsToDelete:', itemsToDelete, ')');
+    pageProps.itemsMethods.deleteItems(draftCollectionContextKey, itemsToDelete)
+  };
+
+  return (
+    <>
+      <Grid container spacing={1} xs={12} sx={{ py: 1, px: 2 }}>
+        <ShowItem {...pageProps}
+          pageContextKey={pageProps.contextKey}
+          contextKey={draftCollectionContextKey}
+          contextValueKeyPrefix={draftCollectionContextKey}
+        />
+      </Grid>
+      <Box sx={{ px: 2, py: 1, borderTop: 1, borderColor: 'grey.300' }}>
+        <Button onClick={handleCollectionAdd}>{'Add Item'}</Button>
+      </Box>
+    </>
+  )
 }

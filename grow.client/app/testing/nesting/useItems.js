@@ -207,19 +207,20 @@ export function useItems(defaultItemKeys) {
 
         if (broadcastedValue === undefined) {
 
+          const { setValue } = itemsRef.current.formMethods;
           newData[valueKey] = value;
           if (deleted) {
             itemsRef.current.dataMap.delete(valueKey)
             deleteNodeFromTreeMap(itemsRef, valueKey)
+            setValue(valueKey, undefined);
           }
           else {
             itemsRef.current.dataMap.set(valueKey, value)
             updateDataMapTree(itemsRef, valueKey, value)
             // logger.log('handleReceiveAllItems dataMapTree', itemsRef.current.dataMapTree)
+            setValue(valueKey, value);
           }
 
-          const { setValue } = itemsRef.current.formMethods;
-          setValue(valueKey, value);
         }
         else if (broadcastedValue === value) {
           logger.log('handleReceiveAllItems confirm broadcasted value', valueKey, itemsRef.current.broadcasted[valueKey]);
