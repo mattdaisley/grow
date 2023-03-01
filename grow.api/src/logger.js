@@ -1,6 +1,7 @@
 const logger = {
   log: function () {
-    console.log(...arguments);
+    const isSSR = () => typeof window === 'undefined';
+    !isSSR && console.log(...arguments);
   }
 }
 

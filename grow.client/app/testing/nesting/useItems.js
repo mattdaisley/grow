@@ -4,9 +4,13 @@ import { useForm } from "react-hook-form";
 import logger from "../../../../grow.api/src/logger";
 import { SocketContext } from "../../SocketContext";
 
-export function useItems(defaultItemKeys) {
+export function useItems(defaultItemKeys, defaultData) {
+  let initialItemKeys = []
+  if (defaultData !== undefined) {
+    initialItemKeys = Object.keys(defaultData)
+  }
 
-  const [itemKeys, setItemKeys] = useState([])
+  const [itemKeys, setItemKeys] = useState(initialItemKeys)
   const [loadedItemKeys, setLoadedItemKeys] = useState([])
 
   logger.log('useItems', 'itemKeys:', itemKeys, 'defaultItemKeys:', defaultItemKeys);
@@ -14,7 +18,7 @@ export function useItems(defaultItemKeys) {
   const socket = useContext(SocketContext);
 
   const itemsRef = useRef({
-    itemKeys: [],
+    itemKeys: initialItemKeys,
     requestedItemKeys: [],
     data: {},
     dataMap: new Map(),
@@ -154,12 +158,18 @@ export function useItems(defaultItemKeys) {
   }
 
   useEffect(() => {
+
+    if (defaultData !== undefined) {
+      handleReceiveAllItems(defaultData)
+    }
+
     setItemKeys(defaultItemKeys)
   }, [])
 
   useEffect(() => {
 
     function loadItems() {
+      logger.log('loading items')
       itemKeys
         .filter(itemKey => !itemsRef.current.itemKeys?.includes(itemKey))
         .map(itemKey => {
