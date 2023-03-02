@@ -221,11 +221,16 @@ function TabPanel({ currentTab, index, ...props }) {
 
 
 function CollectionGrid({ pageProps, collectionProps }) {
-  const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
-  // const fields = useSubscription({ ...pageProps, itemKey: undefined, searchSuffix: undefined });
+
+  const [sortModel, setSortModel] = useState([{ field: 'id', sort: 'desc' }]);
   const _collectionsRef = useRef({})
   const [_, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);
+
+  const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
+  const sortOrderFieldId = useSubscription({ ...pageProps, itemKey: pageProps.keyPrefix, keyPrefix: undefined, searchSuffix: 'sort-order' });
+  const sortOrderField = pageProps.itemsMethods.getTreeMapItem(`fields.${sortOrderFieldId}`)
+  const sortOrder = sortOrderField?.get('name') ?? sortOrderFieldId ?? 'id'
 
   useEffect(() => {
     if (_collectionsRef.current !== undefined) {
@@ -234,6 +239,14 @@ function CollectionGrid({ pageProps, collectionProps }) {
       })
     }
   })
+
+  useEffect(() => {
+    setSortModel([{ field: sortOrder, sort: 'desc' }])
+  }, [sortOrder])
+
+  const handleSortModelChange = useCallback((sortModel) => {
+    setSortModel([...sortModel]);
+  }, []);
 
   const handleCollectionRemove = (fieldKey) => {
 
@@ -256,9 +269,8 @@ function CollectionGrid({ pageProps, collectionProps }) {
 
   const rows = getCollectionRows(collectionFields, viewFieldColumns)
 
-  logger.log('CollectionGrid', 'collectionFields:', collectionFields, 'valueKeys:', pageProps.valueKeys, 'columns:', columns, 'rows:', rows, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
+  logger.log('CollectionGrid', 'collectionFields:', collectionFields, 'valueKeys:', pageProps.valueKeys, 'columns:', columns, 'rows:', rows, 'sortOrder:', sortOrder, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
 
-  let sortModel = [{ field: 'id', sort: 'desc' }]
 
   return (
     <>
@@ -269,6 +281,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
         <Typography variant='h6' sx={{ p: 1 }}>{grouplabel}</Typography>
         <DataGrid
           sortModel={sortModel}
+          onSortModelChange={handleSortModelChange}
           rows={rows ?? []}
           columns={columns}
           pageSize={10}
@@ -283,10 +296,56 @@ function CollectionGrid({ pageProps, collectionProps }) {
   )
 }
 
-function getReferencedViewFieldColumns(pageProps, _collectionsRef, forceUpdate) {
-  logger.log('getReferencedViewFields', 'valueKeys:', pageProps.valueKeys, 'pageProps:', pageProps)
+function getReferencedViewFieldColumns(props, _collectionsRef, forceUpdate) {
+  logger.log('getReferencedViewFieldColumns', 'valueKeys:', props.valueKeys, 'props:', props)
 
-  const referencedViews = pageProps.valueKeys.get('views')
+  const viewFields = new Map()
+
+  const referencedViewFields = getReferencedViewFields(props)
+
+  referencedViewFields.forEach(referencedViewField => {
+
+    const fieldName = referencedViewField.get('name')
+    const headerName = referencedViewField.get('label') ?? fieldName
+
+    let viewField = {
+      columnDefinition: {
+        field: fieldName, headerName, flex: 1
+      }
+    }
+
+    const referencedCollection = referencedViewField.get('options-collection')
+    const referencedLabelField = referencedViewField.get('options-label')
+    if (referencedCollection !== undefined && referencedLabelField !== undefined) {
+      const contextKey = props.pageContextKey ?? props.contextKey
+      const collectionContextKey = `${contextKey}_collections_${(referencedCollection ?? '0')}`
+
+      // props.itemsMethods.getItems([collectionContextKey, 'collections']);
+      _collectionsRef.current[collectionContextKey] = true;
+      props.itemsMethods.subscribeMap(collectionContextKey, forceUpdate);
+
+      const referencedCollectionFields = props.itemsMethods.getTreeMapItem(collectionContextKey)
+      const labelField = props.itemsMethods.getTreeMapItem(`fields.${referencedLabelField}`)
+
+      // logger.log('getReferencedViewFields', 'referencedCollectionFields:', referencedCollectionFields, 'labelField:', labelField)
+      viewField.referencedCollectionFields = referencedCollectionFields
+      viewField.labelField = labelField
+    }
+
+    viewFields.set(viewField.columnDefinition.field, viewField)
+  });
+
+  // logger.log('getReferencedViewFieldColumns', 'viewFieldIds:', viewFieldIds, 'viewFields:', viewFields)
+  return viewFields
+}
+
+
+
+export function getReferencedViewFields(props) {
+  logger.log('getReferencedViewFields', 'valueKeys:', props.valueKeys, 'props:', props)
+
+  // const referencedViews = props.valueKeys.get('views')
+  const referencedViews = props.itemsMethods.getTreeMapItem(`${props.keyPrefix}.views`)
 
   const viewFieldIds = []
   const viewFields = new Map()
@@ -299,7 +358,7 @@ function getReferencedViewFieldColumns(pageProps, _collectionsRef, forceUpdate) 
 
     const referencedViewId = referencedView.get('id')
 
-    const view = pageProps.itemsMethods.getTreeMapItem(`views.${referencedViewId}`)
+    const view = props.itemsMethods.getTreeMapItem(`views.${referencedViewId}`)
 
     if (view === undefined) {
       return;
@@ -322,41 +381,14 @@ function getReferencedViewFieldColumns(pageProps, _collectionsRef, forceUpdate) 
         const referencedFieldId = referencedField.get('id')
         viewFieldIds.push(referencedFieldId)
 
-        const fields = pageProps.itemsMethods.getTreeMapItem(`fields.${referencedFieldId}`)
+        const fields = props.itemsMethods.getTreeMapItem(`fields.${referencedFieldId}`)
 
         if (fields === undefined) {
           return;
         }
-        // logger.log('getReferencedViewFields', 'fields:', fields, 'pageProps:', pageProps)
+        // logger.log('getReferencedViewFields', 'fields:', fields, 'props:', props)
 
-        const fieldName = fields.get('name')
-        const headerName = fields.get('label') ?? fieldName
-
-        let viewField = {
-          columnDefinition: {
-            field: fieldName, headerName, flex: 1
-          }
-        }
-
-        const referencedCollection = fields.get('options-collection')
-        const referencedLabelField = fields.get('options-label')
-        if (referencedCollection !== undefined && referencedLabelField !== undefined) {
-          const contextKey = pageProps.pageContextKey ?? pageProps.contextKey
-          const collectionContextKey = `${contextKey}_collections_${(referencedCollection ?? '0')}`
-
-          // pageProps.itemsMethods.getItems([collectionContextKey, 'collections']);
-          _collectionsRef.current[collectionContextKey] = true;
-          pageProps.itemsMethods.subscribeMap(collectionContextKey, forceUpdate);
-
-          const referencedCollectionFields = pageProps.itemsMethods.getTreeMapItem(collectionContextKey)
-          const labelField = pageProps.itemsMethods.getTreeMapItem(`fields.${referencedLabelField}`)
-
-          // logger.log('getReferencedViewFields', 'referencedCollectionFields:', referencedCollectionFields, 'labelField:', labelField)
-          viewField.referencedCollectionFields = referencedCollectionFields
-          viewField.labelField = labelField
-        }
-
-        viewFields.set(viewField.columnDefinition.field, viewField)
+        viewFields.set(referencedFieldId, fields)
       });
     });
 

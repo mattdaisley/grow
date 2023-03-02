@@ -23,6 +23,7 @@ import logger from "../../../../grow.api/src/logger";
 import { FieldWrapper, FieldItem, ChildrenWithProps, ControlledTextField, ControlledAutocompleteField } from "./FieldItem";
 import { collectionTypes, itemTypes, fieldTypes, fieldOptionsTypes } from "./constants";
 import { useSubscription } from "./useSubscription";
+import { getReferencedViewFields } from "./ShowCollection";
 
 export function EditItems({ fieldsControlsPrefix, searchSuffix, ...props }) {
 
@@ -670,10 +671,13 @@ function EditSection(props) {
     <EditItem {...props} contextKey="pages">
       <EditProperty controllerName={`${props.keyPrefix}.width`} label="Width" />
       {typeField !== undefined && (
-        <EditReferencedCollectionProperty />
+        <EditCollectionTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
       )}
       {typeField !== undefined && (
-        <EditCollectionTypeProperty controllerName={`${props.keyPrefix}.type`} label="Type" />
+        <EditReferencedCollectionProperty />
+      )}
+      {typeField === '1' && (
+        <EditCollectionSortOrderProperty controllerName={`${props.keyPrefix}.sort-order`} label="Sort Order" />
       )}
     </EditItem>
   );
@@ -997,6 +1001,32 @@ function EditReferencedCollectionProperty({ ...props }) {
               menuItems={options}
               defaultValue={null} />
           )
+        }} />
+    </FieldWrapper>
+  );
+}
+
+function EditCollectionSortOrderProperty({ controllerName, label, ...props }) {
+
+  const options = [{ value: 'id', label: 'Id' }]
+
+  const referencedViewFields = getReferencedViewFields(props)
+  referencedViewFields.forEach((referencedViewField, key) => {
+
+    let label = referencedViewField.get('label')
+    if (label === undefined || label === "") {
+      label = referencedViewField.get('name')
+    }
+    options.push({ value: key, label });
+  });
+
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledAutocompleteField {...nextProps} label={label} menuItems={options} defaultValue={options[0]?.value} />;
         }} />
     </FieldWrapper>
   );
