@@ -256,8 +256,6 @@ function CollectionGrid({ pageProps, collectionProps }) {
     pageProps.itemsMethods.deleteItemsByFieldKey(itemKey, fieldKey)
   }
 
-  const grouplabel = pageProps.valueKeys.get('label')
-
   let columns = [{ field: 'id', headerName: 'id', flex: 1 }]
   const viewFieldColumns = getReferencedViewFieldColumns(pageProps, _collectionsRef, forceUpdate)
   if (viewFieldColumns.size !== 0) {
@@ -278,7 +276,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
         width: '100%',
         pb: 2, px: 2
       }}>
-        <Typography variant='h6' sx={{ p: 1 }}>{grouplabel}</Typography>
+        <ShowCollectionLabel {...pageProps} />
         <DataGrid
           sortModel={sortModel}
           onSortModelChange={handleSortModelChange}
@@ -294,6 +292,30 @@ function CollectionGrid({ pageProps, collectionProps }) {
 
     </>
   )
+}
+
+
+function ShowCollectionLabel(pageProps) {
+  const sectionLabel = useSubscription({ ...pageProps, itemKey: pageProps.keyPrefix, keyPrefix: undefined, searchSuffix: 'label' });
+
+  logger.log('ShowCollectionLabel', 'sectionLabel:', sectionLabel, 'pageProps:', pageProps);
+
+  if (sectionLabel === undefined || sectionLabel === "") {
+    return null;
+  }
+
+  return (
+    <Grid xs={12} sx={{ px: 1, py: 1 }}>
+      {pageProps.contextKey === 'preview' && (
+        <Typography variant="subtitle2">
+          {pageProps.fieldKey}
+        </Typography>
+      )}
+      <Typography variant="h6">
+        {sectionLabel}
+      </Typography>
+    </Grid>
+  );
 }
 
 function getReferencedViewFieldColumns(props, _collectionsRef, forceUpdate) {
