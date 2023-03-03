@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, useCallback } from "react";
 import { unflatten } from "flat";
 
 import Autocomplete from "@mui/material/Autocomplete";
@@ -1008,15 +1008,24 @@ function EditReferencedCollectionProperty({ ...props }) {
 
 function EditCollectionSortOrderProperty({ controllerName, label, ...props }) {
 
+  const [_, updateState] = useState();
+  const forceUpdate = useCallback(() => updateState({}), []);
+
   const options = [{ value: 'id', label: 'Id' }]
 
   const referencedViewFields = getReferencedViewFields(props)
   referencedViewFields.forEach((referencedViewField, key) => {
 
-    let label = referencedViewField.get('label')
+    const fieldName = referencedViewField.get('name')
+    props.itemsMethods.subscribeMap(`fields.${key}.name`, forceUpdate);
+    const fieldLabel = referencedViewField.get('label')
+    props.itemsMethods.subscribeMap(`fields.${key}.label`, forceUpdate);
+
+    let label = fieldLabel
     if (label === undefined || label === "") {
-      label = referencedViewField.get('name')
+      label = fieldName
     }
+
     options.push({ value: key, label });
   });
 

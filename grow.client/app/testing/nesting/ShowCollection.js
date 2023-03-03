@@ -225,7 +225,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
   const [sortModel, setSortModel] = useState([{ field: 'id', sort: 'desc' }]);
   const _collectionsRef = useRef({})
   const [_, updateState] = useState();
-  const forceUpdate = useCallback(() => updateState({}), []);
+  const forceUpdate = useCallback((field) => { logger.log('CollectionGrid forceUpdate', field); updateState({}) }, []);
 
   const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
   const sortOrderFieldId = useSubscription({ ...pageProps, itemKey: pageProps.keyPrefix, keyPrefix: undefined, searchSuffix: 'sort-order' });
@@ -325,10 +325,12 @@ function getReferencedViewFieldColumns(props, _collectionsRef, forceUpdate) {
 
   const referencedViewFields = getReferencedViewFields(props)
 
-  referencedViewFields.forEach(referencedViewField => {
+  referencedViewFields.forEach((referencedViewField, fieldId) => {
 
     const fieldName = referencedViewField.get('name')
+    props.itemsMethods.subscribeMap(`fields.${fieldId}.name`, forceUpdate);
     const headerName = referencedViewField.get('label') ?? fieldName
+    props.itemsMethods.subscribeMap(`fields.${fieldId}.label`, forceUpdate);
 
     let viewField = {
       columnDefinition: {
