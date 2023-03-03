@@ -35,6 +35,8 @@ export function ControlledField(props) {
       return <ControlledTextField {...props} />;
     case "1":
       return <ControlledAutocompleteField {...props} />;
+    case "2":
+      return <SystemDateField {...props} />;
   }
 
   return null;
@@ -158,6 +160,25 @@ export function ControlledAutocompleteFieldComponent({ name, collectionContextKe
             )} />
         );
       }} />
+  );
+}
+
+export function SystemDateField({ name, ...props }) {
+
+  const date = useSubscription({ ...props, itemKey: name, keyPrefix: undefined, searchSuffix: undefined })
+  const label = props.label ?? name;
+
+  logger.log('SystemDateField', 'name:', name, 'date:', date, 'props:', props);
+
+  return (
+    <TextField
+      label={label}
+      size="small"
+      sx={{ fontSize: 'small' }}
+      fullWidth
+      {...props.inputProps}
+      disabled={true}
+      value={date ?? ""} />
   );
 }
 

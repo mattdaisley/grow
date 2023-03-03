@@ -1,5 +1,5 @@
 
-import { getDynamicData } from "../../[[...filter]]/page";
+import { getDynamicData } from "../../[[...filter]]/getDynamicData";
 import DynamicEditPageTemplate from './dynamicEditPageTemplate';
 
 export default async function DynamicEditPage({ params }) {

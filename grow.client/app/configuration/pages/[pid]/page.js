@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import TextField from '@mui/material/TextField';
 
-import { Item } from '../../fields/page';
+import { Item } from "../../fields/Item";
 import { RenderedViews } from "../../../../components/Rendering/RenderedViews";
 import usePages from '../../../../services/pages.service';
 import { PageContext } from '../../../PageContext';

@@ -17,8 +17,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from "@mui/material/Typography";
 
 import useGardens from '../../../services/gardens.service';
-
-export const drawerWidth = 240;
+import { drawerWidth } from './drawerWidth';
 
 const pages = [
   { name: "Gardens", path: "/gardens" },

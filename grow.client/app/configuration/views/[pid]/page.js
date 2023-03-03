@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 
-import { Item } from '../../fields/page';
+import { Item } from "../../fields/Item";
 import useView from '../../../../services/views.service';
 import { RenderedFields } from '../../../../components/Rendering/RenderedFields';
 import { PageContext } from '../../../PageContext';

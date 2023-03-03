@@ -89,7 +89,7 @@ export function useItems(defaultItemKeys, defaultData) {
     itemsRef.current.broadcasted[valueKey] = newValue;
 
     // new subscriptions and data Map structure
-    updateDataMapTree(itemsRef, valueKey, newValue)
+    updateDataMapTree(itemsRef, valueKey, { value: newValue })
     itemsRef.current.dataMap.set(valueKey, newValue)
 
     const setItemsEvent = { itemKey, values: { [valueKey]: newValue } };
@@ -153,7 +153,7 @@ export function useItems(defaultItemKeys, defaultData) {
     const mapCallbacks = subscriptionsMap.get(valueKey)
     const value = newValue ?? itemsRef.current.getTreeMapItem(valueKey)
 
-    // logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
+    logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
     mapCallbacks?.forEach(callback => callback(valueKey, value));
   }
 
@@ -210,9 +210,13 @@ export function useItems(defaultItemKeys, defaultData) {
 
       receivedData[itemKey].map(item => {
 
-        const valueKey = item.valueKey;
-        const value = item.value;
-        const deleted = item.deleted;
+        const {
+          valueKey,
+          value,
+          deleted,
+          createdDate,
+          updatedDate
+        } = item;
         const broadcastedValue = itemsRef.current.broadcasted[valueKey];
 
         if (broadcastedValue === undefined) {
@@ -226,7 +230,7 @@ export function useItems(defaultItemKeys, defaultData) {
           }
           else {
             itemsRef.current.dataMap.set(valueKey, value)
-            updateDataMapTree(itemsRef, valueKey, value)
+            updateDataMapTree(itemsRef, valueKey, item)
             // logger.log('handleReceiveAllItems dataMapTree', itemsRef.current.dataMapTree)
             setValue(valueKey, value);
           }
@@ -235,6 +239,7 @@ export function useItems(defaultItemKeys, defaultData) {
         else if (broadcastedValue === value) {
           logger.log('handleReceiveAllItems confirm broadcasted value', valueKey, itemsRef.current.broadcasted[valueKey]);
           delete itemsRef.current.broadcasted[valueKey];
+          updateDataMapTree(itemsRef, valueKey, item)
         }
         else {
           logger.log('handleReceiveAllItems received value out of date', broadcastedValue, value);
@@ -258,15 +263,15 @@ export function useItems(defaultItemKeys, defaultData) {
   // return itemsRef.current;
 }
 
-function updateDataMapTree(itemsRef, valueKey, value) {
+function updateDataMapTree(itemsRef, valueKey, node) {
   const dataMapTree = itemsRef.current.dataMapTree
   const valueKeySplit = valueKey.split('.');
   const valueKeySplitIndex = 0;
 
-  updateDataMapBranch(itemsRef, dataMapTree, valueKeySplit, valueKeySplitIndex, value)
+  updateDataMapBranch(itemsRef, dataMapTree, valueKeySplit, valueKeySplitIndex, node)
 }
 
-function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySplitIndex, value) {
+function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySplitIndex, node) {
 
   const keyAtIndex = valueKeySplit?.[valueKeySplitIndex]
   const valueKey = valueKeySplit.slice(0, valueKeySplitIndex + 1).join('.')
@@ -274,8 +279,29 @@ function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySpl
   // logger.log('updateDataMapBranch', 'valueKeySplitIndex:', valueKeySplitIndex, 'valueKey:', valueKey, 'valueKeySplit:', valueKeySplit, 'value:', value, 'dataMapBranch:', dataMapBranch)
 
   if (valueKeySplitIndex === valueKeySplit.length - 1) {
-    dataMapBranch.set(keyAtIndex, value)
+    dataMapBranch.set(keyAtIndex, node.value)
     itemsRef.current.runSubscriptionsMap(valueKey)
+    logger.log('updateDataMapBranch', 'valueKeySplitIndex:', valueKeySplitIndex, 'valueKey:', valueKey, 'valueKeySplit:', valueKeySplit, 'value:', node, 'dataMapBranch:', dataMapBranch)
+
+    const dateValueKeyPrefix = valueKeySplit.slice(0, valueKeySplitIndex).join('.')
+
+    const createdDateField = dataMapBranch.get('created_date')
+    const oldCreatedDate = createdDateField !== undefined ? Date.parse(createdDateField) : undefined;
+    const newCreatedDate = node.createdDate !== undefined ? Date.parse(node.createdDate) : undefined;
+
+    if (oldCreatedDate === undefined || oldCreatedDate > newCreatedDate) {
+      dataMapBranch.set('created_date', node.createdDate)
+      itemsRef.current.runSubscriptionsMap(`${dateValueKeyPrefix}.created_date`)
+    }
+    const updatedDateField = dataMapBranch.get('updated_date')
+    const oldUpdatedDate = updatedDateField !== undefined ? Date.parse(updatedDateField) : undefined;
+    const newUpdatedDate = node.updatedDate !== undefined ? Date.parse(node.updatedDate) : undefined;
+
+    if (oldUpdatedDate === undefined || oldUpdatedDate < newUpdatedDate) {
+      dataMapBranch.set('updated_date', node.updatedDate)
+      itemsRef.current.runSubscriptionsMap(`${dateValueKeyPrefix}.updated_date`)
+    }
+
     return dataMapBranch;
   }
 
@@ -283,7 +309,7 @@ function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySpl
     dataMapBranch.set(keyAtIndex, new Map())
   }
 
-  const newDataMapBranch = updateDataMapBranch(itemsRef, dataMapBranch.get(keyAtIndex), valueKeySplit, valueKeySplitIndex + 1, value)
+  const newDataMapBranch = updateDataMapBranch(itemsRef, dataMapBranch.get(keyAtIndex), valueKeySplit, valueKeySplitIndex + 1, node)
   itemsRef.current.runSubscriptionsMap(valueKey)
   return newDataMapBranch;
 }

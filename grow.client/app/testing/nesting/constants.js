@@ -2,7 +2,7 @@ export const constants = []
 
 export const itemTypes = ['pages', 'sections', 'views', 'groups', 'fields'];
 
-export const fieldTypes = [{ value: '0', label: 'textfield' }, { value: '1', label: 'autocomplete' }]
+export const fieldTypes = [{ value: '0', label: 'textfield' }, { value: '1', label: 'autocomplete' }, { value: '2', label: 'systemdate' }]
 
 export const fieldOptionsTypes = [{ value: '0', label: 'collection' }, { value: '1', label: 'list' }]
 
