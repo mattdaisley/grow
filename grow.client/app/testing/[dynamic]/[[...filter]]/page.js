@@ -1,5 +1,4 @@
 
-import logger from "../../../../grow.api/src/logger";
 import DynamicEditPageTemplate from './dynamicPageTemplate';
 
 export default async function DynamicPage({ params }) {
@@ -19,7 +18,7 @@ export default async function DynamicPage({ params }) {
 
 }
 
-async function getDynamicData(itemKeys) {
+export async function getDynamicData(itemKeys) {
   const data = {}
 
 
@@ -37,7 +36,7 @@ async function getDynamicData(itemKeys) {
   });
 
 
-  logger.log('getDynamicData', `- ${timeDiff}ms - loaded data -`, Object.keys(data).map(itemKey => `${itemKey}: ${data[itemKey].length}`).join(' '))
+  console.log('getDynamicData', `- ${timeDiff}ms - loaded data -`, Object.keys(data).map(itemKey => `${itemKey}: ${data[itemKey].length}`).join(' '))
 
   return data;
 }

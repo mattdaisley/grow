@@ -3,11 +3,11 @@
 import Box from "@mui/material/Box";
 import Grid from '@mui/material/Unstable_Grid2';
 
-import { useItems } from "../nesting/useItems";
-import { ShowItems } from "../nesting/ShowItems";
-import logger from "../../../../grow.api/src/logger";
+import { useItems } from "../../nesting/useItems";
+import { ShowItems } from "../../nesting/ShowItems";
+import logger from "../../../../../grow.api/src/logger";
 
-export default function DynamicEditPageTemplate({ contextKey, filter, itemKeys, data }) {
+export default function DynamicPageTemplate({ contextKey, filter, itemKeys, data }) {
 
   const itemsMethods = useItems(itemKeys, data);
 
