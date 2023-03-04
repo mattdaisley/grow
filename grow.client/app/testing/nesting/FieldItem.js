@@ -8,7 +8,7 @@ import { styled } from '@mui/material/styles';
 import TextField from "@mui/material/TextField";
 
 import { useSubscription } from "./useSubscription";
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 
 export function FieldItem({ render, ...props }) {
   logger.log('FieldItem', props);
@@ -76,9 +76,12 @@ export function ControlledTextField({ name, ...props }) {
 export function ControlledAutocompleteField(props) {
 
   const referencedCollection = useSubscription({ ...props, searchSuffix: 'options-collection' })
+  const collectionFields = useSubscription({ ...props, itemKey: `collections.${referencedCollection}`, keyPrefix: undefined });
+
+  const collectionSource = collectionFields?.get('source')
 
   const contextKey = props.pageContextKey ?? props.contextKey
-  const collectionContextKey = `${contextKey}_collections_${(referencedCollection ?? '0')}`
+  const collectionContextKey = collectionSource === '1' ? 'gpio-device' : `${contextKey}_collections_${(referencedCollection ?? '0')}`
 
   useEffect(() => {
     props.itemsMethods.getItems([collectionContextKey, 'collections']);

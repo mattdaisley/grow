@@ -7,7 +7,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from "@mui/material/Typography";
 
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 import { ShowCollection } from "./ShowCollection";
 import { FieldWrapper, FieldItem, ControlledField, ChildrenWithProps } from "./FieldItem";
 import { itemTypes } from "./constants";

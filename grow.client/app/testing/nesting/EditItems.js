@@ -19,9 +19,9 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import Stack from '@mui/material/Stack';
 import TextField from "@mui/material/TextField";
 
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 import { FieldWrapper, FieldItem, ChildrenWithProps, ControlledTextField, ControlledAutocompleteField } from "./FieldItem";
-import { collectionTypes, itemTypes, fieldTypes, fieldOptionsTypes } from "./constants";
+import { collectionTypes, itemTypes, fieldTypes, fieldOptionsTypes, collectionSources } from "./constants";
 import { useSubscription } from "./useSubscription";
 import { getReferencedViewFields } from "./ShowCollection";
 
@@ -74,6 +74,9 @@ function EditControls({ name, fields, ...props }) {
     case 'pages':
       EditControl = EditPage;
       break;
+    case 'collections':
+      EditControl = EditCollection;
+      break;
     case 'sections':
       EditControl = EditSection;
       break;
@@ -85,9 +88,6 @@ function EditControls({ name, fields, ...props }) {
       break;
     case 'fields':
       EditControl = EditField;
-      break;
-    case 'collections':
-      EditControl = EditPage;
       break;
   }
 
@@ -660,6 +660,15 @@ function EditPage(props) {
   );
 }
 
+function EditCollection(props) {
+  logger.log('EditCollection', 'props:', props);
+  return (
+    <EditItem {...props} contextKey="collections">
+      <EditCollectionExternalSource />
+    </EditItem>
+  );
+}
+
 function EditSection(props) {
   const itemKey = `${props.keyPrefix}`;
   const keyPrefix = undefined;
@@ -939,6 +948,25 @@ function EditProperty({ controllerName, label, ...props }) {
           return <ControlledTextField {...nextProps} label={label} />;
         }} />
     </FieldWrapper>
+  );
+}
+
+
+function EditCollectionExternalSource({ ...props }) {
+
+  logger.log('EditCollectionExternalSource', 'props:', props)
+
+  return (
+    <>
+      <FieldWrapper>
+        <FieldItem
+          {...props}
+          name={`${props.keyPrefix}.source`}
+          render={(nextProps) => {
+            return <ControlledAutocompleteField {...nextProps} label={'Source'} menuItems={collectionSources} defaultValue={collectionSources[0]?.value} />;
+          }} />
+      </FieldWrapper>
+    </>
   );
 }
 

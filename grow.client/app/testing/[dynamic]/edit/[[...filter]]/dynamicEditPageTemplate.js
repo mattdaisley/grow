@@ -7,7 +7,7 @@ import Paper from '@mui/material/Paper';
 import { useItems } from "../../../nesting/useItems";
 import { EditItems } from "../../../nesting/EditItems";
 import { ShowItems } from "../../../nesting/ShowItems";
-import logger from "../../../../../../grow.api/src/logger";
+import logger from "../../../../../services/logger";
 
 const editDrawerWidth = 450;
 

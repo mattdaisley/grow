@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import debounce from 'lodash.debounce';
 
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 
 export function useSubscription(props) {
 

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
+import { GpioModule } from './gpio/gpio.module';
 import { SerialModule } from './serial/serial.module';
 
 @Module({
@@ -10,7 +11,7 @@ import { SerialModule } from './serial/serial.module';
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
+        useFactory: (configService: ConfigService) => {
 
         const host = configService.get<string>('REDIS_HOST');
         const port = configService.get<number>('REDIS_PORT');
@@ -24,7 +25,8 @@ import { SerialModule } from './serial/serial.module';
       },
       inject: [ConfigService],
     }),
-    SerialModule
+    SerialModule,
+    GpioModule
   ],
   providers: [],
 })

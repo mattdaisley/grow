@@ -9,6 +9,7 @@ import { OutletsModule } from './outlets/outlets.module';
 import { PumpsModule } from './pumps/pumps.module';
 import { SensorsModule } from './sensors/sensors.module';
 import { DynamicModule } from './dynamic/dynamic.module';
+import { GpioModule } from './gpio/gpio.module';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ import { DynamicModule } from './dynamic/dynamic.module';
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
+        useFactory: (configService: ConfigService) => {
 
         const host = configService.get<string>('REDIS_HOST');
         const port = configService.get<number>('REDIS_PORT');
@@ -58,7 +59,8 @@ import { DynamicModule } from './dynamic/dynamic.module';
     OutletsModule,
     PumpsModule,
     SensorsModule,
-    DynamicModule
+    DynamicModule,
+    GpioModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,7 +9,6 @@ import {
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
-import { v4 as uuidv4 } from 'uuid';
 
 import { DynamicService } from './dynamic.service';
 import { CreateDynamicItemDto } from './dto/create-dynamic-item.dto';
@@ -112,7 +111,7 @@ export class DynamicGateway {
     
     return new Promise<DynamicItemsResponse>(async (resolve, reject) => {
       
-      const addedItems = await this.addItems(itemKey, data.items)
+      const addedItems = await this.dynamicService.addItems(itemKey, data.items)
 
       const allItems: DynamicItemsResponse = { 
         [itemKey]: addedItems 
@@ -126,92 +125,6 @@ export class DynamicGateway {
       console.log('handleAddItemsEvent emit', event, items);
       return items;
     });
-  }
-
-  async addItems(itemKey: string, items: DynamicAddItem, prefix?: string) {
-    console.log('addItems', itemKey, items, prefix)
-
-    return new Promise<DynamicItem[]>(async (resolve, reject) => {
-      
-      let addedItems: DynamicItem[] = []
-      let itemsToAdd: number = 0;
-
-      const nextId = uuidv4()
-
-      Object.keys(items).map(async nestedItemPrefix => {
-
-        let valueKeyPrefix = nestedItemPrefix
-
-        const itemToAdd = items[valueKeyPrefix]
-        itemsToAdd += Object.keys(itemToAdd).length
-
-        let finalItemKey: string;
-        let itemPrefix: string;
-
-        if (valueKeyPrefix === 'id') {
-          console.log('itemToAdd relatedItem', 'valueKeyPrefix:', valueKeyPrefix)
-
-          itemsToAdd += 1
-
-          let valueKey = `id`; // use a new uuid just for this
-          if (prefix !== undefined) {
-            valueKey = `${prefix}.${valueKey}`
-          }
-          const value = nextId
-
-          const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value }
-
-          console.log('handleAddItemsEvent creating item', createDynamicItemDto)
-          const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
-
-          addedItems.push(dynamicItem)
-           
-          finalItemKey = valueKey.split('.').slice(-3)[0]
-          itemPrefix = `${finalItemKey}.${nextId}`;
-        }
-        else {
-          finalItemKey = itemKey
-          itemPrefix = `${valueKeyPrefix}.${nextId}`;
-          if (prefix !== undefined) {
-            itemPrefix = `${prefix}.${itemPrefix}`
-          }
-        }
-        
-        console.log('itemToAdd', valueKeyPrefix, itemPrefix, itemToAdd)
-
-        Object.keys(itemToAdd).map(async valueKeySuffix => {
-
-          const valueKey = `${itemPrefix}.${valueKeySuffix}`;
-          const value = itemToAdd[valueKeySuffix];
-
-          if (typeof value === "string") {
-
-            const createDynamicItemDto: CreateDynamicItemDto = { itemKey: finalItemKey, valueKey, value }
-
-            console.log('handleAddItemsEvent creating item', createDynamicItemDto)
-            const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
-
-            addedItems.push(dynamicItem)
-          }
-          else {
-            const nestedItems = await this.addItems(finalItemKey, { [valueKeySuffix]: value }, itemPrefix);
-            itemsToAdd += nestedItems.length - 1 // subtract one because we already counted the valueSuffix as one
-
-            addedItems = [
-              ...addedItems,
-              ...nestedItems
-            ]
-          }
-
-          console.log('should resolve?', addedItems.length === itemsToAdd, addedItems.length, itemsToAdd)
-          if (addedItems.length === itemsToAdd) {
-            resolve(addedItems);
-          }
-        })
-
-      })
-      
-    })
   }
 
   @SubscribeMessage('delete-items')
@@ -286,6 +199,8 @@ export class DynamicGateway {
   @SubscribeMessage('set-item')
   async handleSetItemEvent(@MessageBody() data: unknown): Promise<WsResponse<unknown>> {
     console.log('handleSetItemEvent', data)
+
+    const self = this;
     const event = 'set-item';
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
     
@@ -308,11 +223,15 @@ export class DynamicGateway {
     });
 
     saveItems.then((items) => {
-      this.server.emit('item-set', items)
+      self.emitEvent('set-item', items)
       // console.log('returning', items);
       return data;
     });
     return { event, data };
+  }
+
+  public emitEvent(event: string, items: unknown) {
+    this.server.emit(event, items)
   }
   
   @SubscribeMessage('delete-item')

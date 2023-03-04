@@ -15,7 +15,7 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 import { useSubscription } from "./useSubscription";
 import { ShowItem } from "./ShowItems";
 import { flatten } from 'flat';
@@ -36,13 +36,32 @@ export function ShowCollection({ ...props }) {
     return null;
   }
 
-  const collectionContextKey = `${props.contextKey}_collections_${collectionIds[0]}`
+  return (
+    <>
+      <ShowCollectionControl {...props} collectionId={collectionIds[0]} />
+    </>
+  )
+}
+
+function ShowCollectionControl(props) {
+
+  const collectionFields = useSubscription({ ...props, itemKey: `collections.${props.collectionId}`, keyPrefix: undefined });
+
+  if (collectionFields === undefined) {
+    return null;
+  }
+
+  const collectionSource = collectionFields?.get('source')
+
+  logger.log('ShowCollectionControl', 'collectionFields:', collectionFields, 'props:', props);
+
+  const collectionContextKey = collectionSource === '1' ? 'gpio-device' : `${props.contextKey}_collections_${props.collectionId}`
 
   const collectionProps = {
     contextKey: collectionContextKey,
     itemKey: 'collections',
-    fieldKey: collectionIds[0],
-    keyPrefix: `collections.${collectionIds[0]}`
+    fieldKey: props.collectionId,
+    keyPrefix: `collections.${props.collectionId}`
   }
 
   const collectionType = props.valueKeys.get('type')
@@ -50,7 +69,7 @@ export function ShowCollection({ ...props }) {
   return (
     <>
       {collectionType === '0' && (
-        <CollectionWrapper pageProps={{ ...props }} collectionContextKey={collectionContextKey}>
+        <CollectionWrapper pageProps={{ ...props }} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
           <CollectionTabs
             pageProps={{ ...props }}
             collectionProps={collectionProps} />
@@ -58,7 +77,7 @@ export function ShowCollection({ ...props }) {
       )}
 
       {collectionType === '1' && (
-        <CollectionWrapper pageProps={{ ...props }} collectionContextKey={collectionContextKey}>
+        <CollectionWrapper pageProps={{ ...props }} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
           <CollectionGrid
             pageProps={{ ...props }}
             collectionProps={collectionProps} />
@@ -66,7 +85,7 @@ export function ShowCollection({ ...props }) {
       )}
 
       {collectionType === '2' && (
-        <CollectionWrapper pageProps={{ ...props }} collectionContextKey={collectionContextKey}>
+        <CollectionWrapper pageProps={{ ...props }} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
           <CollectionAdd
             pageProps={{ ...props }}
             collectionProps={collectionProps} />
@@ -74,15 +93,13 @@ export function ShowCollection({ ...props }) {
       )}
     </>
   );
-
 }
 
 function CollectionWrapper({ pageProps, collectionContextKey, children }) {
 
-  logger.log('ShowCollectionTabs', 'collectionContextKey:', collectionContextKey);
-
   useEffect(() => {
-    pageProps.itemsMethods.getItems([collectionContextKey, `${collectionContextKey}_drafts`, 'collections']);
+    const itemKeys = [collectionContextKey, `${collectionContextKey}_drafts`, 'collections']
+    pageProps.itemsMethods.getItems(itemKeys);
   }, [collectionContextKey]);
 
   return useMemo(() => (
@@ -227,7 +244,8 @@ function CollectionGrid({ pageProps, collectionProps }) {
   const [_, updateState] = useState();
   const forceUpdate = useCallback((field) => { logger.log('CollectionGrid forceUpdate', field); updateState({}) }, []);
 
-  const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
+  const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.keyPrefix, keyPrefix: undefined });
+  const contextCollectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
   const sortOrderFieldId = useSubscription({ ...pageProps, itemKey: pageProps.keyPrefix, keyPrefix: undefined, searchSuffix: 'sort-order' });
   const sortOrderField = pageProps.itemsMethods.getTreeMapItem(`fields.${sortOrderFieldId}`)
   const sortOrder = sortOrderField?.get('name') ?? sortOrderFieldId ?? 'id'
@@ -265,9 +283,9 @@ function CollectionGrid({ pageProps, collectionProps }) {
   }
   columns.push(getActionsColumn(handleCollectionRemove))
 
-  const rows = getCollectionRows(collectionFields, viewFieldColumns)
+  const rows = getCollectionRows(contextCollectionFields, viewFieldColumns)
 
-  logger.log('CollectionGrid', 'collectionFields:', collectionFields, 'valueKeys:', pageProps.valueKeys, 'columns:', columns, 'rows:', rows, 'sortOrder:', sortOrder, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
+  logger.log('CollectionGrid', 'collectionFields:', collectionFields, 'contextCollectionFields:', contextCollectionFields, 'valueKeys:', pageProps.valueKeys, 'columns:', columns, 'rows:', rows, 'sortOrder:', sortOrder, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
 
 
   return (
@@ -402,6 +420,7 @@ export function getReferencedViewFields(props) {
 
       referencedFields.forEach((referencedField) => {
 
+        // TODO: Figure out referenced external device fields
         const referencedFieldId = referencedField.get('id')
         viewFieldIds.push(referencedFieldId)
 

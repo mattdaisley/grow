@@ -34,6 +34,7 @@
     "ioredis": "^5.2.4",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
+    "rpi-gpio": "^2.1.7",
     "rxjs": "^7.2.0",
     "serialport": "^10.4.0"
   },

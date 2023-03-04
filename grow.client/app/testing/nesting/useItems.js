@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useEffect, useCallback, useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 import { SocketContext } from "../../SocketContext";
 
 export function useItems(defaultItemKeys, defaultData) {
