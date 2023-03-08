@@ -9,8 +9,9 @@ export class GpioService {
         @InjectQueue('gpio') private readonly gpioQueue: Queue
     ) { }
 
-    emitDiscover () {
+    public async emitDiscover () {
         console.log('GpioService add discover job')
-        this.gpioQueue.add('discover');
+        await this.gpioQueue.add('discover');
     }
+    
 }

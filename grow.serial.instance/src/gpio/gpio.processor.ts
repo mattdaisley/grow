@@ -13,29 +13,20 @@ export class GpioProcessor {
   ){}
 
   @Process('discover')
-  async handleSendMessage(job: Job) {
+  async handleDiscoverJob(job: Job) {
     const self = this;
 
     try {
       const message = job.data.message
-      console.log("GpioProcessor handleSendMessage", message)
-
-      const itemKey = 'gpio-device'
-      const setItemsEvent = { [itemKey]: { [`${itemKey}.${self.gpioService.DeviceSerial}.device`]: self.gpioService.DeviceName } }
+      console.log("GpioProcessor handleDiscoverJob", message)
 
       if (message?.filter !== undefined) {
         if (self.gpioService.DeviceSerial.includes(message.filter)) {
-          console.log("GpioProcessor setItemsEvent", setItemsEvent)
-          await self.gpioQueue.add('discover-device', {
-              message: setItemsEvent
-          });
+          self.gpioService.emitDiscoverDevice()
         }
       }
       else {
-        console.log("GpioProcessor setItemsEvent", setItemsEvent)
-        await self.gpioQueue.add('discover-device', {
-            message: setItemsEvent
-        });
+        self.gpioService.emitDiscoverDevice()
       }
 
     } catch (error) {

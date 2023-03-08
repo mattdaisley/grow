@@ -7,7 +7,7 @@ import { GpioService } from './gpio.service';
 
 @Module({
   imports: [
-  BullModule.registerQueue({
+    BullModule.registerQueue({
       name: 'gpio',
     }),
     DynamicModule
