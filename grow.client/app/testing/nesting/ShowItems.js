@@ -111,7 +111,7 @@ function ShowSection(props) {
   const width = Number(widthField) || 12;
 
   return (
-    <Grid xs={width} alignContent={'flex-start'}>
+    <Grid xs={12} md={width} alignContent={'flex-start'}>
       <Paper sx={{ width: '100%' }}>
         {(typeField === undefined) && (
           <Grid container spacing={1} xs={12} sx={{ py: 1, px: 2 }}>
@@ -147,7 +147,7 @@ function ShowGroup(props) {
   const width = Number(widthField) || 12;
 
   return (
-    <Grid xs={width} sx={{ mt: 1 }}>
+    <Grid xs={12} md={width} sx={{ mt: 1 }}>
       <ShowItem {...props} />
     </Grid>
   );

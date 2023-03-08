@@ -487,7 +487,7 @@ function getActionsColumn(handleCollectionRemove) {
     field: 'actions',
     type: 'actions',
     headerName: 'Actions',
-    width: 100,
+    width: 80,
     cellClassName: 'actions',
     getActions: ({ id }) => {
 

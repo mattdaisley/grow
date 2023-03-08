@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo, useContext, useRef } from "r
 import { flatten, unflatten } from "flat";
 import merge from "lodash.merge"
 import { SocketContext } from "../../SocketContext";
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 import debounce from "lodash.debounce";
 import isEqual from "lodash.isequal";
 

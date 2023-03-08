@@ -81,7 +81,7 @@ export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {
   return (
     <Box
       component="nav"
-      sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
       aria-label="app drawer"
     >
       {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
@@ -97,7 +97,7 @@ export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {
           sx: { bgcolor: 'primary.main' }
         }}
         sx={(theme) => ({
-          display: { xs: 'block', sm: 'none' },
+          display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: drawerWidth,
@@ -110,7 +110,7 @@ export function DynamicAppDrawer({ dynamicItemName, id, currentItem }) {
       <Drawer
         variant="permanent"
         sx={{
-          display: { xs: 'none', sm: 'block' },
+          display: { xs: 'none', md: 'block' },
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: drawerWidth,

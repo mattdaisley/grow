@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
-import logger from '../../../../grow.api/src/logger';
+import logger from '../../../services/logger';
 
 import useItems from './useItems';
 

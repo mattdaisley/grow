@@ -3,7 +3,7 @@
 import useViews from '../hooks/useViews';
 import useFields from '../hooks/useFields';
 import { AdminEditPage } from "../components/AdminEditPage";
-import logger from '../../../../grow.api/src/logger';
+import logger from '../../../services/logger';
 
 export default function AdminViewsPage() {
 

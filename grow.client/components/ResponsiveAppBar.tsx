@@ -20,7 +20,7 @@ import Link from "next/link";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -81,8 +81,8 @@ function ResponsiveAppBar() {
       position="sticky"
       color="transparent"
       sx={{
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
+        width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` },
+        marginLeft: { xs: "0", md: `${drawerWidth}px` },
         transition: theme.transitions.create(["margin", "width"], {
           easing: theme.transitions.easing.easeOut,
           duration: theme.transitions.duration.enteringScreen,
@@ -93,7 +93,7 @@ function ResponsiveAppBar() {
       }}
     >
       <Toolbar>
-        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+        <Box sx={{ display: { xs: "flex", md: "none" }, pt: 1 }}>
           <IconButton
             size="large"
             aria-label="account of current user"
@@ -131,34 +131,16 @@ function ResponsiveAppBar() {
             ))} */}
           </Menu>
         </Box>
-        <AutoModeIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-        <Typography
-          variant="h5"
-          noWrap
-          component="a"
-          href=""
-          sx={{
-            mr: 2,
-            display: { xs: "flex", md: "none" },
-            flexGrow: 1,
-            fontFamily: "monospace",
-            fontWeight: 700,
-            letterSpacing: ".3rem",
-            color: "inherit",
-            textDecoration: "none",
-          }}
-        >
-          LOGO
-        </Typography>
         <Box
           sx={{
             flexGrow: 1,
-            display: { xs: "8", md: "flex" },
+            display: { xs: "flex" },
+            ml: 2,
             mr: 4,
             alignItems: "flex-end",
           }}
         >
-          <SearchIcon sx={{ display: { xs: "flex" }, mr: 1 }} />
+          <SearchIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <TextField
             id="standard-search"
             label="Search"

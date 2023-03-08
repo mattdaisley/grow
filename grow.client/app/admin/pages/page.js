@@ -4,7 +4,7 @@ import useFields from '../hooks/useFields';
 import usePages from '../hooks/usePages';
 import useViews from "../hooks/useViews";
 import { AdminEditPage } from "../components/AdminEditPage";
-import logger from '../../../../grow.api/src/logger';
+import logger from '../../../services/logger';
 import useDynamicItems from '../hooks/useDynamicItems';
 
 export default function AdminPagesPage() {

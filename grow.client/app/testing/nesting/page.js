@@ -11,7 +11,7 @@ import List from '@mui/material/List';
 import Paper from '@mui/material/Paper';
 import Toolbar from "@mui/material/Toolbar";
 
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 import { useItems } from "./useItems";
 import { EditItems } from "./EditItems";
 import { ShowItems } from "./ShowItems";

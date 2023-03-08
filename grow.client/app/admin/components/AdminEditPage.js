@@ -28,7 +28,7 @@ import Typography from "@mui/material/Typography";
 
 import TextFormControl from "./TextFormControl";
 import AutocompleteFormControl from "./AutocompleteFormControl";
-import logger from "../../../../grow.api/src/logger";
+import logger from "../../../services/logger";
 
 export function AdminEditPage(props) {
   logger.log('AdminEditPage top render', props)
