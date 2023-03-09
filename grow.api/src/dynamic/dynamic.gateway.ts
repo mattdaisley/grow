@@ -33,7 +33,7 @@ export class DynamicGateway {
   constructor(
 
     private readonly dynamicService: DynamicService
-  ) { }
+  ) {}
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
@@ -41,6 +41,7 @@ export class DynamicGateway {
 
   handleConnection(client: Socket, ...args: any[]) {
     console.log(`Client connected: ${client.id}`);
+    client.emit('discover')
   }
 
   findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
@@ -156,6 +157,30 @@ export class DynamicGateway {
       return items;
     });
   }
+
+  @SubscribeMessage('gpio-device')
+  async handleDiscoverDeviceEvent(@MessageBody() data: unknown): Promise<unknown> {
+
+    // console.log('handleDiscoverDeviceMessage', data)
+
+    try {
+      const event = `items-gpio-device`;
+
+      if (Object.keys(data).length > 0) {
+        const addedItems = await this.dynamicService.saveItems(data)
+
+        // console.log('handleDiscoverDeviceMessage emit', addedItems)
+        this.server.emit(event, addedItems)
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+
+    return;
+  }
+
+
 
 
 
