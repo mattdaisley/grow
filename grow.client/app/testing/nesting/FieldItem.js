@@ -114,7 +114,7 @@ export function ControlledAutocompleteFieldComponent({ name, collectionContextKe
     menuItems = []
     collectionFields.forEach((values, collectionKey) => {
       let label = values.get(labelKey)
-      menuItems.push({ value: collectionKey, label });
+      menuItems.push({ value: `${collectionContextKey}.${collectionKey}`, label });
     });
   }
 

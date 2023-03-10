@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, UpdateResult, DeleteResult } from 'typeorm';
+import { Repository, UpdateResult, DeleteResult, Like } from 'typeorm';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -131,7 +131,7 @@ export class DynamicService {
         const values = data[itemKey]
         Object.keys(values).forEach(async (valueKey, j, b) => {
           const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value: values[valueKey] }
-          console.log('creating item', createDynamicItemDto)
+          // console.log('creating item', createDynamicItemDto)
           const dynamicItem = await self.create(createDynamicItemDto)
           items[itemKey].push(dynamicItem)
           if (i === a.length -1 && j === b.length -1) {
@@ -149,6 +149,10 @@ export class DynamicService {
 
   async findManyByItemKey(itemKey: string): Promise<DynamicItem[]> {
     return await this.dynamicItemRepository.findBy({ itemKey });
+  }
+
+  async findManyByValueKey(valueKey: string): Promise<DynamicItem[]> {
+    return await this.dynamicItemRepository.findBy({ valueKey: Like(`${valueKey}%`) });
   }
 
   async findOne(id: number): Promise<DynamicItem> {

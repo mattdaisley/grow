@@ -77,10 +77,10 @@ export class DynamicGateway {
     const values = data.values;
     const event = `items-${itemKey}`;
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
-
-    const allItems: DynamicItemsResponse = { [itemKey]: [] };
     
     return new Promise<DynamicItemsResponse>((resolve, reject) => {
+
+      const allItems: DynamicItemsResponse = { [itemKey]: [] };
 
       Object.keys(values).forEach(async (valueKey, index, array) => {
         const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value: values[valueKey] }
@@ -95,16 +95,16 @@ export class DynamicGateway {
         }
       })
     })
-    .then((items) => {
-      this.server.emit(event, items)
-      console.log('handleSetItemsEvent emit', event, items);
-      return items;
+    .then((allItems) => {
+      this.server.emit(event, allItems)
+      // console.log('handleSetItemsEvent emit', event, allItems);
+      return allItems;
     });
   }
 
   @SubscribeMessage('add-items')
   async handleAddItemsEvent(@MessageBody() data: DynamicItemsAddRequest): Promise<DynamicItemsResponse> {
-    console.log('handleAddItemsEvent', data)
+    // console.log('handleAddItemsEvent', data)
 
     const itemKey = data.itemKey;
     const event = `items-${itemKey}`;
@@ -121,11 +121,65 @@ export class DynamicGateway {
       resolve(allItems);
       
     })
-    .then((items) => {
-      this.server.emit(event, items)
-      console.log('handleAddItemsEvent emit', event, items);
-      return items;
+    .then((allItems) => {
+      return new Promise<DynamicItemsResponse>((resolve, reject) => {
+
+        Object.keys(allItems).forEach(async (itemKey, index, array) => {
+
+          const items = allItems[itemKey]
+
+          // Proof of concept for automation when adding items to any collection
+          if (itemKey === 'preview_collections_2f88f0f2-b775-468c-aaf6-8bd12396125a') {
+            console.log('automation required', items)
+
+            // automation needs a specific field
+            if (items.filter(item => item.valueKey.includes('select_outlet')).length > 0) {
+              const mappedPromises = items.map(item => {
+                return this.getReferencedCollectionObject(item.value)
+              })
+              Promise.all(mappedPromises)
+                .then(values => {
+                  console.log(values)
+                  this.server.emit('gpio-command', values)
+                })
+            }
+          }
+
+        })
+        resolve(allItems)
+      })
+    })
+    .then((allItems) => {
+      this.server.emit(event, allItems)
+      // console.log('handleAddItemsEvent emit', event, allItems);
+      return allItems;
     });
+  }
+
+  async getReferencedCollectionObject(valueKey: string) {
+    const referencedCollectionObject = {}
+    const referencedCollectionFields = await this.dynamicService.findManyByValueKey(valueKey)
+    
+    let expectedFieldsCount = referencedCollectionFields.length;
+
+    return new Promise((resolve) => {
+      referencedCollectionFields.forEach(async (referencedCollectionField, index, array) => {
+        const key = referencedCollectionField.valueKey.replace(`${valueKey}.`, "")
+        if (key === 'type') {
+          expectedFieldsCount = expectedFieldsCount - 1; // Ignore the type for these objects
+        }
+        else if (referencedCollectionField.value.includes('.')) {
+          referencedCollectionObject[key] = await this.getReferencedCollectionObject(referencedCollectionField.value)
+        }
+        else {
+          referencedCollectionObject[key] = referencedCollectionField.value
+        }
+
+        if (Object.keys(referencedCollectionObject).length === expectedFieldsCount) {
+          resolve(referencedCollectionObject)
+        }
+      })
+    })
   }
 
   @SubscribeMessage('delete-items')

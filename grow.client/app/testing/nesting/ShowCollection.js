@@ -441,16 +441,16 @@ export function getReferencedViewFields(props) {
   return viewFields
 }
 
-function getCollectionRows(collectionFields, viewFieldColumns) {
+function getCollectionRows(contextCollectionFields, viewFieldColumns) {
   const rows = []
 
-  if (collectionFields === undefined) {
+  if (contextCollectionFields === undefined) {
     return rows;
   }
 
-  logger.log('getCollectionRows', 'collectionFields:', collectionFields, 'viewFieldColumns:', viewFieldColumns)
+  logger.log('getCollectionRows', 'contextCollectionFields:', contextCollectionFields, 'viewFieldColumns:', viewFieldColumns)
 
-  collectionFields.forEach((collectionField, collectionFieldKey) => {
+  contextCollectionFields.forEach((collectionField, collectionFieldKey) => {
     const row = { id: collectionFieldKey }
     collectionField.forEach((fieldValue, fieldKey) => {
       // logger.log('getCollectionRows', 'fieldValue:', fieldValue, 'fieldKey:', fieldKey, 'collectionFields:', collectionFields, 'viewFieldColumns:', viewFieldColumns)
@@ -461,10 +461,10 @@ function getCollectionRows(collectionFields, viewFieldColumns) {
       else {
         const labelField = column.labelField
         const referencedCollectionFields = column.referencedCollectionFields
-        // logger.log('getCollectionRows', 'fieldValue:', fieldValue, 'fieldKey:', fieldKey, 'labelField:', labelField, 'referencedCollectionFields:', referencedCollectionFields)
+        logger.log('getCollectionRows', 'fieldValue:', fieldValue, 'fieldKey:', fieldKey, 'labelField:', labelField, 'referencedCollectionFields:', referencedCollectionFields)
 
         if (labelField !== undefined && referencedCollectionFields !== undefined) {
-          const referencedCollectionField = referencedCollectionFields.get(fieldValue)
+          const referencedCollectionField = referencedCollectionFields.get(fieldValue.split('.')[1])
           if (referencedCollectionField !== undefined) {
             const referencedCollectionValue = referencedCollectionField.get(labelField.get('name'))
             row[fieldKey] = referencedCollectionValue
@@ -502,6 +502,7 @@ function getActionsColumn(handleCollectionRemove) {
     },
   }
 }
+
 
 function CollectionAdd({ pageProps, collectionProps }) {
 

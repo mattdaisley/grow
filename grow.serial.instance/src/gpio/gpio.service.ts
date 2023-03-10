@@ -19,7 +19,7 @@ export class GpioService {
         this.initialize();
     }
 
-    @Cron('*/60 * * * * *')
+    @Cron('5 * * * * *')
     private async handleCron() {
         await this.handleDiscoverEvent()
     }
@@ -35,6 +35,7 @@ export class GpioService {
         this.Socket = io(websocketHost)
         this.Socket.on(`connect`, this.handleConnectEvent.bind(this));
         this.Socket.on(`discover`, this.handleDiscoverEvent.bind(this));
+        this.Socket.on(`gpio-command`, this.handleGpioCommand.bind(this));
     }
 
     private async handleConnectEvent(): Promise<void> {
@@ -103,5 +104,37 @@ export class GpioService {
                 resolve();
             });
         })
+    }
+
+    private async handleGpioCommand(values) {
+        let matchesDevices = false;
+        let pin = undefined;
+        let onState = undefined;
+        let newState = undefined;
+
+        values.forEach(value => {
+            if (value?.device_field?.device === this.DeviceName) {
+                matchesDevices = true
+            }
+            if (value?.output_pin !== undefined && !Number.isNaN(parseInt(value.output_pin))) {
+                pin = parseInt(value.output_pin)
+            }
+            if (value?.on_state?.gpio_high_low === 'High') {
+                onState = 1
+            }
+            if (value?.on_state?.gpio_high_low === 'Low') {
+                onState = 0
+            }
+            if (value?.on_off === 'Off') {
+                newState = 0
+            }
+            if (value?.on_off === 'On') {
+                newState = 1
+            }
+        });
+
+        if (matchesDevices && ![pin, onState, newState].includes(undefined)) {
+            console.log(matchesDevices, pin, onState, newState)
+        }
     }
 }
