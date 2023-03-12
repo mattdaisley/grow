@@ -14,11 +14,12 @@ import Paper from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
+import { flatten } from 'flat';
 
 import logger from "../../../services/logger";
 import { useSubscription } from "./useSubscription";
 import { ShowItem } from "./ShowItems";
-import { flatten } from 'flat';
+import { useGridCollectionColumns } from "./Collections/useGridCollectionColumns";
 
 export function ShowCollection({ ...props }) {
   logger.log('ShowCollection', 'props:', props);
@@ -85,7 +86,7 @@ function ShowCollectionControl(props) {
       )}
 
       {collectionType === '2' && (
-        <CollectionWrapper pageProps={{ ...props }} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
+        <CollectionWrapper pageProps={{ ...props }} collectionType={collectionType} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
           <CollectionAdd
             pageProps={{ ...props }}
             collectionProps={collectionProps} />
@@ -95,10 +96,14 @@ function ShowCollectionControl(props) {
   );
 }
 
-function CollectionWrapper({ pageProps, collectionContextKey, children }) {
+function CollectionWrapper({ pageProps, collectionType, collectionContextKey, children }) {
 
   useEffect(() => {
-    const itemKeys = [collectionContextKey, `${collectionContextKey}_drafts`, 'collections']
+    const itemKeys = [collectionContextKey, 'collections']
+    // only load drafts for CollectionAdd type
+    if (collectionType === '2') {
+      itemKeys.push(`${collectionContextKey}_drafts`)
+    }
     pageProps.itemsMethods.getItems(itemKeys);
   }, [collectionContextKey]);
 
@@ -242,13 +247,19 @@ function CollectionGrid({ pageProps, collectionProps }) {
   const [sortModel, setSortModel] = useState([{ field: 'id', sort: 'desc' }]);
   const _collectionsRef = useRef({})
   const [_, updateState] = useState();
-  const forceUpdate = useCallback((field) => { logger.log('CollectionGrid forceUpdate', field); updateState({}) }, []);
+  const forceUpdate = useCallback((field) => {
+    logger.log('CollectionGrid forceUpdate', field);
+    updateState({})
+  }, []);
 
   const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.keyPrefix, keyPrefix: undefined });
   const contextCollectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
+  // const contextCollectionFields = pageProps.itemsMethods.getTreeMapItem(collectionProps.contextKey);
   const sortOrderFieldId = useSubscription({ ...pageProps, itemKey: pageProps.keyPrefix, keyPrefix: undefined, searchSuffix: 'sort-order' });
   const sortOrderField = pageProps.itemsMethods.getTreeMapItem(`fields.${sortOrderFieldId}`)
   const sortOrder = sortOrderField?.get('name') ?? sortOrderFieldId ?? 'id'
+
+  const collectionColumns = useGridCollectionColumns(pageProps)
 
   useEffect(() => {
     if (_collectionsRef.current !== undefined) {
@@ -274,18 +285,11 @@ function CollectionGrid({ pageProps, collectionProps }) {
     pageProps.itemsMethods.deleteItemsByFieldKey(itemKey, fieldKey)
   }
 
-  let columns = [{ field: 'id', headerName: 'id', flex: 1 }]
-  const viewFieldColumns = getReferencedViewFieldColumns(pageProps, _collectionsRef, forceUpdate)
-  if (viewFieldColumns.size !== 0) {
-    viewFieldColumns.forEach((viewFieldColumn) => {
-      columns.push(viewFieldColumn.columnDefinition)
-    });
-  }
-  columns.push(getActionsColumn(handleCollectionRemove))
+  collectionColumns.push(getActionsColumn(handleCollectionRemove))
 
-  const rows = getCollectionRows(contextCollectionFields, viewFieldColumns)
+  const rows = useMemo(() => getCollectionRows(contextCollectionFields), [contextCollectionFields?.size])
 
-  logger.log('CollectionGrid', 'collectionFields:', collectionFields, 'contextCollectionFields:', contextCollectionFields, 'valueKeys:', pageProps.valueKeys, 'columns:', columns, 'rows:', rows, 'sortOrder:', sortOrder, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
+  logger.log('CollectionGrid', 'collectionFields:', collectionFields, 'contextCollectionFields:', contextCollectionFields, 'contextCollectionFields?.size:', contextCollectionFields?.size, 'rows:', rows, 'sortOrder:', sortOrder, 'pageProps:', pageProps, 'collectionProps:', collectionProps);
 
 
   return (
@@ -299,7 +303,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
           sortModel={sortModel}
           onSortModelChange={handleSortModelChange}
           rows={rows ?? []}
-          columns={columns}
+          columns={collectionColumns}
           pageSize={10}
           rowsPerPageOptions={[10, 20]}
           rowHeight={40}
@@ -311,7 +315,6 @@ function CollectionGrid({ pageProps, collectionProps }) {
     </>
   )
 }
-
 
 function ShowCollectionLabel(pageProps) {
   const sectionLabel = useSubscription({ ...pageProps, itemKey: pageProps.keyPrefix, keyPrefix: undefined, searchSuffix: 'label' });
@@ -346,9 +349,9 @@ function getReferencedViewFieldColumns(props, _collectionsRef, forceUpdate) {
   referencedViewFields.forEach((referencedViewField, fieldId) => {
 
     const fieldName = referencedViewField.get('name')
-    props.itemsMethods.subscribeMap(`fields.${fieldId}.name`, forceUpdate);
+    // props.itemsMethods.subscribeMap(`fields.${fieldId}.name`, forceUpdate);
     const headerName = referencedViewField.get('label') ?? fieldName
-    props.itemsMethods.subscribeMap(`fields.${fieldId}.label`, forceUpdate);
+    // props.itemsMethods.subscribeMap(`fields.${fieldId}.label`, forceUpdate);
 
     let viewField = {
       columnDefinition: {
@@ -364,7 +367,7 @@ function getReferencedViewFieldColumns(props, _collectionsRef, forceUpdate) {
 
       // props.itemsMethods.getItems([collectionContextKey, 'collections']);
       _collectionsRef.current[collectionContextKey] = true;
-      props.itemsMethods.subscribeMap(collectionContextKey, forceUpdate);
+      // props.itemsMethods.subscribeMap(collectionContextKey, forceUpdate);
 
       const referencedCollectionFields = props.itemsMethods.getTreeMapItem(collectionContextKey)
       const labelField = props.itemsMethods.getTreeMapItem(`fields.${referencedLabelField}`)
@@ -384,7 +387,7 @@ function getReferencedViewFieldColumns(props, _collectionsRef, forceUpdate) {
 
 
 export function getReferencedViewFields(props) {
-  logger.log('getReferencedViewFields', 'valueKeys:', props.valueKeys, 'props:', props)
+  logger.log('getReferencedViewFields', 'props:', props)
 
   // const referencedViews = props.valueKeys.get('views')
   const referencedViews = props.itemsMethods.getTreeMapItem(`${props.keyPrefix}.views`)
@@ -441,39 +444,19 @@ export function getReferencedViewFields(props) {
   return viewFields
 }
 
-function getCollectionRows(contextCollectionFields, viewFieldColumns) {
+function getCollectionRows(contextCollectionFields) {
   const rows = []
 
   if (contextCollectionFields === undefined) {
     return rows;
   }
 
-  logger.log('getCollectionRows', 'contextCollectionFields:', contextCollectionFields, 'viewFieldColumns:', viewFieldColumns)
+  logger.log('getCollectionRows', 'contextCollectionFields:', contextCollectionFields)
 
   contextCollectionFields.forEach((collectionField, collectionFieldKey) => {
     const row = { id: collectionFieldKey }
     collectionField.forEach((fieldValue, fieldKey) => {
-      // logger.log('getCollectionRows', 'fieldValue:', fieldValue, 'fieldKey:', fieldKey, 'collectionFields:', collectionFields, 'viewFieldColumns:', viewFieldColumns)
-      const column = viewFieldColumns.get(fieldKey)
-      if (column === undefined || fieldValue === null) {
-        row[fieldKey] = fieldValue ?? ""
-      }
-      else {
-        const labelField = column.labelField
-        const referencedCollectionFields = column.referencedCollectionFields
-        logger.log('getCollectionRows', 'fieldValue:', fieldValue, 'fieldKey:', fieldKey, 'labelField:', labelField, 'referencedCollectionFields:', referencedCollectionFields)
-
-        if (labelField !== undefined && referencedCollectionFields !== undefined) {
-          const referencedCollectionField = referencedCollectionFields.get(fieldValue.split('.')[1])
-          if (referencedCollectionField !== undefined) {
-            const referencedCollectionValue = referencedCollectionField.get(labelField.get('name'))
-            row[fieldKey] = referencedCollectionValue
-          }
-        }
-        else {
-          row[fieldKey] = fieldValue
-        }
-      }
+      row[fieldKey] = fieldValue ?? ""
     });
 
     rows.push(row)

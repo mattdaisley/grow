@@ -124,7 +124,7 @@ export function useItems(defaultItemKeys, defaultData) {
     const currentCallbacks = itemsRef.current.subscriptionsMap.get(valueKey) ?? []
     const newCallbacks = [...currentCallbacks, callback];
     itemsRef.current.subscriptionsMap.set(valueKey, newCallbacks)
-    // logger.log('subscribeMap', 'valueKey:', valueKey, 'currentCallbacks:', currentCallbacks, 'callbacks:', newCallbacks)
+    logger.log('subscribeMap', 'valueKey:', valueKey, 'currentCallbacks:', currentCallbacks, 'callbacks:', newCallbacks)
   }
 
   itemsRef.current.unsubscribeMap = (valueKey, callback) => {
@@ -146,14 +146,19 @@ export function useItems(defaultItemKeys, defaultData) {
     const subscriptionsMap = itemsRef.current.subscriptionsMap
 
     if (subscriptionsMap.size === 0) {
-      // logger.log('runSubscriptionsMap no subscriptions to run', 'subscriptionsMap:', subscriptionsMap);
+      // logger.log('runSubscriptionsMap no subscriptions to run', 'valueKey:', valueKey, 'subscriptionsMap:', subscriptionsMap);
       return;
     }
 
     const mapCallbacks = subscriptionsMap.get(valueKey)
     const value = newValue ?? itemsRef.current.getTreeMapItem(valueKey)
 
-    logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
+    if (mapCallbacks === undefined) {
+      // logger.log('runSubscriptionsMap no callbacks to run', 'valueKey:', valueKey, 'subscriptionsMap:', subscriptionsMap);
+      return;
+    }
+
+    // logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
     mapCallbacks?.forEach(callback => callback(valueKey, value));
   }
 
@@ -280,8 +285,8 @@ function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySpl
 
   if (valueKeySplitIndex === valueKeySplit.length - 1) {
     dataMapBranch.set(keyAtIndex, node.value)
+    // logger.log('updateDataMapBranch', 'valueKeySplitIndex:', valueKeySplitIndex, 'valueKey:', valueKey, 'valueKeySplit:', valueKeySplit, 'value:', node, 'dataMapBranch:', dataMapBranch)
     itemsRef.current.runSubscriptionsMap(valueKey)
-    logger.log('updateDataMapBranch', 'valueKeySplitIndex:', valueKeySplitIndex, 'valueKey:', valueKey, 'valueKeySplit:', valueKeySplit, 'value:', node, 'dataMapBranch:', dataMapBranch)
 
     const dateValueKeyPrefix = valueKeySplit.slice(0, valueKeySplitIndex).join('.')
 
@@ -305,12 +310,17 @@ function updateDataMapBranch(itemsRef, dataMapBranch, valueKeySplit, valueKeySpl
     return dataMapBranch;
   }
 
+  let newBranch = false;
   if (!dataMapBranch.has(keyAtIndex)) {
     dataMapBranch.set(keyAtIndex, new Map())
+    newBranch = true;
   }
 
   const newDataMapBranch = updateDataMapBranch(itemsRef, dataMapBranch.get(keyAtIndex), valueKeySplit, valueKeySplitIndex + 1, node)
   itemsRef.current.runSubscriptionsMap(valueKey)
+  // if (newBranch) {
+  //   itemsRef.current.runSubscriptionsMap(valueKey)
+  // }
   return newDataMapBranch;
 }
 
@@ -360,6 +370,10 @@ function deleteNodeFromTreeBranch(itemsRef, dataMapBranch, valueKeySplit, valueK
 
   if (valueKeySplitIndex === valueKeySplit.length - 1) {
     dataMapBranch.delete(keyAtIndex)
+    if (dataMapBranch.size === 2 && dataMapBranch.get('created_date') !== undefined && dataMapBranch.get('updated_date') !== undefined) { // only created_date and udpated_date
+      dataMapBranch.delete('created_date')
+      dataMapBranch.delete('updated_date')
+    }
     itemsRef.current.runSubscriptionsMap(valueKey, dataMapBranch)
 
     logger.log('deleteNodeFromTreeBranch deleted', 'keyAtIndex:', keyAtIndex, 'valueKey:', valueKey, 'dataMapBranch:', dataMapBranch)

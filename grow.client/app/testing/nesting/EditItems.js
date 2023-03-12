@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState, useCallback } from "react";
+import { Fragment, useState, useCallback, useEffect } from "react";
 import { unflatten } from "flat";
 
 import Autocomplete from "@mui/material/Autocomplete";
@@ -24,6 +24,7 @@ import { FieldWrapper, FieldItem, ChildrenWithProps, ControlledTextField, Contro
 import { collectionTypes, itemTypes, fieldTypes, fieldOptionsTypes, collectionSources } from "./constants";
 import { useSubscription } from "./useSubscription";
 import { getReferencedViewFields } from "./ShowCollection";
+import { getNestedFields } from "./Collections/useGridCollectionColumns";
 
 export function EditItems({ fieldsControlsPrefix, searchSuffix, ...props }) {
 
@@ -1036,26 +1037,43 @@ function EditReferencedCollectionProperty({ ...props }) {
 
 function EditCollectionSortOrderProperty({ controllerName, label, ...props }) {
 
-  const [_, updateState] = useState();
-  const forceUpdate = useCallback(() => updateState({}), []);
+  const [nestedFields, setNestedFields] = useState(new Map());
+  const [forcedState, updateState] = useState();
+  const forceUpdate = useCallback((valueKey, value) => {
+    logger.log('EditCollectionSortOrderProperty forceUpdate', 'valueKey:', valueKey, 'value:', value);
+    updateState({})
+  }, []);
+  const [, updateColumnsState] = useState();
+  const forceUpdateColumns = useCallback((valueKey, value) => {
+    logger.log('EditCollectionSortOrderProperty forceUpdateColumns', 'valueKey:', valueKey, 'value:', value);
+    updateColumnsState({})
+  }, []);
 
-  const options = [{ value: 'id', label: 'Id' }]
+  useEffect(() => {
+    const { nestedFields: collectionNestedFields, subscriptions } = getNestedFields(props, forceUpdate, forceUpdateColumns, getSortOrderOptions)
 
-  const referencedViewFields = getReferencedViewFields(props)
-  referencedViewFields.forEach((referencedViewField, key) => {
+    setNestedFields(collectionNestedFields)
 
-    const fieldName = referencedViewField.get('name')
-    props.itemsMethods.subscribeMap(`fields.${key}.name`, forceUpdate);
-    const fieldLabel = referencedViewField.get('label')
-    props.itemsMethods.subscribeMap(`fields.${key}.label`, forceUpdate);
+    logger.log('EditCollectionSortOrderProperty', 'collectionNestedFields:', collectionNestedFields, 'subscriptions:', subscriptions, 'props:', props)
 
-    let label = fieldLabel
-    if (label === undefined || label === "") {
-      label = fieldName
+    return () => {
+      logger.log('EditCollectionSortOrderProperty useEffect cleanup', 'keyPrefix:', props.keyPrefix, 'subscriptions:', subscriptions, 'props:', props);
+      subscriptions.forEach((callback, key) => {
+        props.itemsMethods.unsubscribeMap(key, callback);
+      })
+    };
+  }, [props.keyPrefix, forcedState, setNestedFields]);
+
+
+  let options = [{ value: 'id', label: 'Id' }]
+  nestedFields.forEach(nestedField => {
+    const columnValues = nestedField()
+    if (columnValues !== undefined) {
+      options.push(columnValues)
     }
+  })
 
-    options.push({ value: key, label });
-  });
+  logger.log('EditCollectionSortOrderProperty', 'options:', options, 'nestedFields:', nestedFields)
 
   return (
     <FieldWrapper>
@@ -1067,6 +1085,21 @@ function EditCollectionSortOrderProperty({ controllerName, label, ...props }) {
         }} />
     </FieldWrapper>
   );
+}
+
+function getSortOrderOptions(props, referencedFieldId) {
+
+  return function () {
+    const referencedViewField = props.itemsMethods.getTreeMapItem(`fields.${referencedFieldId}`)
+    if (referencedViewField === undefined) {
+      return
+    }
+
+    const fieldName = referencedViewField.get('name')
+    const fieldLabel = referencedViewField.get('label') ?? fieldName
+
+    return { value: referencedFieldId, label: fieldLabel }
+  }
 }
 
 function EditFieldTypeProperty({ controllerName, label, ...props }) {

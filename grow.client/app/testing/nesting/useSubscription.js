@@ -16,12 +16,7 @@ export function useSubscription(props) {
 
   let name = keyPrefix === undefined ? itemKey : `${keyPrefix}.${itemKey}`;
   let searchName = searchSuffix === undefined ? name : `${name}.${searchSuffix}`;
-
-  const [fields, setFields] = useState();
-  const [, updateState] = useState();
-  const forceUpdate = useCallback(() => updateState({}), []);
-
-  logger.log('useSubscription', 'fields:', fields, 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
+  
   const getFilteredFields = useCallback((value) => {
 
     if (filter === undefined || value === undefined) {
@@ -45,9 +40,15 @@ export function useSubscription(props) {
 
   }, [filter])
 
+  const [fields, setFields] = useState(getFilteredFields(props.itemsMethods.getTreeMapItem(searchName)));
+  const [, updateState] = useState();
+  const forceUpdate = useCallback(() => updateState({}), []);
+
+  // logger.log('useSubscription', 'searchName:', searchName, 'fields:', fields, 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'props:', props);
+
   useEffect(() => {
 
-    //logger.log('useSubscription useEffect', 'fields:', fields, 'searchName:', searchName, 'props:', props);
+    logger.log('useSubscription useEffect', 'searchName:', searchName, 'fields:', fields, 'props:', props);
 
     setFields(getFilteredFields(props.itemsMethods.getTreeMapItem(searchName)))
 
@@ -60,7 +61,7 @@ export function useSubscription(props) {
     props.itemsMethods.subscribeMap(searchName, callback);
 
     return () => {
-      logger.log('useSubscription useEffect cleanup', 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'searchName:', searchName, 'props:', props);
+      // logger.log('useSubscription useEffect cleanup', 'searchName:', searchName, 'keyPrefix:', keyPrefix, 'itemKey:', itemKey, 'searchSuffix:', searchSuffix, 'props:', props);
       props.itemsMethods.unsubscribeMap(searchName, callback);
     };
   }, [setFields, searchName]);
