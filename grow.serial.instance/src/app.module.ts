@@ -9,23 +9,6 @@ import { SerialModule } from './serial/serial.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => {
-
-        const host = configService.get<string>('REDIS_HOST');
-        const port = configService.get<number>('REDIS_PORT');
-
-        return {
-          redis: {
-            host,
-            port,
-          },
-        }
-      },
-      inject: [ConfigService],
-    }),
-    SerialModule,
     GpioModule
   ],
   providers: [],

@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { exec } from 'child_process'
 import { io, Socket } from "socket.io-client";
+import { BinaryValue, Gpio } from 'onoff';
 
 @Injectable()
-export class GpioService {
+export class GpioService implements OnModuleDestroy {
 
     private Socket: Socket
 
@@ -13,10 +14,36 @@ export class GpioService {
 
     public DeviceName: string;
 
+    private GpioPins: Map<string, Gpio> = new Map();
+
+    private GpioPinsOnState: Map<string, Number> = new Map();
+
     constructor(
         private configService: ConfigService
     ) {
         this.initialize();
+    }
+
+    onModuleDestroy() {
+        console.log(`The module is being destroyed.`);
+        this.GpioPins.forEach((gpio, pin) => {
+            let value: BinaryValue = 0
+            const savedOnState = this.GpioPinsOnState.get(pin);
+            if (savedOnState !== undefined) {
+                if (savedOnState === 1) {
+                    value = 1
+                }
+                if (savedOnState === 0) {
+                    value = 0
+                }
+            }
+
+            console.log(pin, savedOnState, value)
+            gpio.writeSync(value);
+
+            console.log(pin, 'unexport')
+            gpio.unexport()
+        })
     }
 
     @Cron('5 * * * * *')
@@ -107,34 +134,56 @@ export class GpioService {
     }
 
     private async handleGpioCommand(values) {
-        let matchesDevices = false;
+        let matchesDevice = false;
         let pin = undefined;
         let onState = undefined;
         let newState = undefined;
 
         values.forEach(value => {
+            // console.log(value)
             if (value?.device_field?.device === this.DeviceName) {
-                matchesDevices = true
+                matchesDevice = true
             }
-            if (value?.output_pin !== undefined && !Number.isNaN(parseInt(value.output_pin))) {
-                pin = parseInt(value.output_pin)
+            if (value?.output_pin !== undefined && !Number.isNaN(Number(value.output_pin))) {
+                pin = value.output_pin
             }
-            if (value?.on_state?.gpio_high_low === 'High') {
+            if (value?.on_state?.gpio_high_low.toLowerCase() === 'high') {
                 onState = 1
             }
-            if (value?.on_state?.gpio_high_low === 'Low') {
+            if (value?.on_state?.gpio_high_low.toLowerCase() === 'low') {
                 onState = 0
-            }
-            if (value?.on_off === 'Off') {
-                newState = 0
             }
             if (value?.on_off === 'On') {
                 newState = 1
             }
+            if (value?.on_off === 'Off') {
+                newState = 0
+            }
         });
 
-        if (matchesDevices && ![pin, onState, newState].includes(undefined)) {
-            console.log(matchesDevices, pin, onState, newState)
+        console.log(matchesDevice, pin, onState, newState)
+        if (matchesDevice && ![pin, onState, newState].includes(undefined)) {
+
+            let gpio = this.GpioPins.get(pin)
+            if (gpio === undefined) {
+                gpio = new Gpio(Number(pin), 'out')
+                this.GpioPins.set(pin, gpio)
+            }
+
+            let pinOnState = this.GpioPinsOnState.get(pin)
+            if (pinOnState === undefined) {
+                pinOnState = onState
+                this.GpioPinsOnState.set(pin, pinOnState)
+            }
+
+            let value: BinaryValue;
+            if (pinOnState === 1) {
+                value = newState ? 1 : 0
+            }
+            if (pinOnState === 0) {
+                value = newState ? 0 : 1
+            }
+            gpio.writeSync(value)
         }
     }
 }
