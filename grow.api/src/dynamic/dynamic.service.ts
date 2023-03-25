@@ -19,7 +19,7 @@ export class DynamicService {
 
 
   async addItems(itemKey: string, items: DynamicAddItem, prefix?: string): Promise<DynamicItem[]> {
-    console.log('DynamicService addItems', itemKey, items, prefix)
+    // console.log('DynamicService addItems', itemKey, items, prefix)
 
     const self = this;
 
@@ -41,7 +41,7 @@ export class DynamicService {
         let itemPrefix: string;
 
         if (valueKeyPrefix === 'id') {
-          console.log('itemToAdd relatedItem', 'valueKeyPrefix:', valueKeyPrefix)
+          // console.log('itemToAdd relatedItem', 'valueKeyPrefix:', valueKeyPrefix)
 
           itemsToAdd += 1
 
@@ -53,7 +53,7 @@ export class DynamicService {
 
           const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value }
 
-          console.log('handleAddItemsEvent creating item', createDynamicItemDto)
+          // console.log('handleAddItemsEvent creating item', createDynamicItemDto)
           const dynamicItem = await this.create(createDynamicItemDto)
 
           addedItems.push(dynamicItem)
@@ -69,7 +69,7 @@ export class DynamicService {
           }
         }
         
-        console.log('itemToAdd', valueKeyPrefix, itemPrefix, itemToAdd)
+        // console.log('itemToAdd', valueKeyPrefix, itemPrefix, itemToAdd)
 
         Object.keys(itemToAdd).map(async valueKeySuffix => {
 
@@ -80,7 +80,7 @@ export class DynamicService {
 
             const createDynamicItemDto: CreateDynamicItemDto = { itemKey: finalItemKey, valueKey, value }
 
-            console.log('handleAddItemsEvent creating item', createDynamicItemDto)
+            // console.log('handleAddItemsEvent creating item', createDynamicItemDto)
             const dynamicItem = await self.create(createDynamicItemDto)
 
             addedItems.push(dynamicItem)
@@ -95,7 +95,7 @@ export class DynamicService {
             ]
           }
 
-          console.log('should resolve?', addedItems.length === itemsToAdd, addedItems.length, itemsToAdd)
+          // console.log('should resolve?', addedItems.length === itemsToAdd, addedItems.length, itemsToAdd)
           if (addedItems.length === itemsToAdd) {
             resolve(addedItems);
           }

@@ -124,13 +124,18 @@ export class DynamicGateway {
     .then((allItems) => {
       return new Promise<DynamicItemsResponse>((resolve, reject) => {
 
+        if (data.automation === false) {
+          resolve(allItems)
+          return;
+        }
+
         Object.keys(allItems).forEach(async (itemKey, index, array) => {
 
           const items = allItems[itemKey]
 
           // Proof of concept for automation when adding items to any collection
           if (itemKey === 'preview_collections_2f88f0f2-b775-468c-aaf6-8bd12396125a') {
-            console.log('automation required', items)
+            // console.log('automation required', items)
 
             // automation needs a specific field
             if (items.filter(item => item.valueKey.includes('select_outlet')).length > 0) {
@@ -139,8 +144,14 @@ export class DynamicGateway {
               })
               Promise.all(mappedPromises)
                 .then(values => {
-                  console.log(values)
-                  this.server.emit('gpio-command', values)
+                  // console.log(values)
+
+                  const data = []
+                  items.forEach((item, index) => {
+                    data.push({ item, value: values[index]})
+                  });
+
+                  this.server.emit('gpio-command', {data})
                 })
             }
           }

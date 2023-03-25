@@ -3,3 +3,4 @@ db
 *.db
 dist
 __pycache__
+grow.serial.instance/pin-configuration.json

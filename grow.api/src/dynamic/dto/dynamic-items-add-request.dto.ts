@@ -6,6 +6,8 @@ export class DynamicItemsAddRequest {
     itemKey: string;
 
     items: DynamicAddItem;
+
+    automation?: boolean
 }
 
 export class DynamicAddItem {
