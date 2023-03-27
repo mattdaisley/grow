@@ -20,9 +20,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "push:package": "rsync -rlptzv --progress --delete --exclude=.git ./package.json \"pi@pi-grow:~/grow/grow.serial.instance\"",
+    "push:tsconfig": "rsync -rlptzv --progress --delete --exclude=.git ./tsconfig.json \"pi@pi-grow:~/grow/grow.serial.instance\"",
     "push:env": "rsync -rlptzv --progress --delete --exclude=.git ./.env \"pi@pi-grow:~/grow/grow.serial.instance\"",
     "push:dist": "rsync -rlptzv --progress --delete --exclude=.git ./dist \"pi@pi-grow:~/grow/grow.serial.instance\"",
     "push:node_modules": "rsync -rlptzv --progress --delete --exclude=.git ./node_modules \"pi@pi-grow:~/grow/grow.serial.instance\"",
+    "push:all": "npm run push:package && push:tsconfig && npm run push:env && npm run push:node_modules && npm run push:dist",
     "publish": "npm run build && npm run push:dist"
   },
   "dependencies": {
