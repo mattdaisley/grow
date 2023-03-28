@@ -129,32 +129,46 @@ export class DynamicGateway {
           return;
         }
 
+        const automationConditions = {
+          ['preview_collections_2f88f0f2-b775-468c-aaf6-8bd12396125a']: { // Outlet Events, outlet_events
+            Name: 'select_outlet',
+            Event: 'gpio-command'
+          },
+          ['preview_collections_54e2aa1e-c548-4906-8be9-f2b86b7443ed']: { // Nutrient Pump Events, nutrient_pump_events
+            Name: 'selected_nutrient_pump',
+            Event: 'gpio-command'
+          }
+        }
+
         Object.keys(allItems).forEach(async (itemKey, index, array) => {
 
           const items = allItems[itemKey]
 
-          // Proof of concept for automation when adding items to any collection
-          if (itemKey === 'preview_collections_2f88f0f2-b775-468c-aaf6-8bd12396125a') {
-            // console.log('automation required', items)
+          Object.keys(automationConditions).forEach(automationConditionItemKey => {
+            const automationCondition = automationConditions[automationConditionItemKey]
 
-            // automation needs a specific field
-            if (items.filter(item => item.valueKey.includes('select_outlet')).length > 0) {
-              const mappedPromises = items.map(item => {
-                return this.getReferencedCollectionObject(item.value)
-              })
-              Promise.all(mappedPromises)
-                .then(values => {
-                  // console.log(values)
+            if (itemKey === automationConditionItemKey) {
+              // console.log('automation required', items)
 
-                  const data = []
-                  items.forEach((item, index) => {
-                    data.push({ item, value: values[index]})
-                  });
-
-                  this.server.emit('gpio-command', {data})
+              // automation needs a specific field
+              if (items.filter(item => item.valueKey.includes(automationCondition.Name)).length > 0) {
+                const mappedPromises = items.map(item => {
+                  return this.getReferencedCollectionObject(item.value)
                 })
+                Promise.all(mappedPromises)
+                  .then(values => {
+                    // console.log(values)
+
+                    const data = []
+                    items.forEach((item, index) => {
+                      data.push({ item, value: values[index]})
+                    });
+
+                    this.server.emit(automationCondition.Event, { [automationConditionItemKey]: {data}})
+                  })
+              }
             }
-          }
+          })
 
         })
         resolve(allItems)

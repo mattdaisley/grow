@@ -241,7 +241,7 @@ export class GpioService implements OnModuleDestroy {
             GpioPinsOnState: {},
             GpioPinsStartupState: {},
             GpioPinsAutomation: {},
-            SelectOutletValueKeys: {},
+            SelectedItemValueKeys: {},
             OutputStateValueKeys: {},
         }
 
@@ -284,7 +284,7 @@ export class GpioService implements OnModuleDestroy {
             const pinConfig = { ...this.GpioConfiguration }
             Object.keys(pinConfig.GpioPins).forEach(pin => pinConfig.GpioPins[pin] = undefined)
 
-            const str = JSON.stringify(pinConfig);
+            const str = JSON.stringify(pinConfig, null, 2);
             await fs.writeFile('pin-configuration.json', str, 'utf8');
         } catch (error) {
             
@@ -292,7 +292,7 @@ export class GpioService implements OnModuleDestroy {
     }
 
     private async handleGpioCommand(event) {
-        // console.log(event)
+        console.log(event)
         const self = this;
 
         let matchesDevice: boolean = false;
@@ -302,16 +302,24 @@ export class GpioService implements OnModuleDestroy {
         let newState: string = undefined;
         const automation: any = {};
 
-        let selectOutletValueKey: string;
+        let selectedItemValueKey: { ItemKey: string, Name: string, ValueKey: string } = { ItemKey: undefined, Name: undefined, ValueKey: undefined };
         let outputStateValueKey: string;
 
-        event.data.forEach(dataItem => {
+        let collectionItemKey = Object.keys(event)[0]
+
+        selectedItemValueKey.ItemKey = collectionItemKey;
+        event[collectionItemKey].data.forEach(dataItem => {
 
             const { item, value } = dataItem;
             // console.log(item, value)
 
             if (item.valueKey.includes('select_outlet')) {
-                selectOutletValueKey = item.value
+                selectedItemValueKey.Name = 'select_outlet' 
+                selectedItemValueKey.ValueKey = item.value
+            }
+            if (item.valueKey.includes('selected_nutrient_pump')) {
+                selectedItemValueKey.Name = 'selected_nutrient_pump' 
+                selectedItemValueKey.ValueKey = item.value
             }
             if (item.valueKey.includes('output_state')) {
                 outputStateValueKey = item.value
@@ -355,8 +363,8 @@ export class GpioService implements OnModuleDestroy {
         // console.log(matchesDevice, pin, onState, newState)
         if (matchesDevice && ![pin, onState, newState].includes(undefined)) {
 
-            if (selectOutletValueKey !== undefined) {
-                this.GpioConfiguration.SelectOutletValueKeys[pin] = selectOutletValueKey
+            if (selectedItemValueKey !== undefined) {
+                this.GpioConfiguration.SelectedItemValueKeys[pin] = selectedItemValueKey
             }
             if (outputStateValueKey !== undefined) {
                 this.GpioConfiguration.OutputStateValueKeys[newState] = outputStateValueKey
@@ -395,10 +403,12 @@ export class GpioService implements OnModuleDestroy {
         try {
             const event = 'add-items'
 
-            const itemKey = 'preview_collections_2f88f0f2-b775-468c-aaf6-8bd12396125a'
+            const selectedItem = this.GpioConfiguration.SelectedItemValueKeys[pin]
+
+            const itemKey = selectedItem.ItemKey
 
             const items = { [itemKey]: {
-                'select_outlet': this.GpioConfiguration.SelectOutletValueKeys[pin],
+                [selectedItem.Name]: selectedItem.ValueKey,
                 'output_state': this.GpioConfiguration.OutputStateValueKeys[value]
             }}
             
