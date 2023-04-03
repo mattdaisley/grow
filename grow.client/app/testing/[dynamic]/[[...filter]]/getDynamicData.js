@@ -23,7 +23,9 @@ export async function getDynamicData(itemKeys) {
 }
 
 async function getItems(itemKey) {
-  const res = await fetch(`http://192.168.86.24:3001/dynamic/${itemKey}`);
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/${itemKey}`);
+  // const res = await fetch(`http://192.168.86.24:3001/dynamic/${itemKey}`);
   // const res = await fetch(`https://grow.mattdaisley.com:444/dynamic/${itemKey}`);
 
   if (!res.ok) {

@@ -353,8 +353,8 @@ export class GpioService implements OnModuleDestroy {
             const { item, value } = dataItem;
             // console.log(item, value)
 
-            if (item.valueKey.includes('select_outlet')) {
-                selectedItemValueKey.Name = 'select_outlet' 
+            if (item.valueKey.includes('selected_outlet')) {
+                selectedItemValueKey.Name = 'selected_outlet' 
                 selectedItemValueKey.ValueKey = item.value
             }
             if (item.valueKey.includes('selected_nutrient_pump')) {

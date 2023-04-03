@@ -145,6 +145,7 @@ export class DynamicGateway {
       // }
 
       const automationConditions = {
+        // Development
         ['preview_collections_570c9f24-3409-413b-ab8d-6aaa610ca58f']: { // Outlets
           ['gpio-config']: ['device_field', 'output_pin', 'on_state', 'startup_state', 'shutdown_state', 'automation_type', 'time_on', 'time_off']
         },
@@ -155,6 +156,20 @@ export class DynamicGateway {
           ['gpio-command']: ['select_outlet']
         },
         ['preview_collections_54e2aa1e-c548-4906-8be9-f2b86b7443ed']: { // Nutrient Pump Events, nutrient_pump_events
+          ['gpio-command']: ['selected_nutrient_pump']
+        },
+
+        // Production
+        ['jalepenos_collections_07d61ba1-bfdd-4905-9572-9ff911553936']: { // Outlets
+          ['gpio-config']: ['device_field', 'output_pin', 'on_state', 'startup_state', 'shutdown_state', 'automation_type', 'time_on', 'time_off']
+        },
+        ['jalepenos_collections_d0b3df13-bca9-4a05-8552-81a37892d7cf']: { // Nutrient Pumps
+          ['gpio-config']: ['device_field', 'output_pin', 'on_state', 'startup_state', 'shutdown_state', 'automation_type', 'time_on', 'time_off']
+        },
+        ['jalepenos_collections_56a0ffdf-02cd-44a7-81a3-b6a38ea25f82']: { // Outlet Events, outlet_events
+          ['gpio-command']: ['selected_outlet']
+        },
+        ['jalepenos_collections_00aea158-3950-44e6-89f2-2f4d8935ea40']: { // Nutrient Pump Events, nutrient_pump_events
           ['gpio-command']: ['selected_nutrient_pump']
         }
       }
