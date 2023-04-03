@@ -26,7 +26,7 @@ export class GpioService implements OnModuleDestroy {
 
         this.initialize();
 
-        this.AutomationInterval = setInterval(self.handleAutomationCron.bind(self), 500)
+        this.AutomationInterval = setInterval(self.handleAutomationCron.bind(self), 100)
     }
 
     onModuleDestroy() {
@@ -114,7 +114,7 @@ export class GpioService implements OnModuleDestroy {
 
             if (type.toLowerCase() === 'interval') {
 
-                if (Number(lastState) === 0) {
+                if (Number(lastState) === 0 && Number(timeOff) !== 0) {
                     var timeToTurnOn = new Date(lastChangeTime);
                     timeToTurnOn.setSeconds(timeToTurnOn.getSeconds() + Number(timeOff));
 
@@ -128,7 +128,7 @@ export class GpioService implements OnModuleDestroy {
                     }
                 }
                 
-                if (Number(lastState) === 1) {
+                if (Number(lastState) === 1 && Number(timeOn) !== 0) {
                     var timeToTurnOff = new Date(lastChangeTime);
                     timeToTurnOff.setSeconds(timeToTurnOff.getSeconds() + Number(timeOn));
 
@@ -144,7 +144,44 @@ export class GpioService implements OnModuleDestroy {
             }
 
             if (type.toLowerCase() === 'schedule') {
+                currentTime.setMilliseconds(0);
+                var currentDate = currentTime.toISOString().split('T')[0];
 
+                try {
+                    if (Number(lastState) === 0) {
+                        var timeToTurnOn = new Date(`${currentDate}T${timeOn}.000Z`);
+
+                        // console.log(type, lastState, timeToTurnOn, currentTime.toISOString(), timeToTurnOn.toISOString(), currentTime.getTime() === timeToTurnOn.getTime())
+                        if (currentTime.getTime() === timeToTurnOn.getTime()) {
+                            // turn on
+                            this.SetGpio(pin, 1)
+                            automation.last_state = '1'
+                            automation.last_change_time = currentTime.toISOString()
+                            this.SendAddItems(pin, '1')
+                        }
+                    }
+
+                    if (Number(lastState) === 1) {
+                        var timeToTurnOff = new Date(`${currentDate}T${timeOff}.000Z`);
+
+                        // console.log(type, lastState, timeToTurnOff, currentTime.toISOString(), timeToTurnOff.toISOString(), currentTime.getTime() === timeToTurnOff.getTime())
+                        if (currentTime.getTime() === timeToTurnOff.getTime()) {
+                            // turn off
+                            this.SetGpio(pin, 0)
+                            automation.last_state = '0'
+                            automation.last_change_time = currentTime.toISOString()
+                            this.SendAddItems(pin, '0')
+                        }
+                    }
+                }
+                catch (e) {
+                    if (e instanceof RangeError) {
+                        // range errors can be expected if the time is entered wrong and can be ignored
+                    } else {
+                        // any other errors are un-expected and should be logged
+                        console.log(e); 
+                    }
+                }
             }
 
         });
@@ -162,6 +199,7 @@ export class GpioService implements OnModuleDestroy {
         this.Socket = io(websocketHost)
         this.Socket.on(`connect`, self.handleConnectEvent.bind(self));
         this.Socket.on(`discover`, self.handleDiscoverEvent.bind(self));
+        this.Socket.on(`gpio-config`, self.handleGpioCommand.bind(self));
         this.Socket.on(`gpio-command`, self.handleGpioCommand.bind(self));
     }
 
@@ -285,6 +323,7 @@ export class GpioService implements OnModuleDestroy {
             Object.keys(pinConfig.GpioPins).forEach(pin => pinConfig.GpioPins[pin] = undefined)
 
             const str = JSON.stringify(pinConfig, null, 2);
+            // console.log('saving', str)
             await fs.writeFile('pin-configuration.json', str, 'utf8');
         } catch (error) {
             
@@ -292,7 +331,8 @@ export class GpioService implements OnModuleDestroy {
     }
 
     private async handleGpioCommand(event) {
-        console.log(event)
+        // console.log('handleGpioCommand')
+        // console.log(JSON.stringify(event, null, 2))
         const self = this;
 
         let matchesDevice: boolean = false;
@@ -300,7 +340,7 @@ export class GpioService implements OnModuleDestroy {
         let startupState: string = undefined;
         let onState: Number = undefined;
         let newState: string = undefined;
-        const automation: any = {};
+        const newAutomation: any = {};
 
         let selectedItemValueKey: { ItemKey: string, Name: string, ValueKey: string } = { ItemKey: undefined, Name: undefined, ValueKey: undefined };
         let outputStateValueKey: string;
@@ -321,10 +361,6 @@ export class GpioService implements OnModuleDestroy {
                 selectedItemValueKey.Name = 'selected_nutrient_pump' 
                 selectedItemValueKey.ValueKey = item.value
             }
-            if (item.valueKey.includes('output_state')) {
-                outputStateValueKey = item.value
-            }
-
             if (value?.device_field?.device === this.DeviceName) {
                 matchesDevice = true
             }
@@ -343,48 +379,65 @@ export class GpioService implements OnModuleDestroy {
             if (value?.on_state?.gpio_high_low.toLowerCase() === 'low') {
                 onState = 0
             }
+            if (value?.automation_type !== undefined) {
+                newAutomation.type = value.automation_type.automation_type_name
+            }
+            if (value?.time_on !== undefined) {
+                newAutomation.time_on = value.time_on
+            }
+            if (value?.time_off !== undefined) {
+                newAutomation.time_off = value.time_off
+            }
+
+            if (item.valueKey.includes('output_state')) {
+                outputStateValueKey = item.value
+            }
             if (value?.on_off === 'On') {
                 newState = '1'
             }
             if (value?.on_off === 'Off') {
                 newState = '0'
             }
-            if (value?.automation_type !== undefined) {
-                automation.type = value.automation_type.automation_type_name
-            }
-            if (value?.time_on !== undefined) {
-                automation.time_on = value.time_on
-            }
-            if (value?.time_off !== undefined) {
-                automation.time_off = value.time_off
-            }
         });
 
-        // console.log(matchesDevice, pin, onState, newState)
-        if (matchesDevice && ![pin, onState, newState].includes(undefined)) {
-
-            if (selectedItemValueKey !== undefined) {
-                this.GpioConfiguration.SelectedItemValueKeys[pin] = selectedItemValueKey
-            }
-            if (outputStateValueKey !== undefined) {
-                this.GpioConfiguration.OutputStateValueKeys[newState] = outputStateValueKey
-            }
+        console.log(matchesDevice, pin, onState, newState)
+        if (matchesDevice && ![pin].includes(undefined)) {
 
             let gpio = self.GpioConfiguration.GpioPins[pin]
             if (gpio === undefined) {
                 if (Gpio.accessible) {
                     gpio = new Gpio(Number(pin), 'out')
                     self.GpioConfiguration.GpioPins[pin] = gpio
+                    console.log("new Gpio defined for pin", pin)
                 }
             }
 
-            this.GpioConfiguration.GpioPinsStartupState[pin] = startupState
-            this.GpioConfiguration.GpioPinsOnState[pin] = onState
+            const automation = this.GpioConfiguration.GpioPinsAutomation[pin] ?? newAutomation
 
-            self.SetGpio(pin, Number(newState))
+            if (selectedItemValueKey.Name !== undefined) {
+                this.GpioConfiguration.SelectedItemValueKeys[pin] = selectedItemValueKey
+            }
 
-            automation.last_state = newState
-            automation.last_change_time = Date.now()
+            if (![onState, startupState].includes(undefined)) {
+
+                this.GpioConfiguration.GpioPinsStartupState[pin] = startupState
+                this.GpioConfiguration.GpioPinsOnState[pin] = onState
+
+                automation.type = newAutomation.type
+                automation.time_on = newAutomation.time_on
+                automation.time_off = newAutomation.time_off
+            }
+
+            if (![newState].includes(undefined)) {
+                if (outputStateValueKey !== undefined) {
+                    this.GpioConfiguration.OutputStateValueKeys[newState] = outputStateValueKey
+                }
+
+                self.SetGpio(pin, Number(newState))
+
+                automation.last_state = newState
+                automation.last_change_time = Date.now()
+            }
 
             this.GpioConfiguration.GpioPinsAutomation[pin] = automation
 

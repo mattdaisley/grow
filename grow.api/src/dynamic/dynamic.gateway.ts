@@ -73,6 +73,8 @@ export class DynamicGateway {
   async handleSetItemsEvent(@MessageBody() data: DynamicItemsRequest): Promise<DynamicItemsResponse> {
     console.log('handleSetItemsEvent', data)
 
+    const self = this;
+
     const itemKey = data.itemKey;
     const values = data.values;
     const event = `items-${itemKey}`;
@@ -85,7 +87,7 @@ export class DynamicGateway {
       Object.keys(values).forEach(async (valueKey, index, array) => {
         const createDynamicItemDto: CreateDynamicItemDto = { itemKey, valueKey, value: values[valueKey] }
 
-        console.log('handleSetItemsEvent creating item', createDynamicItemDto)
+        // console.log('handleSetItemsEvent creating item', createDynamicItemDto)
         const dynamicItem = await this.dynamicService.create(createDynamicItemDto)
 
         allItems[itemKey].push(dynamicItem)
@@ -95,6 +97,7 @@ export class DynamicGateway {
         }
       })
     })
+    .then(self.processAutomation.bind(self))
     .then((allItems) => {
       this.server.emit(event, allItems)
       // console.log('handleSetItemsEvent emit', event, allItems);
@@ -104,7 +107,9 @@ export class DynamicGateway {
 
   @SubscribeMessage('add-items')
   async handleAddItemsEvent(@MessageBody() data: DynamicItemsAddRequest): Promise<DynamicItemsResponse> {
-    // console.log('handleAddItemsEvent', data)
+    console.log('handleAddItemsEvent', data)
+
+    const self = this;
 
     const itemKey = data.itemKey;
     const event = `items-${itemKey}`;
@@ -121,64 +126,96 @@ export class DynamicGateway {
       resolve(allItems);
       
     })
+    .then(self.processAutomation.bind(self))
     .then((allItems) => {
-      return new Promise<DynamicItemsResponse>((resolve, reject) => {
+      this.server.emit(event, allItems)
+      // console.log('handleAddItemsEvent emit', event, allItems);
+      return allItems;
+    });
+  }
 
-        if (data.automation === false) {
-          resolve(allItems)
-          return;
+  async processAutomation(allItems: DynamicItemsResponse) {
+    const self = this; 
+
+    return new Promise<DynamicItemsResponse>((resolve, reject) => {
+
+      // if (data.automation === false) {
+      //   resolve(allItems)
+      //   return;
+      // }
+
+      const automationConditions = {
+        ['preview_collections_570c9f24-3409-413b-ab8d-6aaa610ca58f']: { // Outlets
+          ['gpio-config']: ['device_field', 'output_pin', 'on_state', 'startup_state', 'shutdown_state', 'automation_type', 'time_on', 'time_off']
+        },
+        ['preview_collections_ba0180b3-7b26-4b4d-adea-1198408578bf']: { // Nutrient Pumps
+          ['gpio-config']: ['device_field', 'output_pin', 'on_state', 'startup_state', 'shutdown_state', 'automation_type', 'time_on', 'time_off']
+        },
+        ['preview_collections_2f88f0f2-b775-468c-aaf6-8bd12396125a']: { // Outlet Events, outlet_events
+          ['gpio-command']: ['select_outlet']
+        },
+        ['preview_collections_54e2aa1e-c548-4906-8be9-f2b86b7443ed']: { // Nutrient Pump Events, nutrient_pump_events
+          ['gpio-command']: ['selected_nutrient_pump']
         }
+      }
 
-        const automationConditions = {
-          ['preview_collections_2f88f0f2-b775-468c-aaf6-8bd12396125a']: { // Outlet Events, outlet_events
-            Name: 'select_outlet',
-            Event: 'gpio-command'
-          },
-          ['preview_collections_54e2aa1e-c548-4906-8be9-f2b86b7443ed']: { // Nutrient Pump Events, nutrient_pump_events
-            Name: 'selected_nutrient_pump',
-            Event: 'gpio-command'
-          }
-        }
+      Object.keys(allItems).forEach(async (itemKey, index, array) => {
 
-        Object.keys(allItems).forEach(async (itemKey, index, array) => {
+        const items = allItems[itemKey]
 
-          const items = allItems[itemKey]
+        Object.keys(automationConditions).forEach(automationConditionItemKey => {
+          const automationCondition = automationConditions[automationConditionItemKey]
 
-          Object.keys(automationConditions).forEach(automationConditionItemKey => {
-            const automationCondition = automationConditions[automationConditionItemKey]
+          // console.log('checking automation', itemKey, '===', automationConditionItemKey, itemKey === automationConditionItemKey)
+          if (itemKey === automationConditionItemKey) {
 
-            if (itemKey === automationConditionItemKey) {
-              // console.log('automation required', items)
+            Object.keys(automationCondition).forEach(eventKey => {
+
+              const conditionNames = automationCondition[eventKey]
+              console.log('checking automation', conditionNames, 'includes', items.map(item => item.valueKey.split('.').at(-1)))
 
               // automation needs a specific field
-              if (items.filter(item => item.valueKey.includes(automationCondition.Name)).length > 0) {
-                const mappedPromises = items.map(item => {
-                  return this.getReferencedCollectionObject(item.value)
+              if (items.filter(item => conditionNames.includes(item.valueKey.split('.').at(-1))).length > 0) {
+                const uniqueValueKeys = []
+                const mappedPromises = [];
+                items.forEach(item => {
+                  console.log(eventKey, item)
+                  if (eventKey === 'gpio-config') {
+                    const itemValueKey = item.valueKey.split('.').slice(0, -1).join('.')
+                    if (!uniqueValueKeys.includes(itemValueKey)) {
+                      uniqueValueKeys.push(itemValueKey)
+                    }
+                  }
+                  else {
+                    if (!uniqueValueKeys.includes(item.value)) {
+                      uniqueValueKeys.push(item.value)
+                    }
+                  }
+                })
+                uniqueValueKeys.forEach(uniqueValueKey => {
+                  mappedPromises.push(self.getReferencedCollectionObject(uniqueValueKey))
                 })
                 Promise.all(mappedPromises)
                   .then(values => {
-                    // console.log(values)
+                    console.log(values)
 
                     const data = []
                     items.forEach((item, index) => {
                       data.push({ item, value: values[index]})
                     });
 
-                    this.server.emit(automationCondition.Event, { [automationConditionItemKey]: {data}})
+                    const message = { [automationConditionItemKey]: {data} }
+                    this.server.emit(eventKey, message)
+                    console.log('processAutomation emit', eventKey, message);
                   })
               }
-            }
-          })
-
+            })
+          }
         })
-        resolve(allItems)
+
       })
+      resolve(allItems)
     })
-    .then((allItems) => {
-      this.server.emit(event, allItems)
-      // console.log('handleAddItemsEvent emit', event, allItems);
-      return allItems;
-    });
   }
 
   async getReferencedCollectionObject(valueKey: string) {
@@ -209,7 +246,7 @@ export class DynamicGateway {
 
   @SubscribeMessage('delete-items')
   async handleDeleteItemsEvent(@MessageBody() data: DynamicItemsDeleteRequest): Promise<DynamicItemsDeleteResponse> {
-    console.log('handleDeleteItemsEvent', data)
+    // console.log('handleDeleteItemsEvent', data)
 
     const itemKey = data.itemKey;
     const items = data.items;
@@ -221,7 +258,7 @@ export class DynamicGateway {
 
       Object.keys(items).forEach(async (valueKey, index, array) => {
 
-        console.log('handleDeleteItemsEvent deleting item', valueKey)
+        // console.log('handleDeleteItemsEvent deleting item', valueKey)
         await this.dynamicService.delete(itemKey, valueKey)
 
         allItems[itemKey].push({ valueKey, deleted: true })
@@ -232,7 +269,7 @@ export class DynamicGateway {
     })
     .then((items) => {
       this.server.emit(event, items)
-      console.log('handleDeleteItemsEvent emit', event, items);
+      // console.log('handleDeleteItemsEvent emit', event, items);
       return items;
     });
   }
