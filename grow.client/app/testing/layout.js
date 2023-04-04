@@ -1,29 +1,13 @@
-'use client';
+import { DynamicTestingLayout } from "./DynamicTestingLayout";
+import { getNavigationPages } from "./getNavigationPages";
 
-import Box from "@mui/material/Box";
-import { drawerWidth, DynamicAppDrawer } from "../[dynamic]/DynamicAppDrawer";
+export default async function ConfigurationLayout({ children }) {
 
-export default function ConfigurationLayout({ children }) {
+  const pages = await getNavigationPages()
+
+  // console.log(params)
   return (
-    <Box sx={{ display: 'flex', flex: 1 }}>
-      <DynamicAppDrawer />
-      <Box
-        component="main"
-        sx={(theme) => {
-          // // console.log(theme, theme.spacing(2))
-          return ({
-            flexGrow: 1,
-            pl: { xs: 0, md: `${drawerWidth}px` },
-            // width: {sm: `calc(100% - ${drawerWidth}px)` },
-            width: 1,
-            height: 'calc(100% - 64px)',
-            position: 'fixed',
-            overflowY: 'scroll'
-          })
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
+    <DynamicTestingLayout pages={pages}>{children}</DynamicTestingLayout>
   )
 }
+

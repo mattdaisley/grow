@@ -1,5 +1,8 @@
 import * as React from "react";
 
+import Link from "next/link";
+import { useSelectedLayoutSegments } from "next/navigation";
+
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -9,14 +12,10 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AutoModeIcon from "@mui/icons-material/AutoMode";
-
-import Link from "next/link";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -51,7 +50,7 @@ function stringAvatar(name: string) {
   };
 }
 
-function ResponsiveAppBar() {
+function ResponsiveAppBar({ pages }) {
   const theme = useTheme();
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -60,6 +59,8 @@ function ResponsiveAppBar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
+
+  const segments = useSelectedLayoutSegments();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -122,13 +123,15 @@ function ResponsiveAppBar() {
               display: { xs: "block", md: "none" },
             }}
           >
-            {/* {pages.map((page) => (
-              <MenuItem key={page.name} onClick={handleCloseNavMenu}>
-                <Link href={page.path}>
-                  <Typography textAlign="center">{page.name}</Typography>
+            {Object.keys(pages).map((page) => (
+              <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <Link href={`/${segments.slice(0, 2).join("/")}/${page}`}>
+                  <Typography textAlign="center">
+                    {pages[page]?.label?.value ?? page}
+                  </Typography>
                 </Link>
               </MenuItem>
-            ))} */}
+            ))}
           </Menu>
         </Box>
         <Box

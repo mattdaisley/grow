@@ -1,81 +1,15 @@
-'use client';
-
-import { Roboto } from '@next/font/google'
-
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import Toolbar from "@mui/material/Toolbar";
-
-import { SocketContext, socket } from './SocketContext';
-import ResponsiveAppBar from '../components/ResponsiveAppBar'
-import Footer from '../components/Footer'
+import { getNavigationPages } from './testing/getNavigationPages';
 
 import '../styles/globals.css'
+import { AppLayout } from './AppLayout';
 
 
-const roboto = Roboto({
-  weight: ['400', '500'],
-  subsets: ['latin'],
-})
+export default async function Layout({ children }) {
 
-const theme = createTheme({
-  spacing: 8,
-  palette: {
-    primary: {
-      main: "#90a4ae",
-      light: "#c1d5e0",
-      dark: "#62757f",
-      contrastText: "#000000"
-    },
-    secondary: {
-      main: "#26a69a",
-      light: "#80e27e",
-      dark: "#087f23",
-      contrastText: "#000000"
-    },
-    paper: {
-      default: "#ffffff",
-      main: "#fafafa"
-    },
-    background: {
-      main: "#eceff1",
-      paper: "#ffffff",
-      default: "#fafafa"
-    },
-    text: {
-      primary: '#494949',
-    }
-  },
-  typography: {
-    fontFamily: roboto.style.fontFamily,
-    h4: {
-      fontWeight: 500
-    },
-    h5: {
-      fontWeight: 500
-    },
-    subtitle1: {
-      fontWeight: 500
-    },
-    fontWeightLight: 500
-  }
-});
+  const pages = await getNavigationPages()
 
-export default function Layout({ children }) {
   return (
-    <html lang="en" className={roboto.className}>
-      <body>
-        <SocketContext.Provider value={socket}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <div>
-              <ResponsiveAppBar />
-              {children}
-            </div>
-            <Footer />
-          </ThemeProvider>
-        </SocketContext.Provider>
-      </body>
-    </html >
+    <AppLayout pages={pages}>{children}</AppLayout>
   )
 }
+
