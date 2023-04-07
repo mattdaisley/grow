@@ -20,6 +20,7 @@ import logger from "../../../services/logger";
 import { useSubscription } from "./useSubscription";
 import { ShowItem } from "./ShowItems";
 import { useGridCollectionColumns } from "./Collections/useGridCollectionColumns";
+import CollectionChart from "./Collections/CollectionChart";
 
 export function ShowCollection({ ...props }) {
   logger.log('ShowCollection', 'props:', props);
@@ -88,6 +89,14 @@ function ShowCollectionControl(props) {
       {collectionType === '2' && (
         <CollectionWrapper pageProps={{ ...props }} collectionType={collectionType} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
           <CollectionAdd
+            pageProps={{ ...props }}
+            collectionProps={collectionProps} />
+        </CollectionWrapper>
+      )}
+
+      {collectionType === '3' && (
+        <CollectionWrapper pageProps={{ ...props }} collectionType={collectionType} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
+          <CollectionChart
             pageProps={{ ...props }}
             collectionProps={collectionProps} />
         </CollectionWrapper>
@@ -264,7 +273,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
   useEffect(() => {
     if (_collectionsRef.current !== undefined) {
       Object.keys(_collectionsRef.current).map(collectionContextKey => {
-        pageProps.itemsMethods.getItems([collectionContextKey, 'collections']);
+        // pageProps.itemsMethods.getItems([collectionContextKey, 'collections']);
       })
     }
   })
@@ -316,7 +325,7 @@ function CollectionGrid({ pageProps, collectionProps }) {
   )
 }
 
-function ShowCollectionLabel(pageProps) {
+export function ShowCollectionLabel(pageProps) {
   const sectionLabel = useSubscription({ ...pageProps, itemKey: pageProps.keyPrefix, keyPrefix: undefined, searchSuffix: 'label' });
 
   logger.log('ShowCollectionLabel', 'sectionLabel:', sectionLabel, 'pageProps:', pageProps);

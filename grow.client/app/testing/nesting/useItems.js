@@ -158,7 +158,7 @@ export function useItems(defaultItemKeys, defaultData) {
       return;
     }
 
-    // logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
+    logger.log('runSubscriptionsMap', 'valueKey:', valueKey, 'mapCallbacks:', mapCallbacks, 'value:', value);
     mapCallbacks?.forEach(callback => callback(valueKey, value));
   }
 

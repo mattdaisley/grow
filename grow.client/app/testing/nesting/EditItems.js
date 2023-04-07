@@ -689,6 +689,18 @@ function EditSection(props) {
       {typeField === '1' && (
         <EditCollectionSortOrderProperty controllerName={`${props.keyPrefix}.sort-order`} label="Sort Order" />
       )}
+      {typeField === '3' && (
+        <EditCollectionXAxisProperty controllerName={`${props.keyPrefix}.group-by`} label="Group By" />
+      )}
+      {typeField === '3' && (
+        <EditCollectionXAxisProperty controllerName={`${props.keyPrefix}.x-axis`} label="X Axis" />
+      )}
+      {/* {typeField === '3' && (
+        <EditCollectionXAxisProperty controllerName={`${props.keyPrefix}.x-axis-label`} label="X Axis Label" />
+      )} */}
+      {typeField === '3' && (
+        <EditCollectionXAxisProperty controllerName={`${props.keyPrefix}.y-axis`} label="Y Axis" />
+      )}
     </EditItem>
   );
 }
@@ -1100,6 +1112,58 @@ function getSortOrderOptions(props, referencedFieldId) {
 
     return { value: referencedFieldId, label: fieldLabel }
   }
+}
+
+function EditCollectionXAxisProperty({ controllerName, label, ...props }) {
+
+  const [nestedFields, setNestedFields] = useState(new Map());
+  const [forcedState, updateState] = useState();
+  const forceUpdate = useCallback((valueKey, value) => {
+    logger.log('EditCollectionXAsixProperty forceUpdate', 'valueKey:', valueKey, 'value:', value);
+    updateState({})
+  }, []);
+  const [, updateColumnsState] = useState();
+  const forceUpdateColumns = useCallback((valueKey, value) => {
+    logger.log('EditCollectionXAsixProperty forceUpdateColumns', 'valueKey:', valueKey, 'value:', value);
+    updateColumnsState({})
+  }, []);
+
+  useEffect(() => {
+    const { nestedFields: collectionNestedFields, subscriptions } = getNestedFields(props, forceUpdate, forceUpdateColumns, getSortOrderOptions)
+
+    setNestedFields(collectionNestedFields)
+
+    logger.log('EditCollectionXAsixProperty', 'collectionNestedFields:', collectionNestedFields, 'subscriptions:', subscriptions, 'props:', props)
+
+    return () => {
+      logger.log('EditCollectionXAsixProperty useEffect cleanup', 'keyPrefix:', props.keyPrefix, 'subscriptions:', subscriptions, 'props:', props);
+      subscriptions.forEach((callback, key) => {
+        props.itemsMethods.unsubscribeMap(key, callback);
+      })
+    };
+  }, [props.keyPrefix, forcedState, setNestedFields]);
+
+
+  let options = [{ value: 'id', label: 'Id' }]
+  nestedFields.forEach(nestedField => {
+    const columnValues = nestedField()
+    if (columnValues !== undefined) {
+      options.push(columnValues)
+    }
+  })
+
+  logger.log('EditCollectionXAsixProperty', 'options:', options, 'nestedFields:', nestedFields)
+
+  return (
+    <FieldWrapper>
+      <FieldItem
+        {...props}
+        name={controllerName}
+        render={(nextProps) => {
+          return <ControlledAutocompleteField {...nextProps} label={label} menuItems={options} defaultValue={options[0]?.value} />;
+        }} />
+    </FieldWrapper>
+  );
 }
 
 function EditFieldTypeProperty({ controllerName, label, ...props }) {
