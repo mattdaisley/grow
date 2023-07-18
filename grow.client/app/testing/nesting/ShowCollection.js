@@ -21,6 +21,7 @@ import { useSubscription } from "./useSubscription";
 import { ShowItem } from "./ShowItems";
 import { useGridCollectionColumns } from "./Collections/useGridCollectionColumns";
 import CollectionChart from "./Collections/CollectionChart";
+import CollectionChess from "./Collections/CollectionChess/CollectionChess";
 
 export function ShowCollection({ ...props }) {
   logger.log('ShowCollection', 'props:', props);
@@ -97,6 +98,14 @@ function ShowCollectionControl(props) {
       {collectionType === '3' && (
         <CollectionWrapper pageProps={{ ...props }} collectionType={collectionType} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
           <CollectionChart
+            pageProps={{ ...props }}
+            collectionProps={collectionProps} />
+        </CollectionWrapper>
+      )}
+
+      {collectionType === '4' && (
+        <CollectionWrapper pageProps={{ ...props }} collectionType={collectionType} collectionProps={collectionProps} collectionContextKey={collectionContextKey}>
+          <CollectionChess
             pageProps={{ ...props }}
             collectionProps={collectionProps} />
         </CollectionWrapper>

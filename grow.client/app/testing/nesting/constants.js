@@ -10,4 +10,10 @@ export const collectionSources = [{ value: '0', label: 'current-context' }, { va
 
 export const externalCollectionSources = [{ value: '0', label: 'gpio' }]
 
-export const collectionTypes = [{ value: '0', label: 'collection-tabs' }, { value: '1', label: 'collection-grid' }, { value: '2', label: 'collection-add' }, { value: '3', label: 'collection-chart' }]
+export const collectionTypes = [
+  { value: '0', label: 'collection-tabs' },
+  { value: '1', label: 'collection-grid' },
+  { value: '2', label: 'collection-add' },
+  { value: '3', label: 'collection-chart' },
+  { value: '4', label: 'collection-chess' },
+]
