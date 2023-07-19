@@ -8,7 +8,7 @@ import { ThemeProvider } from '@mui/material/styles';
 
 import { SocketContext, socket } from './SocketContext';
 import ResponsiveAppBar from '../components/ResponsiveAppBar';
-import Footer from '../components/Footer';
+import Footer from '../components/footer';
 
 export const roboto = Roboto({
   weight: ['400', '500'],

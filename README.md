@@ -1,3 +1,36 @@
+## Windows setup
+
+Use nvm to install the latest lts of node and npm https://github.com/coreybutler/nvm-windows
+
+Install Cygwin https://cygwin.com/install.html
+
+Add the rsync package under the Net category
+
+Save .pem file to connect to aws host in %USERPROFILE%/.ssh
+
+## Docker
+
+### Locally
+
+```
+docker build -t grow.client .
+```
+
+Then used visual studio Docker extension to push to Docker Hub
+
+### On AWS EC2 instance
+
+```
+docker login
+docker pull mattdaisley/grow.client:latest
+docker run -p 8080:8080 -d mattdaisley/grow.client:latest
+```
+
+---------------------
+
+# Old notes
+
+
 ## redis
 
 ### Installation on Raspberry Pi
