@@ -28,8 +28,8 @@ const INPUTS = NUMERICAL_INPUTS + CATEGORICAL_INPUTS; // pieces , turn code , fu
 const OUTPUTS = 4;
 
 const POPSIZE = 300;
-const ELITISM = Math.ceil(0.2 * POPSIZE);
-const MUTATION_RATE = 0.3;
+const ELITISM = Math.ceil(0.1 * POPSIZE);
+const MUTATION_RATE = 0.5;
 // const START_HIDDEN_SIZE = INPUTS / 2;
 const START_HIDDEN_SIZE = INPUTS + 1;
 const MAX_ITERATIONS = 25;
@@ -170,7 +170,7 @@ export default function CollectionChess({ pageProps, collectionProps }) {
             let endPiece = 'X';
 
 
-            console.log(neat.generation, newEvaluation.iteration, gameIndex, playerIndex, input, player.brain);
+            // console.log(neat.generation, newEvaluation.iteration, gameIndex, playerIndex, input, player.brain);
 
             // Don't reward if any move is outside of the board
             if (output0 < 0 || output0 >= 1 || output1 < 0 || output1 >= 1 || output2 < 0 || output2 >= 1 || output3 < 0 || output3 >= 1) {
@@ -388,8 +388,10 @@ export default function CollectionChess({ pageProps, collectionProps }) {
         mutation: methods.mutation.FFW,
         network: new architect.Perceptron(
           INPUTS,
-          START_HIDDEN_SIZE / 2,
-          // START_HIDDEN_SIZE,
+          START_HIDDEN_SIZE,
+          START_HIDDEN_SIZE,
+          START_HIDDEN_SIZE,
+          START_HIDDEN_SIZE,
           OUTPUTS
         )
 
