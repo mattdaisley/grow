@@ -388,10 +388,10 @@ export default function CollectionChess({ pageProps, collectionProps }) {
         mutation: methods.mutation.FFW,
         network: new architect.Perceptron(
           INPUTS,
-          START_HIDDEN_SIZE,
-          START_HIDDEN_SIZE,
-          START_HIDDEN_SIZE,
-          START_HIDDEN_SIZE,
+          START_HIDDEN_SIZE / 2,
+          // START_HIDDEN_SIZE,
+          // START_HIDDEN_SIZE,
+          // START_HIDDEN_SIZE,
           OUTPUTS
         )
 
@@ -422,11 +422,20 @@ export default function CollectionChess({ pageProps, collectionProps }) {
     setCurrentEvaluation(initialEvaluation);
 
     neatRef.current = neat
+  }, []);
 
-    requestRef.current = requestAnimationFrame(animate);
+  const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    if (running) {
+      requestRef.current = requestAnimationFrame(animate);
+    }
+    else {
+      cancelAnimationFrame(requestRef?.current);
+    }
 
     return () => cancelAnimationFrame(requestRef?.current);
-  }, []);
+  }, [running]);
 
   return (
     <>
@@ -434,6 +443,9 @@ export default function CollectionChess({ pageProps, collectionProps }) {
         width: '100%',
         py: 2, px: 2
       }}>
+        <div>
+          <button onClick={() => setRunning(!running)}>{running ? 'Stop' : 'Start'}</button>
+        </div>
         <div>Population: {POPSIZE} | Inputs: {INPUTS} | Outputs: {OUTPUTS} | Elitism {ELITISM} | Mutation Rate {MUTATION_RATE}</div>
         <div>Generation: {currentEvaluation.generation} | Turn: {currentEvaluation.iteration}/{MAX_ITERATIONS} | Highest Score: {currentEvaluation.highestScore} | Current Highest Score: {currentEvaluation.currentHighestScore}</div>
         

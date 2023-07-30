@@ -16,4 +16,5 @@ export const collectionTypes = [
   { value: '2', label: 'collection-add' },
   { value: '3', label: 'collection-chart' },
   { value: '4', label: 'collection-chess' },
+  { value: '5', label: 'collection-chess-game' },
 ]
