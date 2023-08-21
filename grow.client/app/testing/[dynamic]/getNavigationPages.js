@@ -1,4 +1,4 @@
-import { getDynamicData } from "./[dynamic]/[[...filter]]/getDynamicData";
+import { getDynamicData } from "./[[...filter]]/getDynamicData";
 import { unflatten } from 'flat';
 
 export async function getNavigationPages() {

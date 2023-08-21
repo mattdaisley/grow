@@ -39,7 +39,6 @@ export function DynamicAppDrawer({ pages }) {
   const drawer = (
     <Box>
       <Toolbar>
-        <AutoModeIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
         <Typography
           variant="h6"
           noWrap
@@ -55,7 +54,7 @@ export function DynamicAppDrawer({ pages }) {
             textDecoration: "none",
           }}
         >
-          GROW
+          {segment.toUpperCase()}
         </Typography>
       </Toolbar>
       <List>
@@ -78,7 +77,7 @@ export function DynamicAppDrawer({ pages }) {
   return (
     <Box
       component="nav"
-      sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+      sx={{ position: 'absolute', width: { md: drawerWidth }, flexShrink: { md: 0 } }}
       aria-label="app drawer"
     >
       {/* The implementation can be swapped with js to avoid SEO duplication of links. */}

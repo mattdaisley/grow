@@ -7,7 +7,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 
 import { SocketContext, socket } from './SocketContext';
-import ResponsiveAppBar from '../components/ResponsiveAppBar';
 import Footer from '../components/footer';
 
 export const roboto = Roboto({
@@ -65,8 +64,7 @@ export function AppLayout({ pages, children }) {
         <SocketContext.Provider value={socket}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <div>
-              <ResponsiveAppBar pages={pages} />
+            <div className="app-container">
               {children}
             </div>
             <Footer />

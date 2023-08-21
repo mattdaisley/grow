@@ -1,11 +1,10 @@
-import { DynamicTestingLayout } from "./DynamicTestingLayout";
-import { getNavigationPages } from "./getNavigationPages";
+import { DynamicTestingLayout } from "./[dynamic]/DynamicTestingLayout";
+import { getNavigationPages } from "./[dynamic]/getNavigationPages";
 
 export default async function ConfigurationLayout({ children }) {
 
   const pages = await getNavigationPages()
 
-  // console.log(params)
   return (
     <DynamicTestingLayout pages={pages}>{children}</DynamicTestingLayout>
   )

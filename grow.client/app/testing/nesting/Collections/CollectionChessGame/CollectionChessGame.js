@@ -85,7 +85,7 @@ export default function CollectionChessGame({ pageProps, collectionProps }) {
       }}>
 
           <Grid container spacing={1.5}>
-            <Grid sx={6}>
+            <Grid xs={12}>
               <ChessBoard boardSize={BOARD_SIZE} gameState={game} />
             </Grid>
           </Grid>
