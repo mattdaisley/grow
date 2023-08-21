@@ -43,9 +43,9 @@ export function DynamicAppDrawer({ pages }) {
           variant="h6"
           noWrap
           component="a"
-          href="/"
+          href={`/testing/${segment}`}
           sx={{
-            mr: 2,
+            mr: 1,
             display: { xs: "none", md: "flex" },
             fontFamily: "monospace",
             fontWeight: 700,
