@@ -10,7 +10,7 @@ export default function Head() {
         rel="stylesheet"
         href="https://fonts.googleapis.com/icon?family=Material+Icons"
       /> */}
-      <title>Grow App</title>
+      <title>Matt Dev Playground</title>
       <meta name="viewport" content="initial-scale=1, width=device-width" />
     </>
   )
