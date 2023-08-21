@@ -7,8 +7,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 
 import { SocketContext, socket } from './SocketContext';
-import Footer from '../components/footer';
-
 export const roboto = Roboto({
   weight: ['400', '500'],
   subsets: ['latin'],
@@ -67,7 +65,6 @@ export function AppLayout({ pages, children }) {
             <div className="app-container">
               {children}
             </div>
-            <Footer />
           </ThemeProvider>
         </SocketContext.Provider>
       </body>
