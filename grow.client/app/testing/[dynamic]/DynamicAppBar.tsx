@@ -16,6 +16,7 @@ import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
+import useUser from './../../../services/User/useUser';
 
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
 const settings = ["Logout"];
@@ -63,6 +64,8 @@ function DynamicAppBar({ pages }) {
 
   const segments = useSelectedLayoutSegments();
 
+  const [user] = useUser();
+
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -77,6 +80,19 @@ function DynamicAppBar({ pages }) {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const userSplit = user.split(" ");
+  let userInitials = "NA"
+  if (userSplit.length > 1) {
+    userInitials = userSplit[0][0]+userSplit[1][0]
+  }
+  else if (userSplit[0].length > 1) {
+    userInitials = userSplit[0][0] + userSplit[0][1]
+  }
+  else {
+    userInitials = userSplit[0][0]
+  }
+  
 
   return (
     <AppBar
@@ -158,11 +174,8 @@ function DynamicAppBar({ pages }) {
         <Box sx={{ flexGrow: 0 }}>
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar
-                alt="Matt Daisley"
-                sx={{ bgcolor: theme.palette.primary.light }}
-              >
-                MD
+              <Avatar alt={user} sx={{ bgcolor: theme.palette.primary.light }}>
+                {userInitials?.toUpperCase()}
               </Avatar>
             </IconButton>
           </Tooltip>
