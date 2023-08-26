@@ -3,7 +3,9 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import debounce from 'lodash.debounce';
 
+import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Box';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 import { ShowCollectionLabel } from "../ShowCollection";
@@ -136,32 +138,47 @@ export default function CollectionChart({ pageProps, collectionProps }) {
 
       const options = { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
 
-      const hoursAgo = 4;
+      const hoursAgo = 24;
       const interval = 60; // seconds
 
-      const now = new Date(new Date().toISOString());
+      // console.log(dataMapArray[dataMapArray.length - 1])
+
+      let now = new Date(new Date().toISOString());
+      if (dataMapArray.length > 0) {
+        now = new Date(new Date(dataMapArray[dataMapArray.length - 1]).toISOString());
+      }
       const timeZoneOffset = now.getTimezoneOffset() * 60 * 1000
-      const nowTimeString = now.toLocaleString('en-US', options);
       const millisecondsAgo = hoursAgo * 60 * 60 * 1000; // 4 hours = 4 * 60 * 60 * 1000 milliseconds
       const timeRangeOffset = new Date(now.getTime() - millisecondsAgo + timeZoneOffset);
+
+      // console.log(now, ',', now.getTimezoneOffset(),',', timeZoneOffset, timeRangeOffset)
 
       let lastRow = {};
       sortedDataMap.forEach((xAxisGroup, xAxisName) => {
 
         let row = { ...lastRow, xAxisName };
-
-        const xAxisDate = new Date(xAxisName)
-        const rowTime = xAxisDate.getTime() - ((xAxisDate.getSeconds() % interval) * 1000) - timeZoneOffset
-        const rowTimeString = new Date(rowTime).toLocaleString('en-US', options);
+        
+        let rowTimeString
+        try {
+          const xAxisDate = new Date(xAxisName)
+          const rowTime = xAxisDate.getTime() - ((xAxisDate.getSeconds() % interval) * 1000) - timeZoneOffset
+          rowTimeString = new Date(rowTime).toLocaleString('en-US', options);
+        }
+        catch (e) {
+          lastRow = row;
+          return;
+        }
 
         row.name = rowTimeString;
         xAxisGroup.forEach((dataGroup, groupName) => {
           row[groupName] = uniqueValues.indexOf(dataGroup.get(yAxis));
         })
 
-        // logger.log('CollectionChart', new Date(xAxisName), timeRangeOffset, row)
+        // console.log('CollectionChart', new Date(xAxisName), timeRangeOffset, row)
 
         // Filter the array to include only dates within the time range
+
+        // console.log(new Date(xAxisName), '-', timeRangeOffset, '-', new Date(xAxisName) < timeRangeOffset, '-', row)
         if (new Date(xAxisName) < timeRangeOffset) {
           lastRow = row;
           return;
@@ -264,6 +281,18 @@ export default function CollectionChart({ pageProps, collectionProps }) {
         pb: 2, px: 2
       }}>
         <ShowCollectionLabel {...pageProps} />
+        <Grid container alignItems="right">
+          <Grid>
+            <DateTimePicker
+              label="Start Date/Time"
+              slotProps={{ textField: { size: 'small', margin: 'dense' } }} />
+          </Grid>
+          <Grid>
+            <DateTimePicker
+              label="End Date/Time"
+              slotProps={{ textField: { size: 'small', margin: 'dense' } }} />
+          </Grid>
+        </Grid>
         <ResponsiveContainer width="100%" height={400}>
           <AreaChart
             width={500}

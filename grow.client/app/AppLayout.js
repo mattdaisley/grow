@@ -5,6 +5,8 @@ import { Roboto } from '@next/font/google'
 import { createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { SocketContext, socket } from './SocketContext';
 export const roboto = Roboto({
@@ -60,12 +62,14 @@ export function AppLayout({ pages, children }) {
     <html lang="en" className={roboto.className}>
       <body>
         <SocketContext.Provider value={socket}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <div className="app-container">
-              {children}
-            </div>
-          </ThemeProvider>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <div className="app-container">
+                {children}
+              </div>
+            </ThemeProvider>
+          </LocalizationProvider>
         </SocketContext.Provider>
       </body>
     </html>
