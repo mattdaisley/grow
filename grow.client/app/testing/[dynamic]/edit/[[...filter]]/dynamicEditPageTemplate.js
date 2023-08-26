@@ -15,7 +15,7 @@ export default function DynamicEditPageTemplate({ contextKey, filter, itemKeys, 
 
   const itemsMethods = useItems(itemKeys, data);
 
-  logger.log('TestingNestingPage', itemsMethods.itemKeys)
+  logger.log('DynamicEditPageTemplate', itemsMethods.itemKeys)
 
   if (itemsMethods.itemKeys.length === 0) {
     return null;
@@ -33,7 +33,7 @@ export default function DynamicEditPageTemplate({ contextKey, filter, itemKeys, 
       <Box sx={{ position: 'fixed', top: 0, right: 0, width: `${editDrawerWidth}px`, height: '100%', pt: '100px', overflowY: 'scroll' }}>
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
           <Paper sx={{ width: '100%' }}>
-            <EditItems contextKey={'pages'} itemKey={'pages'} itemsMethods={itemsMethods} />
+            <EditItems contextKey={contextKey} itemKey={'pages'} itemsMethods={itemsMethods} />
           </Paper>
         </Box>
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: 2 }}>

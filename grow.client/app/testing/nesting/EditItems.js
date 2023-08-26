@@ -118,7 +118,14 @@ function EditControls({ name, fields, ...props }) {
         )
       })}
 
-      {['pages', 'groups', 'collections'].includes(itemKey) && (
+      {['pages'].includes(itemKey) && (
+        <AddItemActions {...props} fields={fields}>
+          <AddExistingItemControl />
+          <AddNewItemControl />
+        </AddItemActions>
+      )}
+
+      {['groups', 'collections'].includes(itemKey) && (
         <AddItemActions {...props} fields={fields}>
           <AddNewItemControl />
         </AddItemActions>
