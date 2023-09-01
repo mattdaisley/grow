@@ -4,8 +4,8 @@ Matt Daisley Dev
 Originally planned for just an automated hydropnics system, this project has become a general playground for me to learn new technologies and experiment with different ideas. The project is broken up into several different parts:
 
 - [grow.client](#grow-client) - The front end client for the project. Written in React using the Next.js framework.
-- [grow.api]() - The api for the project. Written in Node.js using the Nest.js framework.
-- [grow.serial.instance]() - A Nest.js standalone app that runs on a Raspberry Pi and communicates with an Arduino over serial.
+- [grow.api](#grow-api) - The api for the project. Written in Node.js using the Nest.js framework.
+- [grow.serial.instance](#grow-instance) - A Nest.js standalone app that runs on a Raspberry Pi and communicates with an Arduino over serial.
 
 Eventually I will rename projects to be more generic and less specific to this project. For example, grow.client will become dev.client and grow.api will become dev.api. However, since this is a personal project, I'm not in a rush to do so.
 
