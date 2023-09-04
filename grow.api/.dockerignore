@@ -1,0 +1,5 @@
+.git
+.gitignore
+dist
+*.rdb
+node_modules
