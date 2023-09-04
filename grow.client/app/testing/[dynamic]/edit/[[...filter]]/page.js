@@ -4,9 +4,11 @@ import DynamicEditPageTemplate from './dynamicEditPageTemplate';
 
 export default async function DynamicEditPage({ params }) {
 
-  const itemKeys = ['pages', 'views', 'fields', 'collections']
+  // const itemKeys = ['apps', 'pages']
+  const itemKeys = ['apps', 'pages', 'views', 'fields', 'collections']
   if (params.dynamic !== undefined) {
     itemKeys.push(params.dynamic)
+    // itemKeys.push(`${params.dynamic}_pages`)
   }
 
   console.log('DynamicEditPage', 'params:', params, 'itemKeys:', itemKeys)

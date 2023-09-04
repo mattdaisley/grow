@@ -5,7 +5,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 
 import { useItems } from "../../../nesting/useItems";
-import { EditItems } from "../../../nesting/EditItems";
+import { EditItems } from "../../../nesting/EditItems/EditItems";
 import { ShowItems } from "../../../nesting/ShowItems";
 import logger from "../../../../../services/logger";
 
@@ -15,7 +15,7 @@ export default function DynamicEditPageTemplate({ contextKey, filter, itemKeys, 
 
   const itemsMethods = useItems(itemKeys, data);
 
-  logger.log('DynamicEditPageTemplate', itemsMethods.itemKeys)
+  console.log('DynamicEditPageTemplate', { contextKey, filter, itemKeys, data }, itemsMethods.itemKeys)
 
   if (itemsMethods.itemKeys.length === 0) {
     return null;
@@ -31,14 +31,21 @@ export default function DynamicEditPageTemplate({ contextKey, filter, itemKeys, 
         </Grid>
       </Box>
       <Box sx={{ position: 'fixed', top: 0, right: 0, width: `${editDrawerWidth}px`, height: '100%', pt: '100px', overflowY: 'scroll' }}>
-        <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
+        {/* {filter === undefined && (
+          <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
+            <Paper sx={{ width: '100%' }}>
+              <EditItems contextKey={`apps`} itemKey={`apps`} searchSuffix={contextKey} itemsMethods={itemsMethods} />
+            </Paper>
+          </Box>
+        )} */}
+        <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: 2 }}>
           <Paper sx={{ width: '100%' }}>
             <EditItems contextKey={contextKey} itemKey={'pages'} itemsMethods={itemsMethods} />
           </Paper>
         </Box>
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: 2 }}>
           <Paper sx={{ width: '100%' }}>
-            <EditItems contextKey={'collections'} itemKey={'collections'} itemsMethods={itemsMethods} />
+            <EditItems contextKey={'global'} itemKey={'collections'} itemsMethods={itemsMethods} />
           </Paper>
         </Box>
       </Box>

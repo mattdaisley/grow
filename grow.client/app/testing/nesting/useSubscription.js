@@ -5,6 +5,9 @@ import debounce from 'lodash.debounce';
 
 import logger from "../../../services/logger";
 
+/**
+ * searchName = keyPrefix . itemKey . searchSuffix
+ */
 export function useSubscription(props) {
 
   const {

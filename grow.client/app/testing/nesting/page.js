@@ -13,7 +13,7 @@ import Toolbar from "@mui/material/Toolbar";
 
 import logger from "../../../services/logger";
 import { useItems } from "./useItems";
-import { EditItems } from "./EditItems";
+import { EditItems } from "./EditItems/EditItems";
 import { ShowItems } from "./ShowItems";
 
 const editDrawerWidth = 450;
@@ -25,7 +25,7 @@ export default function TestingNestingPage() {
 
   const itemsMethods = useItems(itemKeys);
 
-  logger.log('TestingNestingPage', itemsMethods)
+  console.log('TestingNestingPage', itemsMethods)
 
   if (itemsMethods.itemKeys.length === 0) {
     return null;

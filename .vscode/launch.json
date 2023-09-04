@@ -5,13 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "name": "Next.js: debug client-side",
+      "type": "chrome",
       "request": "launch",
-      "name": "Launch Program",
+      "smartStep": true,
       "skipFiles": [
-        "<node_internals>/**"
+        "${workspaceFolder}/node_modules/**/*.js",
+        "${workspaceFolder}/lib/**/*.js"
       ],
-      "program": "${workspaceFolder}\\grow.client\\app\\testing\\nesting\\Collections\\CollectionChessGame\\ChessBoard\\ChessBoard.js"
-    }
+      "url": "http://localhost:3000"
+    },
   ]
 }
