@@ -36,11 +36,11 @@ export function EditControls({ name, fields, ...props }) {
     case 'sections':
       EditControl = EditSection;
       break;
-    case 'groups':
-      EditControl = EditGroup;
-      break;
     case 'views':
       EditControl = EditView;
+      break;
+    case 'groups':
+      EditControl = EditGroup;
       break;
     case 'fields':
       EditControl = EditField;
@@ -50,7 +50,10 @@ export function EditControls({ name, fields, ...props }) {
   return (
     <>
       {Object.keys(fields).map(fieldKey => {
-        const keyPrefix = `${name}.${fieldKey}`;
+        let keyPrefix = `${name}.${fieldKey}`;
+        // if (props.contextKey === 'apps' && props.itemKey === 'apps') {
+        //   keyPrefix = `${fieldKey}`;
+        // }
         const valueKeys = fields[fieldKey];
 
         if (EditControl === null) {
@@ -73,7 +76,14 @@ export function EditControls({ name, fields, ...props }) {
         );
       })}
 
-      {['pages'].includes(itemKey) && (
+      {['apps'].includes(itemKey) && (
+        <AddItemActions {...props} fields={fields}>
+          <AddExistingItemControl />
+          <AddNewItemControl />
+        </AddItemActions>
+      )}
+
+      {['pages'].includes(itemKey) && (name !== itemKey) && (
         <AddItemActions {...props} fields={fields}>
           <AddExistingItemControl />
           <AddNewItemControl />

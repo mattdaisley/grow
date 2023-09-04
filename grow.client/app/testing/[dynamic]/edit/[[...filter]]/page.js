@@ -11,7 +11,7 @@ export default async function DynamicEditPage({ params }) {
     // itemKeys.push(`${params.dynamic}_pages`)
   }
 
-  console.log('DynamicEditPage', 'params:', params, 'itemKeys:', itemKeys)
+  // console.log('DynamicEditPage', 'params:', params, 'itemKeys:', itemKeys)
 
   const data = await getDynamicData(itemKeys)
 

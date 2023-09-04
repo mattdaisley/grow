@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import Link from 'next/link';
-import { useSelectedLayoutSegment } from 'next/navigation';
+import { useSelectedLayoutSegments } from 'next/navigation';
 
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 import Box from '@mui/material/Box';
@@ -26,7 +26,7 @@ export const globalPages = [
   { name: "Fields", path: "/admin/fields" },
 ];
 
-export function DynamicAppDrawer({ pages }) {
+export function DynamicAppDrawer({ pages, appKey }) {
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -34,7 +34,7 @@ export function DynamicAppDrawer({ pages }) {
     setMobileOpen(!mobileOpen);
   };
 
-  const segment = useSelectedLayoutSegment();
+  const segment = appKey
 
   const drawer = (
     <Box>

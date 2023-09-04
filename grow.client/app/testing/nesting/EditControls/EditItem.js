@@ -37,6 +37,11 @@ export function EditItem({ children, fieldKey, ...props }) {
 
 export function getMissingNestedItems({ itemKey, valueKeys }) {
   switch (itemKey) {
+    case 'apps':
+      if (!valueKeys.hasOwnProperty('pages')) {
+        return { ...valueKeys, pages: {} };
+      }
+      break;
     case 'sections':
       if (!valueKeys.hasOwnProperty('views')) {
         return { ...valueKeys, views: {} };
@@ -54,7 +59,7 @@ export function getMissingNestedItems({ itemKey, valueKeys }) {
   return {};
 }
 
-function EditNestedItems({ valueKeys, keyPrefix, ...props }) {
+export function EditNestedItems({ valueKeys, keyPrefix, ...props }) {
   logger.log('EditNestedItems', 'valueKeys:', valueKeys, 'keyPrefix:', keyPrefix, 'props:', props);
 
   return (

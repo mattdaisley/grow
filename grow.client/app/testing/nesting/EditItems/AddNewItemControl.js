@@ -26,7 +26,20 @@ export function AddNewItemControl({ addingItem, setAddingItem, ...props }) {
 
     let propertiesToAdd;
 
-    if (props.itemKey === 'pages') {
+    if (props.itemKey === 'apps') {
+      propertiesToAdd = {
+        ...addedProperties
+      };
+    } 
+    else if (props.itemKey === 'pages' && props.contextKey === 'apps') {
+      propertiesToAdd = {
+        id: {
+          ...addedProperties,
+          sections: { label: 'Section 1', name: 'section_1', width: '12' }
+        }
+      };
+    }
+    else if (props.itemKey === 'pages') {
       propertiesToAdd = {
         ...addedProperties,
         sections: { label: 'Section 1', name: 'section_1', width: '12' }

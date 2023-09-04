@@ -1,20 +1,29 @@
 
-import DynamicEditPageTemplate from './dynamicPageTemplate';
+import { getNavigationPages } from '../getNavigationPages';
+import DynamicPageTemplate from './dynamicPageTemplate';
 import { getDynamicData } from './getDynamicData';
 
 export default async function DynamicPage({ params }) {
 
-  const itemKeys = ['pages', 'views', 'fields', 'collections']
+  const itemKeys = ['apps', 'pages', 'views', 'fields', 'collections']
   if (params.dynamic !== undefined) {
     itemKeys.push(params.dynamic)
   }
 
-  console.log('DynamicEditPage', 'params:', params, 'itemKeys:', itemKeys)
-
+  const pages = await getNavigationPages(params.dynamic)
   const data = await getDynamicData(itemKeys)
 
+  let filter = params.filter?.[0]
+  if (filter === undefined) {
+    if (Object.keys(pages).length > 0) {
+      filter = Object.keys(pages)[0]
+    }
+  }
+
+  // console.log('DynamicPage', 'filter:', filter, 'itemKeys:', itemKeys, 'pages:', pages)
+
   return (
-    <DynamicEditPageTemplate contextKey={params.dynamic} filter={params.filter?.[0]} itemKeys={itemKeys} data={data} />
+    <DynamicPageTemplate contextKey={params.dynamic} filter={filter} itemKeys={itemKeys} data={data} />
   )
 
 }

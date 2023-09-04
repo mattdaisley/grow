@@ -2,7 +2,6 @@
 export async function getDynamicData(itemKeys) {
   const data = {};
 
-
   const requests = itemKeys.map(itemKey => getItems(itemKey));
 
   const startTime = new Date();
@@ -16,8 +15,7 @@ export async function getDynamicData(itemKeys) {
     Object.keys(response).forEach(itemKey => data[itemKey] = response[itemKey]);
   });
 
-
-  console.log('getDynamicData', `- ${timeDiff}ms - loaded data -`, Object.keys(data).map(itemKey => `${itemKey}: ${data[itemKey].length}`).join(' '));
+  // console.log('getDynamicData', `- ${timeDiff}ms - loaded data -`, Object.keys(data).map(itemKey => `${itemKey}: ${data[itemKey].length}`).join(' '));
 
   return data;
 }

@@ -8,32 +8,31 @@ import { AddItemActions } from "./AddItemActions";
 import { AddNewItemControl } from "./AddNewItemControl";
 import { AddExistingItemControl } from "./AddExistingItemControl";
 
-export function EditItems({ fieldsControlsPrefix, searchSuffix, ...props }) {
+export function EditItems({ fieldsControlsPrefix, searchSuffix, filter, ...props }) {
 
   let { contextKey, keyPrefix, itemKey } = props;
-  let searchKeyPrefix = keyPrefix
   let searchItemsKey = itemKey
   let noItemsKeyPrefix = keyPrefix
   let noItemsKey = itemKey
-  if (['apps'].includes(contextKey)) {
-    // searchKeyPrefix = contextKey
-    searchItemsKey = `${itemKey}.${searchSuffix}`
+  // if (['apps'].includes(contextKey) && ['apps'].includes(itemKey)) {
+  //   searchKeyPrefix = contextKey
+  //   searchItemsKey = keyPrefix.split('.')[1]
 
-    noItemsKeyPrefix = `${contextKey}.${itemKey}`
-    noItemsKey = 'pages'
-  }
+  //   noItemsKeyPrefix = `${contextKey}.${itemKey}`
+  //   noItemsKey = 'pages'
+  // }
 
-  const fields = useSubscription({ ...props, keyPrefix: searchKeyPrefix, itemKey: searchItemsKey, searchSuffix: undefined });
+  const fields = useSubscription({ ...props, searchSuffix, filter });
 
-  let name = keyPrefix === undefined ? searchItemsKey : `${keyPrefix}.${itemKey}`;
+  let name = keyPrefix === undefined ? itemKey : `${keyPrefix}.${itemKey}`;
 
-  console.log('EditItems', 'itemKey:', itemKey, 'keyPrefix:', keyPrefix, 'fields:', fields, 'props:', props, 'fields:', fields);
+  logger.log('EditItems', 'name:', name, 'itemKey:', itemKey, 'keyPrefix:', keyPrefix, 'fields:', fields, 'props:', props, 'fields:', fields);
 
   if (fields === undefined || fields.size === 0) {
     logger.log('EditItems fields not set')
     return (
       <>
-        <AddItemActions {...props} keyPrefix={noItemsKeyPrefix} itemKey={noItemsKey} fields={fields}>
+        <AddItemActions {...props} fields={fields}>
           <AddExistingItemControl />
           <AddNewItemControl />
         </AddItemActions>

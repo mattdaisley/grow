@@ -15,7 +15,7 @@ export default function DynamicEditPageTemplate({ contextKey, filter, itemKeys, 
 
   const itemsMethods = useItems(itemKeys, data);
 
-  console.log('DynamicEditPageTemplate', { contextKey, filter, itemKeys, data }, itemsMethods.itemKeys)
+  logger.log('DynamicEditPageTemplate', { contextKey, filter, itemKeys, data }, itemsMethods.itemKeys)
 
   if (itemsMethods.itemKeys.length === 0) {
     return null;
@@ -31,21 +31,21 @@ export default function DynamicEditPageTemplate({ contextKey, filter, itemKeys, 
         </Grid>
       </Box>
       <Box sx={{ position: 'fixed', top: 0, right: 0, width: `${editDrawerWidth}px`, height: '100%', pt: '100px', overflowY: 'scroll' }}>
-        {/* {filter === undefined && (
+        {filter === undefined && (
           <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: -.5 }}>
             <Paper sx={{ width: '100%' }}>
-              <EditItems contextKey={`apps`} itemKey={`apps`} searchSuffix={contextKey} itemsMethods={itemsMethods} />
+              <EditItems contextKey={contextKey} itemKey={`apps`} itemsMethods={itemsMethods} />
             </Paper>
           </Box>
-        )} */}
+        )}
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: 2 }}>
           <Paper sx={{ width: '100%' }}>
-            <EditItems contextKey={contextKey} itemKey={'pages'} itemsMethods={itemsMethods} />
+            <EditItems contextKey={contextKey} itemKey={'pages'} filter={filter} itemsMethods={itemsMethods} />
           </Paper>
         </Box>
         <Box sx={{ flexGrow: 1, pr: { xs: 2, md: 4 }, mt: 2 }}>
           <Paper sx={{ width: '100%' }}>
-            <EditItems contextKey={'global'} itemKey={'collections'} itemsMethods={itemsMethods} />
+            <EditItems contextKey={contextKey} itemKey={'collections'} itemsMethods={itemsMethods} />
           </Paper>
         </Box>
       </Box>

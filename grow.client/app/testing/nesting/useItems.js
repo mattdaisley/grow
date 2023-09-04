@@ -332,7 +332,7 @@ function getNodeFromTreeMap(itemsRef, valueKeySplit) {
 
 function getNodeFromTreeBranch(dataMapBranch, valueKeySplit) {
 
-  // logger.log('getNodeFromTreeBranch', 'valueKeySplit:', valueKeySplit, 'dataMapBranch:', dataMapBranch)
+  logger.log('getNodeFromTreeBranch', 'valueKeySplit:', valueKeySplit, 'dataMapBranch:', dataMapBranch)
   const firstKey = valueKeySplit?.[0]
 
   if (valueKeySplit.length === 1) {

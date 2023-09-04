@@ -2,30 +2,37 @@
 
 import { unflatten } from "flat";
 
-import { EditReferencedItem } from "./EditReferencedItem";
-import { getMissingNestedItems } from "./EditItem";
+import { EditReferencedItem,  } from "./EditReferencedItem";
+import { getMissingNestedItems, EditNestedItems, EditItem } from "./EditItem";
 
-export function EditApp({ children, fieldKey, ...props }) {
+export function EditApp(props) {
 
-  const nestedItems = unflatten(props.itemsMethods.getNestedDataObject(props.keyPrefix));
+  // const keyPrefix = props.keyPrefix.replace('.pages', '');
 
-  console.log('EditApp', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'nestedItems:', nestedItems, 'props:', props);
+  // const nestedItems = unflatten(props.itemsMethods.getNestedDataObject(keyPrefix));
 
-  const missingNestedItems = getMissingNestedItems({ itemKey: props.itemKey, valueKeys: nestedItems });
-  const valueKeys = {
-    ...nestedItems,
-    ...missingNestedItems
-  };
+  // console.log('EditApp', 'itemKey:', props.itemKey, 'keyPrefix:', props.keyPrefix, 'fieldKey:', fieldKey, 'nestedItems:', nestedItems, 'props:', props);
 
-  return (
-    <>
-      <EditReferencedItem {...props} contextKey="apps" valueKeys={valueKeys} />
-    </>
-  );
-  // logger.log('EditApp', 'props:', props);
+  // const missingNestedItems = getMissingNestedItems({ itemKey: props.itemKey, valueKeys: nestedItems });
+  // const valueKeys = {
+  //   ...nestedItems,
+  //   ...missingNestedItems
+  // };
+
   // return (
   //   <>
-  //     <EditItem {...props} contextKey="pages" />
+  //     <EditReferencedItem {...props} contextKey="apps" valueKeys={valueKeys} />
   //   </>
   // );
+  // logger.log('EditApp', 'props:', props);
+  return (
+    <>
+      <EditItem {...props} contextKey="apps" />
+    </>
+  );
+  return (
+    <>
+      <EditNestedItems {...props} keyPrefix={keyPrefix} valueKeys={valueKeys} />
+    </>
+  )
 }

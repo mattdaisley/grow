@@ -5,11 +5,11 @@ import Box from "@mui/material/Box";
 import { drawerWidth, DynamicAppDrawer } from "./DynamicAppDrawer";
 import DynamicAppBar from "./DynamicAppBar";
 
-export function DynamicTestingLayout({ children, pages }) {
+export function DynamicTestingLayout({ children, pages, appKey }) {
   return (
     <Box sx={{ display: 'flex', flex: 1 }}>
       <DynamicAppBar pages={pages} />
-      <DynamicAppDrawer pages={pages} />
+      <DynamicAppDrawer pages={pages} appKey={appKey} />
       <Box
         component="main"
         sx={(theme) => {
