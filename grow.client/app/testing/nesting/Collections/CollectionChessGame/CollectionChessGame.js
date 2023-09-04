@@ -9,26 +9,13 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 import ChessBoard from "./ChessBoard/ChessBoard";
 
-import { canMovePawn, canMoveKing, canMoveQueen, canMoveBishop, canMoveKnight, canMoveRook, isWhite, isBlack, moveIsEnPassant } from './game.engine';
+import { canMovePawn, canMoveKing, canMoveQueen, canMoveBishop, canMoveKnight, canMoveRook, isWhite, isBlack, moveIsEnPassant, getSquareNameFromRowCol, getRowColFromSquareName } from './game.engine';
+import { useSubscription } from '../../useSubscription';
+import logger from '../../../../../services/logger';
 
 
 const MAX_BOARD_SIZE = 8;
 const BOARD_SIZE = 8; // 4x4. 8x8 standard board would be just 8
-
-const NUMERICAL_INPUTS = BOARD_SIZE * BOARD_SIZE;
-const CATEGORICAL_INPUTS = 2;
-
-const INPUTS = NUMERICAL_INPUTS + CATEGORICAL_INPUTS; // pieces , turn code , fullmove number , board size
-// const INPUTS = 5;
-// const INPUTS = 35;
-const OUTPUTS = 4;
-
-const POPSIZE = 300;
-const ELITISM = Math.ceil(0.1 * POPSIZE);
-const MUTATION_RATE = 0.5;
-// const START_HIDDEN_SIZE = INPUTS / 2;
-const START_HIDDEN_SIZE = INPUTS + 1;
-const MAX_ITERATIONS = 25;
 
 const initialGameState = {
   board: [
@@ -41,7 +28,7 @@ const initialGameState = {
     ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
     ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
   ],
-  turn: 'white', // 'white' == 0 or 'black' == 1
+  turn: 'w', 
   castling: {
     white: { kingSide: true, queenSide: true },
     black: { kingSide: true, queenSide: true }
@@ -50,49 +37,48 @@ const initialGameState = {
   halfmoveClock: 0,
   fullmoveNumber: 0,
 
-  currentGeneration: 0,
   lastMove: {}
 };
 
 export default function CollectionChessGame({ pageProps, collectionProps }) {
 
+  const collectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.keyPrefix, keyPrefix: undefined });
+  const contextCollectionFields = useSubscription({ ...pageProps, itemKey: collectionProps.contextKey, keyPrefix: undefined });
+  const sortOrderFieldId = useSubscription({ ...pageProps, itemKey: pageProps.keyPrefix, keyPrefix: undefined, searchSuffix: 'sort-order' });
+  const sortOrderField = pageProps.itemsMethods.getTreeMapItem(`fields.${sortOrderFieldId}`)
+  const sortOrder = sortOrderField?.get('name') ?? sortOrderFieldId ?? 'created_date'
+
+  logger.log('CollectionChessGame', { pageProps, collectionProps, collectionFields, contextCollectionFields, sortOrderFieldId, sortOrder });
+
+  const rows = useMemo(() => getCollectionRows(contextCollectionFields, sortOrder), [contextCollectionFields?.size, sortOrder])
+
   const [game, setGame] = useState(initialGameState);
 
   const handleMove = (gameState, startRow, startCol, endRow, endCol) => {
-    const startPiece = gameState.board[startRow][startCol];
-    const endPiece = gameState.board[endRow][endCol];
 
-    const newBoard = cloneDeep(gameState.board);
+    const startSquare = getSquareNameFromRowCol(startRow, startCol);
+    const endSquare = getSquareNameFromRowCol(endRow, endCol);
+    const player = gameState.turn;
+    let capture = gameState.board[endRow][endCol] !== '.' ? '1' : '0';
 
     if (moveIsEnPassant(gameState, startRow, endRow, startCol, endCol)) {
-      newBoard[startRow][endCol] = '.';
+      capture = '1'
     }
 
-    newBoard[startRow][startCol] = '.';
-    newBoard[endRow][endCol] = startPiece;
+    const itemKey = collectionProps.contextKey;
 
-    const newTurn = game.turn === 'white' ? 'black' : 'white';
+    const itemsToAdd = { [itemKey]: { start_square: startSquare, end_square: endSquare, player, capture } };
 
-    const newHalfmoveClock = game.halfmoveClock + 1;
-    const newFullmoveNumber = game.fullmoveNumber + (game.turn === 'black' ? 1 : 0);
-    const newLastMove = { startRow, startCol, endRow, endCol, startPiece, endPiece, newScore: 0, input: [], output: []  }
-
-    const newGameState = {
-      ...gameState,
-      board: newBoard,
-      turn: newTurn,
-      halfmoveClock: newHalfmoveClock,
-      fullmoveNumber: newFullmoveNumber,
-      lastMove: newLastMove
-    }
-
-    setGame(newGameState);
+    pageProps.itemsMethods.addItems(itemKey, itemsToAdd);
   }
 
   const canMove = (gameState, startRow, startCol, endRow, endCol) => {
 
     const startPiece = gameState.board[startRow][startCol];
     const endPiece = gameState.board[endRow][endCol];
+
+    if (isWhite(startPiece) && gameState.turn !== 'w') return false;
+    if (isBlack(startPiece) && gameState.turn !== 'b') return false;
 
     if (isWhite(startPiece) && isWhite(endPiece)) return false;
     if (isBlack(startPiece) && isBlack(endPiece)) return false;
@@ -121,6 +107,14 @@ export default function CollectionChessGame({ pageProps, collectionProps }) {
     return true;
   }
 
+  useEffect(() => {
+    logger.log('CollectionChessGame useEffect', { rows, game })
+
+    const newGameState = processMoves(initialGameState, rows);
+    setGame(newGameState);
+
+  }, [JSON.stringify(game), rows.length])
+
   return (
     <>
       <Paper sx={{
@@ -137,4 +131,74 @@ export default function CollectionChessGame({ pageProps, collectionProps }) {
 
     </>
   );
+}
+
+function getCollectionRows(contextCollectionFields, sortOrder) {
+  let rows = []
+
+  if (contextCollectionFields === undefined) {
+    return rows;
+  }
+
+  contextCollectionFields.forEach((collectionField, collectionFieldKey) => {
+    const row = { id: collectionFieldKey }
+    collectionField.forEach((fieldValue, fieldKey) => {
+      row[fieldKey] = fieldValue ?? ""
+    });
+
+    rows.push(row)
+  });
+
+  rows = rows.sort((a, b) => new Date(a[sortOrder]) - new Date(b[sortOrder]));
+
+  return rows
+}
+
+function processMoves(gameState, rows) {
+
+  if (rows.length === 0) {
+    return gameState;
+  }
+
+  let newGameState = cloneDeep(gameState);
+  for (let i = 0; i < rows.length; i++) {
+    newGameState = processMove(newGameState, rows[i].start_square, rows[i].end_square);
+  }
+
+  return newGameState;
+}
+
+const processMove = (gameState, start_square, end_square) => {
+
+  const [startRow, startCol] = getRowColFromSquareName(start_square);
+  const [endRow, endCol] = getRowColFromSquareName(end_square);
+
+  const startPiece = gameState.board[startRow][startCol];
+  const endPiece = gameState.board[endRow][endCol];
+
+  const newBoard = cloneDeep(gameState.board);
+
+  if (moveIsEnPassant(gameState, startRow, endRow, startCol, endCol)) {
+    newBoard[startRow][endCol] = '.';
+  }
+
+  newBoard[startRow][startCol] = '.';
+  newBoard[endRow][endCol] = startPiece;
+
+  const newTurn = gameState.turn === 'w' ? 'b' : 'w';
+
+  const newHalfmoveClock = gameState.halfmoveClock + 1;
+  const newFullmoveNumber = gameState.fullmoveNumber + (gameState.turn === 'b' ? 1 : 0);
+  const newLastMove = { startRow, startCol, endRow, endCol, startPiece, endPiece }
+
+  const newGameState = {
+    ...gameState,
+    board: newBoard,
+    turn: newTurn,
+    halfmoveClock: newHalfmoveClock,
+    fullmoveNumber: newFullmoveNumber,
+    lastMove: newLastMove
+  }
+
+  return newGameState;
 }

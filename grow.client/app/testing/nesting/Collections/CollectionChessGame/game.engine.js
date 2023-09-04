@@ -127,3 +127,17 @@ export function moveIsEnPassant(gameState, startRow, endRow, startCol, endCol) {
   }
   return false;
 }
+
+export function getSquareNameFromRowCol(row, col) {
+  const file = String.fromCharCode('a'.charCodeAt(0) + col);
+  const rank = 8 - row;
+  return `${file}${rank}`;
+}
+
+export function getRowColFromSquareName(squareName) {
+  const file = squareName[0];
+  const rank = squareName[1];
+  const col = file.charCodeAt(0) - 'a'.charCodeAt(0);
+  const row = 8 - parseInt(rank);
+  return [row, col];
+}

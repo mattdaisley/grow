@@ -25,7 +25,7 @@ const ChessBoard = ({ boardSize, gameState, onMove, canMove }) => {
 
   return (
     <Grid container>
-      <Grid item xs={6}>
+      <Grid item xs={12}>
         {/* {memoSquares} */}
         <DndProvider backend={HTML5Backend}>
           <BoardSquares gameState={gameState} boardSize={boardSize} onMove={onMove} canMove={canMove} />
@@ -33,23 +33,9 @@ const ChessBoard = ({ boardSize, gameState, onMove, canMove }) => {
         {/* <div>
           Score: {gameState.lastMove.newScore?.toFixed(8)}
         </div> */}
-      </Grid>
-      <Grid item xs={4} style={{ height: 500, fontSize: 18 }}>
         {gameState.lastMove.startPiece && (<div>
           Move: {gameState.lastMove.startPiece} {getSquareName(gameState.lastMove.startRow, gameState.lastMove.startCol)} to {gameState.lastMove.endPiece === '.' ? '' : gameState.lastMove.endPiece} {getSquareName(gameState.lastMove.endRow, gameState.lastMove.endCol)}
         </div>)}
-        {/* <div>{gameState.currentGeneration}</div> */}
-        {/* <div style={{height:24}}>
-          {gameState.lastMove.input?.map(x => Math.round(x*100)/100)}
-        </div> */}
-        {/* <div>
-          Inputs:
-          {!!gameState.lastMove.input && gameState.lastMove.input.map((x, i) => (<div key={i}>{x}</div>))}
-        </div>
-        <div>
-          Outputs:
-          {!!gameState.lastMove.output && gameState.lastMove.output.map((x, i) => (<div key={i}>{x}</div>))}
-        </div> */}
       </Grid>
     </Grid>
   );
