@@ -313,7 +313,7 @@ export class GpioService implements OnModuleDestroy {
             }
         }
         catch (error) {
-            console.log(error)
+            // console.log(error)
         }
     }
 

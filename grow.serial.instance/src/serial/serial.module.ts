@@ -1,15 +1,14 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { SerialService } from './serial.service';
-import { SerialProcessor } from './serial.processor';
 
 @Module({
   imports: [
-    BullModule.registerQueue({
-      name: 'serial',
-    }),
+    ConfigModule,
+    ScheduleModule.forRoot(),
   ],
   exports: [SerialService],
-  providers: [SerialService, SerialProcessor]
+  providers: [SerialService]
 })
 export class SerialModule {}

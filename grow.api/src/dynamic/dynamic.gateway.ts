@@ -158,6 +158,9 @@ export class DynamicGateway {
         ['preview_collections_54e2aa1e-c548-4906-8be9-f2b86b7443ed']: { // Nutrient Pump Events, nutrient_pump_events
           ['gpio-command']: ['selected_nutrient_pump']
         },
+        ['chess_collections_ad83618b-93fe-40bd-8ab2-68f82e3d3e4d']: { // Chess Game
+          ['serial-command']: ['player']
+        },
 
         // Production
         ['jalepenos_collections_07d61ba1-bfdd-4905-9572-9ff911553936']: { // Outlets
@@ -171,10 +174,14 @@ export class DynamicGateway {
         },
         ['jalepenos_collections_00aea158-3950-44e6-89f2-2f4d8935ea40']: { // Nutrient Pump Events, nutrient_pump_events
           ['gpio-command']: ['selected_nutrient_pump']
+        },
+        ['chess_collections_855baa15-f038-4705-a2de-3b2a06b65102']: { // Chess Game
+          ['serial-command']: ['player']
         }
       }
 
       Object.keys(allItems).forEach(async (itemKey, index, array) => {
+        console.log('processAutomation', {itemKey})
 
         const items = allItems[itemKey]
 
@@ -201,6 +208,12 @@ export class DynamicGateway {
                       uniqueValueKeys.push(itemValueKey)
                     }
                   }
+                  else if (eventKey === 'serial-command') {
+                    const itemValueKey = item.valueKey.split('.').slice(0, -1).join('.')
+                    if (!uniqueValueKeys.includes(itemValueKey)) {
+                      uniqueValueKeys.push(itemValueKey)
+                    }
+                  }
                   else {
                     if (!uniqueValueKeys.includes(item.value)) {
                       uniqueValueKeys.push(item.value)
@@ -212,7 +225,7 @@ export class DynamicGateway {
                 })
                 Promise.all(mappedPromises)
                   .then(values => {
-                    console.log(values)
+                    console.log({values})
 
                     const data = []
                     items.forEach((item, index) => {
@@ -234,6 +247,7 @@ export class DynamicGateway {
   }
 
   async getReferencedCollectionObject(valueKey: string) {
+
     const referencedCollectionObject = {}
     const referencedCollectionFields = await this.dynamicService.findManyByValueKey(valueKey)
     

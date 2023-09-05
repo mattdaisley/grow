@@ -9,7 +9,8 @@ import { SerialModule } from './serial/serial.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    GpioModule
+    GpioModule,
+    SerialModule
   ],
   providers: [],
 })
