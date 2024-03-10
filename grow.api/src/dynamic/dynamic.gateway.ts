@@ -97,7 +97,9 @@ export class DynamicGateway {
         }
       })
     })
-    .then(self.processAutomation.bind(self))
+    .then(async (allItems) => {
+      return await self.processAutomation({allItems})
+    })
     .then((allItems) => {
       this.server.emit(event, allItems)
       // console.log('handleSetItemsEvent emit', event, allItems);
@@ -126,7 +128,9 @@ export class DynamicGateway {
       resolve(allItems);
       
     })
-    .then(self.processAutomation.bind(self))
+    .then(async (allItems) => {
+      return await self.processAutomation({allItems})
+    })
     .then((allItems) => {
       this.server.emit(event, allItems)
       // console.log('handleAddItemsEvent emit', event, allItems);
@@ -134,7 +138,7 @@ export class DynamicGateway {
     });
   }
 
-  async processAutomation(allItems: DynamicItemsResponse) {
+  async processAutomation({allItems, deleting = false}) {
     const self = this; 
 
     return new Promise<DynamicItemsResponse>((resolve, reject) => {
@@ -188,7 +192,7 @@ export class DynamicGateway {
         Object.keys(automationConditions).forEach(automationConditionItemKey => {
           const automationCondition = automationConditions[automationConditionItemKey]
 
-          // console.log('checking automation', itemKey, '===', automationConditionItemKey, itemKey === automationConditionItemKey)
+          console.log('checking automation', itemKey, '===', automationConditionItemKey, itemKey === automationConditionItemKey)
           if (itemKey === automationConditionItemKey) {
 
             Object.keys(automationCondition).forEach(eventKey => {
@@ -225,14 +229,14 @@ export class DynamicGateway {
                 })
                 Promise.all(mappedPromises)
                   .then(values => {
-                    console.log({values})
+                    console.log("values", {values})
 
                     const data = []
                     items.forEach((item, index) => {
                       data.push({ item, value: values[index]})
                     });
 
-                    const message = { [automationConditionItemKey]: {data} }
+                    const message = { [automationConditionItemKey]: {data, deleting} }
                     this.server.emit(eventKey, message)
                     console.log('processAutomation emit', eventKey, message);
                   })
@@ -275,25 +279,86 @@ export class DynamicGateway {
 
   @SubscribeMessage('delete-items')
   async handleDeleteItemsEvent(@MessageBody() data: DynamicItemsDeleteRequest): Promise<DynamicItemsDeleteResponse> {
-    // console.log('handleDeleteItemsEvent', data)
+    console.log('handleDeleteItemsEvent', data);
+
+    const self = this;
 
     const itemKey = data.itemKey;
     const items = data.items;
     const event = `items-${itemKey}`;
-
-    const allItems: DynamicItemsDeleteResponse = { [itemKey]: [] };
     
     return new Promise<DynamicItemsDeleteResponse>(async (resolve, reject) => {
 
-      Object.keys(items).forEach(async (valueKey, index, array) => {
+      const allItems: DynamicItemsDeleteResponse = { [itemKey]: [] };
 
-        // console.log('handleDeleteItemsEvent deleting item', valueKey)
-        await this.dynamicService.delete(itemKey, valueKey)
+      Object.keys(items).forEach(async (valueKey, index, array) => {
 
         allItems[itemKey].push({ valueKey, deleted: true })
         if (allItems[itemKey].length === array.length) {
           resolve(allItems);
         }
+      })
+    })
+    .then(async (items): Promise<DynamicItemsDeleteResponse> => {
+
+      return new Promise<DynamicItemsDeleteResponse>(async (resolve, reject) => {
+        
+        const deletedItems: DynamicItemsResponse = {};
+
+        if (Object.keys(items).length === 0) {
+          resolve(items)
+        }
+
+        Object.keys(items).forEach(async (itemKey, itemKeysIndex, itemKeysArray) => {
+
+          const dynamicItemsValues = items[itemKey];
+          deletedItems[itemKey] = [];
+
+          dynamicItemsValues.forEach(async (dynamicItemsValue, valuesIndex, valuesArray) => {
+            const valueKey = dynamicItemsValue.valueKey;
+            const item = await this.dynamicService.findOneByValueKey(valueKey);
+        
+            console.log('handleDeleteItemsEvent deleted item', item)
+
+            deletedItems[itemKey].push(item);
+
+            if (Object.keys(deletedItems).length === itemKeysArray.length && deletedItems[itemKey].length === valuesArray.length) {
+        
+              console.log('handleDeleteItemsEvent deleting items', deletedItems)
+              await self.processAutomation({ allItems: deletedItems, deleting: true})
+
+              resolve(items)
+            }
+          })
+          
+        })
+      })
+    })
+    .then(async (items): Promise<DynamicItemsDeleteResponse> => {
+
+      return new Promise<DynamicItemsDeleteResponse>(async (resolve, reject) => {
+        
+        const deletedItems: DynamicItemsDeleteResponse = {};
+
+        if (Object.keys(items).length === 0) {
+          resolve(items)
+        }
+
+        Object.keys(items).forEach(async (itemKey, itemKeysIndex, itemKeysArray) => {
+
+          const dynamicItemsValues = items[itemKey];
+          deletedItems[itemKey] = [];
+
+          dynamicItemsValues.forEach(async (dynamicItemsValue, valuesIndex, valuesArray) => {
+
+            deletedItems[itemKey].push(dynamicItemsValue);
+
+            if (Object.keys(deletedItems).length === itemKeysArray.length && deletedItems[itemKey].length === valuesArray.length) {
+              resolve(items)
+            }
+          })
+          
+        })
       })
     })
     .then((items) => {

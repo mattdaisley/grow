@@ -18,6 +18,11 @@ export class SerialService {
     private paths: string[] = ['COM3', '/dev/cu.usbmodem14101'];
     private currentPathIndex: number = 0;
     private portReady: boolean = false;
+
+    lastCommandStatus: string = 'ok';
+    command_queue: string[] = [];
+
+    private AutomationInterval: NodeJS.Timer;
   
     constructor(
         private configService: ConfigService
@@ -27,6 +32,27 @@ export class SerialService {
         const self = this;
 
         this.initializeSocket();
+
+        this.AutomationInterval = setInterval(self.handleAutomationCron.bind(self), 200)
+    }
+
+    private async queueCommand(command: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.command_queue.push(command);
+            resolve()
+        });
+    }
+
+    private async handleAutomationCron(): Promise<void> {
+        console.log('handleAutomationCron', this.command_queue.length, this.lastCommandStatus)
+        if (this.command_queue.length > 0 && this.lastCommandStatus === 'ok') {
+            const command = this.command_queue[0];
+            this.lastCommandStatus = 'waiting';
+            await this.write(command);
+        }
+        else {
+            await this.write('?\n')
+        }
     }
 
     private createSerialPort(): void {
@@ -88,18 +114,46 @@ export class SerialService {
     }
 
     private async handlePortData(data: string): Promise<void> {
+        console.log('received:', data);
+
+        const self = this;
+
+        if (data.includes('ALARM:1')) {
+            self.portReady = false;
+
+            self.port.close((err) => {
+                if (err) {
+                    return console.log('Error closing port: ', err.message)
+                }
+                console.log('Port closed')
+
+                self.createSerialPort();
+            })
+        }
+
         if (!this.portReady && data.includes('Grbl')) {
-            console.log("Data includes Grbl:", data);
             this.portReady = true;
 
+            await this.write('$$\n')
+            await this.write('$G\n')
             await this.write('$X\n')
             await this.write('$H\n')
             await this.write('G90\n')
-            await this.write('F5000\n')
+            await this.write('F4000\n')
             await this.write('G10 P0 L20 X0\n')
             await this.write('G10 P0 L20 Y0\n')
+            await this.write(`G1 X${this.X_OFFSET} Y${this.Y_OFFSET}\n`)
+            await this.write('G10 P0 L20 X0\n')
+            await this.write('G10 P0 L20 Y0\n')
+            await this.write(`M03`);
         }
-        console.log('received', data);
+
+        if (data.includes('<Idle|')) {
+            this.lastCommandStatus = 'ok';
+            if (this.command_queue.length > 0) {
+                this.command_queue.shift();
+            }
+        }
     }
 
     private async initializeSocket(): Promise<void> {
@@ -150,71 +204,146 @@ export class SerialService {
         let collectionItemKey = Object.keys(event)[0]
         event[collectionItemKey].data.forEach(async dataItem => {
 
-            const { item, value } = dataItem;
-            // console.log(item, value)
-
-            let startX;
-            let startY;
-            let endX;
-            let endY;
-
-            if (value?.start_square !== undefined) {
-                let [startRow, startCol] = this.getRowColFromSquareName(value.start_square)
-
-                console.log(`startRow: ${startRow}, startCol: ${startCol}`)
-
-                startX = (9 - (startRow + 1)) * this.SQUARE_SIZE * this.X_DIR;
-                startY = (startCol + 1) * this.SQUARE_SIZE * this.Y_DIR;
-
-                // a2 = 0,6 = x=-80, y=40
-                // x = -80 = 2 * 40 * -1 = (9 - (6+1)) * 40 * -1
-                // y = 40  = 1 * 40 * 1  
-            }
-
-            if (value?.end_square !== undefined) {
-                let [endRow, endCol] = this.getRowColFromSquareName(value.end_square)
-
-                console.log(`endRow: ${endRow}, endCol: ${endCol}`)
-
-                endX = (9 - (endRow + 1)) * this.SQUARE_SIZE * this.X_DIR;
-                endY = (endCol + 1) * this.SQUARE_SIZE * this.Y_DIR;
-
-                // a3 = 0,5 = x=-120, y=40
-                // x = -120 = 3 * 40 * -1 = (9 - (5+1)) * 40 * -1
-                // y = 40  = 1 * 40 * 1  
-
-                // a4 = 0,4 = x=-160, y=40
-                // x = -160 = 4 * 40 * -1 = (9 - (4+1)) * 40 * -1
-                // y = 40  = 1 * 40 * 1 
-            }
-
-            if (startX !== undefined && startY !== undefined && endX !== undefined && endY !== undefined) {
-                
-                let gcode = `G1 X${startX} Y${startY}\n`;
-                console.log(gcode)
-                await this.write(gcode)
-
-                gcode = `M04`;
-                console.log(gcode)
-                await this.write(gcode)
-
-                gcode = `G1 X${endX} Y${endY}\n`;
-                console.log(gcode)
-                await this.write(gcode)
-
-                gcode = `M03`;
-                console.log(gcode)
-                await this.write(gcode)
-            }
+            await this.movePiece(dataItem);
         });
     }
 
     SQUARE_SIZE = 40;
     X_DIR = -1;
     Y_DIR = 1;
+    X_OFFSET = 0;
+    Y_OFFSET = 0;
+    DRAG_MODIFIER = 5;
 
 
+    private async movePiece(dataItem: any) {
+        const { item, value } = dataItem;
+        console.log(item, value)
+        let startPiece;
+        let startX;
+        let startY;
+        let endX;
+        let endY;
+        let capture;
 
+        if (value?.startPiece !== undefined) {
+            startPiece = value.startPiece;
+        }
+
+        if (value?.start_square !== undefined) {
+            let [startRow, startCol] = this.getRowColFromSquareName(value.start_square);
+
+            console.log(`startRow: ${startRow}, startCol: ${startCol}`);
+
+            startX = (9 - (startRow + 1)) * this.SQUARE_SIZE * this.X_DIR;
+            startY = (startCol + 1) * this.SQUARE_SIZE * this.Y_DIR;
+
+            // a2 = 0,6 = x=-80, y=40
+            // x = -80 = 2 * 40 * -1 = (9 - (6+1)) * 40 * -1
+            // y = 40  = 1 * 40 * 1  
+        }
+
+        if (value?.end_square !== undefined) {
+            let [endRow, endCol] = this.getRowColFromSquareName(value.end_square);
+
+            console.log(`endRow: ${endRow}, endCol: ${endCol}`);
+
+            endX = (9 - (endRow + 1)) * this.SQUARE_SIZE * this.X_DIR;
+            endY = (endCol + 1) * this.SQUARE_SIZE * this.Y_DIR;
+
+            // a3 = 0,5 = x=-120, y=40
+            // x = -120 = 3 * 40 * -1 = (9 - (5+1)) * 40 * -1
+            // y = 40  = 1 * 40 * 1  
+            // a4 = 0,4 = x=-160, y=40
+            // x = -160 = 4 * 40 * -1 = (9 - (4+1)) * 40 * -1
+            // y = 40  = 1 * 40 * 1 
+        }
+
+        if (value?.capture !== undefined) {
+            capture = value.capture;
+        }
+
+        console.log({startPiece, startX, startY, endX, endY})
+
+        if (startPiece !== undefined && startX !== undefined && startY !== undefined && endX !== undefined && endY !== undefined) {
+
+            const directionX = endX === startX ? 0 : endX > startX ? 1 : -1;
+            const directionY = endY === startY ? 0 : endY > startY ? 1 : -1;
+
+            // Pick up the start piece
+            await this.moveToCorner(startX, startY, 0, 0);
+            await this.queueCommand(`M04`);
+
+            // Move the start piece to the corner of the end square
+            switch (startPiece) {
+                case '♞':
+                case '♘':
+                    await this.moveToCorner(startX, startY, directionX, directionY);
+                    await this.moveToCorner(endX, endY, directionX * -1, directionY * -1);
+                    break;
+                case '♛':
+                case '♕':
+                case '♚':
+                case '♔':
+                case '♜':
+                case '♖':
+                case '♝':
+                case '♗':
+                    await this.moveToCorner(endX, endY, directionX * -1, directionY * -1);
+                    break;
+                case '♟':
+                case '♙':
+                    if (capture === '1') {
+                        await this.moveToCorner(endX, endY, directionX * -1, directionY * -1);
+                    }
+                    break;
+            }
+
+            if (capture === '1') {
+                // Drop the start piece
+                await this.queueCommand(`M03`);
+
+                 // Move to the end piece
+                await this.moveToCorner(endX, endY, 0, 0);
+
+                 // Pick up the end piece
+                await this.queueCommand(`M04`);
+
+                // Move the captured piece to the edge of the board
+                await this.queueCommand(`G1 X${endX + 20 * directionX} Y${endY - 20 * directionY}\n`);
+                await this.queueCommand(`G1 X${endX + 20 * directionX} Y${0}\n`);
+                await this.queueCommand(`G1 X${endX} Y${0}\n`);
+
+                // Drop the captured piece
+                await this.queueCommand(`M03`);
+
+                // Go back to the corner of the end square
+                await this.moveToCorner(endX, endY, directionX * -1, directionY * -1);
+
+                // Pick up the start piece
+                await this.queueCommand(`M04`); 
+            }
+
+            // Move the start piece to the end square
+            await this.moveToCorner(endX, endY, 0, 0);
+            await this.queueCommand(`G1 X${endX} Y${endY}\n`);
+
+            // Drop the start piece
+            await this.queueCommand(`M03`);
+
+        }
+    }
+
+    private async moveToCorner(squareX: number, squareY: number, directionX: number, directionY: number): Promise<void> {
+        let x = squareX + 20 * directionX;
+        let y = squareY + 20 * directionY;
+
+        await this.queueCommand(this.getG1Command(x, y));
+    }
+
+    private getG1Command(x: number, y: number): string {
+        return `G1 X${x} Y${y}\n`
+    }
 
     private getRowColFromSquareName(squareName: string) {
         const file = squareName[0];
@@ -278,7 +407,6 @@ export class SerialService {
         })
     }
 
-
     public async write(message: string): Promise<void> {
         // console.log("isPortOpen", this.isPortOpen());
         if (!this.isPortOpen()) {
@@ -298,11 +426,12 @@ export class SerialService {
             return;
         }
 
+        console.log('sending:', message.replace('\n', ''));
         this.port.write(message, (err) => {
             if (err) {
                 return console.log('Error on write: ', err.message);
             }
-            console.log('message written:', message);
+            // console.log('message written:', message);
         });
     }
 

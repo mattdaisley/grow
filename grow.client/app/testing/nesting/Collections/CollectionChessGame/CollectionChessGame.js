@@ -56,6 +56,7 @@ export default function CollectionChessGame({ pageProps, collectionProps }) {
 
   const handleMove = (gameState, startRow, startCol, endRow, endCol) => {
 
+    const startPiece = gameState.board[startRow][startCol];
     const startSquare = getSquareNameFromRowCol(startRow, startCol);
     const endSquare = getSquareNameFromRowCol(endRow, endCol);
     const player = gameState.turn;
@@ -67,7 +68,7 @@ export default function CollectionChessGame({ pageProps, collectionProps }) {
 
     const itemKey = collectionProps.contextKey;
 
-    const itemsToAdd = { [itemKey]: { start_square: startSquare, end_square: endSquare, player, capture } };
+    const itemsToAdd = { [itemKey]: { start_square: startSquare, end_square: endSquare, player, capture, startPiece } };
 
     pageProps.itemsMethods.addItems(itemKey, itemsToAdd);
   }
