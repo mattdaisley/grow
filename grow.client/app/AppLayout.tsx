@@ -29,12 +29,7 @@ export const theme = createTheme({
       dark: "#087f23",
       contrastText: "#000000"
     },
-    paper: {
-      default: "#ffffff",
-      main: "#fafafa"
-    },
     background: {
-      main: "#eceff1",
       paper: "#ffffff",
       default: "#fafafa"
     },

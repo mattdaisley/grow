@@ -15,6 +15,7 @@ import { GpioModule } from './gpio/gpio.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.dev', '.env'],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -25,6 +26,8 @@ import { GpioModule } from './gpio/gpio.module';
         const username = configService.get<string>('DATABASE_USERNAME');
         const password = configService.get<string>('DATABASE_PASSWORD');
         const database = configService.get<string>('DATABASE_DATABASE');
+
+        console.log(`Connecting to database '${database}' as '${username}' at ${host}:${port} `)
 
         return {
           type: 'mysql',

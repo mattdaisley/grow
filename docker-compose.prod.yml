@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  grow.client:
+    build:
+      context: ./grow.client/
+      target: runner
+    volumes:
+      - ./grow.client/:/app
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+
+  grow.api:
+    build:
+      context: ./grow.api/
+      target: runner
+    volumes:
+      - ./grow.api/:/app
+    command: npm run start --log.level=FATAL
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      NODE_ENV: development
+      DATABASE_HOST: 'grow-db.cdyn2egnt6h9.us-west-1.rds.amazonaws.com'
+      DATABASE_USERNAME: 'grow'
+      DATABASE_PASSWORD: 'MlP0cPibk5Z4'
+      DATABASE_PORT: 3306
+      DATABASE_DATABASE: 'grow'
+
+      REDIS_HOST: 'localhost'
+      REDIS_PORT: '6379'

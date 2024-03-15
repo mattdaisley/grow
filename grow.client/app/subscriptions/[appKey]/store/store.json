@@ -1,0 +1,95 @@
+{
+  "apps": {
+    "1": {
+      "plugins": {
+        "p_1_0": {
+          "name": "plugin-pages-v1",
+          "source": "built-in",
+          "properties": {
+            "1_0_0": {
+              "type": "fields-object",
+              "name": "fields"
+            },
+            "1_0_1": {
+              "type": "string",
+              "name": "display-name"
+            }
+          }
+        },
+        "p_1_1": {
+          "name": "plugin-data-v1",
+          "source": "built-in",
+          "properties": {
+            "1_0_0": {
+              "type": "fields-object",
+              "name": "fields"
+            },
+            "1_0_1": {
+              "type": "string",
+              "name": "display-name"
+            }
+          }
+        }
+      },
+      "collections": {
+        "1_0": {
+          "schema": {
+            "type": "p_1_0",
+            "name": "app_pages",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "display_name"
+              }
+            },
+            "display_name": "Application Pages"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "Outlets Page"
+            },
+            "r_1_0_1": {
+              "f_1_0_0": "Outlet Events Page"
+            },
+            "r_1_0_2": {
+              "f_1_0_0": "Chess"
+            }
+          }
+        },
+        "1_1": {
+          "schema": {
+            "type": "p_1_1",
+            "name": "outlets",
+            "fields": {
+              "f_1_1_0": {
+                "type": "string",
+                "name": "outlet_name"
+              },
+              "f_1_1_1": {
+                "type": "datetime",
+                "name": "created_date"
+              },
+              "f_1_1_2": {
+                "type": "datetime",
+                "name": "updated_date"
+              }
+            },
+            "display-name": "Outlets"
+          },
+          "records": {
+            "r_1_1_0": {
+              "f_1_1_0": "Overhead Lights",
+              "f_1_1_1": "2023-04-03T16:09:40.072Z",
+              "f_1_1_2": "2023-04-07T03:22:22.000Z"
+            },
+            "r_1_1_1": {
+              "f_1_1_0": "Main Pump",
+              "f_1_1_1": "2023-04-03T16:09:40.072Z",
+              "f_1_1_2": "2023-04-07T03:22:22.000Z"
+            }
+          }
+        }
+      }
+    }
+  }
+}
