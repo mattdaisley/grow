@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { flatten } from "flat";
 
 import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
@@ -17,6 +18,13 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 export const drawerWidth = 200;
+
+function Text(props) {
+  const flattenedSource = flatten(props.source);
+  console.log(flattenedSource)
+
+  return <>{flattenedSource[props.selector]}</>;
+}
 
 export function PagesNavDrawer({ pages, appKey }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -53,11 +61,11 @@ export function PagesNavDrawer({ pages, appKey }) {
           <ListItem key={page} disablePadding>
             <ListItemButton>
               <Link
-                href={`/testing/${segment}/${page}`}
+                href={`/subscriptions/${segment}/${page}`}
                 style={{ width: "100%" }}
               >
                 <ListItemText
-                  primary={pages[page]?.display_name ?? page}
+                  primary={<Text source={pages} selector={`${page}.display_name`} />}
                   sx={{ "& .MuiListItemText-primary": { fontWeight: "light" } }}
                 />
               </Link>
@@ -98,7 +106,7 @@ export function PagesNavDrawer({ pages, appKey }) {
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
             width: drawerWidth,
-            bgcolor: theme.palette.background.default,
+            bgcolor: theme.palette.primary.main,
           },
         })}
       >
@@ -106,15 +114,15 @@ export function PagesNavDrawer({ pages, appKey }) {
       </Drawer>
       <Drawer
         variant="permanent"
-        sx={{
+        sx={(theme) => ({
           display: { xs: "none", md: "block" },
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
             width: drawerWidth,
-            bgcolor: "background.default",
-            color: "primary.contrastText",
+            bgcolor: theme.palette.primary.light,
+            color: theme.palette.primary.contrastText,
           },
-        }}
+        })}
         open
       >
         {drawer}

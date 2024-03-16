@@ -21,6 +21,6 @@ export interface App {
 
 export interface Plugin {
   name: string;
-  source: string;
+  type: string;
   properties: object;
 }

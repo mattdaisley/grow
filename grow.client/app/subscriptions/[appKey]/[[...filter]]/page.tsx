@@ -21,9 +21,9 @@ export default async function Page({ params }) {
   // console.log('DynamicPage', 'filter:', filter, 'itemKeys:', itemKeys, 'pages:', pages)
 
   return (
-    <div>
+    <>
       <SubscriptionsTemplate appKey={appKey} />
-    </div>
+    </>
   );
 }
 

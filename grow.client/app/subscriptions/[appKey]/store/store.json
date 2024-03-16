@@ -4,7 +4,7 @@
       "plugins": {
         "p_1_0": {
           "name": "plugin-pages-v1",
-          "source": "built-in",
+          "type": "layout",
           "properties": {
             "1_0_0": {
               "type": "fields-object",
@@ -18,7 +18,7 @@
         },
         "p_1_1": {
           "name": "plugin-data-v1",
-          "source": "built-in",
+          "type": "built-in",
           "properties": {
             "1_0_0": {
               "type": "fields-object",

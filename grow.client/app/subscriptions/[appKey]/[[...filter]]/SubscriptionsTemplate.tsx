@@ -24,7 +24,7 @@ export default function SubscriptionsTemplate(props) {
         <Box
           sx={{
             flexGrow: 1,
-            py: 4,
+            pt: { xs: 2, md: 4 },
             pl: { xs: 2, md: 4 },
             pr: `${editDrawerWidth}px`,
             height: "100%",
@@ -53,10 +53,10 @@ export default function SubscriptionsTemplate(props) {
         <Box
           sx={{
             position: "fixed",
-            top: 0,
+            top: 64,
             right: 0,
             width: `${editDrawerWidth}px`,
-            height: "100%",
+            height: "calc(100% - 64px)",
             overflowY: "scroll",
             borderLeft: "1px solid lightgray",
           }}

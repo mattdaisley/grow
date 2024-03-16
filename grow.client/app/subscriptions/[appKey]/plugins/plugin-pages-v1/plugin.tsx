@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Collection, getCollection } from "../../store/getCollection";
 import { PagesNavDrawer } from "./components/PagesNavDrawer";
+import PagesAppBar from "./components/PagesAppBar";
 
 export default function Plugin({ app, pluginKey, ...props}) {
 
@@ -39,8 +40,9 @@ export default function Plugin({ app, pluginKey, ...props}) {
   });
 
   return (
-    <div>
-      <PagesNavDrawer pages={pages} appKey={'test'} />
-    </div>
+    <>
+      <PagesAppBar pages={pages} user={"test"} />
+      <PagesNavDrawer pages={pages} appKey={"test"} />
+    </>
   );
 }
