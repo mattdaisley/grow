@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Collection, getCollection } from "../../store/getCollection";
 import PluginNavDrawer from "./components/NavDrawer";
 
-export default function Plugin({ pages, ...props }) {
+interface NavDrawerPluginProps {
+  pages: {
+    [pageKey: string]: Object;
+  };
+}
 
+export default function Plugin({ pages }: NavDrawerPluginProps) {
   if (pages === undefined) {
     return null;
   }

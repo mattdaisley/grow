@@ -8,8 +8,7 @@
           "properties": {
             "1_0_0": {
               "name": "pages",
-              "collectionKey": "1_0",
-              "field": "display_name"
+              "collectionKey": "1_0"
             }
           }
         },
@@ -19,8 +18,7 @@
           "properties": {
             "1_0_0": {
               "name": "pages",
-              "collectionKey": "1_0",
-              "field": "display_name"
+              "collectionKey": "1_0"
             }
           }
         },
@@ -47,19 +45,26 @@
               "f_1_0_0": {
                 "type": "string",
                 "name": "display_name"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "path"
               }
             },
             "display_name": "Application Pages"
           },
           "records": {
             "r_1_0_0": {
-              "f_1_0_0": "Outlets Page"
+              "f_1_0_0": "Outlets Page",
+              "f_1_0_1": "/outlets"
             },
             "r_1_0_1": {
-              "f_1_0_0": "Outlet Events Page"
+              "f_1_0_0": "Outlet Events Page",
+              "f_1_0_1": "/outlet-events"
             },
             "r_1_0_2": {
-              "f_1_0_0": "Chess"
+              "f_1_0_0": "Chess",
+              "f_1_0_1": "/chess"
             }
           }
         },

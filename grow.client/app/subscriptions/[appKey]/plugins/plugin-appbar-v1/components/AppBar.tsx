@@ -19,6 +19,8 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Text } from "../../../store/components/Text";
+import useRecord from "../../../store/useRecord";
+import useCollection from "../../../store/useCollection";
 // import useUser from './../../../services/User/useUser';
 
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -26,7 +28,12 @@ const settings = ["Logout"];
 
 const drawerWidth = 200;
 
-export default function PluginAppBar({ pages, user }) {
+export default function PluginAppBar(props) {
+  console.log('Rendering PluginAppBar');
+
+  const user = props.user;
+  const pages = useCollection(props.pages);
+
   const theme = useTheme();
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -68,13 +75,11 @@ export default function PluginAppBar({ pages, user }) {
   }
 
   const menuItems = Object.keys(pages).map((pageKey) => (
-    <MenuItem key={pageKey} onClick={handleCloseNavMenu}>
-      <Link href={`/${segments.slice(0, 2).join("/")}/${pageKey}`}>
-        <Typography textAlign="center">
-          <Text source={pages} selector={`${pageKey}.display_name`} />
-        </Typography>
-      </Link>
-    </MenuItem>
+    <AppBarMenuItem
+      key={pageKey}
+      handleCloseNavMenu={handleCloseNavMenu}
+      page={pages[pageKey]}
+    />
   ));
 
   return (
@@ -212,4 +217,17 @@ function stringAvatar(name: string) {
     },
     children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
   };
+}
+
+function AppBarMenuItem({ page, handleCloseNavMenu }) {
+  const displayName = useRecord(page, "display_name");
+  const path = useRecord(page, 'path');
+
+  return (
+    <MenuItem onClick={handleCloseNavMenu}>
+      <Link href={`${path}`}>
+        {displayName}
+      </Link>
+    </MenuItem>
+  )
 }

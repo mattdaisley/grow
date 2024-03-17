@@ -1,18 +1,17 @@
-'use client';
+"use client";
 
-import { Roboto } from '@next/font/google'
+import { Roboto } from "@next/font/google";
 
-import { createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from '@mui/material/styles';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-import { SocketContext, socket } from './SocketContext';
 export const roboto = Roboto({
-  weight: ['400', '500'],
-  subsets: ['latin'],
-})
+  weight: ["400", "500"],
+  subsets: ["latin"],
+});
 
 export const theme = createTheme({
   spacing: 8,
@@ -56,16 +55,12 @@ export function AppLayout({ pages, children }) {
   return (
     <html lang="en" className={roboto.className}>
       <body>
-        <SocketContext.Provider value={socket}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <ThemeProvider theme={theme}>
-              <CssBaseline />
-              <div className="app-container">
-                {children}
-              </div>
-            </ThemeProvider>
-          </LocalizationProvider>
-        </SocketContext.Provider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <div className="app-container">{children}</div>
+          </ThemeProvider>
+        </LocalizationProvider>
       </body>
     </html>
   );
