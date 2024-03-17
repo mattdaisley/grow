@@ -10,7 +10,7 @@ export async function getCollection(app: App, schemaType: string): Promise<Colle
   });
 }
 
-export interface Collection {
+export interface ICollection {
   schema: {
     type: string;
     name: string;
@@ -18,4 +18,37 @@ export interface Collection {
     display_name: string;
   };
   records: object
+}
+
+export class Collection {
+  schema: {
+    type: string;
+    name: string;
+    fields: object;
+    display_name: string;
+  };
+  _records: object
+
+  constructor({ schema, records }) {
+    this.schema = schema;
+    this._records = records;
+  }
+
+  get records() {
+    const recordsMapped = {};
+
+    Object.keys(this._records).forEach((recordKey) => {
+      const record = this._records[recordKey];
+      const fields = {};
+      
+      Object.keys(record).forEach((fieldKey) => {
+        const field = this.schema.fields[fieldKey];
+        fields[field.name] = record[fieldKey];
+      });
+      
+      recordsMapped[recordKey] = { ...fields };
+    });
+
+    return recordsMapped;
+  }
 }

@@ -2,6 +2,7 @@ import { getApp } from "../store/getApp";
 import SubscriptionsTemplate from "./SubscriptionsTemplate";
 
 export default async function Page({ params }) {
+  console.log("Rendering Page");
 
   let appKey: string = "";
   if (params.appKey !== undefined) {
@@ -9,7 +10,7 @@ export default async function Page({ params }) {
   }
 
   const app = await getApp(appKey);
-  console.log(app);
+  // console.log(app);
 
   // let filter = params.filter?.[0];
   // if (filter === undefined) {

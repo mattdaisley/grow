@@ -3,34 +3,35 @@
 import { lazy } from "react";
 import Box from "@mui/material/Box";
 
+import { IApp, App } from "./store/getApp";
+
 const plugins = {
-  "plugin-pages-v1": lazy(() => import(`./plugins/plugin-pages-v1/plugin`)),
+  "plugin-appbar-v1": lazy(() => import(`./plugins/plugin-appbar-v1/plugin`)),
+  "plugin-navdrawer-v1": lazy(
+    () => import(`./plugins/plugin-navdrawer-v1/plugin`)
+  )
+
 };
 
 const drawerWidth = 200;
 
+interface Props {
+  app: IApp;
+  children: React.ReactNode;
+}
 
 export default function SubscriptionsLayoutTemplate({
   app,
   children,
   ...props
-}) {
-  const layoutPlugins = Object.keys(app.plugins).filter(
-    (key, index) => app.plugins[key].type === "layout"
-  );
+}: Props) {
+  console.log("Rendering SubscriptionsLayoutTemplate");
+
+  const currentApp = new App(app);
 
   return (
-    <div>
-      {layoutPlugins.map((key) => {
-        const Component = plugins[app.plugins[key].name];
-
-        if (Component === undefined) {
-          console.log(`Plugin not found: ${app.plugins[key].name}`);
-          return null;
-        }
-
-        return <Component app={app} key={key} pluginKey={key} {...props} />;
-      })}
+    <>
+      <LayoutPlugins app={currentApp} />
 
       <Box
         component="main"
@@ -49,6 +50,38 @@ export default function SubscriptionsLayoutTemplate({
       >
         {children}
       </Box>
-    </div>
+    </>
   );
+}
+
+const LayoutPlugins = ({app}) => {
+
+  const layoutPlugins = Object.keys(app.plugins).filter(
+    (key, index) => app.plugins[key].type === "layout"
+  );
+
+  const components = layoutPlugins.map((key) => {
+    const plugin = app.plugins[key];
+
+    const PluginComponent = plugins[plugin.name];
+
+    if (PluginComponent === undefined) {
+      console.log(`Plugin not found: `, plugin);
+      return null;
+    }
+
+    function Component(props) {
+      console.log("Rendering plugin: ", plugin.name);
+      return <PluginComponent {...props} />;
+    }
+
+    return <Component key={key} {...plugin.properties} />;
+  });
+
+  return (
+    <>
+      {components}
+    </>
+  );
+
 }

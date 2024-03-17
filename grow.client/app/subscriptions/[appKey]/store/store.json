@@ -3,20 +3,28 @@
     "1": {
       "plugins": {
         "p_1_0": {
-          "name": "plugin-pages-v1",
+          "name": "plugin-appbar-v1",
           "type": "layout",
           "properties": {
             "1_0_0": {
-              "type": "fields-object",
-              "name": "fields"
-            },
-            "1_0_1": {
-              "type": "string",
-              "name": "display-name"
+              "name": "pages",
+              "collectionKey": "1_0",
+              "field": "display_name"
             }
           }
         },
         "p_1_1": {
+          "name": "plugin-navdrawer-v1",
+          "type": "layout",
+          "properties": {
+            "1_0_0": {
+              "name": "pages",
+              "collectionKey": "1_0",
+              "field": "display_name"
+            }
+          }
+        },
+        "p_1_2": {
           "name": "plugin-data-v1",
           "type": "built-in",
           "properties": {
@@ -26,7 +34,7 @@
             },
             "1_0_1": {
               "type": "string",
-              "name": "display-name"
+              "name": "display_name"
             }
           }
         }
@@ -34,7 +42,6 @@
       "collections": {
         "1_0": {
           "schema": {
-            "type": "p_1_0",
             "name": "app_pages",
             "fields": {
               "f_1_0_0": {
@@ -58,7 +65,6 @@
         },
         "1_1": {
           "schema": {
-            "type": "p_1_1",
             "name": "outlets",
             "fields": {
               "f_1_1_0": {
@@ -74,7 +80,7 @@
                 "name": "updated_date"
               }
             },
-            "display-name": "Outlets"
+            "display_name": "Outlets"
           },
           "records": {
             "r_1_1_0": {

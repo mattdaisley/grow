@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 
 import Link from "next/link";
@@ -16,6 +18,7 @@ import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
+import { Text } from "../../../store/components/Text";
 // import useUser from './../../../services/User/useUser';
 
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -23,7 +26,7 @@ const settings = ["Logout"];
 
 const drawerWidth = 200;
 
-function DynamicAppBar({ pages, user }) {
+export default function PluginAppBar({ pages, user }) {
   const theme = useTheme();
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -63,7 +66,16 @@ function DynamicAppBar({ pages, user }) {
   else {
     userInitials = userSplit[0][0]
   }
-  
+
+  const menuItems = Object.keys(pages).map((pageKey) => (
+    <MenuItem key={pageKey} onClick={handleCloseNavMenu}>
+      <Link href={`/${segments.slice(0, 2).join("/")}/${pageKey}`}>
+        <Typography textAlign="center">
+          <Text source={pages} selector={`${pageKey}.display_name`} />
+        </Typography>
+      </Link>
+    </MenuItem>
+  ));
 
   return (
     <AppBar
@@ -112,15 +124,7 @@ function DynamicAppBar({ pages, user }) {
               display: { xs: "block", md: "none" },
             }}
           >
-            {Object.keys(pages).map((page) => (
-              <MenuItem key={page} onClick={handleCloseNavMenu}>
-                <Link href={`/${segments.slice(0, 2).join("/")}/${page}`}>
-                  <Typography textAlign="center">
-                    {pages[page]?.display_name ?? page}
-                  </Typography>
-                </Link>
-              </MenuItem>
-            ))}
+            {menuItems}
           </Menu>
         </Box>
         <Box
@@ -129,7 +133,7 @@ function DynamicAppBar({ pages, user }) {
             display: { xs: "flex" },
             ml: 2,
             mr: 4,
-            alignItems: "flex-end"
+            alignItems: "flex-end",
           }}
         >
           <SearchIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -209,5 +213,3 @@ function stringAvatar(name: string) {
     children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
   };
 }
-
-export default DynamicAppBar;

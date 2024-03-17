@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { flatten } from "flat";
 
 import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
@@ -16,17 +15,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { Text } from "../../../store/components/Text";
 
 export const drawerWidth = 200;
 
-function Text(props) {
-  const flattenedSource = flatten(props.source);
-  console.log(flattenedSource)
-
-  return <>{flattenedSource[props.selector]}</>;
-}
-
-export function PagesNavDrawer({ pages, appKey }) {
+export default function PluginNavDrawer({ pages, appKey }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -34,6 +27,24 @@ export function PagesNavDrawer({ pages, appKey }) {
   };
 
   const segment = appKey;
+
+  const navItems = Object.keys(pages).map((pageKey) => (
+    <ListItem key={pageKey} disablePadding>
+      <ListItemButton>
+        <Link
+          href={`/subscriptions/${segment}/${pageKey}`}
+          style={{ width: "100%" }}
+        >
+          <ListItemText
+            primary={
+              <Text source={pages} selector={`${pageKey}.display_name`} />
+            }
+            sx={{ "& .MuiListItemText-primary": { fontWeight: "light" } }}
+          />
+        </Link>
+      </ListItemButton>
+    </ListItem>
+  ));
 
   const drawer = (
     <Box>
@@ -57,21 +68,7 @@ export function PagesNavDrawer({ pages, appKey }) {
         </Typography>
       </Toolbar>
       <List>
-        {Object.keys(pages).map((page) => (
-          <ListItem key={page} disablePadding>
-            <ListItemButton>
-              <Link
-                href={`/subscriptions/${segment}/${page}`}
-                style={{ width: "100%" }}
-              >
-                <ListItemText
-                  primary={<Text source={pages} selector={`${page}.display_name`} />}
-                  sx={{ "& .MuiListItemText-primary": { fontWeight: "light" } }}
-                />
-              </Link>
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {navItems}
       </List>
     </Box>
   );
