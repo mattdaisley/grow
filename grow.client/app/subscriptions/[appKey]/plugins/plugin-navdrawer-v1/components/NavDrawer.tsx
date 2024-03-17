@@ -7,7 +7,7 @@ import useCollection from "../../../store/useCollection";
 export const drawerWidth = 200;
 
 export default function PluginNavDrawer(props) {
-  console.log("Rendering PluginNavDrawer");
+  // console.log("Rendering PluginNavDrawer");
 
   const segment = props.appKey;
 

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import PluginAppBar from "./components/AppBar";
 
 export default function Plugin({ pages, ...props }) {
-
   if (pages === undefined) {
     return null;
   }

@@ -11,24 +11,76 @@ export interface ICollection {
 export class Collection {
   key: string;
   schema: ISchema;
-  _records: {
-    [key: string]: Object;
+  records: {
+    [key: string]: Record;
   }
 
-  constructor({key, schema, records }) {
+  private _subscriptions: { 
+    [selector: string]: Function[] 
+  };
+
+  constructor({ key, schema, records }) {
+
     this.key = key;
     this.schema = schema;
-    this._records = records;
+    this._subscriptions = {};
+
+    this._createRecords(records);
   }
 
-  get records(): { [key: string]: Record } {
-    const recordsMapped = {};
+  _createRecords(records: {[key: string]: object}) {
 
-    Object.entries(this._records).forEach(([recordKey, record]) => {
-      recordsMapped[recordKey] = new Record(this.schema, recordKey, record);
+    this.records = {};
+
+    Object.entries(records).forEach(([recordKey, record]) => {
+      this.records[recordKey] = new Record(this.schema, recordKey, record);
     });
+  }
 
-    return recordsMapped;
+  addRecord(recordKey: string, record: any) {
+
+    this.records = { ...this.records, [recordKey]: new Record(this.schema, recordKey, record)}
+
+    this._notifySubscribers('*');
+  }
+
+  removeRecord(recordKey: string) {
+
+    this.records = { ...this.records };
+    delete this.records[recordKey];
+
+    this._notifySubscribers('*');
+  }
+
+  updateRecord(recordKey: string, record: any) {
+
+    if (this.records[recordKey] !== undefined) {
+      this.records[recordKey].update(record);
+    }
+  }
+
+  subscribe(selector: string, callback: Function) {
+
+    if (!this._subscriptions[selector]) {
+      this._subscriptions[selector] = [];
+    }
+    this._subscriptions[selector].push(callback);
+  }
+
+  unsubscribe(selector: string, callback: Function) {
+
+    if (this._subscriptions[selector]) {
+      this._subscriptions[selector] = this._subscriptions[selector].filter(cb => cb !== callback);
+    }
+  }
+
+  private _notifySubscribers(type: string) {
+
+    Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
+      if (type === '*') {
+        callbacks.forEach(cb => cb(this.records))
+      }
+    });
   }
 }
 

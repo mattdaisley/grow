@@ -10,5 +10,19 @@ export default function useRecord(record: Record, field: string) {
   // console.log('userRecord', record, field)
   const [value, setValue] = useState(record.value[field]);
 
+  useEffect(() => {
+    function callback(newRecord) {
+      // console.log('useRecord callback', field, newRecord)
+      setValue(newRecord.value[field]);
+    }
+
+    record.subscribe(field, callback);
+
+    return () => {
+      record.unsubscribe(field, callback);
+    };
+
+  }, [record, field]);
+
   return value;
 }

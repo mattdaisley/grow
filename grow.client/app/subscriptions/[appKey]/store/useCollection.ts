@@ -8,9 +8,24 @@ import { flatten } from "flat";
 import { Collection } from "./domain/Collection";
 
 
+// anytime the collection changes, we want to update the records
 export default function useCollection(collection: Collection) {
-  console.log('useCollection', collection)
-  const [value, setValue] = useState(collection);
+  // console.log('useCollection', collection)
+  const [records, setRecords] = useState(collection.records);
 
-  return value.records;
+  useEffect(() => {
+    function callback(newRecords) {
+      // console.log('useCollection callback', newRecords === records)
+      setRecords(newRecords);
+    }
+
+    collection.subscribe('*', callback);
+
+    return () => {
+      collection.unsubscribe('*', callback);
+    };
+
+  }, [collection]);
+
+  return records;
 }

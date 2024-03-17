@@ -29,7 +29,7 @@ const settings = ["Logout"];
 const drawerWidth = 200;
 
 export default function PluginAppBar(props) {
-  console.log('Rendering PluginAppBar');
+  // console.log('Rendering PluginAppBar');
 
   const user = props.user;
   const pages = useCollection(props.pages);
@@ -63,15 +63,13 @@ export default function PluginAppBar(props) {
   };
 
   const userSplit = user.split(" ");
-  let userInitials = "NA"
+  let userInitials = "NA";
   if (userSplit.length > 1) {
-    userInitials = userSplit[0][0]+userSplit[1][0]
-  }
-  else if (userSplit[0].length > 1) {
-    userInitials = userSplit[0][0] + userSplit[0][1]
-  }
-  else {
-    userInitials = userSplit[0][0]
+    userInitials = userSplit[0][0] + userSplit[1][0];
+  } else if (userSplit[0].length > 1) {
+    userInitials = userSplit[0][0] + userSplit[0][1];
+  } else {
+    userInitials = userSplit[0][0];
   }
 
   const menuItems = Object.keys(pages).map((pageKey) => (
@@ -221,13 +219,11 @@ function stringAvatar(name: string) {
 
 function AppBarMenuItem({ page, handleCloseNavMenu }) {
   const displayName = useRecord(page, "display_name");
-  const path = useRecord(page, 'path');
+  const path = useRecord(page, "path");
 
   return (
     <MenuItem onClick={handleCloseNavMenu}>
-      <Link href={`${path}`}>
-        {displayName}
-      </Link>
+      <Link href={`${path}`}>{displayName}</Link>
     </MenuItem>
-  )
+  );
 }

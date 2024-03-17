@@ -7,8 +7,9 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { last, map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
+import { v4 as uuidv4 } from 'uuid';
 
 import { DynamicService } from './dynamic.service';
 import { CreateDynamicItemDto } from './dto/create-dynamic-item.dto';
@@ -19,12 +20,17 @@ import { DynamicItemsRequest } from './dto/dynamic-items-request.dto';
 import { DynamicItemsResponse } from './dto/dynamic-items-response.dto';
 import { DynamicItem } from './entities/dynamic-item.entity';
 
+let insertedIds = []
+let insertedMessages = {}
+let lastIndex = -1;
+
 @WebSocketGateway({
   namespace: 'dynamic',
   cors: {
     origin: '*',
   }
 })
+
 export class DynamicGateway {
   @WebSocketServer()
   server: Server;
@@ -33,10 +39,80 @@ export class DynamicGateway {
   constructor(
 
     private readonly dynamicService: DynamicService
-  ) {}
+  ) {
+    const timer = setInterval(() => {
+
+      // let typeIndex = Math.floor(Math.random() * 3);
+      // if (insertedIds.length === 0) {
+      //   typeIndex = 0;
+      // }
+      let typeIndex = (lastIndex + 1) % 3;
+      lastIndex = typeIndex;
+
+      const wordsList = [
+        'apple', 'banana', 'cherry', 'date', 'elderberry',
+        'fig', 'grape', 'honeydew', 'iceberg', 'jackfruit',
+        'kiwi', 'lemon', 'mango', 'nectarine', 'orange',
+        'pineapple', 'quince', 'raspberry', 'strawberry', 'tomato',
+        'ugli', 'victoria', 'watermelon', 'xigua', 'yellow',
+        'zucchini'
+      ];
+
+      const randomWord = wordsList[Math.floor(Math.random() * wordsList.length)];
+
+      let message;
+      if (typeIndex === 0) {
+        const id = `${uuidv4()}`;
+        message = { 
+          i: { 
+            'collectionKey': '1_0',
+            'records': {
+              [id]: {
+                "f_1_0_0": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
+                "f_1_0_1": `/${randomWord}`
+              } 
+            }
+          }
+        }
+        insertedIds.push(id)
+        insertedMessages[id] = message;
+      }
+      if (typeIndex === 1 && insertedIds.length > 0) {
+        const idToUpdate = insertedIds[Math.floor(Math.random() * insertedIds.length)];
+        message = { u: {
+            'collectionKey': '1_0',
+            'records': {
+              [idToUpdate]: {
+                "f_1_0_0": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
+                "f_1_0_1": `/${randomWord}`
+              }
+            }
+          }
+        }
+      }
+      if (typeIndex === 2 && insertedIds.length > 0) {
+        const idToDelete = insertedIds[Math.floor(Math.random() * insertedIds.length)];
+        message = { d: { 
+            'collectionKey': '1_0',
+            'records': {
+              [idToDelete]: {} 
+            }
+          }
+        }
+        insertedIds.splice(insertedIds.indexOf(idToDelete), 1)
+      }
+
+      console.log('subscriptions', typeIndex, randomWord)
+      if (message) {
+        this.server.emit('subscriptions', message );
+      }
+    }, 5000);
+  }
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
+    insertedIds = []
+    insertedMessages = {}
   }
 
   handleConnection(client: Socket, ...args: any[]) {

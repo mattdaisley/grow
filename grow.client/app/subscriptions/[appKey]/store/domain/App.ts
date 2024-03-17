@@ -48,4 +48,28 @@ export class App {
     }
     return collectionMap;
   }
+
+  handleEvent(data: any) {
+    // console.log('App handleEvent', data);
+    Object.entries(data).forEach(([key, value]: [string, any]) => {
+      const collection = this.collections[value.collectionKey];
+      switch (key) {
+        case 'i':
+          Object.entries(value.records).forEach(([recordKey, record]) => {
+            collection.addRecord(recordKey, record);
+          });
+          break;
+        case 'd':
+          Object.entries(value.records).forEach(([recordKey, record]) => {
+            collection.removeRecord(recordKey);
+          });
+          break;
+        case 'u':
+          Object.entries(value.records).forEach(([recordKey, record]) => {
+            collection.updateRecord(recordKey, record);
+          });
+          break;
+      }
+    });
+  }
 }

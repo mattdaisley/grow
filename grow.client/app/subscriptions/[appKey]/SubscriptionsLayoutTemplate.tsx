@@ -1,8 +1,9 @@
 "use client";
 
-import { lazy, useContext, useMemo } from "react";
+import { lazy, useContext, useEffect, useMemo } from "react";
 import Box from "@mui/material/Box";
 
+import { SocketContext, socket } from "../../SocketContext";
 import { SubscriptionStoreContext } from "./store/subscriptionStoreContext";
 import { IApp, App } from "./store/domain/App";
 
@@ -10,8 +11,7 @@ const plugins = {
   "plugin-appbar-v1": lazy(() => import(`./plugins/plugin-appbar-v1/plugin`)),
   "plugin-navdrawer-v1": lazy(
     () => import(`./plugins/plugin-navdrawer-v1/plugin`)
-  )
-
+  ),
 };
 
 const drawerWidth = 200;
@@ -30,8 +30,19 @@ export default function SubscriptionsLayoutTemplate({
 
   const currentApp = useMemo(() => new App(app), [app.key]);
 
+  useEffect(() => {
+    socket.on("subscriptions", (data) => {
+      currentApp.handleEvent(data);
+    });
+
+    return () => {
+      socket.off("subscriptions");
+    };
+  }, []);
+
   return (
     <>
+      {/* <SocketContext.Provider value={socket}> */}
       <SubscriptionStoreContext.Provider value={currentApp}>
         <LayoutPlugins />
 
@@ -53,12 +64,12 @@ export default function SubscriptionsLayoutTemplate({
           {children}
         </Box>
       </SubscriptionStoreContext.Provider>
+      {/* </SocketContext.Provider> */}
     </>
   );
 }
 
 const LayoutPlugins = (props) => {
-  
   const app = useContext(SubscriptionStoreContext);
 
   const layoutPlugins = Object.keys(app.plugins).filter(
@@ -76,17 +87,12 @@ const LayoutPlugins = (props) => {
     }
 
     function Component(props) {
-      console.log("Rendering plugin: ", plugin.name);
+      // console.log("Rendering plugin: ", plugin.name);
       return <PluginComponent {...props} />;
     }
 
     return <Component key={key} {...plugin.properties} />;
   });
 
-  return (
-    <>
-      {components}
-    </>
-  );
-
-}
+  return <>{components}</>;
+};
