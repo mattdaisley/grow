@@ -42,11 +42,11 @@ export class DynamicGateway {
   ) {
     const timer = setInterval(() => {
 
-      // let typeIndex = Math.floor(Math.random() * 3);
-      // if (insertedIds.length === 0) {
-      //   typeIndex = 0;
-      // }
-      let typeIndex = (lastIndex + 1) % 3;
+      let typeIndex = Math.floor(Math.random() * 3);
+      if (insertedIds.length === 0) {
+        typeIndex = 0;
+      }
+      // let typeIndex = (lastIndex + 1) % 3;
       lastIndex = typeIndex;
 
       const wordsList = [
@@ -63,14 +63,14 @@ export class DynamicGateway {
       let message;
       if (typeIndex === 0) {
         const id = `${uuidv4()}`;
-        message = { 
-          i: { 
+        message = {
+          i: {
             'collectionKey': '1_0',
             'records': {
               [id]: {
                 "f_1_0_0": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
                 "f_1_0_1": `/${randomWord}`
-              } 
+              }
             }
           }
         }
@@ -92,10 +92,10 @@ export class DynamicGateway {
       }
       if (typeIndex === 2 && insertedIds.length > 0) {
         const idToDelete = insertedIds[Math.floor(Math.random() * insertedIds.length)];
-        message = { d: { 
+        message = { d: {
             'collectionKey': '1_0',
             'records': {
-              [idToDelete]: {} 
+              [idToDelete]: {}
             }
           }
         }
@@ -155,7 +155,7 @@ export class DynamicGateway {
     const values = data.values;
     const event = `items-${itemKey}`;
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
-    
+
     return new Promise<DynamicItemsResponse>((resolve, reject) => {
 
       const allItems: DynamicItemsResponse = { [itemKey]: [] };
@@ -192,17 +192,17 @@ export class DynamicGateway {
     const itemKey = data.itemKey;
     const event = `items-${itemKey}`;
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
-    
+
     return new Promise<DynamicItemsResponse>(async (resolve, reject) => {
-      
+
       const addedItems = await this.dynamicService.addItems(itemKey, data.items)
 
-      const allItems: DynamicItemsResponse = { 
-        [itemKey]: addedItems 
+      const allItems: DynamicItemsResponse = {
+        [itemKey]: addedItems
       };
 
       resolve(allItems);
-      
+
     })
     .then(async (allItems) => {
       return await self.processAutomation({allItems})
@@ -215,7 +215,7 @@ export class DynamicGateway {
   }
 
   async processAutomation({allItems, deleting = false}) {
-    const self = this; 
+    const self = this;
 
     return new Promise<DynamicItemsResponse>((resolve, reject) => {
 
@@ -330,7 +330,7 @@ export class DynamicGateway {
 
     const referencedCollectionObject = {}
     const referencedCollectionFields = await this.dynamicService.findManyByValueKey(valueKey)
-    
+
     let expectedFieldsCount = referencedCollectionFields.length;
 
     return new Promise((resolve) => {
@@ -362,7 +362,7 @@ export class DynamicGateway {
     const itemKey = data.itemKey;
     const items = data.items;
     const event = `items-${itemKey}`;
-    
+
     return new Promise<DynamicItemsDeleteResponse>(async (resolve, reject) => {
 
       const allItems: DynamicItemsDeleteResponse = { [itemKey]: [] };
@@ -378,7 +378,7 @@ export class DynamicGateway {
     .then(async (items): Promise<DynamicItemsDeleteResponse> => {
 
       return new Promise<DynamicItemsDeleteResponse>(async (resolve, reject) => {
-        
+
         const deletedItems: DynamicItemsResponse = {};
 
         if (Object.keys(items).length === 0) {
@@ -393,27 +393,27 @@ export class DynamicGateway {
           dynamicItemsValues.forEach(async (dynamicItemsValue, valuesIndex, valuesArray) => {
             const valueKey = dynamicItemsValue.valueKey;
             const item = await this.dynamicService.findOneByValueKey(valueKey);
-        
+
             console.log('handleDeleteItemsEvent deleted item', item)
 
             deletedItems[itemKey].push(item);
 
             if (Object.keys(deletedItems).length === itemKeysArray.length && deletedItems[itemKey].length === valuesArray.length) {
-        
+
               console.log('handleDeleteItemsEvent deleting items', deletedItems)
               await self.processAutomation({ allItems: deletedItems, deleting: true})
 
               resolve(items)
             }
           })
-          
+
         })
       })
     })
     .then(async (items): Promise<DynamicItemsDeleteResponse> => {
 
       return new Promise<DynamicItemsDeleteResponse>(async (resolve, reject) => {
-        
+
         const deletedItems: DynamicItemsDeleteResponse = {};
 
         if (Object.keys(items).length === 0) {
@@ -433,7 +433,7 @@ export class DynamicGateway {
               resolve(items)
             }
           })
-          
+
         })
       })
     })
@@ -506,7 +506,7 @@ export class DynamicGateway {
     //   // client.emit('all-items', dynamicItems)
     // })
   }
-  
+
   @SubscribeMessage('set-item')
   async handleSetItemEvent(@MessageBody() data: unknown): Promise<WsResponse<unknown>> {
     console.log('handleSetItemEvent', data)
@@ -514,7 +514,7 @@ export class DynamicGateway {
     const self = this;
     const event = 'set-item';
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
-    
+
     var saveItems = new Promise((resolve, reject) => {
       const items = {};
       Object.keys(data).forEach(async (itemKey, i, a) => {
@@ -544,12 +544,12 @@ export class DynamicGateway {
   public emitEvent(event: string, items: unknown) {
     this.server.emit(event, items)
   }
-  
+
   @SubscribeMessage('delete-item')
   async handleDeleteItemEvent(@MessageBody() data: unknown): Promise<WsResponse<unknown>> {
     const event = 'delete-item';
     //const createSensorReadingDto: CreateSensorReadingDto = { value: tdsValue };
-    
+
     var deleteItems = new Promise((resolve, reject) => {
       const items = {};
       Object.keys(data).forEach(async (itemKey, i, a) => {

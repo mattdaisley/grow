@@ -4,7 +4,8 @@ import { Property } from './Property';
 
 export interface IPlugin {
   name: string;
-  type: string;
+  parent: string;
+  order: number;
   properties: {
     [key: string]: Property;
   };
@@ -14,17 +15,19 @@ export interface IPlugin {
 export class Plugin {
   key: string;
   name: string;
-  type: string;
+  parent: string;
+  order: number;
   private _app: App;
   private _properties: {
     [key: string]: Property;
   };
 
-  constructor(app: App, { key, name, type, properties }) {
+  constructor(app: App, { key, name, parent, order, properties }) {
     this._app = app;
     this.key = key;
     this.name = name;
-    this.type = type;
+    this.parent = parent;
+    this.order = order;
     this._properties = properties;
   }
 
