@@ -13,6 +13,7 @@ export default function Plugin({ pages }: PagePluginProps) {
   if (pages === undefined) {
     return null;
   }
+  console.log("plugin-page-v1 pages", pages);
 
   return (
     <>

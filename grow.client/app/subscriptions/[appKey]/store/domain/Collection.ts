@@ -1,3 +1,4 @@
+import { App } from './App';
 import { Record } from './Record';
 import { ISchema } from './Schema';
 
@@ -15,16 +16,17 @@ export class Collection {
     [key: string]: Record;
   }
 
+  private _app: App;
   private _subscriptions: { 
     [selector: string]: Function[] 
   };
 
-  constructor({ key, schema, records }) {
-
+  constructor(app: App, { key, schema, records }) {
+    this._app = app;
     this.key = key;
     this.schema = schema;
     this._subscriptions = {};
-
+    
     this._createRecords(records);
   }
 
@@ -33,13 +35,13 @@ export class Collection {
     this.records = {};
 
     Object.entries(records).forEach(([recordKey, record]) => {
-      this.records[recordKey] = new Record(this.schema, recordKey, record);
+      this.records[recordKey] = new Record(this._app, {schema: this.schema, key: recordKey, record});
     });
   }
 
   addRecord(recordKey: string, record: any) {
 
-    this.records = { ...this.records, [recordKey]: new Record(this.schema, recordKey, record)}
+    this.records = { ...this.records, [recordKey]: new Record(this._app, {schema: this.schema, key: recordKey, record})}
 
     this._notifySubscribers('*');
   }

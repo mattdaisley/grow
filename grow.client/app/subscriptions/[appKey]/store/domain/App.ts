@@ -44,7 +44,7 @@ export class App {
   private _createCollections(collections: { [key: string]: ICollection; }) {
     const collectionMap = {};
     for (const [collectionKey, collection] of Object.entries(collections)) {
-      collectionMap[collectionKey] = new Collection({key: collectionKey, ...collection});
+      collectionMap[collectionKey] = new Collection(this, {key: collectionKey, ...collection});
     }
     return collectionMap;
   }

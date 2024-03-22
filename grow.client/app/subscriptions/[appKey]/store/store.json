@@ -26,11 +26,11 @@
         },
         "p_1_2": {
           "name": "plugin-data-v1",
-          "parent": "p_1_1",
+          "parent": "component",
           "properties": {
             "1_0_0": {
-              "type": "fields-object",
-              "name": "fields"
+              "name": "fields",
+              "collectionKey": "fields-object"
             },
             "1_0_1": {
               "type": "string",
@@ -47,6 +47,20 @@
               "collectionKey": "1_0"
             }
           }
+        },
+        "p_1_4": {
+          "name": "plugin-textfield-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "string",
+              "name": "value"
+            },
+            "1_0_1": {
+              "type": "string",
+              "name": "label"
+            }
+          }
         }
       },
       "collections": {
@@ -61,6 +75,10 @@
               "f_1_0_1": {
                 "type": "string",
                 "name": "path"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
               }
             },
             "display_name": "Application Pages"
@@ -68,15 +86,18 @@
           "records": {
             "r_1_0_0": {
               "f_1_0_0": "Outlets Page",
-              "f_1_0_1": "/outlets"
+              "f_1_0_1": "/outlets",
+              "f_1_0_2": "1_3"
             },
             "r_1_0_1": {
               "f_1_0_0": "Outlet Events Page",
-              "f_1_0_1": "/outlet-events"
+              "f_1_0_1": "/outlet-events",
+              "f_1_0_2": "1_4"
             },
             "r_1_0_2": {
               "f_1_0_0": "Chess",
-              "f_1_0_1": "/chess"
+              "f_1_0_1": "/chess",
+              "f_1_0_2": "1_3"
             }
           }
         },
@@ -109,6 +130,97 @@
               "f_1_1_0": "Main Pump",
               "f_1_1_1": "2023-04-03T16:09:40.072Z",
               "f_1_1_2": "2023-04-07T03:22:22.000Z"
+            }
+          }
+        },
+        "1_2": {
+          "schema": {
+            "name": "outlet_events",
+            "fields": {
+              "f_1_2_0": {
+                "type": "string",
+                "name": "event_name"
+              },
+              "f_1_2_1": {
+                "type": "datetime",
+                "name": "event_date"
+              },
+              "f_1_2_2": {
+                "type": "string",
+                "name": "event_description"
+              }
+            },
+            "display_name": "Outlet Events"
+          },
+          "records": {
+            "r_1_2_0": {
+              "f_1_2_0": "Overhead Lights Turned On",
+              "f_1_2_1": "2023-04-03T16:09:40.072Z",
+              "f_1_2_2": "The overhead lights were turned on."
+            },
+            "r_1_2_1": {
+              "f_1_2_0": "Main Pump Turned On",
+              "f_1_2_1": "2023-04-03T16:09:40.072Z",
+              "f_1_2_2": "The main pump was turned on."
+            }
+          }
+        },
+        "1_3": {
+          "schema": {
+            "name": "page_1",
+            "fields": {
+              "f_1_3_0": {
+                "type": "string",
+                "name": "plugin"
+              },
+              "f_1_3_1": {
+                "type": "string",
+                "name": "value"
+              },
+              "f_1_3_2": {
+                "type": "string",
+                "name": "label"
+              },
+              "display_name": "Page 1"
+            }
+          },
+          "records": {
+            "r_1_3_0": {
+              "f_1_3_0": "p_1_4",
+              "f_1_3_1": "collections.1_1.records.r_1_1_0.f_1_1_0",
+              "f_1_3_2": "Outlet Name"
+            },
+            "r_1_3_1": {
+              "f_1_3_0": "p_1_4",
+              "f_1_3_1": "collections.1_2.records.r_1_2_0.f_1_2_0",
+              "f_1_3_2": "Event Name"
+            }
+          }
+        },
+        "1_4": {
+          "schema": {
+            "name": "page_2",
+            "fields": {
+              "f_1_3_0": {
+                "type": "string",
+                "name": "plugin"
+              },
+              "f_1_3_1": {
+                "type": "string",
+                "name": "value"
+              },
+              "f_1_3_2": {
+                "type": "string",
+                "name": "label"
+              },
+              "display_name": "Page 1"
+            }
+          },
+          "records": {
+            "r_1_3_0": {
+              "f_1_3_0": "p_1_4",
+              "f_1_3_1": "collections.1_2.records.r_1_2_0.f_1_2_0",
+              "f_1_3_2": "Event Name"
             }
           }
         }

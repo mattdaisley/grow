@@ -1,3 +1,4 @@
+import { App } from './App';
 import { ISchema } from './Schema';
 
 
@@ -5,11 +6,14 @@ export class Record {
   key: string;
   schema: ISchema;
   _record: object;
+
+  private _app: App;
   private _subscriptions: { 
     [selector: string]: Function[] 
   };
 
-  constructor(schema: ISchema, key: string, record: object) {
+  constructor(app: App, {schema, key, record}: {schema: ISchema, key: string, record: object}) {
+    this._app = app;
     this.key = key;
     this.schema = schema;
     this._record = record;
@@ -23,7 +27,16 @@ export class Record {
     Object.entries(this._record).forEach(([fieldKey, record]) => {
       const field = this.schema.fields[fieldKey];
 
-      fields[field.name] = record;
+      if (field.type === 'collection') {
+        // console.log('record field', fieldKey, field, this._record)
+        const collection = this._app.collections[this._record[fieldKey]];
+        // console.log('record collection', field.name, collection)
+        fields[field.name] = collection;
+      }
+      else {
+        fields[field.name] = record;
+      }
+
     });
 
     return fields;

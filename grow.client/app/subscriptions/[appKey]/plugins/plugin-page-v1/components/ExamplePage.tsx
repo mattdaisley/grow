@@ -28,7 +28,7 @@ export function ExamplePage(props) {
                 {Array(30)
                   .fill(null)
                   .map((_, index) => (
-                    <div>
+                    <div key={index}>
                       <input
                         key={index}
                         value={`test${index}`}

@@ -3,6 +3,7 @@
 import { Box } from "@mui/material";
 import useCollection from "../../../store/useCollection";
 import { ExamplePage } from "./ExamplePage";
+import { RecordPage } from "./RecordPage";
 
 export const drawerWidth = 200;
 
@@ -12,6 +13,7 @@ export default function PluginMain(props) {
   const segment = props.appKey;
 
   const pages = useCollection(props.pages);
+  console.log(pages);
 
   return (
     <Box
@@ -29,6 +31,9 @@ export default function PluginMain(props) {
         };
       }}
     >
+      {Object.entries(pages).map(([key, page]) => {
+        return <RecordPage key={key} page={page} />;
+      })}
       <ExamplePage />
     </Box>
   );
