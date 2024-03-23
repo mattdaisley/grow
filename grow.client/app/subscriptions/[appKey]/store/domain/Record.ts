@@ -7,13 +7,13 @@ export class Record {
   schema: ISchema;
   _record: object;
 
-  private _app: App;
+  app: App;
   private _subscriptions: { 
     [selector: string]: Function[] 
   };
 
   constructor(app: App, {schema, key, record}: {schema: ISchema, key: string, record: object}) {
-    this._app = app;
+    this.app = app;
     this.key = key;
     this.schema = schema;
     this._record = record;
@@ -24,17 +24,17 @@ export class Record {
     
     const fields = {};
 
-    Object.entries(this._record).forEach(([fieldKey, record]) => {
+    Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
       const field = this.schema.fields[fieldKey];
 
       if (field.type === 'collection') {
         // console.log('record field', fieldKey, field, this._record)
-        const collection = this._app.collections[this._record[fieldKey]];
+        const collection = this.app.collections[this._record[fieldKey]];
         // console.log('record collection', field.name, collection)
         fields[field.name] = collection;
       }
       else {
-        fields[field.name] = record;
+        fields[field.name] = fieldValue;
       }
 
     });
@@ -49,6 +49,21 @@ export class Record {
     this._record = record;
 
     difference.forEach(k => this._notifySubscribers(this.schema.fields[k].name));
+  }
+
+  updateField(fieldName: string, newValue: any) {
+
+    const newRecord = { ...this._record };
+
+    Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
+      const field = this.schema.fields[fieldKey];
+
+      if (field.name === fieldName) {
+        newRecord[fieldKey] = newValue;
+      }
+    });
+
+    this.update(newRecord);
   }
 
   subscribe(selector: string, callback: Function) {

@@ -8,8 +8,8 @@ import ListItemText from "@mui/material/ListItemText";
 import useRecord from "../../../store/useRecord";
 
 export function NavItem({ segment, page }) {
-  const displayName = useRecord(page, "display_name");
-  const path = useRecord(page, "path");
+  const [displayName] = useRecord(page, "display_name");
+  const [path] = useRecord(page, "path");
 
   return (
     <ListItem disablePadding>

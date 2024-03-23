@@ -18,7 +18,6 @@ import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Text } from "../../../store/components/Text";
 import useRecord from "../../../store/useRecord";
 import useCollection from "../../../store/useCollection";
 // import useUser from './../../../services/User/useUser';
@@ -218,8 +217,8 @@ function stringAvatar(name: string) {
 }
 
 function AppBarMenuItem({ page, handleCloseNavMenu }) {
-  const displayName = useRecord(page, "display_name");
-  const path = useRecord(page, "path");
+  const [displayName] = useRecord(page, "display_name");
+  const [path] = useRecord(page, "path");
 
   return (
     <MenuItem onClick={handleCloseNavMenu}>

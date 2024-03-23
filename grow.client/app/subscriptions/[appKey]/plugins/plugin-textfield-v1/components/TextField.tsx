@@ -9,8 +9,8 @@ import useRecord from "../../../store/useRecord";
 import useCollection from "../../../store/useCollection";
 import { Box } from "@mui/material";
 
-export default function PluginTextField({ value, label }) {
-  // console.log('Rendering PluginTextField');
+export default function PluginTextField({ value, label, onChange }) {
+  // console.log("Rendering PluginTextField", onChange);
 
   // const pages = useCollection(props.pages);
 
@@ -21,6 +21,7 @@ export default function PluginTextField({ value, label }) {
         variant="outlined"
         label={label}
         value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
       />
     </Box>
   );
