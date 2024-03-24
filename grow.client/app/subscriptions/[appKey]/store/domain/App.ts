@@ -26,7 +26,7 @@ export class App {
   };
 
   constructor({ key, plugins, collections }: IApp) {
-    console.log('App constructor app key:', key);
+    // console.log('App constructor app key:', key);
     this.key = key;
     this._plugins = plugins;
     this.plugins = this._createPlugins(plugins);

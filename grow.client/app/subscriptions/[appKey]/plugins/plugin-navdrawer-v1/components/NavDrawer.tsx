@@ -2,7 +2,7 @@
 
 import { NavItem } from "./NavItem";
 import { ResponsiveNavDrawer } from "./ResponsiveNavDrawer";
-import useCollection from "../../../store/useCollection";
+import useCollections from "../../../store/useCollections";
 
 export const drawerWidth = 200;
 
@@ -11,11 +11,17 @@ export default function PluginNavDrawer(props) {
 
   const segment = props.appKey;
 
-  const pages = useCollection(props.pages);
+  const pages = useCollections([props.pages]);
+  // console.log("PluginNavDrawer", pages);
+  if (!pages || !pages[props.pages.key]?.records) {
+    return null;
+  }
+
+  const pageRecords = pages[props.pages.key].records;
 
   return (
     <ResponsiveNavDrawer segment={segment}>
-      {Object.entries(pages).map(([pageKey, page]) => (
+      {Object.entries(pageRecords).map(([pageKey, page]) => (
         <NavItem key={pageKey} segment={segment} page={page} />
       ))}
     </ResponsiveNavDrawer>

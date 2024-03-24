@@ -5,7 +5,7 @@ import { useContext, lazy } from "react";
 import { SubscriptionStoreContext } from "../store/subscriptionStoreContext";
 
 export const plugins = {
-  "plugin-page-v1": lazy(() => import(`../plugins/plugin-page-v1/plugin`)),
+  "plugin-pages-v1": lazy(() => import(`../plugins/plugin-pages-v1/plugin`)),
 };
 
 export const PagePlugins = (props) => {
@@ -15,11 +15,11 @@ export const PagePlugins = (props) => {
     (key, index) => app.plugins[key].parent === "page"
   );
 
-  const sortedLayoutPlugins = pagePlugins.sort((a, b) => {
+  const sortedPagePlugins = pagePlugins.sort((a, b) => {
     return app.plugins[a].order - app.plugins[b].order;
   });
 
-  const components = sortedLayoutPlugins.map((key) => {
+  const components = sortedPagePlugins.map((key) => {
     const plugin = app.plugins[key];
 
     const PluginComponent = plugins[plugin.name];
@@ -30,7 +30,7 @@ export const PagePlugins = (props) => {
     }
 
     function Component(props) {
-      // console.log("Rendering plugin: ", plugin.name);
+      // console.log("Rendering plugin: ", plugin.name, plugin.properties);
       return <PluginComponent {...props} />;
     }
 

@@ -1,41 +1,130 @@
 "use client";
-import useRecord from "../useRecord";
-import useCollection from "../useCollection";
+import useRecords from "../useRecords";
+import useCollections from "../useCollections";
 import { Collection } from "../domain/Collection";
 import { Plugin } from "../domain/Plugin";
 import { RecordPluginComponent } from "./RecordPluginComponent";
 
 interface IReferencedFieldProps {
   plugin: Plugin;
-  collection: Collection;
-  recordKey: string;
-  fieldKey: string;
-  fieldPropKey: string;
-
-  [props: string]: any;
+  referencedFields: {
+    [key: string]: {
+      collection: Collection;
+      recordKey: string;
+      fieldKey: string;
+      fieldPropKey: string;
+    };
+  };
+  recordValues;
 }
 export function ReferencedField({
   plugin,
-  collection,
-  recordKey,
-  fieldKey,
-  fieldPropKey,
+  referencedFields,
+  recordValues,
   ...props
 }: IReferencedFieldProps) {
-  const records = useCollection(collection);
-  const record = records[recordKey];
-  const fieldName = record.schema.fields[fieldKey].name;
-  const [field, onChange] = useRecord(record, fieldName);
+  // console.log(
+  //   "ReferencedField referencedFields",
+  //   referencedFields,
+  //   "recordValues",
+  //   recordValues
+  // );
+  const collectionRecords = useCollections(
+    Object.entries(referencedFields).map(([key, value]) => value.collection)
+  );
 
-  const componentProps = {
-    [fieldPropKey]: field,
-    onChange,
-    ...props,
+  // console.log("ReferencedField collectionRecords", collectionRecords);
+  if (
+    !collectionRecords ||
+    Object.keys(collectionRecords).length === 0 ||
+    Object.values(collectionRecords).filter((records) => records === undefined)
+      .length > 0
+  ) {
+    return null;
+  }
+
+  // return <></>;
+  return (
+    <ReferencedField2
+      plugin={plugin}
+      collectionRecords={collectionRecords}
+      referencedFields={referencedFields}
+      recordValues={recordValues}
+    />
+  );
+}
+
+interface IReferencedField2Props {
+  plugin: Plugin;
+  collectionRecords: {
+    [key: string]: {
+      records: {
+        [key: string]: any;
+      };
+    };
   };
+  referencedFields: {
+    [key: string]: {
+      collection: Collection;
+      recordKey: string;
+      fieldKey: string;
+      fieldPropKey: string;
+    };
+  };
+  recordValues;
+}
+function ReferencedField2({
+  plugin,
+  collectionRecords,
+  referencedFields,
+  recordValues,
+}: IReferencedField2Props) {
+  const recordFieldRequest = Object.entries(referencedFields).map(
+    ([key, referencedField]) => {
+      const record =
+        collectionRecords[referencedField.collection.key].records[
+          referencedField.recordKey
+        ];
+      return {
+        record,
+        field: record.schema.fields[referencedField.fieldKey].name,
+      };
+    }
+  );
+
+  const useRecordsResults = useRecords(recordFieldRequest);
+  if (
+    !useRecordsResults ||
+    Object.keys(useRecordsResults).length === 0 ||
+    Object.values(useRecordsResults).filter(
+      (useRecordsResult) => useRecordsResult === undefined
+    ).length > 0
+  ) {
+    return null;
+  }
+
+  Object.entries(referencedFields).forEach(([key, referencedField]) => {
+    const record =
+      collectionRecords[referencedField.collection.key].records[
+        referencedField.recordKey
+      ];
+    const useRecordKey = record.schema.fields[referencedField.fieldKey].name;
+
+    recordValues[key] = useRecordsResults[useRecordKey];
+  });
+
+  // console.log(
+  //   "ReferencedField2 useRecordsResults",
+  //   useRecordsResults,
+  //   "referencedFields",
+  //   referencedFields,
+  //   "recordValues",
+  //   recordValues
+  // );
 
   return (
     <>
-      <RecordPluginComponent plugin={plugin} {...componentProps} />
+      <RecordPluginComponent plugin={plugin} {...recordValues} />
     </>
   );
 }

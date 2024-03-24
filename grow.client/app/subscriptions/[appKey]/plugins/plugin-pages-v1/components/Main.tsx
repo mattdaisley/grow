@@ -1,19 +1,24 @@
 "use client";
 
 import { Box } from "@mui/material";
-import useCollection from "../../../store/useCollection";
+import useCollections from "../../../store/useCollections";
 import { ExamplePage } from "./ExamplePage";
 import { PluginPage } from "./PluginPage";
 
 export const drawerWidth = 200;
 
-export default function PluginMain(props) {
+export default function PluginMain({ pagesCollection, appKey }) {
   // console.log("Rendering PluginMain");
 
-  const segment = props.appKey;
+  const segment = appKey;
 
-  const pages = useCollection(props.pages);
-  console.log(pages);
+  const pages = useCollections([pagesCollection]);
+  // console.log("PluginMain", pages);
+  if (!pages || !pages[pagesCollection.key]?.records) {
+    return null;
+  }
+
+  const pageRecords = pages[pagesCollection.key].records;
 
   return (
     <Box
@@ -31,8 +36,8 @@ export default function PluginMain(props) {
         };
       }}
     >
-      {Object.entries(pages).map(([key, page]) => {
-        return <PluginPage key={key} page={page} />;
+      {Object.entries(pageRecords).map(([key, pageRecord]) => {
+        return <PluginPage key={key} pageRecord={pageRecord} />;
       })}
       {/* <ExamplePage /> */}
     </Box>

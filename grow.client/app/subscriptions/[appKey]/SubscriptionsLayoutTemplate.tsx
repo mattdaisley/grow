@@ -20,7 +20,7 @@ export default function SubscriptionsLayoutTemplate({
   children,
   ...props
 }: Props) {
-  console.log("Rendering SubscriptionsLayoutTemplate");
+  // console.log("Rendering SubscriptionsLayoutTemplate");
 
   const currentApp = useMemo(() => new App(app), [app.key]);
 

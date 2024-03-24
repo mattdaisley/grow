@@ -8,7 +8,7 @@ import { PagePlugins } from "./PagePlugins";
 const editDrawerWidth = 450;
 
 export default function SubscriptionsTemplate(props) {
-  console.log("SubscriptionsTemplate", props);
+  // console.log("SubscriptionsTemplate", props);
 
   return (
     <>

@@ -18,8 +18,8 @@ import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import useRecord from "../../../store/useRecord";
-import useCollection from "../../../store/useCollection";
+import useRecords from "../../../store/useRecords";
+import useCollections from "../../../store/useCollections";
 // import useUser from './../../../services/User/useUser';
 
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -31,7 +31,6 @@ export default function PluginAppBar(props) {
   // console.log('Rendering PluginAppBar');
 
   const user = props.user;
-  const pages = useCollection(props.pages);
 
   const theme = useTheme();
 
@@ -43,6 +42,14 @@ export default function PluginAppBar(props) {
   );
 
   const segments = useSelectedLayoutSegments();
+
+  const pages = useCollections([props.pages]);
+  // console.log("PluginAppBar", pages);
+  if (!pages || !pages[props.pages.key]?.records) {
+    return null;
+  }
+
+  const pageRecords = pages[props.pages.key].records;
 
   // const [user] = useUser();
 
@@ -71,11 +78,11 @@ export default function PluginAppBar(props) {
     userInitials = userSplit[0][0];
   }
 
-  const menuItems = Object.keys(pages).map((pageKey) => (
+  const menuItems = Object.keys(pageRecords).map((pageKey) => (
     <AppBarMenuItem
       key={pageKey}
       handleCloseNavMenu={handleCloseNavMenu}
-      page={pages[pageKey]}
+      page={pageRecords[pageKey]}
     />
   ));
 
@@ -217,12 +224,19 @@ function stringAvatar(name: string) {
 }
 
 function AppBarMenuItem({ page, handleCloseNavMenu }) {
-  const [displayName] = useRecord(page, "display_name");
-  const [path] = useRecord(page, "path");
+  // const { display_name, path } = useRecords(page, ["display_name", "path"]);
+  const { display_name, path } = useRecords([
+    { record: page, field: "display_name" },
+    { record: page, field: "path" },
+  ]);
+
+  if (!display_name || !path) {
+    return null;
+  }
 
   return (
     <MenuItem onClick={handleCloseNavMenu}>
-      <Link href={`${path}`}>{displayName}</Link>
+      <Link href={`${path.value}`}>{display_name.value}</Link>
     </MenuItem>
   );
 }

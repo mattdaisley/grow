@@ -7,13 +7,13 @@ export class Record {
   schema: ISchema;
   _record: object;
 
-  app: App;
+  private _app: App;
   private _subscriptions: { 
     [selector: string]: Function[] 
   };
 
   constructor(app: App, {schema, key, record}: {schema: ISchema, key: string, record: object}) {
-    this.app = app;
+    this._app = app;
     this.key = key;
     this.schema = schema;
     this._record = record;
@@ -29,7 +29,7 @@ export class Record {
 
       if (field.type === 'collection') {
         // console.log('record field', fieldKey, field, this._record)
-        const collection = this.app.collections[this._record[fieldKey]];
+        const collection = this._app.collections[this._record[fieldKey]];
         // console.log('record collection', field.name, collection)
         fields[field.name] = collection;
       }

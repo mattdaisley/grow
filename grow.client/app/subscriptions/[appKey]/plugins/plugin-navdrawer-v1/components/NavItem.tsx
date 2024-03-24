@@ -5,21 +5,29 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 
-import useRecord from "../../../store/useRecord";
+import useRecords from "../../../store/useRecords";
 
 export function NavItem({ segment, page }) {
-  const [displayName] = useRecord(page, "display_name");
-  const [path] = useRecord(page, "path");
+  // const { display_name, path } = useRecords(page, ["display_name", "path"]);
+  // console.log("NavItem", page, display_name, path);
+  const { display_name, path } = useRecords([
+    { record: page, field: "display_name" },
+    { record: page, field: "path" },
+  ]);
+
+  if (!display_name || !path) {
+    return null;
+  }
 
   return (
     <ListItem disablePadding>
       <ListItemButton>
         <Link
-          href={`/subscriptions/${segment}${path}`}
+          href={`/subscriptions/${segment}${path.value}`}
           style={{ width: "100%" }}
         >
           <ListItemText
-            primary={displayName}
+            primary={display_name.value}
             sx={{ "& .MuiListItemText-primary": { fontWeight: "light" } }}
           />
         </Link>

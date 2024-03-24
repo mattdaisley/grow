@@ -2,6 +2,7 @@
 import { lazy } from "react";
 
 import { Plugin } from "../domain/Plugin";
+import { Record } from "../domain/Record";
 
 export const plugins = {
   "plugin-textfield-v1": lazy(
@@ -11,14 +12,15 @@ export const plugins = {
 
 interface IRecordPluginComponentProps {
   plugin: Plugin;
-  [props: string]: any;
+  record: Record;
 }
 
 export function RecordPluginComponent({
   plugin,
+  record,
   ...props
 }: IRecordPluginComponentProps) {
-  console.log("RecordPlugin plugin", plugin);
+  // console.log("RecordPluginComponent plugin", plugin);
 
   const PluginComponent = plugins[plugin.name];
 
@@ -27,5 +29,5 @@ export function RecordPluginComponent({
     return null;
   }
 
-  return <PluginComponent {...plugin.properties} {...props} />;
+  return <PluginComponent {...plugin.properties} record={record} {...props} />;
 }
