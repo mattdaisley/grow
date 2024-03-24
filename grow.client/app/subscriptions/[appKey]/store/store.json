@@ -192,8 +192,13 @@
             },
             "r_1_3_1": {
               "f_1_3_0": "p_1_4",
-              "f_1_3_1": "collections.1_2.records.r_1_2_0.f_1_2_0",
-              "f_1_3_2": "Event Name"
+              "f_1_3_1": "collections.1_1.records.r_1_1_0.f_1_1_1",
+              "f_1_3_2": "Created Date"
+            },
+            "r_1_3_2": {
+              "f_1_3_0": "p_1_4",
+              "f_1_3_1": "collections.1_1.records.r_1_1_0.f_1_1_2",
+              "f_1_3_2": "Updated Date"
             }
           }
         },
