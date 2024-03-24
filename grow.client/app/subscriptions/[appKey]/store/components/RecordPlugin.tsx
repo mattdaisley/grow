@@ -17,9 +17,12 @@ export function RecordPlugin({ record }: { record: Record }) {
       field: value.name,
     })
   );
-  // console.log(recordFieldRequest);
+  // console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
   const useRecordsResults = useRecords(recordFieldRequest);
-  // console.log("RecordPlugin recordValues", useRecordsResults);
+  // console.log(
+  //   "RecordPlugin useRecordsResults",
+  //   JSON.stringify(useRecordsResults)
+  // );
 
   if (
     !useRecordsResults ||
@@ -33,7 +36,7 @@ export function RecordPlugin({ record }: { record: Record }) {
 
   const pluginKey = useRecordsResults[`plugin_key`];
   const plugin = app.plugins[pluginKey?.value];
-  // console.log(plugin.properties);
+  // console.log("RecordPlugin plugin.properties", plugin.properties);
 
   const referencedFields = {};
 

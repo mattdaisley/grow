@@ -80,6 +80,8 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest[]): 
 
     setValue(values);
 
+    // console.log('useRecord callbacks', callbacks)
+
     return () => {
       // console.log('useRecord cleanup')
       Object.entries(callbacks).forEach(([field, recordCallback]) => {

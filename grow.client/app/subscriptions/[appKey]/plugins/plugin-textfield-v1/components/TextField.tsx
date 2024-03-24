@@ -9,6 +9,11 @@ import { Box } from "@mui/material";
 export default function PluginTextField({ value, label, onChange }) {
   // console.log("Rendering PluginTextField", value, label);
 
+  function handleChange(e) {
+    // console.log("PluginTextField handleChange", e.target.value);
+    onChange(e.target.value);
+  }
+
   return (
     <Box sx={{ padding: 2 }}>
       <TextField
@@ -16,7 +21,7 @@ export default function PluginTextField({ value, label, onChange }) {
         variant="outlined"
         label={label ?? ""}
         value={value ?? ""}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={handleChange}
       />
     </Box>
   );

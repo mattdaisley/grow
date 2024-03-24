@@ -86,6 +86,7 @@ export class Record {
 
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
       if (type === '*' || selector === type) {
+        // console.log("Record _notifySubscribers", selector, type, this)
         callbacks.forEach(cb => cb(this))
       }
     });

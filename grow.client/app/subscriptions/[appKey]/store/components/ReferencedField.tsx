@@ -103,6 +103,17 @@ function ReferencedField2({
     return null;
   }
 
+  // console.log(
+  //   "ReferencedField2 referencedFields",
+  //   referencedFields,
+  //   "useRecordsResults",
+  //   useRecordsResults,
+  //   "recordValues",
+  //   recordValues
+  // );
+
+  const lookedUpValues = {};
+
   Object.entries(referencedFields).forEach(([key, referencedField]) => {
     const record =
       collectionRecords[referencedField.collection.key].records[
@@ -110,7 +121,7 @@ function ReferencedField2({
       ];
     const useRecordKey = record.schema.fields[referencedField.fieldKey].name;
 
-    recordValues[key] = useRecordsResults[useRecordKey];
+    lookedUpValues[key] = useRecordsResults[useRecordKey];
   });
 
   // console.log(
@@ -124,7 +135,11 @@ function ReferencedField2({
 
   return (
     <>
-      <RecordPluginComponent plugin={plugin} {...recordValues} />
+      <RecordPluginComponent
+        plugin={plugin}
+        {...recordValues}
+        {...lookedUpValues}
+      />
     </>
   );
 }
