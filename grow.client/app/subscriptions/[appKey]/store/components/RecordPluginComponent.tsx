@@ -5,6 +5,7 @@ import { Plugin } from "../domain/Plugin";
 import { Record } from "../domain/Record";
 
 export const plugins = {
+  "plugin-list-v1": lazy(() => import(`../../plugins/plugin-list-v1/plugin`)),
   "plugin-textfield-v1": lazy(
     () => import(`../../plugins/plugin-textfield-v1/plugin`)
   ),
@@ -20,7 +21,14 @@ export function RecordPluginComponent({
   record,
   ...props
 }: IRecordPluginComponentProps) {
-  // console.log("RecordPluginComponent plugin", plugin);
+  console.log(
+    "RecordPluginComponent plugin",
+    plugin,
+    "record",
+    record,
+    "props",
+    props
+  );
 
   const PluginComponent = plugins[plugin.name];
 
@@ -29,5 +37,11 @@ export function RecordPluginComponent({
     return null;
   }
 
-  return <PluginComponent {...plugin.properties} record={record} {...props} />;
+  return (
+    <PluginComponent
+      {...plugin.properties}
+      {...(record?.value ?? {})}
+      {...props}
+    />
+  );
 }

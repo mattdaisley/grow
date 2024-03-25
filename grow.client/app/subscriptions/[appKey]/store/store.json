@@ -61,6 +61,24 @@
               "name": "label"
             }
           }
+        },
+        "p_1_5": {
+          "name": "plugin-list-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "collection",
+              "name": "components"
+            },
+            "1_0_1": {
+              "type": "string",
+              "name": "primary"
+            },
+            "1_0_2": {
+              "type": "string",
+              "name": "secondary"
+            }
+          }
         }
       },
       "collections": {
@@ -85,9 +103,9 @@
           },
           "records": {
             "r_1_0_0": {
-              "f_1_0_0": "Outlets Page",
-              "f_1_0_1": "/outlets",
-              "f_1_0_2": "1_3"
+              "f_1_0_0": "List Items Page",
+              "f_1_0_1": "/list",
+              "f_1_0_2": "1_5"
             },
             "r_1_0_1": {
               "f_1_0_0": "Outlet Events Page",
@@ -95,8 +113,8 @@
               "f_1_0_2": "1_4"
             },
             "r_1_0_2": {
-              "f_1_0_0": "Outlets Page Again",
-              "f_1_0_1": "/outlets2",
+              "f_1_0_0": "Outlets Page",
+              "f_1_0_1": "/outlets",
               "f_1_0_2": "1_3"
             }
           }
@@ -221,6 +239,38 @@
               "f_1_3_0": "p_1_4",
               "f_1_3_1": "collections.1_2.records.r_1_2_0.f_1_2_0",
               "f_1_3_2": "collections.1_2.records.r_1_2_1.f_1_2_1"
+            }
+          }
+        },
+        "1_5": {
+          "schema": {
+            "name": "list1",
+            "fields": {
+              "f_1_5_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_5_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_5_3": {
+                "type": "string",
+                "name": "primary"
+              },
+              "f_1_5_4": {
+                "type": "string",
+                "name": "secondary"
+              }
+            },
+            "display_name": "List 1"
+          },
+          "records": {
+            "r_1_5_0": {
+              "f_1_5_0": "p_1_5",
+              "f_1_5_2": "1_0",
+              "f_1_5_3": "schema.fields.f_1_0_0",
+              "f_1_5_4": "schema.fields.f_1_0_1"
             }
           }
         }

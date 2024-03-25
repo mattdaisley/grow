@@ -8,8 +8,13 @@ import { ReferencedField } from "./ReferencedField";
 import { SubscriptionStoreContext } from "../subscriptionStoreContext";
 import { Record } from "../domain/Record";
 
-export function RecordPlugin({ record }: { record: Record }) {
+interface IRecordPluginProps {
+  record: Record;
+}
+
+export function RecordPlugin({ record }: IRecordPluginProps) {
   const app = useContext(SubscriptionStoreContext);
+  console.log("RecordPlugin record", record);
 
   const recordFieldRequest = Object.entries(record.schema.fields).map(
     ([key, value]) => ({
@@ -17,12 +22,9 @@ export function RecordPlugin({ record }: { record: Record }) {
       field: value.name,
     })
   );
-  // console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
+  console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
   const useRecordsResults = useRecords(recordFieldRequest);
-  // console.log(
-  //   "RecordPlugin useRecordsResults",
-  //   JSON.stringify(useRecordsResults)
-  // );
+  console.log("RecordPlugin useRecordsResults", useRecordsResults);
 
   if (
     !useRecordsResults ||
@@ -36,15 +38,20 @@ export function RecordPlugin({ record }: { record: Record }) {
 
   const pluginKey = useRecordsResults[`plugin_key`];
   const plugin = app.plugins[pluginKey?.value];
-  // console.log("RecordPlugin plugin.properties", plugin.properties);
+  console.log("RecordPlugin plugin.properties", plugin.properties);
 
+  let referencedPlugin = undefined;
   const referencedFields = {};
 
   Object.entries(useRecordsResults).forEach(([key, useRecordsResult]) => {
     const value = useRecordsResult?.value;
-    if (typeof value === "string" && value.startsWith("collections.")) {
-      // console.log("RecordPlugin useRecordsResult", key, useRecordsResult.value);
+    console.log("RecordPlugin useRecordsResult", key, useRecordsResult.value);
 
+    if (key === "plugin_key") {
+      referencedPlugin = console.log("RecordPlugin plugin_key", value);
+    }
+
+    if (typeof value === "string" && value.startsWith("collections.")) {
       const regex =
         /collections\.([a-zA-Z0-9-_]+)\.records\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
       const matches = useRecordsResult.value.match(regex);
@@ -64,6 +71,7 @@ export function RecordPlugin({ record }: { record: Record }) {
   });
 
   if (Object.keys(referencedFields).length > 0) {
+    console.log("RecordPlugin ReferencedField", referencedFields);
     return (
       <ReferencedField
         plugin={plugin}
@@ -72,6 +80,6 @@ export function RecordPlugin({ record }: { record: Record }) {
       />
     );
   }
-
+  console.log("RecordPlugin RecordPluginComponent", plugin, record);
   return <RecordPluginComponent plugin={plugin} record={record} />;
 }
