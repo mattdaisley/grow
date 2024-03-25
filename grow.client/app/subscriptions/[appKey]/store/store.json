@@ -113,8 +113,8 @@
               "f_1_0_2": "1_4"
             },
             "r_1_0_2": {
-              "f_1_0_0": "Outlets Page",
-              "f_1_0_1": "/outlets",
+              "f_1_0_0": "Edit Page 1",
+              "f_1_0_1": "/edit-page-1",
               "f_1_0_2": "1_3"
             }
           }
@@ -237,8 +237,13 @@
           "records": {
             "r_1_3_0": {
               "f_1_3_0": "p_1_4",
-              "f_1_3_1": "collections.1_2.records.r_1_2_0.f_1_2_0",
-              "f_1_3_2": "collections.1_2.records.r_1_2_1.f_1_2_1"
+              "f_1_3_1": "collections.1_2.records.r_1_2_0.f_1_2_1",
+              "f_1_3_2": "collections.1_2.records.r_1_2_0.f_1_2_0"
+            },
+            "r_1_3_1": {
+              "f_1_3_0": "p_1_4",
+              "f_1_3_1": "collections.1_2.records.r_1_2_1.f_1_2_1",
+              "f_1_3_2": "collections.1_2.records.r_1_2_1.f_1_2_0"
             }
           }
         },

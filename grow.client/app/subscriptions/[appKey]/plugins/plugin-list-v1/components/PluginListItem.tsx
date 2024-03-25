@@ -7,28 +7,13 @@ import { ListItem, ListItemText } from "@mui/material";
 export function PluginListItem({ listItemRecord, ...props }) {
   console.log("PluginListItem", listItemRecord);
 
-  // const recordFieldRequest = Object.entries(referencedFields).map(
-  //   ([key, referencedField]) => {
-  //     const record =
-  //       collectionRecords[referencedField.collection.key].records[
-  //         referencedField.recordKey
-  //       ];
-  //     return {
-  //       record,
-  //       field: record.schema.fields[referencedField.fieldKey].name,
-  //     };
-  //   }
-  // );
-  const recordFieldRequest = [];
-  const propToFieldMap = {};
+  const recordFieldRequest = {};
 
   Object.entries(props).forEach(([key, value]) => {
-    if (typeof value === "string" && value.startsWith("schema.fields.")) {
-      const field = value.split(".")[2];
-      const fieldName = listItemRecord.schema.fields[field].name;
-      recordFieldRequest.push({ record: listItemRecord, field: fieldName });
-      propToFieldMap[key] = fieldName;
-    }
+    recordFieldRequest[key] = {
+      record: listItemRecord,
+      field: value,
+    };
   });
 
   const useRecordResults = useRecords(recordFieldRequest);
@@ -36,9 +21,7 @@ export function PluginListItem({ listItemRecord, ...props }) {
     "PluginListItem useRecordResults",
     useRecordResults,
     "recordFieldRequest",
-    recordFieldRequest,
-    "propToFieldMap",
-    propToFieldMap
+    recordFieldRequest
   );
 
   if (
@@ -49,10 +32,8 @@ export function PluginListItem({ listItemRecord, ...props }) {
     return null;
   }
 
-  const primary =
-    useRecordResults[propToFieldMap["primary"]]?.value ?? props.primary;
-  const secondary =
-    useRecordResults[propToFieldMap["secondary"]]?.value ?? props.secondary;
+  const primary = useRecordResults.primary?.value ?? props.primary;
+  const secondary = useRecordResults.secondary?.value ?? props.secondary;
 
   return (
     <>
@@ -61,26 +42,6 @@ export function PluginListItem({ listItemRecord, ...props }) {
       </ListItem>
       {/* <PageHeader pageRecord={listItemRecord} />
       <ComponentsCollection components={components.value} /> */}
-    </>
-  );
-}
-
-function PageHeader({ pageRecord }) {
-  const { display_name, path } = useRecords([
-    { record: pageRecord, field: "display_name" },
-    { record: pageRecord, field: "path" },
-  ]);
-
-  // console.log("PluginPage PageHeader", pageRecord, display_name, path);
-
-  if (!display_name || !path) {
-    return null;
-  }
-
-  return (
-    <>
-      <div>{display_name.value}</div>
-      <div>{path.value}</div>
     </>
   );
 }

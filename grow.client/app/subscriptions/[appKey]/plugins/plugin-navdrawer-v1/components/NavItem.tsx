@@ -10,10 +10,10 @@ import useRecords from "../../../store/useRecords";
 export function NavItem({ segment, page }) {
   // const { display_name, path } = useRecords(page, ["display_name", "path"]);
   // console.log("NavItem", page, display_name, path);
-  const { display_name, path } = useRecords([
-    { record: page, field: "display_name" },
-    { record: page, field: "path" },
-  ]);
+  const { display_name, path } = useRecords({
+    display_name: { record: page },
+    path: { record: page },
+  });
 
   if (!display_name || !path) {
     return null;

@@ -4,9 +4,9 @@ import useRecords from "../../../store/useRecords";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
 
 export function PluginPage({ pageRecord }) {
-  const { components } = useRecords([
-    { record: pageRecord, field: "components" },
-  ]);
+  const { components } = useRecords({
+    components: { record: pageRecord },
+  });
 
   // console.log("PluginPage", pageRecord, components);
 
@@ -23,10 +23,10 @@ export function PluginPage({ pageRecord }) {
 }
 
 function PageHeader({ pageRecord }) {
-  const { display_name, path } = useRecords([
-    { record: pageRecord, field: "display_name" },
-    { record: pageRecord, field: "path" },
-  ]);
+  const { display_name, path } = useRecords({
+    display_name: { record: pageRecord, field: "display_name" },
+    path: { record: pageRecord, field: "path" },
+  });
 
   // console.log("PluginPage PageHeader", pageRecord, display_name, path);
 

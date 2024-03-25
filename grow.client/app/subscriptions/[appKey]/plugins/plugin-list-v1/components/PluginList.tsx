@@ -28,20 +28,7 @@ export default function PluginList({
   const listItemRecords = listItems[listItemCollection.key].records;
 
   return (
-    <Box
-      sx={(theme) => {
-        // // console.log(theme, theme.spacing(2))
-        return {
-          flexGrow: 1,
-          pl: { xs: 0, md: `${drawerWidth}px` },
-          // width: {sm: `calc(100% - ${drawerWidth}px)` },
-          width: 1,
-          // height: "100%",
-          // position: "fixed",
-          // overflowY: "scroll",
-        };
-      }}
-    >
+    <Box sx={{ padding: 2 }}>
       <List>
         {Object.entries(listItemRecords).map(([key, listItemRecord]) => {
           return (

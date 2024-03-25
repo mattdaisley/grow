@@ -79,18 +79,17 @@ function ReferencedField2({
   referencedFields,
   recordValues,
 }: IReferencedField2Props) {
-  const recordFieldRequest = Object.entries(referencedFields).map(
-    ([key, referencedField]) => {
-      const record =
-        collectionRecords[referencedField.collection.key].records[
-          referencedField.recordKey
-        ];
-      return {
-        record,
-        field: record.schema.fields[referencedField.fieldKey].name,
-      };
-    }
-  );
+  const recordFieldRequest = {};
+  Object.entries(referencedFields).map(([key, referencedField]) => {
+    const record =
+      collectionRecords[referencedField.collection.key].records[
+        referencedField.recordKey
+      ];
+    const field = record.schema.fields[referencedField.fieldKey].name;
+    recordFieldRequest[field] = {
+      record,
+    };
+  });
 
   const useRecordsResults = useRecords(recordFieldRequest);
   if (

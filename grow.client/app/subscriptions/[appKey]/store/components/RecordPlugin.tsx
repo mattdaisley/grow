@@ -16,12 +16,12 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   const app = useContext(SubscriptionStoreContext);
   console.log("RecordPlugin record", record);
 
-  const recordFieldRequest = Object.entries(record.schema.fields).map(
-    ([key, value]) => ({
+  const recordFieldRequest = {};
+  Object.entries(record.schema.fields).forEach(([key, value]) => {
+    recordFieldRequest[value.name] = {
       record,
-      field: value.name,
-    })
-  );
+    };
+  });
   console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
   const useRecordsResults = useRecords(recordFieldRequest);
   console.log("RecordPlugin useRecordsResults", useRecordsResults);

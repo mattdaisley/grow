@@ -7,8 +7,10 @@ import { flatten } from "flat";
 import { Record } from './domain/Record';
 
 interface RecordsFieldRequest {
-  record: Record;
-  field: string;
+  [key: string]: {
+    record: Record;
+    field?: string;
+  }
 }
 interface useRecordsResult {
   [valueKey: string]: { 
@@ -45,7 +47,7 @@ interface callbacksCache {
  *     }
  *   }
  */
-export default function useRecords(recordFieldRequests: RecordsFieldRequest[]): useRecordsResult {
+export default function useRecords(recordFieldRequests: RecordsFieldRequest): useRecordsResult {
 
   const [value, setValue] = useState<useRecordsResult>({});
 
@@ -56,18 +58,25 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest[]): 
     const values: useRecordsResult = {};
     const callbacks: callbacksCache = {} 
 
-    recordFieldRequests.forEach(recordFieldRequest => {
+    Object.entries(recordFieldRequests).forEach(([key, recordFieldRequest]) => {
 
       const record = recordFieldRequest.record;
-      const field = recordFieldRequest.field;
+      let field = recordFieldRequest.field;
+      if (!field) {
+        field = key;
+      }
+      if (typeof field === "string" && field.startsWith("schema.fields.")) {
+        const fieldKey = field.split(".")[2];
+        field = record.schema.fields[fieldKey].name;
+      }
 
       function callback(newRecord: Record) {
         // console.log('useRecord callback', field, newRecord)
-        setValue((currentValue) => ({...currentValue, [field]: { ...currentValue[field], value: newRecord.value[field]}}));
+        setValue((currentValue) => ({...currentValue, [key]: { ...currentValue[key], value: newRecord.value[field]}}));
         // setValue({...value, [field]: newRecord.value[field]});
       }
 
-      callbacks[field] = { record: record, field, callback };
+      callbacks[key] = { record: record, field, callback };
       record.subscribe(field, callback);
 
       function onChange (newValue: any) {
@@ -75,7 +84,7 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest[]): 
         record.updateField(field, newValue);
       }
 
-      values[field] = { value: record.value[field], onChange};
+      values[key] = { value: record.value[field], onChange};
     })
 
     setValue(values);
@@ -84,12 +93,12 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest[]): 
 
     return () => {
       // console.log('useRecord cleanup')
-      Object.entries(callbacks).forEach(([field, recordCallback]) => {
+      Object.entries(callbacks).forEach(([key, recordCallback]) => {
         recordCallback.record.unsubscribe(recordCallback.field, recordCallback.callback);
       });
     };
 
-  }, [JSON.stringify(recordFieldRequests.map(recordFieldRequest => recordFieldRequest.record.key + recordFieldRequest.field))]);
+  }, [JSON.stringify(Object.entries(recordFieldRequests).map(([key, recordFieldRequest]) => key + recordFieldRequest.record.key + recordFieldRequest.field))]);
 
   return value;
 }
