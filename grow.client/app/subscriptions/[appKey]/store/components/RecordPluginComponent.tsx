@@ -5,6 +5,9 @@ import { Plugin } from "../domain/Plugin";
 import { Record } from "../domain/Record";
 
 export const plugins = {
+  "plugin-datagrid-v1": lazy(
+    () => import(`../../plugins/plugin-datagrid-v1/plugin`)
+  ),
   "plugin-list-v1": lazy(() => import(`../../plugins/plugin-list-v1/plugin`)),
   "plugin-textfield-v1": lazy(
     () => import(`../../plugins/plugin-textfield-v1/plugin`)

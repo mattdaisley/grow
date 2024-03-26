@@ -7,10 +7,11 @@ import { flatten } from "flat";
 
 import { Collection } from "./domain/Collection";
 import { Record } from "./domain/Record";
+import { ISchema } from "./domain/Schema";
 
 
 // anytime the collection changes, we want to update the records
-export default function useCollections(collections: Collection[]): { [collectionKey: string]: { records: Record[] } }{
+export default function useCollections(collections: Collection[]): { [collectionKey: string]: { schema: ISchema, records: Record[] } }{
   // console.log('useCollection', collections)
   const [value, setValue] = useState({});
   // const [records, setRecords] = useState(collection.records);
@@ -29,7 +30,7 @@ export default function useCollections(collections: Collection[]): { [collection
       collectionCallbacks[collection.key] = { collection, callback };
       collection.subscribe('*', callback);
 
-      values[collection.key] = { records: collection.records };
+      values[collection.key] = { schema: collection.schema, records: collection.records };
     })
 
     setValue(values);

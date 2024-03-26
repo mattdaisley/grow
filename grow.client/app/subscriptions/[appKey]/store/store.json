@@ -79,6 +79,16 @@
               "name": "secondary"
             }
           }
+        },
+        "p_1_6": {
+          "name": "plugin-datagrid-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "collection",
+              "name": "components"
+            }
+          }
         }
       },
       "collections": {
@@ -116,6 +126,11 @@
               "f_1_0_0": "Edit Page 1",
               "f_1_0_1": "/edit-page-1",
               "f_1_0_2": "1_3"
+            },
+            "r_1_0_3": {
+              "f_1_0_0": "Table Page",
+              "f_1_0_1": "/table",
+              "f_1_0_2": "1_6"
             }
           }
         },
@@ -232,7 +247,7 @@
                 "name": "label"
               }
             },
-            "display_name": "Page 1"
+            "display_name": "Referenced Events"
           },
           "records": {
             "r_1_3_0": {
@@ -276,6 +291,52 @@
               "f_1_5_2": "1_0",
               "f_1_5_3": "schema.fields.f_1_0_0",
               "f_1_5_4": "schema.fields.f_1_0_1"
+            }
+          }
+        },
+        "1_6": {
+          "schema": {
+            "name": "datagrid1",
+            "fields": {
+              "f_1_5_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_5_2": {
+                "type": "collection",
+                "name": "components"
+              }
+            },
+            "display_name": "DataGrid 1"
+          },
+          "records": {
+            "r_1_5_0": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_0"
+            },
+            "r_1_5_1": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_1"
+            },
+            "r_1_5_2": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_2"
+            },
+            "r_1_5_3": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_3"
+            },
+            "r_1_5_4": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_4"
+            },
+            "r_1_5_5": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_5"
+            },
+            "r_1_5_6": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_6"
             }
           }
         }
