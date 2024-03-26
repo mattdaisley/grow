@@ -14,7 +14,7 @@ interface IRecordPluginProps {
 
 export function RecordPlugin({ record }: IRecordPluginProps) {
   const app = useContext(SubscriptionStoreContext);
-  console.log("RecordPlugin record", record);
+  // console.log("RecordPlugin record", record);
 
   const recordFieldRequest = {};
   Object.entries(record.schema.fields).forEach(([key, value]) => {
@@ -22,9 +22,9 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
       record,
     };
   });
-  console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
+  // console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
   const useRecordsResults = useRecords(recordFieldRequest);
-  console.log("RecordPlugin useRecordsResults", useRecordsResults);
+  // console.log("RecordPlugin useRecordsResults", useRecordsResults);
 
   if (
     !useRecordsResults ||
@@ -38,18 +38,13 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
 
   const pluginKey = useRecordsResults[`plugin_key`];
   const plugin = app.plugins[pluginKey?.value];
-  console.log("RecordPlugin plugin.properties", plugin.properties);
+  // console.log("RecordPlugin plugin.properties", plugin.properties);
 
-  let referencedPlugin = undefined;
   const referencedFields = {};
 
   Object.entries(useRecordsResults).forEach(([key, useRecordsResult]) => {
     const value = useRecordsResult?.value;
-    console.log("RecordPlugin useRecordsResult", key, useRecordsResult.value);
-
-    if (key === "plugin_key") {
-      referencedPlugin = console.log("RecordPlugin plugin_key", value);
-    }
+    // console.log("RecordPlugin useRecordsResult", key, useRecordsResult.value);
 
     if (typeof value === "string" && value.startsWith("collections.")) {
       const regex =
@@ -71,7 +66,7 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   });
 
   if (Object.keys(referencedFields).length > 0) {
-    console.log("RecordPlugin ReferencedField", referencedFields);
+    // console.log("RecordPlugin ReferencedField", referencedFields);
     return (
       <ReferencedField
         plugin={plugin}
@@ -80,6 +75,6 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
       />
     );
   }
-  console.log("RecordPlugin RecordPluginComponent", plugin, record);
+  // console.log("RecordPlugin RecordPluginComponent", plugin, record);
   return <RecordPluginComponent plugin={plugin} record={record} />;
 }

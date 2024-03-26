@@ -5,7 +5,7 @@ import { ComponentsCollection } from "../../../store/components/ComponentsCollec
 import { ListItem, ListItemText } from "@mui/material";
 
 export function PluginListItem({ listItemRecord, ...props }) {
-  console.log("PluginListItem", listItemRecord);
+  // console.log("PluginListItem", listItemRecord);
 
   const recordFieldRequest = {};
 
@@ -17,12 +17,12 @@ export function PluginListItem({ listItemRecord, ...props }) {
   });
 
   const useRecordResults = useRecords(recordFieldRequest);
-  console.log(
-    "PluginListItem useRecordResults",
-    useRecordResults,
-    "recordFieldRequest",
-    recordFieldRequest
-  );
+  // console.log(
+  //   "PluginListItem useRecordResults",
+  //   useRecordResults,
+  //   "recordFieldRequest",
+  //   recordFieldRequest
+  // );
 
   if (
     !useRecordResults ||

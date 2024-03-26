@@ -20,7 +20,7 @@ export default function PluginList({
   // console.log("Rendering PluginMain");
 
   const listItems = useCollections([listItemCollection]);
-  console.log("PluginList", listItems);
+  // console.log("PluginList", listItems);
   if (!listItems || !listItems[listItemCollection.key]?.records) {
     return null;
   }

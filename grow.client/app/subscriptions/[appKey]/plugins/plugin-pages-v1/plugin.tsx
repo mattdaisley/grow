@@ -7,10 +7,15 @@ interface IPluginPagesProps {
   pagesCollection: {
     [pageKey: string]: Object;
   };
+  filter?: string[];
 }
 
-export default function Plugin({ pagesCollection }: IPluginPagesProps) {
-  // console.log("plugin-page-v1 pages", pagesCollection);
+export default function Plugin({
+  pagesCollection,
+  filter,
+  ...props
+}: IPluginPagesProps) {
+  // console.log("plugin-page-v1 pages", pagesCollection, filter, props);
 
   if (pagesCollection === undefined) {
     return null;
@@ -18,7 +23,7 @@ export default function Plugin({ pagesCollection }: IPluginPagesProps) {
 
   return (
     <>
-      <PluginMain pagesCollection={pagesCollection} appKey={"test"} />
+      <PluginMain pagesCollection={pagesCollection} filter={filter} />
     </>
   );
 }

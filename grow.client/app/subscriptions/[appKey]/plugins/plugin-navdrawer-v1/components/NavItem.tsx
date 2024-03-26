@@ -21,17 +21,17 @@ export function NavItem({ segment, page }) {
 
   return (
     <ListItem disablePadding>
-      <ListItemButton>
-        <Link
-          href={`/subscriptions/${segment}${path.value}`}
-          style={{ width: "100%" }}
-        >
+      <Link
+        href={`/subscriptions/${segment}${path.value}`}
+        style={{ width: "100%" }}
+      >
+        <ListItemButton>
           <ListItemText
             primary={display_name.value}
             sx={{ "& .MuiListItemText-primary": { fontWeight: "light" } }}
           />
-        </Link>
-      </ListItemButton>
+        </ListItemButton>
+      </Link>
     </ListItem>
   );
 }

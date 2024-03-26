@@ -2,14 +2,14 @@ import { getApp } from "../store/getApp";
 import SubscriptionsTemplate from "./SubscriptionsTemplate";
 
 export default async function Page({ params }) {
-  console.log("Rendering Page");
+  console.log("Rendering Page params:", params);
 
-  let appKey: string = "";
-  if (params.appKey !== undefined) {
-    appKey = params.appKey;
-  }
+  // let appKey: string = "";
+  // if (params.appKey !== undefined) {
+  //   appKey = params.appKey;
+  // }
 
-  const app = await getApp(appKey);
+  // const app = await getApp(appKey);
   // console.log(app);
 
   // let filter = params.filter?.[0];
@@ -23,8 +23,7 @@ export default async function Page({ params }) {
 
   return (
     <>
-      <SubscriptionsTemplate appKey={appKey} />
+      <SubscriptionsTemplate filter={params.filter} />
     </>
   );
 }
-

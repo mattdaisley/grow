@@ -11,7 +11,7 @@ interface IPluginListProps {
 }
 
 export default function Plugin({ components, ...props }: IPluginListProps) {
-  console.log("plugin-list-v1", "components", components, "props", props);
+  // console.log("plugin-list-v1", "components", components, "props", props);
 
   if (components === undefined) {
     return null;

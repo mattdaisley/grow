@@ -34,7 +34,7 @@ export const PagePlugins = (props) => {
       return <PluginComponent {...props} />;
     }
 
-    return <Component key={key} {...plugin.properties} />;
+    return <Component key={key} {...plugin.properties} {...props} />;
   });
 
   return <>{components}</>;

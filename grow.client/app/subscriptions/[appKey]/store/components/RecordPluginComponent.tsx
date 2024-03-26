@@ -21,14 +21,14 @@ export function RecordPluginComponent({
   record,
   ...props
 }: IRecordPluginComponentProps) {
-  console.log(
-    "RecordPluginComponent plugin",
-    plugin,
-    "record",
-    record,
-    "props",
-    props
-  );
+  // console.log(
+  //   "RecordPluginComponent plugin",
+  //   plugin,
+  //   "record",
+  //   record,
+  //   "props",
+  //   props
+  // );
 
   const PluginComponent = plugins[plugin.name];
 

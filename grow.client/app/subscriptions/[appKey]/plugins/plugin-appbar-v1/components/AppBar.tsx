@@ -18,8 +18,8 @@ import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import useRecords from "../../../store/useRecords";
 import useCollections from "../../../store/useCollections";
+import { AppBarMenuItem } from "./AppBarMenuItem";
 // import useUser from './../../../services/User/useUser';
 
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -28,9 +28,10 @@ const settings = ["Logout"];
 const drawerWidth = 200;
 
 export default function PluginAppBar(props) {
-  // console.log('Rendering PluginAppBar');
+  // console.log("Rendering PluginAppBar", props);
 
   const user = props.user;
+  const segment = props.appKey;
 
   const theme = useTheme();
 
@@ -83,6 +84,7 @@ export default function PluginAppBar(props) {
       key={pageKey}
       handleCloseNavMenu={handleCloseNavMenu}
       page={pageRecords[pageKey]}
+      segment={segment}
     />
   ));
 
@@ -221,22 +223,4 @@ function stringAvatar(name: string) {
     },
     children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
   };
-}
-
-function AppBarMenuItem({ page, handleCloseNavMenu }) {
-  // const { display_name, path } = useRecords(page, ["display_name", "path"]);
-  const { display_name, path } = useRecords({
-    display_name: { record: page },
-    path: { record: page },
-  });
-
-  if (!display_name || !path) {
-    return null;
-  }
-
-  return (
-    <MenuItem onClick={handleCloseNavMenu}>
-      <Link href={`${path.value}`}>{display_name.value}</Link>
-    </MenuItem>
-  );
 }

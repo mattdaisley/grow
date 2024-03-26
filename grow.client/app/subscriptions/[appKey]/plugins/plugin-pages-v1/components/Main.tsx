@@ -7,10 +7,8 @@ import { PluginPage } from "./PluginPage";
 
 export const drawerWidth = 200;
 
-export default function PluginMain({ pagesCollection, appKey }) {
+export default function PluginMain({ pagesCollection, filter }) {
   // console.log("Rendering PluginMain");
-
-  const segment = appKey;
 
   const pages = useCollections([pagesCollection]);
   // console.log("PluginMain", pages);
@@ -37,7 +35,7 @@ export default function PluginMain({ pagesCollection, appKey }) {
       }}
     >
       {Object.entries(pageRecords).map(([key, pageRecord]) => {
-        return <PluginPage key={key} pageRecord={pageRecord} />;
+        return <PluginPage key={key} pageRecord={pageRecord} filter={filter} />;
       })}
       {/* <ExamplePage /> */}
     </Box>

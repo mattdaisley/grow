@@ -2,13 +2,18 @@
 
 import useRecords from "../../../store/useRecords";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
+import { Box } from "@mui/material";
 
-export function PluginPage({ pageRecord }) {
-  const { components } = useRecords({
+export function PluginPage({ pageRecord, filter }) {
+  const { components, path } = useRecords({
     components: { record: pageRecord },
+    path: { record: pageRecord },
   });
 
-  // console.log("PluginPage", pageRecord, components);
+  // console.log("PluginPage", pageRecord, components, path, filter);
+  if (filter !== undefined && path?.value !== "/" + filter[0]) {
+    return null;
+  }
 
   if (!components) {
     return null;
@@ -23,21 +28,21 @@ export function PluginPage({ pageRecord }) {
 }
 
 function PageHeader({ pageRecord }) {
-  const { display_name, path } = useRecords({
+  const { display_name } = useRecords({
     display_name: { record: pageRecord, field: "display_name" },
-    path: { record: pageRecord, field: "path" },
   });
 
   // console.log("PluginPage PageHeader", pageRecord, display_name, path);
 
-  if (!display_name || !path) {
+  if (!display_name) {
     return null;
   }
 
   return (
     <>
-      <div>{display_name.value}</div>
-      <div>{path.value}</div>
+      <Box sx={{ pl: 2, pr: 2 }}>
+        <h2>{display_name.value}</h2>
+      </Box>
     </>
   );
 }

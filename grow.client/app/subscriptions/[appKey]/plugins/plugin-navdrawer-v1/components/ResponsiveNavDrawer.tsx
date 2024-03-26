@@ -21,7 +21,7 @@ export function ResponsiveNavDrawer({ segment, children }) {
           variant="h6"
           noWrap
           component="a"
-          href={`/testing/${segment}`}
+          href={`/subscriptions/${segment}`}
           sx={{
             mr: 1,
             display: { xs: "none", md: "flex" },
@@ -32,7 +32,7 @@ export function ResponsiveNavDrawer({ segment, children }) {
             textDecoration: "none",
           }}
         >
-          {segment.toUpperCase()}
+          App {segment.toUpperCase()}
         </Typography>
       </Toolbar>
       <List>{children}</List>

@@ -6,7 +6,7 @@ export default function Plugin({ value, label, ...props }) {
   if (value === undefined) {
     return null;
   }
-  console.log("plugin-textfield-v1", value, label, props);
+  // console.log("plugin-textfield-v1", value, label, props);
 
   return (
     <>
