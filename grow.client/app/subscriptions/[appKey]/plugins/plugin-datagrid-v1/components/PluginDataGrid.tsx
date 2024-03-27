@@ -53,20 +53,25 @@ export default function PluginDataGrid({
   });
 
   return (
-    <Box sx={{ padding: 2, height: 402, mb: 6 }}>
-      <h3>
-        {dataSource.key} - {schema.display_name}
-      </h3>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            pageSize: 5,
-          },
-        }}
-        rowsPerPageOptions={[5, 10]}
-      />
-    </Box>
+    <>
+      <Box sx={{ pl: 2, pr: 2 }}>
+        <h3>
+          {dataSource.key} - {schema.display_name}
+        </h3>
+      </Box>
+
+      <Box sx={{ padding: 2, height: 402 }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              pageSize: 5,
+            },
+          }}
+          rowsPerPageOptions={[5, 10]}
+        />
+      </Box>
+    </>
   );
 }

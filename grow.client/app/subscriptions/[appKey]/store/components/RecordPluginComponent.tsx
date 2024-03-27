@@ -41,10 +41,28 @@ export function RecordPluginComponent({
   }
 
   return (
-    <PluginComponent
-      {...plugin.properties}
-      {...(record?.value ?? {})}
-      {...props}
-    />
+    <>
+      <style jsx>{`
+        div.bounding-box {
+          position: relative;
+        }
+        div.bounding-box:hover::after {
+          content: "";
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          border: solid 2px white;
+        }
+      `}</style>
+      <div className={"bounding-box"}>
+        <PluginComponent
+          {...plugin.properties}
+          {...(record?.value ?? {})}
+          {...props}
+        />
+      </div>
+    </>
   );
 }
