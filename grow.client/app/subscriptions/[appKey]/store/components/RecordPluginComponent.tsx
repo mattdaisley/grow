@@ -42,7 +42,7 @@ export function RecordPluginComponent({
 
   return (
     <>
-      <style jsx>{`
+      {/* <style jsx>{`
         div.bounding-box {
           position: relative;
         }
@@ -55,7 +55,7 @@ export function RecordPluginComponent({
           left: 0;
           border: solid 2px white;
         }
-      `}</style>
+      `}</style> */}
       <div className={"bounding-box"}>
         <PluginComponent
           {...plugin.properties}
