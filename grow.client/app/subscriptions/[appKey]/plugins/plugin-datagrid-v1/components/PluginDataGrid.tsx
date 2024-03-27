@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import useCollections from "../../../store/useCollections";
 import { Collection } from "../../../store/domain/Collection";
+import { DataGridRow } from "./DataGridRow";
 
 export const drawerWidth = 200;
 
@@ -26,36 +27,28 @@ export default function PluginDataGrid({
   const listItemRecords = listItems[dataSource.key].records;
   const schema = listItems[dataSource.key].schema;
 
-  const columns: GridColDef<(typeof rows)[number]>[] = Object.values(
+  const columns: GridColDef<(typeof rows)[number]>[] = Object.entries(
     schema.fields
-  ).map((field) => {
-    if (field.type === "collection") {
-      return {
-        field: field.name,
-        headerName: field.display_name,
-        width: 200,
-        renderCell: (params) => {
-          // console.log(params);
-          return (
-            <>
-              {params.value.key} - {params.value.schema.display_name}
-            </>
-          );
-        },
-      };
-    }
+  ).map(([key, field]) => {
+    // console.log("columns", key, field);
 
     return {
-      field: field.name,
-      headerName: field.display_name,
+      field: key,
+      headerName: field.name,
       width: 200,
+      renderCell: (params) => {
+        // console.log(params);
+        return <DataGridRow record={params.row.record} field={params.value} />;
+      },
     };
   });
 
   const rows = Object.entries(listItemRecords).map(([key, record]) => {
+    // console.log("id", key, "record", record);
     return {
       id: key,
-      ...record.value,
+      record,
+      ...record.schema.fields,
     };
   });
 
