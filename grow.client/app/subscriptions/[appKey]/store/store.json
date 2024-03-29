@@ -89,6 +89,16 @@
               "name": "components"
             }
           }
+        },
+        "p_1_7": {
+          "name": "plugin-container-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "collection",
+              "name": "components"
+            }
+          }
         }
       },
       "collections": {
@@ -115,7 +125,7 @@
             "r_1_0_0": {
               "f_1_0_0": "List Items Page",
               "f_1_0_1": "/list",
-              "f_1_0_2": "1_5"
+              "f_1_0_2": "1_7"
             },
             "r_1_0_1": {
               "f_1_0_0": "Outlet Events Page",
@@ -337,6 +347,102 @@
             "r_1_5_6": {
               "f_1_5_0": "p_1_6",
               "f_1_5_2": "1_6"
+            },
+            "r_1_5_7": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_7"
+            },
+            "r_1_5_8": {
+              "f_1_5_0": "p_1_6",
+              "f_1_5_2": "1_8"
+            }
+          }
+        },
+        "1_7": {
+          "schema": {
+            "name": "container1",
+            "fields": {
+              "f_1_7_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_7_1": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_7_2": {
+                "type": "number",
+                "name": "width"
+              },
+              "f_1_7_3": {
+                "type": "number",
+                "name": "margin"
+              },
+              "f_1_7_4": {
+                "type": "boolean",
+                "name": "paper"
+              }
+            },
+            "display_name": "Container 1"
+          },
+          "records": {
+            "r_1_7_0": {
+              "f_1_7_0": "p_1_7",
+              "f_1_7_1": "1_5",
+              "f_1_7_2": "6",
+              "f_1_7_3": "2",
+              "f_1_7_4": true
+            },
+            "r_1_7_1": {
+              "f_1_7_0": "p_1_7",
+              "f_1_7_1": "1_8",
+              "f_1_7_2": "6",
+              "f_1_7_3": "2",
+              "f_1_7_4": true
+            }
+          }
+        },
+        "1_8": {
+          "schema": {
+            "name": "container1",
+            "fields": {
+              "f_1_7_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_7_1": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_7_2": {
+                "type": "string",
+                "name": "width"
+              },
+              "f_1_7_3": {
+                "type": "string",
+                "name": "margin"
+              },
+              "f_1_7_4": {
+                "type": "boolean",
+                "name": "paper"
+              }
+            },
+            "display_name": "Container 1"
+          },
+          "records": {
+            "r_1_7_0": {
+              "f_1_7_0": "p_1_7",
+              "f_1_7_1": "1_5",
+              "f_1_7_2": "6",
+              "f_1_7_3": "0",
+              "f_1_7_4": false
+            },
+            "r_1_7_1": {
+              "f_1_7_0": "p_1_7",
+              "f_1_7_1": "1_3",
+              "f_1_7_2": "6",
+              "f_1_7_3": "2",
+              "f_1_7_4": false
             }
           }
         }

@@ -1,4 +1,6 @@
 "use client";
+
+import Grid from "@mui/material/Unstable_Grid2";
 import useCollections from "../useCollections";
 import { RecordPlugin } from "./RecordPlugin";
 
@@ -19,9 +21,11 @@ export function ComponentsCollection({ components }) {
 
   return (
     <>
-      {Object.entries(componentRecords).map(([key, componentRecord]) => {
-        return <RecordPlugin key={key} record={componentRecord} />;
-      })}
+      <Grid container>
+        {Object.entries(componentRecords).map(([key, componentRecord]) => {
+          return <RecordPlugin key={key} record={componentRecord} />;
+        })}
+      </Grid>
     </>
   );
 }

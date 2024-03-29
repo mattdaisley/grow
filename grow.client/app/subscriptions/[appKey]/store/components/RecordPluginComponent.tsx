@@ -5,6 +5,9 @@ import { Plugin } from "../domain/Plugin";
 import { Record } from "../domain/Record";
 
 export const plugins = {
+  "plugin-container-v1": lazy(
+    () => import(`../../plugins/plugin-container-v1/plugin`)
+  ),
   "plugin-datagrid-v1": lazy(
     () => import(`../../plugins/plugin-datagrid-v1/plugin`)
   ),
@@ -41,28 +44,10 @@ export function RecordPluginComponent({
   }
 
   return (
-    <>
-      {/* <style jsx>{`
-        div.bounding-box {
-          position: relative;
-        }
-        div.bounding-box:hover::after {
-          content: "";
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          top: 0;
-          left: 0;
-          border: solid 2px white;
-        }
-      `}</style> */}
-      <div className={"bounding-box"}>
-        <PluginComponent
-          {...plugin.properties}
-          {...(record?.value ?? {})}
-          {...props}
-        />
-      </div>
-    </>
+    <PluginComponent
+      {...plugin.properties}
+      {...(record?.value ?? {})}
+      {...props}
+    />
   );
 }

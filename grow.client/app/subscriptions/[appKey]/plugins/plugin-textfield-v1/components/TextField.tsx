@@ -3,8 +3,7 @@
 import * as React from "react";
 
 import TextField from "@mui/material/TextField";
-
-import { Box } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
 
 export default function PluginTextField({ value, label, onChange }) {
   // console.log("Rendering PluginTextField", value, label);
@@ -15,7 +14,7 @@ export default function PluginTextField({ value, label, onChange }) {
   }
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Grid xs={12} sx={{ padding: 2 }}>
       <TextField
         fullWidth
         variant="outlined"
@@ -23,6 +22,6 @@ export default function PluginTextField({ value, label, onChange }) {
         value={value ?? ""}
         onChange={handleChange}
       />
-    </Box>
+    </Grid>
   );
 }

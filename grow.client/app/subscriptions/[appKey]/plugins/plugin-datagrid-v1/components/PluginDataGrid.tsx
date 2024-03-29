@@ -1,6 +1,7 @@
 "use client";
 
 import { Box } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import useCollections from "../../../store/useCollections";
 import { Collection } from "../../../store/domain/Collection";
@@ -54,13 +55,13 @@ export default function PluginDataGrid({
 
   return (
     <>
-      <Box sx={{ pl: 2, pr: 2 }}>
+      <Grid xs={12} sx={{ pl: 2, pr: 2 }}>
         <h3>
           {dataSource.key} - {schema.display_name}
         </h3>
-      </Box>
+      </Grid>
 
-      <Box sx={{ padding: 2, height: 402 }}>
+      <Grid xs={12} sx={{ padding: 2, height: 402 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -71,7 +72,7 @@ export default function PluginDataGrid({
           }}
           rowsPerPageOptions={[5, 10]}
         />
-      </Box>
+      </Grid>
     </>
   );
 }
