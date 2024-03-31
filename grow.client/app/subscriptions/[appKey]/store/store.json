@@ -38,7 +38,7 @@
             }
           }
         },
-        "p_1_3": {
+        "plugin-pages-v1": {
           "name": "plugin-pages-v1",
           "parent": "page",
           "properties": {
@@ -48,7 +48,7 @@
             }
           }
         },
-        "p_1_4": {
+        "plugin-textfield-v1": {
           "name": "plugin-textfield-v1",
           "parent": "component",
           "properties": {
@@ -90,7 +90,7 @@
             }
           }
         },
-        "p_1_7": {
+        "plugin-container-v1": {
           "name": "plugin-container-v1",
           "parent": "component",
           "properties": {
@@ -104,17 +104,21 @@
       "collections": {
         "1_0": {
           "schema": {
-            "name": "page",
+            "name": "pages",
             "fields": {
               "f_1_0_0": {
                 "type": "string",
-                "name": "display_name"
+                "name": "plugin_key"
               },
               "f_1_0_1": {
                 "type": "string",
-                "name": "path"
+                "name": "display_name"
               },
               "f_1_0_2": {
+                "type": "string",
+                "name": "path"
+              },
+              "f_1_0_3": {
                 "type": "collection",
                 "name": "components"
               }
@@ -123,156 +127,232 @@
           },
           "records": {
             "r_1_0_0": {
-              "f_1_0_0": "List Items Page",
-              "f_1_0_1": "/list",
-              "f_1_0_2": "1_7"
+              "f_1_0_0": "plugin-page-v1",
+              "f_1_0_1": "Page 1",
+              "f_1_0_2": "/1",
+              "f_1_0_3": "2_0"
             },
             "r_1_0_1": {
-              "f_1_0_0": "Outlet Events Page",
-              "f_1_0_1": "/outlet-events",
-              "f_1_0_2": "1_4"
+              "f_1_0_0": "plugin-page-v1",
+              "f_1_0_1": "Page 2",
+              "f_1_0_2": "/2",
+              "f_1_0_3": "9_0"
             },
             "r_1_0_2": {
-              "f_1_0_0": "Edit Page 1",
-              "f_1_0_1": "/edit-page-1",
-              "f_1_0_2": "1_3"
+              "f_1_0_0": "plugin-page-v1",
+              "f_1_0_1": "Page 3",
+              "f_1_0_2": "/3",
+              "f_1_0_3": "2_0"
             },
             "r_1_0_3": {
-              "f_1_0_0": "Table Page",
-              "f_1_0_1": "/table",
-              "f_1_0_2": "1_6"
+              "f_1_0_0": "plugin-page-v1",
+              "f_1_0_1": "Page 4",
+              "f_1_0_2": "/4",
+              "f_1_0_3": "9_0"
             }
           }
         },
-        "1_1": {
+        "2_0": {
           "schema": {
-            "name": "outlets",
+            "name": "collection1",
             "fields": {
-              "f_1_1_0": {
-                "type": "string",
-                "name": "outlet_name"
-              },
-              "f_1_1_1": {
-                "type": "datetime",
-                "name": "created_date"
-              },
-              "f_1_1_2": {
-                "type": "datetime",
-                "name": "updated_date"
+              "f_2_0_0": {
+                "type": "collection",
+                "name": "collection"
               }
             },
-            "display_name": "Outlets"
+            "display_name": "collection1"
           },
           "records": {
-            "r_1_1_0": {
-              "f_1_1_0": "Overhead Lights",
-              "f_1_1_1": "2023-04-03T16:09:40.072Z",
-              "f_1_1_2": "2023-04-07T03:22:22.000Z"
+            "r_2_0_0": {
+              "f_2_0_0": "3_0"
             },
-            "r_1_1_1": {
-              "f_1_1_0": "Main Pump",
-              "f_1_1_1": "2023-04-03T16:09:40.072Z",
-              "f_1_1_2": "2023-04-07T03:22:22.000Z"
+            "r_2_0_1": {
+              "f_2_0_0": "4_0"
             }
           }
         },
-        "1_2": {
+        "3_0": {
           "schema": {
-            "name": "outlet_events",
+            "name": "container1",
             "fields": {
-              "f_1_2_0": {
-                "type": "string",
-                "name": "event_name"
-              },
-              "f_1_2_1": {
-                "type": "datetime",
-                "name": "event_date"
-              },
-              "f_1_2_2": {
-                "type": "string",
-                "name": "event_description"
-              }
-            },
-            "display_name": "Outlet Events"
-          },
-          "records": {
-            "r_1_2_0": {
-              "f_1_2_0": "Overhead Lights Turned On",
-              "f_1_2_1": "2023-04-03T16:09:40.072Z",
-              "f_1_2_2": "The overhead lights were turned on."
-            },
-            "r_1_2_1": {
-              "f_1_2_0": "Main Pump Turned On",
-              "f_1_2_1": "2023-04-03T16:09:40.072Z",
-              "f_1_2_2": "The main pump was turned on."
-            }
-          }
-        },
-        "1_3": {
-          "schema": {
-            "name": "page_1",
-            "fields": {
-              "f_1_3_0": {
+              "f_1_0_0": {
                 "type": "string",
                 "name": "plugin_key"
               },
-              "f_1_3_1": {
+              "f_1_0_1": {
                 "type": "string",
-                "name": "value"
+                "name": "name"
               },
-              "f_1_3_2": {
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
                 "type": "string",
-                "name": "label"
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "margin"
+              },
+              "f_1_0_5": {
+                "type": "boolean",
+                "name": "paper"
               }
             },
-            "display_name": "Page 1"
+            "display_name": "Container 1"
           },
           "records": {
-            "r_1_3_0": {
-              "f_1_3_0": "p_1_4",
-              "f_1_3_1": "collections.1_0.records.r_1_0_0.f_1_0_0",
-              "f_1_3_2": "Display Name"
-            },
-            "r_1_3_1": {
-              "f_1_3_0": "p_1_4",
-              "f_1_3_1": "collections.1_0.records.r_1_0_0.f_1_0_1",
-              "f_1_3_2": "Path"
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "container1",
+              "f_1_0_2": "5_0",
+              "f_1_0_3": "6",
+              "f_1_0_4": "1",
+              "f_1_0_5": true
             }
           }
         },
-        "1_4": {
+        "4_0": {
           "schema": {
-            "name": "page_2",
+            "name": "container2",
             "fields": {
-              "f_1_3_0": {
+              "f_1_0_0": {
                 "type": "string",
                 "name": "plugin_key"
               },
-              "f_1_3_1": {
+              "f_1_0_1": {
                 "type": "string",
-                "name": "value"
+                "name": "name"
               },
-              "f_1_3_2": {
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
                 "type": "string",
-                "name": "label"
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "margin"
+              },
+              "f_1_0_5": {
+                "type": "boolean",
+                "name": "paper"
               }
             },
-            "display_name": "Referenced Events"
+            "display_name": "Container 2"
           },
           "records": {
-            "r_1_3_0": {
-              "f_1_3_0": "p_1_4",
-              "f_1_3_1": "collections.1_2.records.r_1_2_0.f_1_2_1",
-              "f_1_3_2": "collections.1_2.records.r_1_2_0.f_1_2_0"
-            },
-            "r_1_3_1": {
-              "f_1_3_0": "p_1_4",
-              "f_1_3_1": "collections.1_2.records.r_1_2_1.f_1_2_1",
-              "f_1_3_2": "collections.1_2.records.r_1_2_1.f_1_2_0"
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "container2",
+              "f_1_0_2": "8_0",
+              "f_1_0_3": "6",
+              "f_1_0_4": "1",
+              "f_1_0_5": true
             }
           }
         },
-        "1_5": {
+        "5_0": {
+          "schema": {
+            "name": "collection2",
+            "fields": {
+              "f_5_0_0": {
+                "type": "collection",
+                "name": "collection"
+              }
+            },
+            "display_name": "collection2"
+          },
+          "records": {
+            "r_5_0_0": {
+              "f_5_0_0": "6_0"
+            },
+            "r_5_0_1": {
+              "f_5_0_0": "7_0"
+            }
+          }
+        },
+        "6_0": {
+          "schema": {
+            "name": "fieldgroup1",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "label"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "value"
+              }
+            },
+            "display_name": "Field Group 1"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield1",
+              "f_1_0_2": "collections.1_0.records.r_1_0_0.f_1_0_1",
+              "f_1_0_3": "collections.1_0.records.r_1_0_0.f_1_0_1"
+            },
+            "r_1_0_1": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield2",
+              "f_1_0_2": "collections.1_0.records.r_1_0_0.f_1_0_2",
+              "f_1_0_3": "collections.1_0.records.r_1_0_0.f_1_0_2"
+            }
+          }
+        },
+        "7_0": {
+          "schema": {
+            "name": "filedgroup2",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "label"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "value"
+              }
+            },
+            "display_name": "Field Group 2"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield2",
+              "f_1_0_2": "collections.1_0.records.r_1_0_1.f_1_0_1",
+              "f_1_0_3": "collections.1_0.records.r_1_0_1.f_1_0_1"
+            },
+            "r_1_0_1": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield2",
+              "f_1_0_2": "collections.1_0.records.r_1_0_1.f_1_0_2",
+              "f_1_0_3": "collections.1_0.records.r_1_0_1.f_1_0_2"
+            }
+          }
+        },
+        "8_0": {
           "schema": {
             "name": "list1",
             "fields": {
@@ -299,12 +379,136 @@
             "r_1_5_0": {
               "f_1_5_0": "p_1_5",
               "f_1_5_2": "1_0",
-              "f_1_5_3": "schema.fields.f_1_0_0",
-              "f_1_5_4": "schema.fields.f_1_0_1"
+              "f_1_5_3": "schema.fields.f_1_0_1",
+              "f_1_5_4": "schema.fields.f_1_0_2"
             }
           }
         },
-        "1_6": {
+        "9_0": {
+          "schema": {
+            "name": "collection1",
+            "fields": {
+              "f_2_0_0": {
+                "type": "collection",
+                "name": "collection"
+              }
+            },
+            "display_name": "collection1"
+          },
+          "records": {
+            "r_2_0_0": {
+              "f_2_0_0": "10_0"
+            },
+            "r_2_0_1": {
+              "f_2_0_0": "11_0"
+            }
+          }
+        },
+        "10_0": {
+          "schema": {
+            "name": "container2",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "margin"
+              },
+              "f_1_0_5": {
+                "type": "boolean",
+                "name": "paper"
+              }
+            },
+            "display_name": "Container 2"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "container2",
+              "f_1_0_2": "12_0",
+              "f_1_0_3": "6",
+              "f_1_0_4": "1",
+              "f_1_0_5": true
+            }
+          }
+        },
+        "11_0": {
+          "schema": {
+            "name": "container2",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "margin"
+              },
+              "f_1_0_5": {
+                "type": "boolean",
+                "name": "paper"
+              }
+            },
+            "display_name": "Container 2"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "container2",
+              "f_1_0_2": "13_0",
+              "f_1_0_3": "6",
+              "f_1_0_4": "1",
+              "f_1_0_5": true
+            }
+          }
+        },
+        "12_0": {
+          "schema": {
+            "name": "collection1",
+            "fields": {
+              "f_2_0_0": {
+                "type": "collection",
+                "name": "collection"
+              }
+            },
+            "display_name": "collection1"
+          },
+          "records": {
+            "r_2_0_0": {
+              "f_2_0_0": "14_0"
+            },
+            "r_2_0_1": {
+              "f_2_0_0": "15_0"
+            }
+          }
+        },
+        "13_0": {
           "schema": {
             "name": "datagrid1",
             "fields": {
@@ -323,126 +527,82 @@
             "r_1_5_0": {
               "f_1_5_0": "p_1_6",
               "f_1_5_2": "1_0"
-            },
-            "r_1_5_1": {
-              "f_1_5_0": "p_1_6",
-              "f_1_5_2": "1_1"
-            },
-            "r_1_5_2": {
-              "f_1_5_0": "p_1_6",
-              "f_1_5_2": "1_2"
-            },
-            "r_1_5_3": {
-              "f_1_5_0": "p_1_6",
-              "f_1_5_2": "1_3"
-            },
-            "r_1_5_4": {
-              "f_1_5_0": "p_1_6",
-              "f_1_5_2": "1_4"
-            },
-            "r_1_5_5": {
-              "f_1_5_0": "p_1_6",
-              "f_1_5_2": "1_5"
-            },
-            "r_1_5_6": {
-              "f_1_5_0": "p_1_6",
-              "f_1_5_2": "1_6"
-            },
-            "r_1_5_7": {
-              "f_1_5_0": "p_1_6",
-              "f_1_5_2": "1_7"
-            },
-            "r_1_5_8": {
-              "f_1_5_0": "p_1_6",
-              "f_1_5_2": "1_8"
             }
           }
         },
-        "1_7": {
+        "14_0": {
           "schema": {
-            "name": "container1",
+            "name": "fieldgroup3",
             "fields": {
-              "f_1_7_0": {
+              "f_1_0_0": {
                 "type": "string",
                 "name": "plugin_key"
               },
-              "f_1_7_1": {
-                "type": "collection",
-                "name": "components"
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
               },
-              "f_1_7_2": {
-                "type": "number",
-                "name": "width"
+              "f_1_0_2": {
+                "type": "string",
+                "name": "label"
               },
-              "f_1_7_3": {
-                "type": "number",
-                "name": "margin"
-              },
-              "f_1_7_4": {
-                "type": "boolean",
-                "name": "paper"
+              "f_1_0_3": {
+                "type": "string",
+                "name": "value"
               }
             },
-            "display_name": "Container 1"
+            "display_name": "Field Group 3"
           },
           "records": {
-            "r_1_7_0": {
-              "f_1_7_0": "p_1_7",
-              "f_1_7_1": "1_5",
-              "f_1_7_2": "6",
-              "f_1_7_3": "2",
-              "f_1_7_4": true
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield1",
+              "f_1_0_2": "collections.1_0.records.r_1_0_2.f_1_0_1",
+              "f_1_0_3": "collections.1_0.records.r_1_0_2.f_1_0_1"
             },
-            "r_1_7_1": {
-              "f_1_7_0": "p_1_7",
-              "f_1_7_1": "1_8",
-              "f_1_7_2": "6",
-              "f_1_7_3": "2",
-              "f_1_7_4": true
+            "r_1_0_1": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield1",
+              "f_1_0_2": "collections.1_0.records.r_1_0_2.f_1_0_2",
+              "f_1_0_3": "collections.1_0.records.r_1_0_2.f_1_0_2"
             }
           }
         },
-        "1_8": {
+        "15_0": {
           "schema": {
-            "name": "container1",
+            "name": "fieldgroup4",
             "fields": {
-              "f_1_7_0": {
+              "f_1_0_0": {
                 "type": "string",
                 "name": "plugin_key"
               },
-              "f_1_7_1": {
-                "type": "collection",
-                "name": "components"
-              },
-              "f_1_7_2": {
+              "f_1_0_1": {
                 "type": "string",
-                "name": "width"
+                "name": "name"
               },
-              "f_1_7_3": {
+              "f_1_0_2": {
                 "type": "string",
-                "name": "margin"
+                "name": "label"
               },
-              "f_1_7_4": {
-                "type": "boolean",
-                "name": "paper"
+              "f_1_0_3": {
+                "type": "string",
+                "name": "value"
               }
             },
-            "display_name": "Container 1"
+            "display_name": "Field Group 4"
           },
           "records": {
-            "r_1_7_0": {
-              "f_1_7_0": "p_1_7",
-              "f_1_7_1": "1_5",
-              "f_1_7_2": "6",
-              "f_1_7_3": "0",
-              "f_1_7_4": false
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield2",
+              "f_1_0_2": "collections.1_0.records.r_1_0_3.f_1_0_1",
+              "f_1_0_3": "collections.1_0.records.r_1_0_3.f_1_0_1"
             },
-            "r_1_7_1": {
-              "f_1_7_0": "p_1_7",
-              "f_1_7_1": "1_3",
-              "f_1_7_2": "6",
-              "f_1_7_3": "2",
-              "f_1_7_4": false
+            "r_1_0_1": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield2",
+              "f_1_0_2": "collections.1_0.records.r_1_0_3.f_1_0_2",
+              "f_1_0_3": "collections.1_0.records.r_1_0_3.f_1_0_2"
             }
           }
         }

@@ -7,6 +7,7 @@ import { RecordPluginComponent } from "./RecordPluginComponent";
 import { ReferencedField } from "./ReferencedField";
 import { SubscriptionStoreContext } from "../subscriptionStoreContext";
 import { Record } from "../domain/Record";
+import { ComponentsCollection } from "./ComponentsCollection";
 
 interface IRecordPluginProps {
   record: Record;
@@ -24,7 +25,6 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   });
   // console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
   const useRecordsResults = useRecords(recordFieldRequest);
-  // console.log("RecordPlugin useRecordsResults", useRecordsResults);
 
   if (
     !useRecordsResults ||
@@ -35,10 +35,17 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   ) {
     return null;
   }
+  // console.log("RecordPlugin useRecordsResults", useRecordsResults);
+
+  if (useRecordsResults.collection !== undefined) {
+    return (
+      <ComponentsCollection components={useRecordsResults.collection.value} />
+    );
+  }
 
   const pluginKey = useRecordsResults[`plugin_key`];
   const plugin = app.plugins[pluginKey?.value];
-  // console.log("RecordPlugin plugin.properties", plugin.properties);
+  // console.log("RecordPlugin plugin", pluginKey, plugin);
 
   const referencedFields = {};
 

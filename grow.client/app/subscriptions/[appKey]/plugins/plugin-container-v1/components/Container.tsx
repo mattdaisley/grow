@@ -11,8 +11,10 @@ export default function PluginContainer({ components, width, margin, paper }) {
 
   return (
     <>
-      <Grid xs={Number(width)}>
-        <BoundingComponent sx={{ boxSizing: "border-box", m: Number(margin) }}>
+      <Grid xs={Number(width ?? 12)}>
+        <BoundingComponent
+          sx={{ boxSizing: "border-box", m: Number(margin ?? 0) }}
+        >
           <ComponentsCollection components={components} />
         </BoundingComponent>
       </Grid>

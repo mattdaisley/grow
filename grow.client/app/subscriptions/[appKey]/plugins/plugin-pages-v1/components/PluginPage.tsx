@@ -1,8 +1,9 @@
 "use client";
 
+import { Box } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
 import useRecords from "../../../store/useRecords";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
-import { Box } from "@mui/material";
 
 export function PluginPage({ pageRecord, filter }) {
   const { components, path } = useRecords({
@@ -22,7 +23,9 @@ export function PluginPage({ pageRecord, filter }) {
   return (
     <>
       <PageHeader pageRecord={pageRecord} />
-      <ComponentsCollection components={components.value} />
+      <Grid container>
+        <ComponentsCollection components={components.value} />
+      </Grid>
     </>
   );
 }

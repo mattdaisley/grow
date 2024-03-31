@@ -55,11 +55,11 @@ export default function PluginDataGrid({
 
   return (
     <>
-      <Grid xs={12} sx={{ pl: 2, pr: 2 }}>
+      {/* <Grid xs={12} sx={{ pl: 2, pr: 2 }}>
         <h3>
           {dataSource.key} - {schema.display_name}
         </h3>
-      </Grid>
+      </Grid> */}
 
       <Grid xs={12} sx={{ padding: 2, height: 402 }}>
         <DataGrid
