@@ -24,7 +24,7 @@ export default function useCollections(collections: Collection[]): { [collection
 
       function callback(newRecords: Record[]) {
         // console.log('useRecord callback', field, newRecord)
-        setValue({...value, [collection.key]: newRecords});
+        setValue({...value, [collection.key]: { schema: collection.schema, records: newRecords }});
       }
 
       collectionCallbacks[collection.key] = { collection, callback };

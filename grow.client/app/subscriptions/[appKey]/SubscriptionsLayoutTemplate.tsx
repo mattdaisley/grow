@@ -36,13 +36,13 @@ export default function SubscriptionsLayoutTemplate({
 
   return (
     <>
-      {/* <SocketContext.Provider value={socket}> */}
-      <SubscriptionStoreContext.Provider value={currentApp}>
-        <LayoutPlugins />
+      <SocketContext.Provider value={socket}>
+        <SubscriptionStoreContext.Provider value={currentApp}>
+          <LayoutPlugins />
 
-        {children}
-      </SubscriptionStoreContext.Provider>
-      {/* </SocketContext.Provider> */}
+          {children}
+        </SubscriptionStoreContext.Provider>
+      </SocketContext.Provider>
     </>
   );
 }

@@ -40,7 +40,7 @@ export class Collection {
   }
 
   addRecord(recordKey: string, record: any) {
-
+    // console.log('Collection addRecord', recordKey, record)
     this.records = { ...this.records, [recordKey]: new Record(this._app, {schema: this.schema, key: recordKey, record})}
 
     this._notifySubscribers('*');
@@ -80,6 +80,7 @@ export class Collection {
 
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
       if (type === '*') {
+        // console.log('Collection _notifySubscribers', selector, this.records)
         callbacks.forEach(cb => cb(this.records))
       }
     });

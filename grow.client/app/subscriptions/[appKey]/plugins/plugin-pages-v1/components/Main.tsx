@@ -11,12 +11,13 @@ export default function PluginMain({ pagesCollection, filter }) {
   // console.log("Rendering PluginMain");
 
   const pages = useCollections([pagesCollection]);
-  // console.log("PluginMain", pages);
+  // console.log("PluginMain", pages, pagesCollection);
   if (!pages || !pages[pagesCollection.key]?.records) {
     return null;
   }
 
   const pageRecords = pages[pagesCollection.key].records;
+  // console.log("PluginMain pageRecords", pageRecords, filter);
 
   return (
     <Box
