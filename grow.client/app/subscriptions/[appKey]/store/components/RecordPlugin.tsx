@@ -5,7 +5,7 @@ import useRecords from "../useRecords";
 
 import { RecordPluginComponent } from "./RecordPluginComponent";
 import { ReferencedField } from "./ReferencedField";
-import { SubscriptionStoreContext } from "../subscriptionStoreContext";
+import { SubscriptionStoreContext } from "../SubscriptionStoreContext";
 import { Record } from "../domain/Record";
 import { ComponentsCollection } from "./ComponentsCollection";
 

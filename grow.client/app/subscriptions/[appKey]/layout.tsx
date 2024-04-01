@@ -1,4 +1,3 @@
-import { getApp } from "./store/getApp";
 import SubscriptionsLayoutTemplate from "./SubscriptionsLayoutTemplate";
 
 export default async function Layout({ params, children, ...props }) {
@@ -9,10 +8,8 @@ export default async function Layout({ params, children, ...props }) {
     appKey = params.appKey;
   }
 
-  const app = await getApp(appKey);
-
   return (
-    <SubscriptionsLayoutTemplate app={app} {...props}>
+    <SubscriptionsLayoutTemplate appKey={appKey} {...props}>
       {children}
     </SubscriptionsLayoutTemplate>
   );

@@ -11,14 +11,14 @@ import { ISchema } from "./domain/Schema";
 
 
 // anytime the collection changes, we want to update the records
-export default function useCollections(collections: Collection[]): { [collectionKey: string]: { schema: ISchema, records: Record[] } }{
+export default function useCollections(collections: Collection[]): IUseCollectionResponse {
   // console.log('useCollection', collections)
   const [value, setValue] = useState({});
   // const [records, setRecords] = useState(collection.records);
 
   useEffect(() => {
     const values = {};
-    const collectionCallbacks: { [collectionKey: string]: {collection: Collection, callback: Function} } = {} 
+    const collectionCallbacks: ICollectionCallbacks = {} 
 
     collections.forEach(collection => {
 
@@ -44,4 +44,15 @@ export default function useCollections(collections: Collection[]): { [collection
   }, [JSON.stringify(Object.values(collections).map(collection => collection.key))]);
 
   return value;
+}
+
+interface IUseCollectionResponse  { 
+  [collectionKey: string]: { 
+    schema: ISchema, 
+    records: Record[] 
+  } 
+}
+
+interface ICollectionCallbacks {
+  [collectionKey: string]: {collection: Collection, callback: Function}
 }

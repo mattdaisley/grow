@@ -2,7 +2,7 @@
 
 import { useContext, lazy } from "react";
 
-import { SubscriptionStoreContext } from "../store/subscriptionStoreContext";
+import { SubscriptionStoreContext } from "../store/SubscriptionStoreContext";
 
 export const plugins = {
   "plugin-pages-v1": lazy(() => import(`../plugins/plugin-pages-v1/plugin`)),

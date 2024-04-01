@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from "react";
 import PluginNavDrawer from "./components/NavDrawer";
-import { SubscriptionStoreContext } from "../../store/subscriptionStoreContext";
+import { SubscriptionStoreContext } from "../../store/SubscriptionStoreContext";
 
 interface NavDrawerPluginProps {
   pages: {

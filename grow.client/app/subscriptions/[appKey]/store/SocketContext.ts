@@ -8,7 +8,7 @@ const isSSR = () => typeof window === 'undefined';
 // const isSSR = () => true; // turn off websockets for now
 // console.log(`SocketContext ${process.env.NEXT_PUBLIC_WEBSOCKET_HOST}`)
 
-export const socket = !isSSR() ? io(`${process.env.NEXT_PUBLIC_WEBSOCKET_HOST}/dynamic`) : undefined;
+export const socket = !isSSR() ? io(`${process.env.NEXT_PUBLIC_WEBSOCKET_HOST}/subscriptions`) : undefined;
 // export const socket = { // turn off websockets for now
 //   on: (key: String, callback: Function) => {}, 
 //   off: (key: String) => {}

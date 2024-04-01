@@ -1,4 +1,3 @@
-import { getApp } from "../store/getApp";
 import SubscriptionsTemplate from "./SubscriptionsTemplate";
 
 export default async function Page({ params }) {

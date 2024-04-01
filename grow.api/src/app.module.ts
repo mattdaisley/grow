@@ -10,6 +10,7 @@ import { PumpsModule } from './pumps/pumps.module';
 import { SensorsModule } from './sensors/sensors.module';
 import { DynamicModule } from './dynamic/dynamic.module';
 import { GpioModule } from './gpio/gpio.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { GpioModule } from './gpio/gpio.module';
     PumpsModule,
     SensorsModule,
     DynamicModule,
+    SubscriptionsModule,
     GpioModule
   ],
   controllers: [AppController],
