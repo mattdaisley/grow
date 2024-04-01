@@ -125,11 +125,35 @@ export class SubscriptionsGateway {
     console.log('handleGetAppEvent', body, data)
     const event = `app-${body.appKey}`;
 
-    const response = { key: body.appKey, ...data.apps[body.appKey]};
+    const plugins = data.apps[body.appKey].plugins;
+
+    const response = { key: body.appKey, plugins, collections: {} };
     // console.log(dynamicItems)
 
     console.log('handleGetAppEvent returning', event)
     client.emit(event, response)
+    return response;
+  }
+  
+  @SubscribeMessage('get-collection')
+  async handleGetCollectionEvent(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+
+    const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+
+    console.log('handleGetCollectionEvent', body)
+    const event = `subscriptions`;
+
+    const collection = data.apps[body.appKey].collections[body.collectionKey];
+
+    const response = { l: { collectionKey: body.collectionKey, ...collection } }
+
+    console.log('handleGetCollectionEvent returning', event)
+    setTimeout(() => {
+      client.emit(event, response)
+    }, 100) // simulating data fetch delay
     return response;
   }
 }

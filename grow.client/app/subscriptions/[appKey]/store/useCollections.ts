@@ -13,7 +13,7 @@ import { ISchema } from "./domain/Schema";
 // anytime the collection changes, we want to update the records
 export default function useCollections(collections: Collection[]): IUseCollectionResponse {
   // console.log('useCollection', collections)
-  const [value, setValue] = useState({});
+  const [value, setValue] = useState(undefined);
   // const [records, setRecords] = useState(collection.records);
 
   useEffect(() => {

@@ -7,17 +7,20 @@ import useCollections from "../../../store/useCollections";
 export const drawerWidth = 200;
 
 export default function PluginNavDrawer(props) {
-  // console.log("Rendering PluginNavDrawer");
+  // console.log("Rendering PluginNavDrawer", props);
 
   const segment = props.appKey;
 
   const pages = useCollections([props.pages]);
+
   // console.log("PluginNavDrawer", pages);
   if (!pages || !pages[props.pages.key]?.records) {
     return null;
   }
 
   const pageRecords = pages[props.pages.key].records;
+
+  // console.log("PluginNavDrawer", pages, pageRecords);
 
   return (
     <ResponsiveNavDrawer segment={segment}>

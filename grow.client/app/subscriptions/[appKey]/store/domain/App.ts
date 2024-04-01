@@ -1,6 +1,8 @@
 import { Collection, ICollection } from './Collection';
 import { IPlugin, Plugin } from './Plugin';
 
+import {Socket} from "socket.io-client";
+import { v4 as uuidv4 } from 'uuid';
 
 export interface IApp {
   key: string;
@@ -14,6 +16,7 @@ export interface IApp {
 
 
 export class App {
+  private _instance: string;
   key: string;
   _plugins: {
     [key: string]: Object;
@@ -21,16 +24,27 @@ export class App {
   plugins: {
     [key: string]: Plugin;
   };
-  collections: {
+  private _collections: {
     [key: string]: Collection;
   };
 
-  constructor({ key, plugins, collections }: IApp) {
+  private _socket: Socket;
+
+  constructor({ key, plugins, collections }: IApp, socket: Socket) {
+    this._instance = uuidv4()
+
     // console.log('App constructor app key:', key);
     this.key = key;
     this._plugins = plugins;
     this.plugins = this._createPlugins(plugins);
-    this.collections = this._createCollections(collections);
+    this._collections = this._createCollections(collections);
+
+    this._socket = socket;
+
+    this._socket.on("subscriptions", (data) => {
+      // console.log("subscriptions", data);
+      this.handleEvent(data);
+    });
   }
 
   private _createPlugins(plugins: { [key: string]: IPlugin; }) {
@@ -49,11 +63,33 @@ export class App {
     return collectionMap;
   }
 
+  public unregisterMessageListeners() {
+    this._socket.off(`subscriptions`);
+  }
+
+  public get collections() {
+    return this._collections;
+  }
+
+  public getCollection(collectionKey: string): Collection {
+    if (!this.collections[collectionKey]) {
+      // console.log(`App ${this._instance} getCollection key not found`, collectionKey)
+      this._socket.emit('get-collection', { appKey: this.key, collectionKey });
+
+      this._collections[collectionKey] = new Collection(this, {key: collectionKey, schema: undefined, records: undefined});
+    }
+
+    return this.collections[collectionKey];
+  }
+
   handleEvent(data: any) {
-    // console.log('App handleEvent', data);
+    // console.log('App handleEvent', data, JSON.stringify(Object.keys(this._collections)));
     Object.entries(data).forEach(([key, value]: [string, any]) => {
-      const collection = this.collections[value.collectionKey];
+      const collection = this._collections[value.collectionKey];
       switch (key) {
+        case 'l':
+          collection.setCollection(value);
+          break;
         case 'i':
           Object.entries(value.records).forEach(([recordKey, record]) => {
             collection.addRecord(recordKey, record);

@@ -27,7 +27,7 @@ export class Collection {
     this.schema = schema;
     this._subscriptions = {};
     
-    this._createRecords(records);
+    !!records && this._createRecords(records);
   }
 
   _createRecords(records: {[key: string]: object}) {
@@ -37,6 +37,14 @@ export class Collection {
     Object.entries(records).forEach(([recordKey, record]) => {
       this.records[recordKey] = new Record(this._app, {schema: this.schema, key: recordKey, record});
     });
+  }
+
+  setCollection(collection: ICollection) {
+    // console.log('Collection setCollection', collection)
+    this.schema = { ...collection.schema};
+    !!collection.records && this._createRecords(collection.records);
+
+    this._notifySubscribers('*');
   }
 
   addRecord(recordKey: string, record: any) {

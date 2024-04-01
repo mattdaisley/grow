@@ -61,7 +61,8 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
       const recordKey = matches[2];
       const fieldKey = matches[3];
 
-      const collection = app.collections[collectionKey];
+      const collection = app.getCollection(collectionKey);
+      // const collection = app.collections[collectionKey];
 
       referencedFields[key] = {
         collection,

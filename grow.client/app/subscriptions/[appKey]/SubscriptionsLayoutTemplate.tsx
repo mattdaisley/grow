@@ -22,33 +22,37 @@ export default function SubscriptionsLayoutTemplate({
 }: Props) {
   // console.log("Rendering SubscriptionsLayoutTemplate");
 
-  const [currentApp, setApp] = useState<App>(null);
+  const [currentApp, setApp] = useState<App>(undefined);
 
   // const currentApp = useMemo(() => new App(app), [app.key]);
 
   useEffect(() => {
-    socket.emit("get-app", { appKey });
-    socket.on(`app-${appKey}`, (data) => {
-      // console.log("app", data);
+    if (!currentApp) {
+      socket.emit("get-app", { appKey });
+      socket.on(`app-${appKey}`, (data) => {
+        // console.log("app", data);
 
-      setApp(new App(data));
-    });
-
-    return () => {
-      socket.off(`app-${appKey}`);
-    };
-  }, [appKey]);
-
-  useEffect(() => {
-    socket.on("subscriptions", (data) => {
-      // console.log("subscriptions", data);
-      currentApp?.handleEvent(data);
-    });
+        setApp(new App(data, socket));
+      });
+    }
 
     return () => {
-      socket.off("subscriptions");
+      if (!!currentApp) {
+        socket.off(`app-${appKey}`);
+        currentApp?.unregisterMessageListeners();
+      }
     };
-  }, [currentApp]);
+  }, [appKey, currentApp?.key]);
+
+  // useEffect(() => {
+  //   console.log("registering subscriptions");
+  //   setReady(true);
+
+  //   return () => {
+  //     console.log("unregistering subscriptions");
+  //     socket.off("subscriptions");
+  //   };
+  // }, [currentApp]);
 
   if (!currentApp) {
     return null;

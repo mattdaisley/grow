@@ -29,7 +29,8 @@ export class Record {
 
       if (field.type === 'collection') {
         // console.log('record field', fieldKey, field, this._record)
-        const collection = this._app.collections[this._record[fieldKey]];
+        // const collection = this._app.collections[this._record[fieldKey]];
+        const collection = this._app.getCollection(this._record[fieldKey]);
         // console.log('record collection', field.name, collection)
         fields[field.name] = collection;
       }

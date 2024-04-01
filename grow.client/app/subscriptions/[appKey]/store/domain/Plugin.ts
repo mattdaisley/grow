@@ -35,7 +35,7 @@ export class Plugin {
     const propertiesMapped = {};
 
     Object.entries(this._properties).forEach(([_, property]) => {
-      const collection = this._app.collections[property.collectionKey];
+      const collection = this._app.getCollection(property.collectionKey);
 
       propertiesMapped[property.name] = collection;
     });
