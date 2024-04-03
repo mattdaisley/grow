@@ -62,9 +62,11 @@ export default function SubscriptionsLayoutTemplate({
     <>
       <SocketContext.Provider value={socket}>
         <SubscriptionStoreContext.Provider value={currentApp}>
-          <LayoutPlugins />
+          <Box sx={{ height: "100%", overflowY: "auto" }}>
+            <LayoutPlugins />
 
-          {children}
+            {children}
+          </Box>
         </SubscriptionStoreContext.Provider>
       </SocketContext.Provider>
     </>

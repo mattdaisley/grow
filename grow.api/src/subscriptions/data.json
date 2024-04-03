@@ -1,11 +1,189 @@
 {
   "apps": {
+    "0": {
+      "plugins": {
+        "plugin-pages-v1": {
+          "name": "plugin-pages-v1",
+          "parent": "page",
+          "properties": {
+            "1_0_0": {
+              "name": "pagesCollection",
+              "collectionKey": "1_0"
+            }
+          }
+        },
+        "plugin-container-v1": {
+          "name": "plugin-container-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "collection",
+              "name": "components"
+            }
+          }
+        },
+        "plugin-iframe-v1": {
+          "name": "plugin-iframe-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "string",
+              "name": "src"
+            }
+          }
+        }
+      },
+      "collections": {
+        "1_0": {
+          "schema": {
+            "name": "pages",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "display_name"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "path"
+              },
+              "f_1_0_3": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "height"
+              }
+            },
+            "display_name": "Application Pages"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-page-v1",
+              "f_1_0_1": "Edit App 1",
+              "f_1_0_2": "/1",
+              "f_1_0_3": "2_0",
+              "f_1_0_4": "1"
+            }
+          }
+        },
+        "2_0": {
+          "schema": {
+            "name": "collection1",
+            "fields": {
+              "f_2_0_0": {
+                "type": "collection",
+                "name": "collection"
+              }
+            },
+            "display_name": "collection1"
+          },
+          "records": {
+            "r_2_0_0": {
+              "f_2_0_0": "3_0"
+            }
+          }
+        },
+        "3_0": {
+          "schema": {
+            "name": "container1",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "height"
+              },
+              "f_1_0_5": {
+                "type": "string",
+                "name": "padding"
+              },
+              "f_1_0_6": {
+                "type": "string",
+                "name": "px"
+              },
+              "f_1_0_7": {
+                "type": "string",
+                "name": "py"
+              },
+              "f_1_0_8": {
+                "type": "string",
+                "name": "border"
+              },
+              "f_1_0_9": {
+                "type": "boolean",
+                "name": "paper"
+              }
+            },
+            "display_name": "Container 1"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "container1",
+              "f_1_0_2": "4_0",
+              "f_1_0_3": "12",
+              "f_1_0_4": "1",
+              "f_1_0_6": "4",
+              "f_1_0_7": "4",
+              "f_1_0_8": "none",
+              "f_1_0_9": false
+            }
+          }
+        },
+        "4_0": {
+          "schema": {
+            "name": "iframe1",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "src"
+              }
+            },
+            "display_name": "IFrame 1"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-iframe-v1",
+              "f_1_0_1": "iframe1",
+              "f_1_0_2": "http://localhost:3000/subscriptions/1/1"
+            }
+          }
+        }
+      }
+    },
     "1": {
       "plugins": {
         "p_1_0": {
           "name": "plugin-appbar-v1",
           "parent": "layout",
-          "order": 0,
+          "order": 1,
           "properties": {
             "1_0_0": {
               "name": "pages",
@@ -16,7 +194,7 @@
         "p_1_1": {
           "name": "plugin-navdrawer-v1",
           "parent": "layout",
-          "order": 1,
+          "order": 0,
           "properties": {
             "1_0_0": {
               "name": "pages",

@@ -1,21 +1,9 @@
 "use client";
 
-import PluginContainer from "./components/Container";
-
-interface IPluginContainerProps {
-  components: {
-    [pageKey: string]: Object;
-  };
-  width?: string;
-  margin?: string;
-  paper?: boolean;
-}
+import PluginContainer, { IPluginContainerProps } from "./components/Container";
 
 export default function Plugin({
   components,
-  width,
-  margin,
-  paper,
   ...props
 }: IPluginContainerProps) {
   // console.log("plugin-container-v1", components, width, props);
@@ -26,12 +14,7 @@ export default function Plugin({
 
   return (
     <>
-      <PluginContainer
-        components={components}
-        width={width}
-        margin={margin}
-        paper={paper}
-      />
+      <PluginContainer components={components} {...props} />
     </>
   );
 }

@@ -74,10 +74,8 @@ export class SubscriptionsGateway {
             'collectionKey': '1_0',
             'records': {
               [idToUpdate]: {
-                "f_1_0_0": "plugin-page-v1",
                 "f_1_0_1": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
                 "f_1_0_2": `/${randomWord}`,
-                "f_1_0_3": "2_0"
               }
             }
           }

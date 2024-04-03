@@ -47,7 +47,7 @@ export class Record {
 
     const difference = Object.keys(record).filter(k => this._record[k] !== record[k]);
 
-    this._record = record;
+    this._record = { ...this._record, ...record };
 
     difference.forEach(k => this._notifySubscribers(this.schema.fields[k].name));
   }
@@ -87,7 +87,7 @@ export class Record {
 
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
       if (type === '*' || selector === type) {
-        // console.log("Record _notifySubscribers", selector, type, this)
+        // console.log("Record _notifySubscribers", selector, type, callbacks.length)
         callbacks.forEach(cb => cb(this))
       }
     });

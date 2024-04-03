@@ -93,7 +93,7 @@ export default function PluginAppBar(props) {
       position="sticky"
       color="transparent"
       sx={{
-        width: { xs: "100%", md: `calc(100% - ${drawerWidth}px - 15px)` },
+        width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` },
         marginLeft: { xs: "0", md: `${drawerWidth}px` },
         transition: theme.transitions.create(["margin", "width"], {
           easing: theme.transitions.easing.easeOut,

@@ -46,8 +46,12 @@ export function ResponsiveNavDrawer({ segment, children }) {
     <Box
       component="nav"
       sx={{
-        position: "absolute",
+        position: "fixed",
         width: { md: drawerWidth },
+        height: "100%",
+        maxHeight: "100vh",
+        overflowX: "hidden",
+        overflowY: "auto",
         flexShrink: { md: 0 },
       }}
       aria-label="app drawer"
@@ -80,8 +84,10 @@ export function ResponsiveNavDrawer({ segment, children }) {
         sx={(theme) => ({
           display: { xs: "none", md: "block" },
           "& .MuiDrawer-paper": {
+            position: "absolute",
             boxSizing: "border-box",
             width: drawerWidth,
+            height: "100%",
             bgcolor: theme.palette.primary.light,
             color: theme.palette.primary.contrastText,
           },

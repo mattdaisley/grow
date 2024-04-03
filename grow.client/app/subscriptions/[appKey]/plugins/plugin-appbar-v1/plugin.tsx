@@ -11,6 +11,8 @@ export default function Plugin({ pages, ...props }) {
     return null;
   }
 
+  app.state = { ...app.state, appBarHeight: 64.8 };
+
   return (
     <>
       <PluginAppBar pages={pages} appKey={app.key} user={"test"} />

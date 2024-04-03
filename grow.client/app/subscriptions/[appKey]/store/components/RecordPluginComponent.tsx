@@ -11,6 +11,9 @@ export const plugins = {
   "plugin-datagrid-v1": lazy(
     () => import(`../../plugins/plugin-datagrid-v1/plugin`)
   ),
+  "plugin-iframe-v1": lazy(
+    () => import(`../../plugins/plugin-iframe-v1/plugin`)
+  ),
   "plugin-list-v1": lazy(() => import(`../../plugins/plugin-list-v1/plugin`)),
   "plugin-textfield-v1": lazy(
     () => import(`../../plugins/plugin-textfield-v1/plugin`)

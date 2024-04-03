@@ -17,6 +17,8 @@ export default function Plugin({ pages }: NavDrawerPluginProps) {
     return null;
   }
 
+  app.state = { ...app.state, drawerWidth: 200 };
+
   return (
     <>
       <PluginNavDrawer pages={pages} appKey={app.key} />

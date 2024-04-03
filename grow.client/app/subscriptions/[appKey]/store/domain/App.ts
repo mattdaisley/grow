@@ -24,6 +24,8 @@ export class App {
   plugins: {
     [key: string]: Plugin;
   };
+  state: any = {};
+  
   private _collections: {
     [key: string]: Collection;
   };
@@ -67,19 +69,15 @@ export class App {
     this._socket.off(`subscriptions`);
   }
 
-  public get collections() {
-    return this._collections;
-  }
-
   public getCollection(collectionKey: string): Collection {
-    if (!this.collections[collectionKey]) {
+    if (!this._collections[collectionKey]) {
       // console.log(`App ${this._instance} getCollection key not found`, collectionKey)
       this._socket.emit('get-collection', { appKey: this.key, collectionKey });
 
       this._collections[collectionKey] = new Collection(this, {key: collectionKey, schema: undefined, records: undefined});
     }
 
-    return this.collections[collectionKey];
+    return this._collections[collectionKey];
   }
 
   handleEvent(data: any) {

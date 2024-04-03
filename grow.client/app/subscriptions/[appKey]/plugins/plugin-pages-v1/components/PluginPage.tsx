@@ -6,9 +6,10 @@ import useRecords from "../../../store/useRecords";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
 
 export function PluginPage({ pageRecord, filter }) {
-  const { components, path } = useRecords({
+  const { components, path, height } = useRecords({
     components: { record: pageRecord },
     path: { record: pageRecord },
+    height: { record: pageRecord },
   });
 
   // console.log("PluginPage", pageRecord, components, path, filter);
@@ -22,8 +23,8 @@ export function PluginPage({ pageRecord, filter }) {
 
   return (
     <>
-      <PageHeader pageRecord={pageRecord} />
-      <Grid container>
+      {/* <PageHeader pageRecord={pageRecord} /> */}
+      <Grid container sx={{ height: height?.value ?? height }}>
         <ComponentsCollection components={components.value} />
       </Grid>
     </>
