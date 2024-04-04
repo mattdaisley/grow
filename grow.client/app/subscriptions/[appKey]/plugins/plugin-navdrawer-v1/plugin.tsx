@@ -1,8 +1,10 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
+
 import PluginNavDrawer from "./components/NavDrawer";
 import { SubscriptionStoreContext } from "../../store/SubscriptionStoreContext";
+import useAppState from "../../store/useAppState";
 
 interface NavDrawerPluginProps {
   pages: {
@@ -12,12 +14,15 @@ interface NavDrawerPluginProps {
 
 export default function Plugin({ pages }: NavDrawerPluginProps) {
   const app = useContext(SubscriptionStoreContext);
+  const { onChange: setDrawerWidth } = useAppState("drawerWidth");
+
+  useEffect(() => {
+    setDrawerWidth && setDrawerWidth(200);
+  }, [setDrawerWidth]);
 
   if (pages === undefined) {
     return null;
   }
-
-  app.state = { ...app.state, drawerWidth: 200 };
 
   return (
     <>

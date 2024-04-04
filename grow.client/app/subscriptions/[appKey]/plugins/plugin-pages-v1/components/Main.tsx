@@ -1,11 +1,9 @@
 "use client";
 
 import { Box } from "@mui/material";
+
 import useCollections from "../../../store/useCollections";
-import { ExamplePage } from "./ExamplePage";
 import { PluginPage } from "./PluginPage";
-import { SubscriptionStoreContext } from "../../../store/SubscriptionStoreContext";
-import { useContext } from "react";
 import useAppState from "../../../store/useAppState";
 // import { drawerWidth } from './../../../../../testing/[dynamic]/DynamicAppDrawer';
 
@@ -13,12 +11,19 @@ import useAppState from "../../../store/useAppState";
 
 export default function PluginMain({ pagesCollection, filter }) {
   // console.log("Rendering PluginMain");
-  const appState = useAppState();
-  const drawerWidth = appState.drawerWidth ?? 0;
-  const appBarHeight = appState.appBarHeight ?? 0;
+  const { value: appBarHeight } = useAppState("appBarHeight");
+  const { value: drawerHeight } = useAppState("drawerHeight");
+  const { value: drawerWidth } = useAppState("drawerWidth");
 
   const pages = useCollections([pagesCollection]);
-  // console.log("PluginMain", pages, pagesCollection);
+  // console.log(
+  //   "PluginMain",
+  //   pages,
+  //   pagesCollection,
+  //   appBarHeight,
+  //   drawerHeight,
+  //   drawerWidth
+  // );
   if (!pages || !pages[pagesCollection.key]?.records) {
     return null;
   }
@@ -32,12 +37,17 @@ export default function PluginMain({ pagesCollection, filter }) {
       sx={(theme) => {
         return {
           flexGrow: 1,
-          pl: { xs: 2, md: `calc(${theme.spacing(4)} + ${drawerWidth}px)` },
+          pl: {
+            xs: 2,
+            md: `calc(${theme.spacing(4)} + ${drawerWidth ?? 0}px)`,
+          },
           pr: { xs: 2, md: 4 },
           // width: {sm: `calc(100% - ${drawerWidth}px)` },
           width: 1,
           height: 1,
-          maxHeight: `calc(100% - ${appBarHeight}px)`,
+          maxHeight: `calc(100% - ${appBarHeight ?? 0}px - ${
+            drawerHeight ?? 0
+          }px)`,
           // position: "fixed",
           // overflowY: "scroll",
         };
@@ -46,7 +56,6 @@ export default function PluginMain({ pagesCollection, filter }) {
       {Object.entries(pageRecords).map(([key, pageRecord]) => {
         return <PluginPage key={key} pageRecord={pageRecord} filter={filter} />;
       })}
-      {/* <ExamplePage /> */}
     </Box>
   );
 }

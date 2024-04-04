@@ -22,6 +22,16 @@
             }
           }
         },
+        "plugin-drawer-v1": {
+          "name": "plugin-drawer-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "collection",
+              "name": "components"
+            }
+          }
+        },
         "plugin-iframe-v1": {
           "name": "plugin-iframe-v1",
           "parent": "component",
@@ -85,6 +95,9 @@
           "records": {
             "r_2_0_0": {
               "f_2_0_0": "3_0"
+            },
+            "r_2_0_1": {
+              "f_2_0_0": "5_0"
             }
           }
         },
@@ -143,7 +156,7 @@
               "f_1_0_3": "12",
               "f_1_0_4": "1",
               "f_1_0_6": "4",
-              "f_1_0_7": "4",
+              "f_1_0_7": "2",
               "f_1_0_8": "none",
               "f_1_0_9": false
             }
@@ -173,6 +186,38 @@
               "f_1_0_0": "plugin-iframe-v1",
               "f_1_0_1": "iframe1",
               "f_1_0_2": "http://localhost:3000/subscriptions/1/1"
+            }
+          }
+        },
+        "5_0": {
+          "schema": {
+            "name": "drawer1",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "variant"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "anchor"
+              }
+            },
+            "display_name": "Drawer 1"
+          },
+          "records": {
+            "r_1_0_0": {
+              "f_1_0_0": "plugin-drawer-v1",
+              "f_1_0_1": "3_0",
+              "f_1_0_2": "persistent",
+              "f_1_0_3": "bottom"
             }
           }
         }

@@ -25,9 +25,12 @@ export class App {
     [key: string]: Plugin;
   };
   state: any = {};
-  
+
   private _collections: {
     [key: string]: Collection;
+  };
+  private _subscriptions: { 
+    [selector: string]: Function[] 
   };
 
   private _socket: Socket;
@@ -40,6 +43,7 @@ export class App {
     this._plugins = plugins;
     this.plugins = this._createPlugins(plugins);
     this._collections = this._createCollections(collections);
+    this._subscriptions = {};
 
     this._socket = socket;
 
@@ -103,6 +107,39 @@ export class App {
             collection.updateRecord(recordKey, record);
           });
           break;
+      }
+    });
+  }
+
+  public appState: { [key: string]: any } = {};
+
+  public setAppState(key: string, value: any) {
+    this.appState[key] = value;
+    this._notifySubscribers(key);
+  }
+
+  subscribe(selector: string, callback: Function) {
+
+    // console.log('record subscribe', selector, this.key)
+    if (!this._subscriptions[selector]) {
+      this._subscriptions[selector] = [];
+    }
+    this._subscriptions[selector].push(callback);
+  }
+
+  unsubscribe(selector: string, callback: Function) {
+
+    if (this._subscriptions[selector]) {
+      this._subscriptions[selector] = this._subscriptions[selector].filter(cb => cb !== callback);
+    }
+  }
+
+  private _notifySubscribers(type: string) {
+
+    Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
+      if (type === '*' || selector === type) {
+        // console.log("Record _notifySubscribers", selector, type, callbacks.length)
+        callbacks.forEach(cb => cb(this.appState[selector]))
       }
     });
   }
