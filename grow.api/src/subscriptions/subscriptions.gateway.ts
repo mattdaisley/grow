@@ -73,7 +73,9 @@ export class SubscriptionsGateway {
         insertedIds.push(id)
         insertedMessages[id] = message;
 
-        this.apps['1'].collections['1_0'].records[id] = record;
+        if (this.apps['1']?.collections['1_0']?.records) {
+          this.apps['1'].collections['1_0'].records[id] = record;
+        }
       }
       if (typeIndex === 1 && insertedIds.length > 0) {
         const idToUpdate = insertedIds[Math.floor(Math.random() * insertedIds.length)];
@@ -99,7 +101,7 @@ export class SubscriptionsGateway {
         }
         insertedIds.splice(insertedIds.indexOf(idToDelete), 1)
 
-        this.apps['1'].collections['1_0'].records.delete(idToDelete);
+        this.apps['1']?.collections['1_0']?.records?.delete && this.apps['1']?.collections['1_0']?.records?.delete(idToDelete);
       }
 
       // console.log('subscriptions-1', typeIndex, randomWord)
