@@ -60,7 +60,8 @@ export class SubscriptionsGateway {
                 "f_1_0_0": "plugin-page-v1",
                 "f_1_0_1": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
                 "f_1_0_2": `/${randomWord}`,
-                "f_1_0_3": "2_0"
+                "f_1_0_3": "2_0",
+                "f_1_0_4": "1"
               }
             }
           }
@@ -93,9 +94,9 @@ export class SubscriptionsGateway {
         insertedIds.splice(insertedIds.indexOf(idToDelete), 1)
       }
 
-      console.log('subscriptions', typeIndex, randomWord)
+      // console.log('subscriptions-1', typeIndex, randomWord)
       if (message) {
-        this.server.emit('subscriptions', message );
+        this.server?.emit('subscriptions-1', message );
       }
     }, 5000);
   }
@@ -141,16 +142,38 @@ export class SubscriptionsGateway {
 
     const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
 
-    console.log('handleGetCollectionEvent', body)
-    const event = `subscriptions`;
+    // console.log('handleGetCollectionEvent', body)
+    const event = `subscriptions-${body.appKey}`;
 
     const collection = data.apps[body.appKey].collections[body.collectionKey];
 
     const response = { l: { collectionKey: body.collectionKey, ...collection } }
 
-    console.log('handleGetCollectionEvent returning', event)
+    // console.log('handleGetCollectionEvent returning', event)
     setTimeout(() => {
       client.emit(event, response)
+    }, 100) // simulating data fetch delay
+    return response;
+  }
+
+  @SubscribeMessage('update-record')
+  async handleUpdateRecordEvent(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+
+    const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+
+    // console.log('handleUpdateRecordEvent', body)
+    const event = `subscriptions-${body.appKey}`;
+
+    data.apps[body.appKey].collections[body.collectionKey].records[body.recordKey][body.fieldKey] = body.newValue;
+
+    const response = { client: client.id, u: { collectionKey: body.collectionKey, records: { [body.recordKey]: { [body.fieldKey]: body.newValue } } } }
+
+    // console.log('handleUpdateRecordEvent returning', event)
+    setTimeout(() => {
+      this.server?.emit(event, response)
     }, 100) // simulating data fetch delay
     return response;
   }

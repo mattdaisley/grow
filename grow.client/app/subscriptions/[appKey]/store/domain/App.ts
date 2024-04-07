@@ -47,8 +47,13 @@ export class App {
 
     this._socket = socket;
 
-    this._socket.on("subscriptions", (data) => {
-      // console.log("subscriptions", data);
+    // console.log('registering socket listener', `subscriptions-${this.key}`)
+    this._socket.on(`subscriptions-${this.key}`, (data) => {
+      // console.log(`subscriptions-${this.key}`, data, this._socket.id);
+      if (this._socket.id === data.client) {
+        return;
+      }
+
       this.handleEvent(data);
     });
   }
@@ -70,7 +75,7 @@ export class App {
   }
 
   public unregisterMessageListeners() {
-    this._socket.off(`subscriptions`);
+    this._socket.off(`subscriptions-${this.key}`);
   }
 
   public getCollection(collectionKey: string): Collection {
@@ -82,6 +87,10 @@ export class App {
     }
 
     return this._collections[collectionKey];
+  }
+
+  public pushRecordUpdate(collectionKey: string, recordKey: string, fieldKey: string, newValue: any) {
+    this._socket.emit('update-record', { appKey: this.key, collectionKey, recordKey, fieldKey, newValue });
   }
 
   handleEvent(data: any) {

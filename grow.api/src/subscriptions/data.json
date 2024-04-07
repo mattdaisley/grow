@@ -344,6 +344,10 @@
               "f_1_0_3": {
                 "type": "collection",
                 "name": "components"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "height"
               }
             },
             "display_name": "Application Pages"

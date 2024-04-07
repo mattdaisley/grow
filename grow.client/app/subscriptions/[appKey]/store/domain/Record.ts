@@ -1,4 +1,5 @@
 import { App } from './App';
+import { Collection } from './Collection';
 import { ISchema } from './Schema';
 
 
@@ -8,12 +9,14 @@ export class Record {
   _record: object;
 
   private _app: App;
+  private _collection: Collection;
   private _subscriptions: { 
     [selector: string]: Function[] 
   };
 
-  constructor(app: App, {schema, key, record}: {schema: ISchema, key: string, record: object}) {
+  constructor(app: App, collection: Collection, {schema, key, record}: {schema: ISchema, key: string, record: object}) {
     this._app = app;
+    this._collection = collection;
     this.key = key;
     this.schema = schema;
     this._record = record;
@@ -26,7 +29,7 @@ export class Record {
 
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
       const field = this.schema.fields[fieldKey];
-
+      // console.log('record field', fieldKey, field, this._record[fieldKey], this.schema.fields)
       if (field.type === 'collection') {
         // console.log('record field', fieldKey, field, this._record)
         // const collection = this._app.collections[this._record[fieldKey]];
@@ -59,12 +62,17 @@ export class Record {
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
       const field = this.schema.fields[fieldKey];
 
-      if (field.name === fieldName) {
+      if (field.name === fieldName && fieldValue !== newValue) {
         newRecord[fieldKey] = newValue;
+        // this._record[fieldKey] = newValue;
+        // this._notifySubscribers(fieldName)
+
+        this._app.pushRecordUpdate(this._collection.key, this.key, fieldKey, newValue)
       }
     });
 
     this.update(newRecord);
+
   }
 
   subscribe(selector: string, callback: Function) {

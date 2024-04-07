@@ -35,7 +35,7 @@ export class Collection {
     this.records = {};
 
     Object.entries(records).forEach(([recordKey, record]) => {
-      this.records[recordKey] = new Record(this._app, {schema: this.schema, key: recordKey, record});
+      this.records[recordKey] = new Record(this._app, this, {schema: this.schema, key: recordKey, record});
     });
   }
 
@@ -49,7 +49,7 @@ export class Collection {
 
   addRecord(recordKey: string, record: any) {
     // console.log('Collection addRecord', recordKey, record)
-    this.records = { ...this.records, [recordKey]: new Record(this._app, {schema: this.schema, key: recordKey, record})}
+    this.records = { ...this.records, [recordKey]: new Record(this._app, this, {schema: this.schema, key: recordKey, record})}
 
     this._notifySubscribers('*');
   }
@@ -63,7 +63,7 @@ export class Collection {
   }
 
   updateRecord(recordKey: string, record: any) {
-
+    // console.log('Collection updateRecord', recordKey, record)
     if (this.records[recordKey] !== undefined) {
       this.records[recordKey].update(record);
     }
