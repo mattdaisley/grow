@@ -41,6 +41,16 @@
               "name": "src"
             }
           }
+        },
+        "plugin-datagrid-v1": {
+          "name": "plugin-datagrid-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "collection",
+              "name": "components"
+            }
+          }
         }
       },
       "collections": {
@@ -215,9 +225,41 @@
           "records": {
             "r_1_0_0": {
               "f_1_0_0": "plugin-drawer-v1",
-              "f_1_0_1": "3_0",
+              "f_1_0_1": "6_0",
               "f_1_0_2": "persistent",
               "f_1_0_3": "bottom"
+            }
+          }
+        },
+        "6_0": {
+          "schema": {
+            "name": "datagrid1",
+            "fields": {
+              "f_1_5_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_5_2": {
+                "type": "app_collection",
+                "name": "components"
+              },
+              "f_1_5_3": {
+                "type": "string",
+                "name": "height"
+              },
+              "f_1_5_4": {
+                "type": "boolean",
+                "name": "editable"
+              }
+            },
+            "display_name": "DataGrid 1"
+          },
+          "records": {
+            "r_1_5_0": {
+              "f_1_5_0": "plugin-datagrid-v1",
+              "f_1_5_2": "app.1.collections.1_0",
+              "f_1_5_3": "343",
+              "f_1_5_4": true
             }
           }
         }

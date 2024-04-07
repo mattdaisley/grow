@@ -31,15 +31,29 @@ export class Record {
       const field = this.schema.fields[fieldKey];
       // console.log('record field', fieldKey, field, this._record[fieldKey], this.schema.fields)
       if (field.type === 'collection') {
+        const fieldValue = this._record[fieldKey];
         // console.log('record field', fieldKey, field, this._record)
         // const collection = this._app.collections[this._record[fieldKey]];
-        const collection = this._app.getCollection(this._record[fieldKey]);
+        const collection = this._app.getCollection(fieldValue);
         // console.log('record collection', field.name, collection)
         fields[field.name] = collection;
+        return; 
       }
-      else {
-        fields[field.name] = fieldValue;
+      
+      if (field.type === 'app_collection') {
+        const fieldValue = this._record[fieldKey];
+        const valueSplit = fieldValue.split('.');
+        if (valueSplit.length > 1 && valueSplit[0] === 'app') {
+          // console.log('Record.value app_collection', valueSplit)
+          // console.log(valueSplit);
+
+          const collection = this._app.getReferencedAppCollection(valueSplit[1], valueSplit[3])
+          fields[field.name] = collection;
+          return;
+        }
       }
+      
+      fields[field.name] = fieldValue;
 
     });
 

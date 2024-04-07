@@ -11,15 +11,20 @@ export const drawerWidth = 200;
 
 interface IPluginDataGridProps {
   dataSource: Collection;
+  height?: string;
+  editable?: boolean;
 }
 
 export default function PluginDataGrid({
   dataSource,
+  height,
+  editable,
   ...props
 }: IPluginDataGridProps) {
-  // console.log("Rendering PluginDataGrid");
+  // console.log("Rendering PluginDataGrid", dataSource, height, editable);
 
   const listItems = useCollections([dataSource]);
+  // console.log("PluginDataGrid", listItems);
   if (!listItems || !listItems[dataSource.key]?.records) {
     return null;
   }
@@ -28,21 +33,33 @@ export default function PluginDataGrid({
   const listItemRecords = listItems[dataSource.key].records;
   const schema = listItems[dataSource.key].schema;
 
-  const columns: GridColDef<(typeof rows)[number]>[] = Object.entries(
-    schema.fields
-  ).map(([key, field]) => {
+  const columns: GridColDef<(typeof rows)[number]>[] = Object.entries({
+    id: { name: "Id" },
+    ...schema.fields,
+  }).map(([key, field]) => {
     // console.log("columns", key, field);
 
-    return {
+    const cell: GridColDef<(typeof rows)[number]> = {
       field: key,
       headerName: field.name,
       width: 200,
-      renderCell: (params) => {
-        // console.log(params);
-        return <DataGridRow record={params.row.record} field={params.value} />;
-      },
     };
+
+    if (key !== "id") {
+      cell.renderCell = (params) => {
+        return (
+          <DataGridRow
+            record={params.row.record}
+            field={params.value}
+            editable={editable}
+          />
+        );
+      };
+    }
+
+    return cell;
   });
+  // columns.unshift({ field: "id", headerName: "ID", width: 200 });
 
   const rows = Object.entries(listItemRecords).map(([key, record]) => {
     // console.log("id", key, "record", record);
@@ -53,6 +70,10 @@ export default function PluginDataGrid({
     };
   });
 
+  return <DataGridTemplate rows={rows} columns={columns} height={height} />;
+}
+
+function DataGridTemplate({ rows, columns, height }) {
   return (
     <>
       {/* <Grid xs={12} sx={{ pl: 2, pr: 2 }}>
@@ -61,7 +82,7 @@ export default function PluginDataGrid({
         </h3>
       </Grid> */}
 
-      <Grid xs={12} sx={{ padding: 2, height: 402 }}>
+      <Grid xs={12} sx={{ padding: 2, height: height ? Number(height) : 402 }}>
         <DataGrid
           rows={rows}
           columns={columns}

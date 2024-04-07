@@ -26,6 +26,9 @@ export class App {
   };
   state: any = {};
 
+  private _referencedApps: {
+    [key: string]: App;
+  }
   private _collections: {
     [key: string]: Collection;
   };
@@ -43,6 +46,7 @@ export class App {
     this._plugins = plugins;
     this.plugins = this._createPlugins(plugins);
     this._collections = this._createCollections(collections);
+    this._referencedApps = {};
     this._subscriptions = {};
 
     this._socket = socket;
@@ -78,9 +82,17 @@ export class App {
     this._socket.off(`subscriptions-${this.key}`);
   }
 
+  public getReferencedAppCollection(appKey: string, collectionKey: string): Collection {
+    if (!this._referencedApps[appKey]) {
+      this._referencedApps[appKey] = new App({ key: appKey, plugins: {}, collections: {} }, this._socket);
+    }
+
+    return this._referencedApps[appKey].getCollection(collectionKey);
+  }
+
   public getCollection(collectionKey: string): Collection {
     if (!this._collections[collectionKey]) {
-      // console.log(`App ${this._instance} getCollection key not found`, collectionKey)
+      // console.log(`App ${this.key}: ${this._instance} getCollection key not found`, collectionKey)
       this._socket.emit('get-collection', { appKey: this.key, collectionKey });
 
       this._collections[collectionKey] = new Collection(this, {key: collectionKey, schema: undefined, records: undefined});
@@ -141,6 +153,18 @@ export class App {
     if (this._subscriptions[selector]) {
       this._subscriptions[selector] = this._subscriptions[selector].filter(cb => cb !== callback);
     }
+
+    if (Object.keys(this._referencedApps).length) {
+      Object.entries(this._referencedApps).forEach(([appKey, app]) => {
+        app.unsubscribeAll();
+      });
+    }
+  }
+
+  unsubscribeAll() {
+    Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
+      callbacks.forEach(cb => this.unsubscribe(selector, cb));
+    });
   }
 
   private _notifySubscribers(type: string) {

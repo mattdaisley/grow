@@ -6,6 +6,7 @@ import { Collection } from "../../store/domain/Collection";
 
 interface IPluginDataGridProps {
   components: Collection;
+  height?: string;
 }
 
 export default function Plugin({ components, ...props }: IPluginDataGridProps) {
