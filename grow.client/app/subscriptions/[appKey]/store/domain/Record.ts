@@ -70,7 +70,7 @@ export class Record {
   }
 
   updateField(fieldName: string, newValue: any) {
-
+    // console.log('updateField', fieldName, newValue)
     const newRecord = { ...this._record };
 
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {

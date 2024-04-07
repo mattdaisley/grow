@@ -27,6 +27,8 @@ export class SubscriptionsGateway {
   @WebSocketServer()
   server: Server;
 
+  apps = {}
+
 
   constructor() {
     const timer = setInterval(() => {
@@ -49,6 +51,14 @@ export class SubscriptionsGateway {
 
       const randomWord = wordsList[Math.floor(Math.random() * wordsList.length)];
 
+      const record = {
+        "f_1_0_0": "plugin-page-v1",
+        "f_1_0_1": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
+        "f_1_0_2": `/${randomWord}`,
+        "f_1_0_3": "2_0",
+        "f_1_0_4": "1"
+      }
+
       let message;
       if (typeIndex === 0) {
         const id = `${uuidv4()}`;
@@ -56,18 +66,14 @@ export class SubscriptionsGateway {
           i: {
             'collectionKey': '1_0',
             'records': {
-              [id]: {
-                "f_1_0_0": "plugin-page-v1",
-                "f_1_0_1": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
-                "f_1_0_2": `/${randomWord}`,
-                "f_1_0_3": "2_0",
-                "f_1_0_4": "1"
-              }
+              [id]: record
             }
           }
         }
         insertedIds.push(id)
         insertedMessages[id] = message;
+
+        this.apps['1'].collections['1_0'].records[id] = record;
       }
       if (typeIndex === 1 && insertedIds.length > 0) {
         const idToUpdate = insertedIds[Math.floor(Math.random() * insertedIds.length)];
@@ -92,6 +98,8 @@ export class SubscriptionsGateway {
           }
         }
         insertedIds.splice(insertedIds.indexOf(idToDelete), 1)
+
+        this.apps['1'].collections['1_0'].records.delete(idToDelete);
       }
 
       // console.log('subscriptions-1', typeIndex, randomWord)
@@ -119,12 +127,15 @@ export class SubscriptionsGateway {
     @ConnectedSocket() client: Socket
   ): Promise<any> {
 
-    const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+    if (!this.apps.hasOwnProperty(body.appKey)) { 
+      const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+      this.apps[body.appKey] = data.apps[body.appKey];
+    }
 
-    console.log('handleGetAppEvent', body, data)
+    console.log('handleGetAppEvent', body)
     const event = `app-${body.appKey}`;
 
-    const plugins = data.apps[body.appKey].plugins;
+    const plugins = this.apps[body.appKey].plugins;
 
     const response = { key: body.appKey, plugins, collections: {} };
     // console.log(dynamicItems)
@@ -140,12 +151,15 @@ export class SubscriptionsGateway {
     @ConnectedSocket() client: Socket
   ): Promise<any> {
 
-    const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+    if (!this.apps.hasOwnProperty(body.appKey)) { 
+      const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+      this.apps[body.appKey] = data.apps[body.appKey];
+    }
 
-    // console.log('handleGetCollectionEvent', body)
+    // console.log('handleGetCollectionEvent', body, this.apps)
     const event = `subscriptions-${body.appKey}`;
 
-    const collection = data.apps[body.appKey].collections[body.collectionKey];
+    const collection = this.apps[body.appKey].collections[body.collectionKey];
 
     const response = { l: { collectionKey: body.collectionKey, ...collection } }
 
@@ -162,12 +176,16 @@ export class SubscriptionsGateway {
     @ConnectedSocket() client: Socket
   ): Promise<any> {
 
-    const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+    if (!this.apps.hasOwnProperty(body.appKey)) { 
+      const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+      this.apps[body.appKey] = data.apps[body.appKey];
+    }
 
-    // console.log('handleUpdateRecordEvent', body)
+
+    console.log('handleUpdateRecordEvent', body)
     const event = `subscriptions-${body.appKey}`;
 
-    data.apps[body.appKey].collections[body.collectionKey].records[body.recordKey][body.fieldKey] = body.newValue;
+    this.apps[body.appKey].collections[body.collectionKey].records[body.recordKey][body.fieldKey] = body.newValue;
 
     const response = { client: client.id, u: { collectionKey: body.collectionKey, records: { [body.recordKey]: { [body.fieldKey]: body.newValue } } } }
 
