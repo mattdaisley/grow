@@ -31,13 +31,14 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
         console.log(`Connecting to database '${database}' as '${username}' at ${host}:${port} `)
 
         return {
-          type: 'mysql',
+          // type: 'mysql',
+          type: 'postgres',
           host,
           port,
           username,
           password,
           database,
-          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          entities: [__dirname + '/subscriptions/**/*.entity{.ts,.js}'],
           synchronize: true,
         }
       },

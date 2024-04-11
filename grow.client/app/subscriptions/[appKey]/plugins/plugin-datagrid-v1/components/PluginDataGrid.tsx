@@ -88,10 +88,12 @@ function DataGridTemplate({ rows, columns, height }) {
           columns={columns}
           initialState={{
             pagination: {
-              pageSize: 5,
+              paginationModel: {
+                pageSize: 10,
+              },
             },
           }}
-          rowsPerPageOptions={[5, 10]}
+          pageSizeOptions={[5, 10]}
         />
       </Grid>
     </>

@@ -6,11 +6,17 @@ import {
   WebSocketServer,
   WsResponse,
 } from '@nestjs/websockets';
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository, UpdateResult, DeleteResult, Like, In } from 'typeorm';
+import { plainToClass } from 'class-transformer';
+
 import { from, Observable } from 'rxjs';
 import { last, map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
+import { Item } from './entities/item.entity';
+import { AppCollection } from './entities/appCollection.entity';
 
 let insertedIds = []
 let insertedMessages = {}
@@ -30,7 +36,15 @@ export class SubscriptionsGateway {
   apps = {}
 
 
-  constructor() {
+  constructor(
+    @InjectRepository(Item)
+    private itemRepository: Repository<Item>,
+    @InjectRepository(AppCollection)
+    private appCollectionRepository: Repository<AppCollection>
+  ) {
+    this.seedAppCollection().then(() => { console.log("seeded collections")});
+    this.seedItem();
+
     const timer = setInterval(() => {
 
       let typeIndex = Math.floor(Math.random() * 3);
@@ -55,7 +69,7 @@ export class SubscriptionsGateway {
         "f_1_0_0": "plugin-page-v1",
         "f_1_0_1": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
         "f_1_0_2": `/${randomWord}`,
-        "f_1_0_3": "2_0",
+        "f_1_0_3": "8",
         "f_1_0_4": "1"
       }
 
@@ -64,7 +78,7 @@ export class SubscriptionsGateway {
         const id = `${uuidv4()}`;
         message = {
           i: {
-            'collectionKey': '1_0',
+            'collectionKey': '7',
             'records': {
               [id]: record
             }
@@ -73,14 +87,14 @@ export class SubscriptionsGateway {
         insertedIds.push(id)
         insertedMessages[id] = message;
 
-        if (this.apps['1']?.collections['1_0']?.records) {
-          this.apps['1'].collections['1_0'].records[id] = record;
+        if (this.apps['2']?.collections['7']?.records) {
+          this.apps['2'].collections['7'].records[id] = record;
         }
       }
       if (typeIndex === 1 && insertedIds.length > 0) {
         const idToUpdate = insertedIds[Math.floor(Math.random() * insertedIds.length)];
         message = { u: {
-            'collectionKey': '1_0',
+            'collectionKey': '7',
             'records': {
               [idToUpdate]: {
                 "f_1_0_1": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
@@ -93,7 +107,7 @@ export class SubscriptionsGateway {
       if (typeIndex === 2 && insertedIds.length > 0) {
         const idToDelete = insertedIds[Math.floor(Math.random() * insertedIds.length)];
         message = { d: {
-            'collectionKey': '1_0',
+            'collectionKey': '7',
             'records': {
               [idToDelete]: {}
             }
@@ -101,14 +115,73 @@ export class SubscriptionsGateway {
         }
         insertedIds.splice(insertedIds.indexOf(idToDelete), 1)
 
-        this.apps['1']?.collections['1_0']?.records?.delete && this.apps['1']?.collections['1_0']?.records?.delete(idToDelete);
+        this.apps['2']?.collections['7']?.records?.delete && this.apps['2']?.collections['7']?.records?.delete(idToDelete);
       }
 
       // console.log('subscriptions-1', typeIndex, randomWord)
       if (message) {
-        this.server?.emit('subscriptions-1', message );
+        this.server?.emit('subscriptions-2', message );
       }
-    }, 5000);
+    }, 10000);
+  }
+
+  private async seedAppCollection() {
+    const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
+
+    Object.entries(data.apps).forEach(async ([key, app]) => {
+      const appKey = key;
+
+      Object.entries(app['collections']).forEach(async ([key, value]) => {
+        const newAppCollection = plainToClass(AppCollection, {
+          appKey, 
+          contents: value['schema']
+        });
+
+        const existingAppCollection = await this.appCollectionRepository.findOneBy({ appKey, id: Number(key)})
+
+        if (!existingAppCollection) {
+          const savedAppCollection = await this.appCollectionRepository.save(newAppCollection)
+          console.log('seedAppCollection saved', savedAppCollection);
+        }
+        else {
+          const updatedAppCollection = this.appCollectionRepository.update(existingAppCollection.id, newAppCollection)
+          console.log('seedAppCollection updated', updatedAppCollection);
+        }
+      })
+    })
+  }
+
+  private seedItem() {
+    const newItem = plainToClass(Item, {
+      appKey: "0", collectionKey: "0", contents: {
+        "f_1_0_0": "plugin-page-v1",
+        "f_1_0_1": "Edit App 1",
+        "f_1_0_2": "/1",
+        "f_1_0_3": "2_0",
+        "f_1_0_4": "1"
+      }
+    });
+    // console.log(createDynamicItemDto, newDynamicItem)
+    this.itemRepository
+      .findOneBy({ appKey: "0", collectionKey: "0" })
+      .then(existingItem => {
+        // console.log('SubscriptionsGateway constructor', existingItem)
+        if (!existingItem) {
+          this.itemRepository
+            .save(newItem)
+            .then(savedItem => {
+              console.log('SubscriptionsGateway constructor', savedItem);
+            });
+        }
+        else {
+          this.itemRepository
+            .update(existingItem.id, newItem)
+            .then(updatedItem => {
+              console.log('SubscriptionsGateway constructor', updatedItem);
+            });
+        }
+
+      });
   }
 
   handleDisconnect(client: Socket) {
@@ -143,6 +216,35 @@ export class SubscriptionsGateway {
     // console.log(dynamicItems)
 
     console.log('handleGetAppEvent returning', event)
+    client.emit(event, response)
+    return response;
+  }
+
+  @SubscribeMessage('get-collection-list')
+  async handleGetCollectionListEvent(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+    const collectionsMap = {}
+
+    const collections = await this.appCollectionRepository
+      .createQueryBuilder("app_collection")
+      .select("app_collection.id", "collection_key")
+      .addSelect("app_collection.contents->>'display_name'", "display_name")
+      .where("app_collection.appKey = :appKey", { appKey: body.appKey })
+      .orderBy("collection_key", "ASC")
+      .getRawMany();
+
+    collections.forEach(collection => {
+      collectionsMap[collection.collection_key] = collection;
+    })
+
+    console.log('handleGetCollectionListEvent', body, collectionsMap)
+    const event = `subscriptions-${body.appKey}`;
+
+    const response = { cl: collectionsMap }
+
+    console.log('handleGetCollectionListEvent returning', event)
     client.emit(event, response)
     return response;
   }

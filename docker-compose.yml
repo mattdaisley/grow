@@ -1,27 +1,50 @@
 version: '3.8'
 services:
-  grow.client:
-    build:
-      context: ./grow.client/
-      target: runner
-    volumes:
-      - ./grow.client/:/app
-    command: npm run dev
-    ports:
-      - "3000:3000"
-    environment:
-      PORT: 3000
-      NODE_ENV: development
+  # grow.client:
+  #   build:
+  #     context: ./grow.client/
+  #     target: runner
+  #   volumes:
+  #     - ./grow.client/:/app
+  #   command: npm run dev
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     PORT: 3000
+  #     NODE_ENV: development
 
-  grow.api:
-    build:
-      context: ./grow.api/
-      target: runner
-    volumes:
-      - ./grow.api/:/app
-    command: npm run start --log.level=FATAL
-    ports:
-      - "3001:3001"
+  # grow.api:
+  #   build:
+  #     context: ./grow.api/
+  #     target: runner
+  #   volumes:
+  #     - ./grow.api/:/app
+  #   command: npm run start --log.level=FATAL
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     PORT: 3001
+  #     NODE_ENV: development
+
+  db:
+    image: postgres
+    restart: always
     environment:
-      PORT: 3001
-      NODE_ENV: development
+      POSTGRES_DB: grow
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: pimylifeup
+    ports:
+      - 5432:5432
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready"]
+    #   interval: 1s
+    #   timeout: 5s
+    #   retries: 10
+
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8080:8080

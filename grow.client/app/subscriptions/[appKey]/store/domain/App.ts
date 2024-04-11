@@ -32,6 +32,9 @@ export class App {
   private _collections: {
     [key: string]: Collection;
   };
+  private _collections_display_list: {
+    [key: string]: string;
+  } = {};
   private _subscriptions: { 
     [selector: string]: Function[] 
   };
@@ -60,6 +63,8 @@ export class App {
 
       this.handleEvent(data);
     });
+
+    this._socket.emit('get-collection-list', { appKey: this.key })
   }
 
   private _createPlugins(plugins: { [key: string]: IPlugin; }) {
@@ -101,6 +106,10 @@ export class App {
     return this._collections[collectionKey];
   }
 
+  public getCollectionDisplayList(): { [key: string]: string } {
+    return this._collections_display_list;
+  }
+
   public pushRecordUpdate(collectionKey: string, recordKey: string, fieldKey: string, newValue: any) {
     this._socket.emit('update-record', { appKey: this.key, collectionKey, recordKey, fieldKey, newValue });
   }
@@ -128,6 +137,11 @@ export class App {
             collection.updateRecord(recordKey, record);
           });
           break;
+        case 'cl':
+          this._collections_display_list = { ...this._collections_display_list, ...value };
+          break;
+        default:
+          console.log('Unknown event type', key, value);
       }
     });
   }

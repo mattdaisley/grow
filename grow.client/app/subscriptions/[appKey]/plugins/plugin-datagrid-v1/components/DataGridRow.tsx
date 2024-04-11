@@ -31,6 +31,35 @@ export function DataGridRow({ record, field, editable }) {
 }
 
 function DataGridCellEdit({ useRecordsResults, field }) {
+  // console.log("DataGridRow", useRecordsResults, field);
+
+  if (field.type === "collection") {
+    const collection = useRecordsResults[field.name].value;
+
+    const collectionDisplayList =
+      collection?._app?.getCollectionDisplayList() || {};
+
+    // console.log("DataGridRow", useRecordsResults, collectionDisplayList, field);
+
+    return (
+      <select
+        style={{ width: "100%" }}
+        value={collection.key}
+        onChange={(e) =>
+          useRecordsResults[field.name]?.onChange(String(e.target.value))
+        }
+      >
+        {Object.entries(collectionDisplayList).map(
+          ([key, value]: [string, any]) => (
+            <option key={key} value={Number(key)}>
+              {value?.display_name || ""}
+            </option>
+          )
+        )}
+      </select>
+    );
+  }
+
   return (
     <input
       value={useRecordsResults[field.name]?.value}
@@ -40,7 +69,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
 }
 
 function DataGridCellValue({ useRecordsResults, field }) {
-  console.log("DataGridRow", useRecordsResults);
+  // console.log("DataGridRow", useRecordsResults);
   const fieldValue = useRecordsResults[field.name].value;
   // console.log("DataGridRowValue", field, fieldValue, useRecordsResults);
 
