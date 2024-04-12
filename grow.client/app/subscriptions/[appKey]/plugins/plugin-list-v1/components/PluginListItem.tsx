@@ -43,11 +43,17 @@ export function PluginListItem({
     return null;
   }
 
-  const primary = useRecordResults.primary?.value ?? props.primary;
-  const secondary =
-    useRecordResults.secondary?.value ?? typeof props.secondary === "string"
-      ? props.secondary
-      : undefined;
+  let primary = useRecordResults.primary?.value;
+  let secondary = useRecordResults.secondary?.value;
+
+  if (primary === undefined) {
+    primary = typeof props.primary === "string" ? props.primary : undefined;
+  }
+
+  if (secondary === undefined) {
+    secondary =
+      typeof props.secondary === "string" ? props.secondary : undefined;
+  }
   // console.log(useRecordResults.secondary, props.secondary, secondary);
 
   const handleButtonClick = () => {
