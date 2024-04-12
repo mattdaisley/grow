@@ -1,13 +1,9 @@
-import { BaseEntity, Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { BaseEntity, Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
-export class AppCollection extends BaseEntity {
+export class App extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
-
-    @Index()
-    @Column()
-    appKey: number;
 
     @Column('jsonb', { nullable: false, default: {} })
     contents: string;

@@ -82,7 +82,7 @@
             "display_name": "Application Pages"
           },
           "records": {
-            "r_1_0_0": {
+            "1": {
               "f_1_0_0": "plugin-page-v1",
               "f_1_0_1": "Edit App 1",
               "f_1_0_2": "/1",
@@ -103,10 +103,10 @@
             "display_name": "collection1"
           },
           "records": {
-            "r_2_0_0": {
+            "2": {
               "f_2_0_0": "3"
             },
-            "r_2_0_1": {
+            "3": {
               "f_2_0_0": "5"
             }
           }
@@ -159,7 +159,7 @@
             "display_name": "Container 1"
           },
           "records": {
-            "r_1_0_0": {
+            "4": {
               "f_1_0_0": "plugin-container-v1",
               "f_1_0_1": "container1",
               "f_1_0_2": "4",
@@ -192,7 +192,7 @@
             "display_name": "IFrame 1"
           },
           "records": {
-            "r_1_0_0": {
+            "5": {
               "f_1_0_0": "plugin-iframe-v1",
               "f_1_0_1": "iframe1",
               "f_1_0_2": "http://localhost:3000/subscriptions/2/1"
@@ -223,7 +223,7 @@
             "display_name": "Drawer 1"
           },
           "records": {
-            "r_1_0_0": {
+            "6": {
               "f_1_0_0": "plugin-drawer-v1",
               "f_1_0_1": "6",
               "f_1_0_2": "persistent",
@@ -255,7 +255,7 @@
             "display_name": "DataGrid 1"
           },
           "records": {
-            "r_1_5_0": {
+            "7": {
               "f_1_5_0": "plugin-datagrid-v1",
               "f_1_5_2": "app.2.collections.7",
               "f_1_5_3": "343",
@@ -395,25 +395,25 @@
             "display_name": "Application Pages"
           },
           "records": {
-            "r_1_0_0": {
+            "8": {
               "f_1_0_0": "plugin-page-v1",
               "f_1_0_1": "Page 1",
               "f_1_0_2": "/1",
               "f_1_0_3": "8"
             },
-            "r_1_0_1": {
+            "9": {
               "f_1_0_0": "plugin-page-v1",
               "f_1_0_1": "Page 2",
               "f_1_0_2": "/2",
               "f_1_0_3": "15"
             },
-            "r_1_0_2": {
+            "10": {
               "f_1_0_0": "plugin-page-v1",
               "f_1_0_1": "Page 3",
               "f_1_0_2": "/3",
               "f_1_0_3": "8"
             },
-            "r_1_0_3": {
+            "11": {
               "f_1_0_0": "plugin-page-v1",
               "f_1_0_1": "Page 4",
               "f_1_0_2": "/4",
@@ -433,10 +433,10 @@
             "display_name": "Page Collection 1"
           },
           "records": {
-            "r_2_0_0": {
+            "12": {
               "f_2_0_0": "9"
             },
-            "r_2_0_1": {
+            "13": {
               "f_2_0_0": "10"
             }
           }
@@ -473,7 +473,7 @@
             "display_name": "Container 1"
           },
           "records": {
-            "r_1_0_0": {
+            "14": {
               "f_1_0_0": "plugin-container-v1",
               "f_1_0_1": "container1",
               "f_1_0_2": "11",
@@ -515,7 +515,7 @@
             "display_name": "Container 2"
           },
           "records": {
-            "r_1_0_0": {
+            "15": {
               "f_1_0_0": "plugin-container-v1",
               "f_1_0_1": "container2",
               "f_1_0_2": "14",
@@ -534,13 +534,13 @@
                 "name": "collection"
               }
             },
-            "display_name": "collection2"
+            "display_name": "Edit Page 1 and 2"
           },
           "records": {
-            "r_5_0_0": {
+            "16": {
               "f_5_0_0": "12"
             },
-            "r_5_0_1": {
+            "17": {
               "f_5_0_0": "13"
             }
           }
@@ -569,17 +569,17 @@
             "display_name": "Field Group 1"
           },
           "records": {
-            "r_1_0_0": {
+            "18": {
               "f_1_0_0": "plugin-textfield-v1",
               "f_1_0_1": "textfield1",
-              "f_1_0_2": "collections.7.records.r_1_0_0.f_1_0_1",
-              "f_1_0_3": "collections.7.records.r_1_0_0.f_1_0_1"
+              "f_1_0_2": "collections.7.records.8.f_1_0_1",
+              "f_1_0_3": "collections.7.records.8.f_1_0_1"
             },
-            "r_1_0_1": {
+            "19": {
               "f_1_0_0": "plugin-textfield-v1",
               "f_1_0_1": "textfield2",
-              "f_1_0_2": "collections.7.records.r_1_0_0.f_1_0_2",
-              "f_1_0_3": "collections.7.records.r_1_0_0.f_1_0_2"
+              "f_1_0_2": "collections.7.records.8.f_1_0_2",
+              "f_1_0_3": "collections.7.records.8.f_1_0_2"
             }
           }
         },
@@ -607,17 +607,17 @@
             "display_name": "Field Group 2"
           },
           "records": {
-            "r_1_0_0": {
+            "20": {
               "f_1_0_0": "plugin-textfield-v1",
               "f_1_0_1": "textfield2",
-              "f_1_0_2": "collections.7.records.r_1_0_1.f_1_0_1",
-              "f_1_0_3": "collections.7.records.r_1_0_1.f_1_0_1"
+              "f_1_0_2": "collections.7.records.9.f_1_0_1",
+              "f_1_0_3": "collections.7.records.9.f_1_0_1"
             },
-            "r_1_0_1": {
+            "21": {
               "f_1_0_0": "plugin-textfield-v1",
               "f_1_0_1": "textfield2",
-              "f_1_0_2": "collections.7.records.r_1_0_1.f_1_0_2",
-              "f_1_0_3": "collections.7.records.r_1_0_1.f_1_0_2"
+              "f_1_0_2": "collections.7.records.9.f_1_0_2",
+              "f_1_0_3": "collections.7.records.9.f_1_0_2"
             }
           }
         },
@@ -645,7 +645,7 @@
             "display_name": "List 1"
           },
           "records": {
-            "r_1_5_0": {
+            "22": {
               "f_1_5_0": "p_1_5",
               "f_1_5_2": "7",
               "f_1_5_3": "schema.fields.f_1_0_1",
@@ -665,10 +665,10 @@
             "display_name": "Page Collection 2"
           },
           "records": {
-            "r_2_0_0": {
+            "23": {
               "f_2_0_0": "16"
             },
-            "r_2_0_1": {
+            "24": {
               "f_2_0_0": "17"
             }
           }
@@ -702,10 +702,10 @@
                 "name": "paper"
               }
             },
-            "display_name": "Container 2"
+            "display_name": "Container 3"
           },
           "records": {
-            "r_1_0_0": {
+            "25": {
               "f_1_0_0": "plugin-container-v1",
               "f_1_0_1": "container2",
               "f_1_0_2": "18",
@@ -744,10 +744,10 @@
                 "name": "paper"
               }
             },
-            "display_name": "Container 2"
+            "display_name": "Container 4"
           },
           "records": {
-            "r_1_0_0": {
+            "26": {
               "f_1_0_0": "plugin-container-v1",
               "f_1_0_1": "container2",
               "f_1_0_2": "19",
@@ -766,13 +766,13 @@
                 "name": "collection"
               }
             },
-            "display_name": "collection1"
+            "display_name": "Edit Page 3 and 4"
           },
           "records": {
-            "r_2_0_0": {
+            "27": {
               "f_2_0_0": "20"
             },
-            "r_2_0_1": {
+            "28": {
               "f_2_0_0": "21"
             }
           }
@@ -793,7 +793,7 @@
             "display_name": "DataGrid 1"
           },
           "records": {
-            "r_1_5_0": {
+            "29": {
               "f_1_5_0": "p_1_6",
               "f_1_5_2": "7"
             }
@@ -823,17 +823,17 @@
             "display_name": "Field Group 3"
           },
           "records": {
-            "r_1_0_0": {
+            "30": {
               "f_1_0_0": "plugin-textfield-v1",
               "f_1_0_1": "textfield1",
-              "f_1_0_2": "collections.7.records.r_1_0_2.f_1_0_1",
-              "f_1_0_3": "collections.7.records.r_1_0_2.f_1_0_1"
+              "f_1_0_2": "collections.7.records.10.f_1_0_1",
+              "f_1_0_3": "collections.7.records.10.f_1_0_1"
             },
-            "r_1_0_1": {
+            "31": {
               "f_1_0_0": "plugin-textfield-v1",
-              "f_1_0_1": "textfield1",
-              "f_1_0_2": "collections.7.records.r_1_0_2.f_1_0_2",
-              "f_1_0_3": "collections.7.records.r_1_0_2.f_1_0_2"
+              "f_1_0_1": "textfield2",
+              "f_1_0_2": "collections.7.records.10.f_1_0_2",
+              "f_1_0_3": "collections.7.records.10.f_1_0_2"
             }
           }
         },
@@ -861,17 +861,17 @@
             "display_name": "Field Group 4"
           },
           "records": {
-            "r_1_0_0": {
+            "32": {
               "f_1_0_0": "plugin-textfield-v1",
-              "f_1_0_1": "textfield2",
-              "f_1_0_2": "collections.7.records.r_1_0_3.f_1_0_1",
-              "f_1_0_3": "collections.7.records.r_1_0_3.f_1_0_1"
+              "f_1_0_1": "textfield3",
+              "f_1_0_2": "collections.7.records.11.f_1_0_1",
+              "f_1_0_3": "collections.7.records.11.f_1_0_1"
             },
-            "r_1_0_1": {
+            "33": {
               "f_1_0_0": "plugin-textfield-v1",
-              "f_1_0_1": "textfield2",
-              "f_1_0_2": "collections.7.records.r_1_0_3.f_1_0_2",
-              "f_1_0_3": "collections.7.records.r_1_0_3.f_1_0_2"
+              "f_1_0_1": "textfield4",
+              "f_1_0_2": "collections.7.records.11.f_1_0_2",
+              "f_1_0_3": "collections.7.records.11.f_1_0_2"
             }
           }
         }

@@ -15,8 +15,9 @@ import { last, map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
-import { Item } from './entities/item.entity';
+import { App } from './entities/app.entity';
 import { AppCollection } from './entities/appCollection.entity';
+import { AppRecord } from './entities/appRecord.entity';
 
 let insertedIds = []
 let insertedMessages = {}
@@ -37,13 +38,16 @@ export class SubscriptionsGateway {
 
 
   constructor(
-    @InjectRepository(Item)
-    private itemRepository: Repository<Item>,
+    @InjectRepository(App)
+    private appRepository: Repository<App>,
+
     @InjectRepository(AppCollection)
-    private appCollectionRepository: Repository<AppCollection>
+    private appCollectionRepository: Repository<AppCollection>,
+
+    @InjectRepository(AppRecord)
+    private appRecordRepository: Repository<AppRecord>,
   ) {
     this.seedAppCollection().then(() => { console.log("seeded collections")});
-    this.seedItem();
 
     const timer = setInterval(() => {
 
@@ -128,60 +132,61 @@ export class SubscriptionsGateway {
   private async seedAppCollection() {
     const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
 
-    Object.entries(data.apps).forEach(async ([key, app]) => {
-      const appKey = key;
+    for (const [appKey, appValue] of Object.entries(data.apps)) {
 
-      Object.entries(app['collections']).forEach(async ([key, value]) => {
+      const newApp = plainToClass(App, {
+        contents: { plugins: appValue['plugins'] }
+      });
+
+      const existingApp = await this.appRepository.findOneBy({ id: Number(appKey)})
+
+      if (!existingApp) {
+        const savedApp = await this.appRepository.save(newApp)
+        // console.log('seedApp saved', savedApp);
+      }
+      else {
+        const updatedApp = this.appRepository.update(existingApp.id, newApp)
+        // console.log('seedApp updated', updatedApp);
+      }
+
+      for (const [collectionKey, collectionValue] of Object.entries(appValue['collections'])) {
+
         const newAppCollection = plainToClass(AppCollection, {
-          appKey, 
-          contents: value['schema']
+          appKey: Number(appKey), 
+          contents: collectionValue['schema']
         });
 
-        const existingAppCollection = await this.appCollectionRepository.findOneBy({ appKey, id: Number(key)})
+        const existingAppCollection = await this.appCollectionRepository.findOneBy({ appKey: Number(appKey), id: Number(collectionKey)})
 
         if (!existingAppCollection) {
           const savedAppCollection = await this.appCollectionRepository.save(newAppCollection)
-          console.log('seedAppCollection saved', savedAppCollection);
+          // console.log('seedAppCollection saved', savedAppCollection);
         }
         else {
           const updatedAppCollection = this.appCollectionRepository.update(existingAppCollection.id, newAppCollection)
-          console.log('seedAppCollection updated', updatedAppCollection);
+          // console.log('seedAppCollection updated', updatedAppCollection);
         }
-      })
-    })
-  }
 
-  private seedItem() {
-    const newItem = plainToClass(Item, {
-      appKey: "0", collectionKey: "0", contents: {
-        "f_1_0_0": "plugin-page-v1",
-        "f_1_0_1": "Edit App 1",
-        "f_1_0_2": "/1",
-        "f_1_0_3": "2_0",
-        "f_1_0_4": "1"
+        for (const [key, recordValue] of Object.entries(collectionValue['records'])) {
+          // console.log('seed record', collectionKey, key)
+          const newItem = plainToClass(AppRecord, {
+            appKey, collectionKey: Number(collectionKey), contents: recordValue
+          });
+
+          const existingItem = await this.appRecordRepository.findOneBy({ appKey: Number(appKey), collectionKey: Number(collectionKey), id: Number(key) })
+          // console.log('seed record existingItem', existingItem, key, recordValue)
+          if (!existingItem) {
+            // console.log('seed record saving', newItem);
+            const savedItem = await this.appRecordRepository.save(newItem)
+            // console.log('seed record saved', savedItem);
+          }
+          else {
+            const updatedItem = this.appRecordRepository.update(existingItem.id, newItem)
+            // console.log('seed record updated', updatedItem);
+          }
+        }
       }
-    });
-    // console.log(createDynamicItemDto, newDynamicItem)
-    this.itemRepository
-      .findOneBy({ appKey: "0", collectionKey: "0" })
-      .then(existingItem => {
-        // console.log('SubscriptionsGateway constructor', existingItem)
-        if (!existingItem) {
-          this.itemRepository
-            .save(newItem)
-            .then(savedItem => {
-              console.log('SubscriptionsGateway constructor', savedItem);
-            });
-        }
-        else {
-          this.itemRepository
-            .update(existingItem.id, newItem)
-            .then(updatedItem => {
-              console.log('SubscriptionsGateway constructor', updatedItem);
-            });
-        }
-
-      });
+    }
   }
 
   handleDisconnect(client: Socket) {
@@ -202,20 +207,17 @@ export class SubscriptionsGateway {
     @ConnectedSocket() client: Socket
   ): Promise<any> {
 
-    if (!this.apps.hasOwnProperty(body.appKey)) { 
-      const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
-      this.apps[body.appKey] = data.apps[body.appKey];
-    }
+    const app = await this.appRepository.findOneBy({ id: body.appKey })
+    this.apps[body.appKey] = app.contents;
 
-    console.log('handleGetAppEvent', body)
+    // console.log('handleGetAppEvent', body, app.contents)
     const event = `app-${body.appKey}`;
 
     const plugins = this.apps[body.appKey].plugins;
 
     const response = { key: body.appKey, plugins, collections: {} };
-    // console.log(dynamicItems)
 
-    console.log('handleGetAppEvent returning', event)
+    // console.log('handleGetAppEvent returning', event)
     client.emit(event, response)
     return response;
   }
@@ -239,12 +241,12 @@ export class SubscriptionsGateway {
       collectionsMap[collection.collection_key] = collection;
     })
 
-    console.log('handleGetCollectionListEvent', body, collectionsMap)
+    // console.log('handleGetCollectionListEvent', body, collectionsMap)
     const event = `subscriptions-${body.appKey}`;
 
     const response = { cl: collectionsMap }
 
-    console.log('handleGetCollectionListEvent returning', event)
+    // console.log('handleGetCollectionListEvent returning', event)
     client.emit(event, response)
     return response;
   }
@@ -254,13 +256,27 @@ export class SubscriptionsGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket
   ): Promise<any> {
+    const collectionEntity = await this.appCollectionRepository.findOneBy({ id: body.collectionKey, appKey: body.appKey })
 
     if (!this.apps.hasOwnProperty(body.appKey)) { 
-      const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
-      this.apps[body.appKey] = data.apps[body.appKey];
+      const app = await this.appRepository.findOneBy({ id: body.appKey })
+      this.apps[body.appKey] = app.contents;  
     }
 
-    // console.log('handleGetCollectionEvent', body, this.apps)
+    if (!this.apps[body.appKey].collections) {
+      this.apps[body.appKey].collections = {};
+    }
+
+    const collectionRecords = {}
+    const appRecordEntities = await this.appRecordRepository.findBy({ appKey: body.appKey, collectionKey: body.collectionKey })
+    // console.log('collectionRecords', collectionRecords)
+    appRecordEntities.forEach(record => {
+      collectionRecords[record.id] = record.contents;
+    })
+
+    this.apps[body.appKey].collections[body.collectionKey] = { schema: collectionEntity.contents, records: collectionRecords };
+
+    // console.log('handleGetCollectionEvent', body, collectionEntity)
     const event = `subscriptions-${body.appKey}`;
 
     const collection = this.apps[body.appKey].collections[body.collectionKey];
