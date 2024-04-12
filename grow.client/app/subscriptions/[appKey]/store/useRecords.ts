@@ -6,13 +6,13 @@ import { flatten } from "flat";
 
 import { Record } from './domain/Record';
 
-interface RecordsFieldRequest {
+export interface RecordsFieldRequest {
   [key: string]: {
     record: Record;
     field?: string;
   }
 }
-interface useRecordsResult {
+export interface useRecordsResult {
   [valueKey: string]: { 
     value: any, 
     onChange: Function 
@@ -32,7 +32,7 @@ interface callbacksCache {
  *  Records are objects with properties that map to the field id in the schema.
  *
  * @param {Record} record - The record to subscribe to.
- * @param {string[]} fields - The field in the record to subscribe to. E.g. "display_name"
+ * @param {string[]} fields - The fields in the record to subscribe to. E.g. "display_name"
  * @returns {any} The value of the field in the record. E.g. "Display Name"
  * @example
  *   fields: {

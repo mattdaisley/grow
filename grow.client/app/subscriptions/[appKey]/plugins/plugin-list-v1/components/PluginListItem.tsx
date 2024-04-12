@@ -33,7 +33,7 @@ export function PluginListItem({
   //   recordFieldRequest
   // );
 
-  const { onChange: setSelectedRecord } = useAppState("selectedRecord");
+  const { value: selectedRecord } = useAppState("selectedRecord");
 
   if (
     !useRecordResults ||
@@ -58,7 +58,7 @@ export function PluginListItem({
 
   const handleButtonClick = () => {
     const selectedRecordKey = `app.2.collections.${listItemRecord.key}`;
-    setSelectedRecord(selectedRecordKey);
+    selectedRecord?.onChange && selectedRecord.onChange(selectedRecordKey);
   };
 
   return (

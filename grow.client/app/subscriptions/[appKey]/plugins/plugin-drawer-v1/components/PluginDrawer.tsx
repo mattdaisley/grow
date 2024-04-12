@@ -16,18 +16,18 @@ export default function PlugiDrawer({ anchor, components, variant, ...props }) {
 
   const [open, setOpen] = useState(true);
 
-  const { onChange: setDrawerHeight } = useAppState("drawerHeight");
-  const { onChange: setDrawerWidth } = useAppState("drawerWidth");
+  const { value: drawerHeight } = useAppState("drawerHeight");
+  const { value: drawerWidth } = useAppState("drawerWidth");
   const { value: selectedRecord } = useAppState("selectedRecord");
 
   useEffect(() => {
     if (variant === "persistent" && anchor === "bottom") {
-      setDrawerHeight && setDrawerHeight(open ? 400 : 56.8);
+      drawerHeight?.onChange && drawerHeight.onChange(open ? 400 : 56.8);
     }
     if (variant === "persistent" && (anchor === "right" || anchor === "left")) {
-      setDrawerWidth && setDrawerWidth(open ? 200 : 20);
+      drawerWidth?.onChange && drawerWidth.onChange(open ? 200 : 20);
     }
-  }, [setDrawerHeight, setDrawerWidth, anchor, variant, open]);
+  }, [drawerHeight?.onChange, drawerWidth?.onChange, anchor, variant, open]);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -66,7 +66,7 @@ export default function PlugiDrawer({ anchor, components, variant, ...props }) {
               justifyContent: "flex-start",
             }}
           >
-            Selected record {selectedRecord}
+            Selected record {selectedRecord?.value}
           </Box>
           <Box
             sx={{

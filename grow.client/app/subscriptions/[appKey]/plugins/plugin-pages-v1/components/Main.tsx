@@ -39,14 +39,14 @@ export default function PluginMain({ pagesCollection, filter }) {
           flexGrow: 1,
           pl: {
             xs: 2,
-            md: `calc(${theme.spacing(4)} + ${drawerWidth ?? 0}px)`,
+            md: `calc(${theme.spacing(4)} + ${drawerWidth?.value ?? 0}px)`,
           },
           pr: { xs: 2, md: 4 },
-          // width: {sm: `calc(100% - ${drawerWidth}px)` },
+          // width: {sm: `calc(100% - ${drawerWidth?.value}px)` },
           width: 1,
           height: 1,
-          maxHeight: `calc(100% - ${appBarHeight ?? 0}px - ${
-            drawerHeight ?? 0
+          maxHeight: `calc(100% - ${appBarHeight?.value ?? 0}px - ${
+            drawerHeight?.value ?? 0
           }px)`,
           // position: "fixed",
           // overflowY: "scroll",

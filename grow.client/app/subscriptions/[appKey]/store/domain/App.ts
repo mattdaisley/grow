@@ -3,6 +3,7 @@ import { IPlugin, Plugin } from './Plugin';
 
 import {Socket} from "socket.io-client";
 import { v4 as uuidv4 } from 'uuid';
+import { Record } from './Record';
 
 export interface IApp {
   key: string;
@@ -24,7 +25,8 @@ export class App {
   plugins: {
     [key: string]: Plugin;
   };
-  state: any = {};
+
+  private _appState: { [key: string]: Record } = {};
 
   private _referencedApps: {
     [key: string]: App;
@@ -155,11 +157,25 @@ export class App {
     });
   }
 
-  public appState: { [key: string]: any } = {};
+  public getFromAppState(key: string): Record {
+    if (!this._appState.hasOwnProperty(key)) {
+      this._appState[key] = new Record(this, undefined, { 
+        schema: { 
+          name: "", 
+          display_name: "", 
+          fields: {
+            value: { 
+              type: "string", 
+              name: "value"
+            }
+          }
+        }, 
+        key, 
+        record: { value: undefined } 
+      });
+    }
 
-  public setAppState(key: string, value: any) {
-    this.appState[key] = value;
-    this._notifySubscribers(key);
+    return this._appState[key];
   }
 
   subscribe(selector: string, callback: Function) {
@@ -195,7 +211,7 @@ export class App {
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
       if (type === '*' || selector === type) {
         // console.log("Record _notifySubscribers", selector, type, callbacks.length)
-        callbacks.forEach(cb => cb(this.appState[selector]))
+        callbacks.forEach(cb => cb(this.getFromAppState(selector)))
       }
     });
   }

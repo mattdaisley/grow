@@ -95,7 +95,9 @@ export class Record {
         // this._record[fieldKey] = newValue;
         // this._notifySubscribers(fieldName)
 
-        this._app.pushRecordUpdate(this._collection.key, this.key, fieldKey, newValue)
+        if (this._collection?.key) {
+          this._app.pushRecordUpdate(this._collection.key, this.key, fieldKey, newValue)
+        }
       }
     });
 
