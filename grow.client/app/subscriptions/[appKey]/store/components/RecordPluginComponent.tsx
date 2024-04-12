@@ -1,5 +1,6 @@
 "use client";
 import { lazy } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 import { Plugin } from "../domain/Plugin";
 import { Record } from "../domain/Record";
@@ -50,10 +51,26 @@ export function RecordPluginComponent({
   }
 
   return (
-    <PluginComponent
-      {...plugin.properties}
-      {...(record?.value ?? {})}
-      {...props}
-    />
+    <ErrorBoundary
+      FallbackComponent={ErrorComponent}
+      onError={(error, errorInfo) => {
+        // log the error
+        console.log("Error caught!");
+        console.error(error);
+        console.error(errorInfo);
+
+        // record the error in an APM tool...
+      }}
+    >
+      <PluginComponent
+        {...plugin.properties}
+        {...(record?.value ?? {})}
+        {...props}
+      />
+    </ErrorBoundary>
   );
+}
+
+function ErrorComponent() {
+  return <div>Error</div>;
 }

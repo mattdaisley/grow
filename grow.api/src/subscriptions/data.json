@@ -275,7 +275,7 @@
           "records": {
             "7": {
               "f_1_5_0": "plugin-datagrid-v1",
-              "f_1_5_2": "app.2.collections.7",
+              "f_1_5_2": "appState.selectedRecord",
               "f_1_5_3": "343",
               "f_1_5_4": true
             }

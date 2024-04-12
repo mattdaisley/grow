@@ -24,7 +24,7 @@ export default function PluginDataGrid({
   // console.log("Rendering PluginDataGrid", dataSource, height, editable);
 
   const listItems = useCollections([dataSource]);
-  // console.log("PluginDataGrid", listItems);
+  // console.log("PluginDataGrid", listItems, dataSource);
   if (!listItems || !listItems[dataSource.key]?.records) {
     return null;
   }

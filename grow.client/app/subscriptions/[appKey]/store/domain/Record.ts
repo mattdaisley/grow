@@ -23,6 +23,9 @@ export class Record {
     this._subscriptions = {};
   }
 
+  _callbacks: { [key: string]: Function } = {};
+  _referencedFields: {};
+
   get value(): Object {
     
     const fields = {};
@@ -50,6 +53,33 @@ export class Record {
           const collection = this._app.getReferencedAppCollection(valueSplit[1], valueSplit[3])
           fields[field.name] = collection;
           return;
+        }
+
+        if (valueSplit.length > 1 && valueSplit[0] === 'appState') {
+          // console.log('Record.value app_collection appState', valueSplit)
+
+          const appStateRecord: any = this._app.getFromAppState(valueSplit[1])
+
+          if (!this._callbacks.hasOwnProperty(fieldValue)) {
+
+            const callback = (newRecord: Record) => {
+              // console.log('record value callback', fieldValue, newRecord)
+              this._notifySubscribers(field.name)
+              // setValue((currentValue) => ({...currentValue, [key]: { ...currentValue[key], value: newRecord.value[field]}}));
+              // setValue({...value, [field]: newRecord.value[field]});
+            }
+
+            this._callbacks[fieldValue] = callback;
+            appStateRecord.subscribe('value', callback);
+          }
+
+          // console.log('Record.value app_collection collectionKeySplit', appStateRecord);
+          const collectionKeySplit = appStateRecord?.value?.value?.split('.');
+          if (collectionKeySplit && collectionKeySplit.length > 1 && collectionKeySplit[0] === 'app') {
+            const collection = this._app.getReferencedAppCollection(collectionKeySplit[1], collectionKeySplit[3])
+            fields[field.name] = collection;
+            return;
+          }
         }
       }
 

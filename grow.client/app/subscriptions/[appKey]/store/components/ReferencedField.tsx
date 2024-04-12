@@ -85,7 +85,7 @@ function ReferencedField2({
       collectionRecords[referencedField.collection.key].records[
         referencedField.recordKey
       ];
-    const field = record.schema.fields[referencedField.fieldKey].name;
+    const field = record.schema.fields[referencedField.fieldKey]?.name;
     recordFieldRequest[field] = {
       record,
     };
@@ -118,7 +118,7 @@ function ReferencedField2({
       collectionRecords[referencedField.collection.key].records[
         referencedField.recordKey
       ];
-    const useRecordKey = record.schema.fields[referencedField.fieldKey].name;
+    const useRecordKey = record.schema.fields[referencedField.fieldKey]?.name;
 
     lookedUpValues[key] = useRecordsResults[useRecordKey];
   });

@@ -12,13 +12,12 @@ import useAppState from "../../../store/useAppState";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
 
 export default function PlugiDrawer({ anchor, components, variant, ...props }) {
-  // console.log("PluginDrawer", anchor, components variant, props);
+  // console.log("PluginDrawer", anchor, components, variant, props);
 
   const [open, setOpen] = useState(true);
 
   const { value: drawerHeight } = useAppState("drawerHeight");
   const { value: drawerWidth } = useAppState("drawerWidth");
-  const { value: selectedRecord } = useAppState("selectedRecord");
 
   useEffect(() => {
     if (variant === "persistent" && anchor === "bottom") {
@@ -66,7 +65,7 @@ export default function PlugiDrawer({ anchor, components, variant, ...props }) {
               justifyContent: "flex-start",
             }}
           >
-            Selected record {selectedRecord?.value}
+            <DrawerHeader />
           </Box>
           <Box
             sx={{
@@ -88,4 +87,10 @@ export default function PlugiDrawer({ anchor, components, variant, ...props }) {
       </Box>
     </Drawer>
   );
+}
+
+function DrawerHeader() {
+  const { value: selectedRecord } = useAppState("selectedRecord");
+
+  return <>Selected record {selectedRecord?.value}</>;
 }

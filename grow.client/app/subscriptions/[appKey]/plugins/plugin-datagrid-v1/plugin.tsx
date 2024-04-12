@@ -10,9 +10,9 @@ interface IPluginDataGridProps {
 }
 
 export default function Plugin({ components, ...props }: IPluginDataGridProps) {
-  // console.log("plugin-list-v1", "components", components, "props", props);
+  // console.log("plugin-datagrid-v1", "components", components, "props", props);
 
-  if (components === undefined) {
+  if (components === undefined || typeof components === "string") {
     return null;
   }
 

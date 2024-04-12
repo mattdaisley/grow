@@ -127,21 +127,21 @@ export class App {
       // console.log('App handleEvent', key, value, collection)
       switch (key) {
         case 'l':
-          collection.setCollection(value);
+          collection?.setCollection(value);
           break;
         case 'i':
           Object.entries(value.records).forEach(([recordKey, record]) => {
-            collection.addRecord(recordKey, record);
+            collection?.addRecord(recordKey, record);
           });
           break;
         case 'd':
           Object.entries(value.records).forEach(([recordKey, record]) => {
-            collection.removeRecord(recordKey);
+            collection?.removeRecord(recordKey);
           });
           break;
         case 'u':
           Object.entries(value.records).forEach(([recordKey, record]) => {
-            collection.updateRecord(recordKey, record);
+            collection?.updateRecord(recordKey, record);
           });
           break;
         case 'cl':
