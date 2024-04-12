@@ -9,6 +9,7 @@ export const drawerWidth = 200;
 
 interface IPluginListProps {
   listItemCollection: Collection;
+  sort_key: string;
   primary: string;
   secondary: string;
 }
@@ -30,13 +31,26 @@ export default function PluginList({
 
   const listItemRecords = listItemsResponse[listItemCollection.key].records;
 
-  const listItems = Object.entries(listItemRecords);
+  let listItems = Object.entries(listItemRecords);
+
+  if (props.sort_key) {
+    listItems.sort((a, b) => {
+      // console.log(a, b);
+      if (a[1].value["display_name"] < b[1].value["display_name"]) {
+        return -1;
+      }
+      if (a[1].value["display_name"] > b[1].value["display_name"]) {
+        return 1;
+      }
+      return 0;
+    });
+  }
 
   return (
     <>
       <Box sx={{ padding: 2 }}>
         <List>
-          {Object.entries(listItemRecords).map(([key, listItemRecord]) => {
+          {listItems.map(([key, listItemRecord]) => {
             return (
               <PluginListItem
                 key={key}

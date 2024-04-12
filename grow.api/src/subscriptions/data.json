@@ -404,6 +404,10 @@
               "f_1_5_4": {
                 "type": "string",
                 "name": "secondary"
+              },
+              "f_1_5_5": {
+                "type": "string",
+                "name": "sort_key"
               }
             },
             "display_name": "Drawer List 1"
@@ -412,7 +416,8 @@
             "38": {
               "f_1_5_0": "plugin-list-v1",
               "f_1_5_2": "app.2",
-              "f_1_5_3": "schema.fields.display_name"
+              "f_1_5_3": "schema.fields.display_name",
+              "f_1_5_5": "schema.fields.display_name"
             }
           }
         }

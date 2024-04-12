@@ -6,6 +6,7 @@ import { Collection } from "../../store/domain/Collection";
 
 interface IPluginListProps {
   components: Collection;
+  sort_key: string;
   primary: string;
   secondary: string;
 }
