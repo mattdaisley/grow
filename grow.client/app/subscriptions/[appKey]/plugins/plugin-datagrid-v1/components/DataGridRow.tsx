@@ -49,19 +49,20 @@ function DataGridCellEdit({ useRecordsResults, field }) {
           useRecordsResults[field.name]?.onChange(String(e.target.value))
         }
       >
-        {Object.entries(collectionDisplayList)
+        {Object.entries(collectionDisplayList.records || {})
           .sort((a: any, b: any) => {
-            if (a[1].display_name < b[1].display_name) {
+            // console.log(a, b);
+            if (a[1].value.display_name < b[1].value.display_name) {
               return -1;
             }
-            if (a[1].display_name > b[1].display_name) {
+            if (a[1].value.display_name > b[1].value.display_name) {
               return 1;
             }
             return 0;
           })
           .map(([key, value]: [string, any]) => (
             <option key={key} value={Number(key)}>
-              {value?.display_name || ""}
+              {value?.value.display_name || ""}
             </option>
           ))}
       </select>

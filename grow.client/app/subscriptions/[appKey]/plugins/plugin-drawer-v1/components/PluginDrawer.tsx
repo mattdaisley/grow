@@ -18,6 +18,7 @@ export default function PlugiDrawer({ anchor, components, variant, ...props }) {
 
   const { onChange: setDrawerHeight } = useAppState("drawerHeight");
   const { onChange: setDrawerWidth } = useAppState("drawerWidth");
+  const { value: selectedRecord } = useAppState("selectedRecord");
 
   useEffect(() => {
     if (variant === "persistent" && anchor === "bottom") {
@@ -53,19 +54,34 @@ export default function PlugiDrawer({ anchor, components, variant, ...props }) {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
             p: 1,
             px: 2,
             borderBottom: "1px solid white",
           }}
         >
-          <IconButton onClick={toggleDrawer}>
-            {open && <ExpandMore />}
-            {!open && <ExpandLess />}
-          </IconButton>
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "flex-start",
+            }}
+          >
+            Selected record {selectedRecord}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <IconButton onClick={toggleDrawer}>
+              {open && <ExpandMore />}
+              {!open && <ExpandLess />}
+            </IconButton>
+          </Box>
         </Box>
         {open && (
-          <Box sx={{ height: 1 }}>
+          <Box sx={{ height: 1, display: "flex", overflow: "hidden" }}>
             <ComponentsCollection components={components} />
           </Box>
         )}

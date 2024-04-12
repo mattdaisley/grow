@@ -17,29 +17,36 @@ export default function PluginList({
   listItemCollection,
   ...props
 }: IPluginListProps) {
-  // console.log("Rendering PluginMain");
+  // console.log("Rendering PluginList", listItemCollection);
 
-  const listItems = useCollections([listItemCollection]);
-  // console.log("PluginList", listItems);
-  if (!listItems || !listItems[listItemCollection.key]?.records) {
+  const listItemsResponse = useCollections([listItemCollection]);
+  // console.log("PluginList", listItemsResponse);
+  if (
+    !listItemsResponse ||
+    !listItemsResponse[listItemCollection.key]?.records
+  ) {
     return null;
   }
 
-  const listItemRecords = listItems[listItemCollection.key].records;
+  const listItemRecords = listItemsResponse[listItemCollection.key].records;
+
+  const listItems = Object.entries(listItemRecords);
 
   return (
-    <Box sx={{ padding: 2 }}>
-      <List>
-        {Object.entries(listItemRecords).map(([key, listItemRecord]) => {
-          return (
-            <PluginListItem
-              key={key}
-              listItemRecord={listItemRecord}
-              {...props}
-            />
-          );
-        })}
-      </List>
-    </Box>
+    <>
+      <Box sx={{ padding: 2 }}>
+        <List>
+          {Object.entries(listItemRecords).map(([key, listItemRecord]) => {
+            return (
+              <PluginListItem
+                key={key}
+                listItemRecord={listItemRecord}
+                {...props}
+              />
+            );
+          })}
+        </List>
+      </Box>
+    </>
   );
 }

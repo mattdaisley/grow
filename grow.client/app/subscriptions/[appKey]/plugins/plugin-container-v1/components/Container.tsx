@@ -57,6 +57,7 @@ export default function PluginContainer({
             height: `calc(100% - ${theme.spacing(
               Number(margin ?? 0)
             )} - ${theme.spacing(Number(margin ?? 0))})`,
+            overflowY: "auto",
           })}
         >
           <ComponentsCollection components={components} />

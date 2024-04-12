@@ -52,6 +52,20 @@ export class Record {
           return;
         }
       }
+
+      if (field.type === 'app_collection_list') {
+        const fieldValue = this._record[fieldKey];
+        const valueSplit = fieldValue.split('.');
+        if (valueSplit.length > 1 && valueSplit[0] === 'app') {
+          // console.log('Record.value app_collection_list', valueSplit)
+          // console.log(valueSplit);
+
+          const app = this._app.getReferencedApp(valueSplit[1])
+          fields[field.name] = app.getCollectionDisplayList();
+          return;
+        }
+
+      }
       
       fields[field.name] = fieldValue;
 

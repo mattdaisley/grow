@@ -32,9 +32,7 @@ export class App {
   private _collections: {
     [key: string]: Collection;
   };
-  private _collections_display_list: {
-    [key: string]: string;
-  } = {};
+  private _collections_display_list: Collection;
   private _subscriptions: { 
     [selector: string]: Function[] 
   };
@@ -87,12 +85,18 @@ export class App {
     this._socket.off(`subscriptions-${this.key}`);
   }
 
-  public getReferencedAppCollection(appKey: string, collectionKey: string): Collection {
+  public getReferencedApp(appKey: string): App {
     if (!this._referencedApps[appKey]) {
       this._referencedApps[appKey] = new App({ key: appKey, plugins: {}, collections: {} }, this._socket);
     }
 
-    return this._referencedApps[appKey].getCollection(collectionKey);
+    return this._referencedApps[appKey];
+  }
+
+  public getReferencedAppCollection(appKey: string, collectionKey: string): Collection {
+    const app = this.getReferencedApp(appKey);
+
+    return app.getCollection(collectionKey);
   }
 
   public getCollection(collectionKey: string): Collection {
@@ -106,7 +110,7 @@ export class App {
     return this._collections[collectionKey];
   }
 
-  public getCollectionDisplayList(): { [key: string]: string } {
+  public getCollectionDisplayList(): Collection {
     return this._collections_display_list;
   }
 
@@ -118,6 +122,7 @@ export class App {
     // console.log('App handleEvent', data, JSON.stringify(Object.keys(this._collections)));
     Object.entries(data).forEach(([key, value]: [string, any]) => {
       const collection = this._collections[value.collectionKey];
+      // console.log('App handleEvent', key, value, collection)
       switch (key) {
         case 'l':
           collection.setCollection(value);
@@ -138,7 +143,11 @@ export class App {
           });
           break;
         case 'cl':
-          this._collections_display_list = { ...this._collections_display_list, ...value };
+          const newCollection = new Collection(this, { key: value.collectionKey, schema: value.schema, records: value.records });
+          this._collections_display_list = newCollection;
+          // Object.entries(value).forEach(([collectionKey, minimalCollection]: [string, any]) => {
+          //   this._collections_display_list[collectionKey] = new Collection(this, { key: collectionKey, ...minimalCollection });
+          // });
           break;
         default:
           console.log('Unknown event type', key, value);

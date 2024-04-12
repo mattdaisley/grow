@@ -2,9 +2,18 @@
 
 import useRecords from "../../../store/useRecords";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
-import { ListItem, ListItemText } from "@mui/material";
+import { ListItem, ListItemButton, ListItemText } from "@mui/material";
+import useAppState from "../../../store/useAppState";
+import { Record } from "../../../store/domain/Record";
 
-export function PluginListItem({ listItemRecord, ...props }) {
+export function PluginListItem({
+  listItemRecord,
+  ...props
+}: {
+  listItemRecord: Record;
+  primary: string;
+  secondary: string;
+}) {
   // console.log("PluginListItem", listItemRecord);
 
   const recordFieldRequest = {};
@@ -24,6 +33,8 @@ export function PluginListItem({ listItemRecord, ...props }) {
   //   recordFieldRequest
   // );
 
+  const { onChange: setSelectedRecord } = useAppState("selectedRecord");
+
   if (
     !useRecordResults ||
     (Object.keys(useRecordResults).length === 0 &&
@@ -33,12 +44,23 @@ export function PluginListItem({ listItemRecord, ...props }) {
   }
 
   const primary = useRecordResults.primary?.value ?? props.primary;
-  const secondary = useRecordResults.secondary?.value ?? props.secondary;
+  const secondary =
+    useRecordResults.secondary?.value ?? typeof props.secondary === "string"
+      ? props.secondary
+      : undefined;
+  // console.log(useRecordResults.secondary, props.secondary, secondary);
+
+  const handleButtonClick = () => {
+    const selectedRecordKey = `app.2.collections.${listItemRecord.key}`;
+    setSelectedRecord(selectedRecordKey);
+  };
 
   return (
     <>
       <ListItem>
-        <ListItemText primary={primary} secondary={secondary} />
+        <ListItemButton dense onClick={handleButtonClick}>
+          <ListItemText primary={primary} secondary={secondary} />
+        </ListItemButton>
       </ListItem>
       {/* <PageHeader pageRecord={listItemRecord} />
       <ComponentsCollection components={components.value} /> */}

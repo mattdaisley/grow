@@ -51,6 +51,24 @@
               "name": "components"
             }
           }
+        },
+        "plugin-list-v1": {
+          "name": "plugin-list-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "collection",
+              "name": "components"
+            },
+            "1_0_1": {
+              "type": "string",
+              "name": "primary"
+            },
+            "1_0_2": {
+              "type": "string",
+              "name": "secondary"
+            }
+          }
         }
       },
       "collections": {
@@ -225,7 +243,7 @@
           "records": {
             "6": {
               "f_1_0_0": "plugin-drawer-v1",
-              "f_1_0_1": "6",
+              "f_1_0_1": "22",
               "f_1_0_2": "persistent",
               "f_1_0_3": "bottom"
             }
@@ -260,6 +278,141 @@
               "f_1_5_2": "app.2.collections.7",
               "f_1_5_3": "343",
               "f_1_5_4": true
+            }
+          }
+        },
+        "22": {
+          "schema": {
+            "name": "drawer_collection1",
+            "fields": {
+              "f_2_0_0": {
+                "type": "collection",
+                "name": "collection"
+              }
+            },
+            "display_name": "Drawer Collection 1"
+          },
+          "records": {
+            "34": {
+              "f_2_0_0": "23"
+            },
+            "35": {
+              "f_2_0_0": "24"
+            }
+          }
+        },
+        "23": {
+          "schema": {
+            "name": "drawer_container1",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "padding"
+              },
+              "f_1_0_5": {
+                "type": "boolean",
+                "name": "paper"
+              }
+            },
+            "display_name": "Drawer Container 1"
+          },
+          "records": {
+            "36": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "container2",
+              "f_1_0_2": "25",
+              "f_1_0_3": "2",
+              "f_1_0_4": "0",
+              "f_1_0_5": true
+            }
+          }
+        },
+        "24": {
+          "schema": {
+            "name": "drawer_container1",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "margin"
+              },
+              "f_1_0_5": {
+                "type": "boolean",
+                "name": "paper"
+              }
+            },
+            "display_name": "Drawer Container 1"
+          },
+          "records": {
+            "37": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "container2",
+              "f_1_0_2": "6",
+              "f_1_0_3": "10",
+              "f_1_0_4": "0",
+              "f_1_0_5": false
+            }
+          }
+        },
+        "25": {
+          "schema": {
+            "name": "list1",
+            "fields": {
+              "f_1_5_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_5_2": {
+                "type": "app_collection_list",
+                "name": "components"
+              },
+              "f_1_5_3": {
+                "type": "string",
+                "name": "primary"
+              },
+              "f_1_5_4": {
+                "type": "string",
+                "name": "secondary"
+              }
+            },
+            "display_name": "Drawer List 1"
+          },
+          "records": {
+            "38": {
+              "f_1_5_0": "plugin-list-v1",
+              "f_1_5_2": "app.2",
+              "f_1_5_3": "schema.fields.display_name"
             }
           }
         }

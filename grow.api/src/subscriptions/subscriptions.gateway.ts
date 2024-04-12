@@ -132,60 +132,77 @@ export class SubscriptionsGateway {
   private async seedAppCollection() {
     const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
 
-    for (const [appKey, appValue] of Object.entries(data.apps)) {
+    this.appRepository.queryRunner?.startTransaction();
 
-      const newApp = plainToClass(App, {
-        contents: { plugins: appValue['plugins'] }
-      });
+    try {
 
-      const existingApp = await this.appRepository.findOneBy({ id: Number(appKey)})
+      for (const [appKey, appValue] of Object.entries(data.apps)) {
 
-      if (!existingApp) {
-        const savedApp = await this.appRepository.save(newApp)
-        // console.log('seedApp saved', savedApp);
-      }
-      else {
-        const updatedApp = this.appRepository.update(existingApp.id, newApp)
-        // console.log('seedApp updated', updatedApp);
-      }
-
-      for (const [collectionKey, collectionValue] of Object.entries(appValue['collections'])) {
-
-        const newAppCollection = plainToClass(AppCollection, {
-          appKey: Number(appKey), 
-          contents: collectionValue['schema']
+        const newApp = plainToClass(App, {
+          id: Number(appKey),
+          contents: { plugins: appValue['plugins'] }
         });
 
-        const existingAppCollection = await this.appCollectionRepository.findOneBy({ appKey: Number(appKey), id: Number(collectionKey)})
+        const existingApp = await this.appRepository.findOneBy({ id: Number(appKey)})
 
-        if (!existingAppCollection) {
-          const savedAppCollection = await this.appCollectionRepository.save(newAppCollection)
-          // console.log('seedAppCollection saved', savedAppCollection);
+        if (!existingApp) {
+          const savedApp = await this.appRepository.save(newApp)
+          // console.log('seedApp saved', savedApp);
         }
         else {
-          const updatedAppCollection = this.appCollectionRepository.update(existingAppCollection.id, newAppCollection)
-          // console.log('seedAppCollection updated', updatedAppCollection);
+          const updatedApp = this.appRepository.update(existingApp.id, newApp)
+          // console.log('seedApp updated', updatedApp);
         }
 
-        for (const [key, recordValue] of Object.entries(collectionValue['records'])) {
-          // console.log('seed record', collectionKey, key)
-          const newItem = plainToClass(AppRecord, {
-            appKey, collectionKey: Number(collectionKey), contents: recordValue
+        for (const [collectionKey, collectionValue] of Object.entries(appValue['collections'])) {
+
+          const newAppCollection = plainToClass(AppCollection, {
+            id: Number(collectionKey),
+            appKey: Number(appKey), 
+            contents: collectionValue['schema']
           });
 
-          const existingItem = await this.appRecordRepository.findOneBy({ appKey: Number(appKey), collectionKey: Number(collectionKey), id: Number(key) })
-          // console.log('seed record existingItem', existingItem, key, recordValue)
-          if (!existingItem) {
-            // console.log('seed record saving', newItem);
-            const savedItem = await this.appRecordRepository.save(newItem)
-            // console.log('seed record saved', savedItem);
+          const existingAppCollection = await this.appCollectionRepository.findOneBy({ appKey: Number(appKey), id: Number(collectionKey)})
+
+          if (!existingAppCollection) {
+            const savedAppCollection = await this.appCollectionRepository.save(newAppCollection)
+            // console.log('seedAppCollection saved', savedAppCollection);
           }
           else {
-            const updatedItem = this.appRecordRepository.update(existingItem.id, newItem)
-            // console.log('seed record updated', updatedItem);
+            const updatedAppCollection = this.appCollectionRepository.update(existingAppCollection.id, newAppCollection)
+            // console.log('seedAppCollection updated', updatedAppCollection);
+          }
+
+          for (const [key, recordValue] of Object.entries(collectionValue['records'])) {
+            // console.log('seed record', collectionKey, key)
+            const newItem = plainToClass(AppRecord, {
+              id: Number(key),
+              appKey, collectionKey: Number(collectionKey), contents: recordValue
+            });
+
+            const existingItem = await this.appRecordRepository.findOneBy({ appKey: Number(appKey), collectionKey: Number(collectionKey), id: Number(key) })
+            // console.log('seed record existingItem', existingItem, key, recordValue)
+            if (!existingItem) {
+              // console.log('seed record saving', newItem);
+              const savedItem = await this.appRecordRepository.save(newItem)
+              // console.log('seed record saved', savedItem);
+            }
+            else {
+              const updatedItem = this.appRecordRepository.update(existingItem.id, newItem)
+              // console.log('seed record updated', updatedItem);
+            }
           }
         }
       }
+
+      this.appRepository.queryRunner?.commitTransaction();
+    }
+    catch (error) {
+      console.error('seedAppCollection error', error);
+      this.appRepository.queryRunner?.rollbackTransaction();
+    }
+    finally {
+      this.appRepository.queryRunner?.release();
     }
   }
 
@@ -208,6 +225,11 @@ export class SubscriptionsGateway {
   ): Promise<any> {
 
     const app = await this.appRepository.findOneBy({ id: body.appKey })
+
+    if (!app) {
+      return;
+    }
+
     this.apps[body.appKey] = app.contents;
 
     // console.log('handleGetAppEvent', body, app.contents)
@@ -227,7 +249,15 @@ export class SubscriptionsGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket
   ): Promise<any> {
-    const collectionsMap = {}
+    const collectionsMap = {
+      schema: {
+        fields: {
+          collectionKey: { type: 'string', name: 'collectionKey' },
+          display_name: { type: 'string', name: 'display_name' },
+        }
+      },
+      records: {}
+    }
 
     const collections = await this.appCollectionRepository
       .createQueryBuilder("app_collection")
@@ -238,7 +268,10 @@ export class SubscriptionsGateway {
       .getRawMany();
 
     collections.forEach(collection => {
-      collectionsMap[collection.collection_key] = collection;
+      collectionsMap.records[collection.collection_key] = {
+        collectionKey: collection.collection_key,
+        display_name: collection.display_name
+      };
     })
 
     // console.log('handleGetCollectionListEvent', body, collectionsMap)
