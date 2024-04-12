@@ -49,13 +49,21 @@ function DataGridCellEdit({ useRecordsResults, field }) {
           useRecordsResults[field.name]?.onChange(String(e.target.value))
         }
       >
-        {Object.entries(collectionDisplayList).map(
-          ([key, value]: [string, any]) => (
+        {Object.entries(collectionDisplayList)
+          .sort((a: any, b: any) => {
+            if (a[1].display_name < b[1].display_name) {
+              return -1;
+            }
+            if (a[1].display_name > b[1].display_name) {
+              return 1;
+            }
+            return 0;
+          })
+          .map(([key, value]: [string, any]) => (
             <option key={key} value={Number(key)}>
               {value?.display_name || ""}
             </option>
-          )
-        )}
+          ))}
       </select>
     );
   }
