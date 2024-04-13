@@ -12,19 +12,19 @@ export function PluginPage({ pageRecord, filter }) {
     height: { record: pageRecord },
   });
 
-  // console.log("PluginPage", pageRecord, components, path, filter);
-  if (filter !== undefined && path?.value !== "/" + filter[0]) {
+  // console.log("PluginPage", pageRecord, filter, components, path, height);
+  if (filter !== undefined && path.value !== "/" + filter[0]) {
     return null;
   }
 
-  if (!components) {
+  if (components.value === undefined) {
     return null;
   }
 
   return (
     <>
       {/* <PageHeader pageRecord={pageRecord} /> */}
-      <Grid container sx={{ height: height?.value ?? height }}>
+      <Grid container sx={{ height: height.value ?? height }}>
         <ComponentsCollection components={components.value} />
       </Grid>
     </>
@@ -33,12 +33,12 @@ export function PluginPage({ pageRecord, filter }) {
 
 function PageHeader({ pageRecord }) {
   const { display_name } = useRecords({
-    display_name: { record: pageRecord, field: "display_name" },
+    display_name: { record: pageRecord },
   });
 
   // console.log("PluginPage PageHeader", pageRecord, display_name, path);
 
-  if (!display_name) {
+  if (display_name.value === undefined) {
     return null;
   }
 

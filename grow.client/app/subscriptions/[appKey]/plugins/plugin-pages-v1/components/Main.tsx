@@ -11,9 +11,9 @@ import useAppState from "../../../store/useAppState";
 
 export default function PluginMain({ pagesCollection, filter }) {
   // console.log("Rendering PluginMain");
-  const { value: appBarHeight } = useAppState("appBarHeight");
-  const { value: drawerHeight } = useAppState("drawerHeight");
-  const { value: drawerWidth } = useAppState("drawerWidth");
+  const { appBarHeight } = useAppState("appBarHeight");
+  const { drawerHeight } = useAppState("drawerHeight");
+  const { drawerWidth } = useAppState("drawerWidth");
 
   const pages = useCollections([pagesCollection]);
   // console.log(

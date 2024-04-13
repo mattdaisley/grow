@@ -1,20 +1,11 @@
 "use client";
 import useRecords from "../../../store/useRecords";
 
-export function DataGridRow({ record, field, editable }) {
+export function DataGridCell({ record, field, editable }) {
   const useRecordsResults = useRecords({
     [field.name]: { record },
   });
-
-  if (
-    !useRecordsResults ||
-    Object.keys(useRecordsResults).length === 0 ||
-    Object.values(useRecordsResults).filter(
-      (useRecordsResult) => useRecordsResult === undefined
-    ).length > 0
-  ) {
-    return null;
-  }
+  // console.log("DataGridCell", useRecordsResults, field, editable);
 
   return (
     <>
@@ -33,8 +24,18 @@ export function DataGridRow({ record, field, editable }) {
 function DataGridCellEdit({ useRecordsResults, field }) {
   // console.log("DataGridRow", useRecordsResults, field);
 
+  const { value, onChange } = useRecordsResults[field.name];
+
+  if (onChange === undefined) {
+    return null;
+  }
+
   if (field.type === "collection") {
-    const collection = useRecordsResults[field.name].value;
+    const collection = value;
+
+    if (!collection) {
+      return null;
+    }
 
     const collectionDisplayList =
       collection?._app?.getCollectionDisplayList() || {};
@@ -50,36 +51,31 @@ function DataGridCellEdit({ useRecordsResults, field }) {
         }
       >
         {Object.entries(collectionDisplayList.records || {})
-          .sort((a: any, b: any) => {
+          .sort(([_a, a]: any, [_b, b]: any) => {
             // console.log(a, b);
-            if (a[1].value.display_name < b[1].value.display_name) {
+            if (a.value.display_name < b.value.display_name) {
               return -1;
             }
-            if (a[1].value.display_name > b[1].value.display_name) {
+            if (a.value.display_name > b.value.display_name) {
               return 1;
             }
             return 0;
           })
-          .map(([key, value]: [string, any]) => (
+          .map(([key, record]: [string, any]) => (
             <option key={key} value={Number(key)}>
-              {value?.value.display_name || ""}
+              {record?.value.display_name || ""}
             </option>
           ))}
       </select>
     );
   }
 
-  return (
-    <input
-      value={useRecordsResults[field.name]?.value}
-      onChange={(e) => useRecordsResults[field.name]?.onChange(e.target.value)}
-    />
-  );
+  return <input value={value} onChange={(e) => onChange(e.target.value)} />;
 }
 
 function DataGridCellValue({ useRecordsResults, field }) {
   // console.log("DataGridRow", useRecordsResults);
-  const fieldValue = useRecordsResults[field.name].value;
+  const { value } = useRecordsResults[field.name];
   // console.log("DataGridRowValue", field, fieldValue, useRecordsResults);
 
   // console.log("DataGridRowValue", fieldValue);
@@ -87,10 +83,10 @@ function DataGridCellValue({ useRecordsResults, field }) {
   if (field.type === "collection") {
     return (
       <>
-        {fieldValue.key} - {fieldValue.schema?.display_name}
+        {value?.key} - {value?.schema?.display_name}
       </>
     );
   }
 
-  return <>{useRecordsResults[field.name].value}</>;
+  return <>{value}</>;
 }

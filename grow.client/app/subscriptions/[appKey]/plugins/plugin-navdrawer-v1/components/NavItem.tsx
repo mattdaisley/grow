@@ -15,10 +15,6 @@ export function NavItem({ segment, page }) {
     path: { record: page },
   });
 
-  if (!display_name || !path) {
-    return null;
-  }
-
   return (
     <ListItem disablePadding>
       <Link

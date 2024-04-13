@@ -11,7 +11,7 @@ export function AppBarMenuItem({ page, segment, handleCloseNavMenu }) {
     path: { record: page },
   });
 
-  if (!display_name || !path) {
+  if (!display_name?.value || !path?.value) {
     return null;
   }
 

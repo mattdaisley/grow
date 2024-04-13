@@ -7,7 +7,7 @@ export default function useAppState(key: string): useRecordsResult {
 
   const record = app.getFromAppState(key);
 
-  const useRecordsResult = useRecords({ value: { record } });
+  const useRecordsResult = useRecords({ [key]: { record } });
   // console.log('useAppState useRecordsResult', key, useRecordsResult);
 
   return useRecordsResult;

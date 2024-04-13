@@ -92,16 +92,6 @@ function ReferencedField2({
   });
 
   const useRecordsResults = useRecords(recordFieldRequest);
-  if (
-    !useRecordsResults ||
-    Object.keys(useRecordsResults).length === 0 ||
-    Object.values(useRecordsResults).filter(
-      (useRecordsResult) => useRecordsResult === undefined
-    ).length > 0
-  ) {
-    return null;
-  }
-
   // console.log(
   //   "ReferencedField2 referencedFields",
   //   referencedFields,

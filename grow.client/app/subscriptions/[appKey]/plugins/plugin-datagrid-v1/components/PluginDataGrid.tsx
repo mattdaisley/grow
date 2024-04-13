@@ -5,7 +5,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import useCollections from "../../../store/useCollections";
 import { Collection } from "../../../store/domain/Collection";
-import { DataGridRow } from "./DataGridRow";
+import { DataGridCell } from "./DataGridCell";
 
 export const drawerWidth = 200;
 
@@ -48,7 +48,7 @@ export default function PluginDataGrid({
     if (key !== "id") {
       cell.renderCell = (params) => {
         return (
-          <DataGridRow
+          <DataGridCell
             record={params.row.record}
             field={params.value}
             editable={editable}

@@ -16,6 +16,8 @@ export function PluginListItem({
 }) {
   // console.log("PluginListItem", listItemRecord);
 
+  const { selectedRecord } = useAppState("selectedRecord");
+
   const recordFieldRequest = {};
 
   Object.entries(props).forEach(([key, value]) => {
@@ -33,28 +35,8 @@ export function PluginListItem({
   //   recordFieldRequest
   // );
 
-  const { value: selectedRecord } = useAppState("selectedRecord");
-
-  if (
-    !useRecordResults ||
-    (Object.keys(useRecordResults).length === 0 &&
-      Object.keys(recordFieldRequest).length > 0)
-  ) {
-    return null;
-  }
-
-  let primary = useRecordResults.primary?.value;
-  let secondary = useRecordResults.secondary?.value;
-
-  if (primary === undefined) {
-    primary = typeof props.primary === "string" ? props.primary : undefined;
-  }
-
-  if (secondary === undefined) {
-    secondary =
-      typeof props.secondary === "string" ? props.secondary : undefined;
-  }
-  // console.log(useRecordResults.secondary, props.secondary, secondary);
+  let primary = useRecordResults.primary.value;
+  let secondary = useRecordResults.secondary.value;
 
   const handleButtonClick = () => {
     const selectedRecordKey = `app.2.collections.${listItemRecord.key}`;

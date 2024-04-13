@@ -164,14 +164,14 @@ export class App {
           name: "", 
           display_name: "", 
           fields: {
-            value: { 
+            [key]: { 
               type: "string", 
-              name: "value"
+              name: key
             }
           }
         }, 
         key, 
-        record: { value: undefined } 
+        record: { [key]: undefined } 
       });
     }
 

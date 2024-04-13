@@ -14,10 +14,10 @@ interface NavDrawerPluginProps {
 
 export default function Plugin({ pages }: NavDrawerPluginProps) {
   const app = useContext(SubscriptionStoreContext);
-  const { value: drawerWidth } = useAppState("drawerWidth");
+  const { drawerWidth } = useAppState("drawerWidth");
 
   useEffect(() => {
-    // console.log(drawerWidth);
+    // console.log("NavDrawerPlugin", drawerWidth);
     drawerWidth?.onChange && drawerWidth.onChange(200);
   }, [drawerWidth?.onChange]);
 

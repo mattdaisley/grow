@@ -7,7 +7,7 @@ import useAppState from "../../store/useAppState";
 
 export default function Plugin({ pages, ...props }) {
   const app = useContext(SubscriptionStoreContext);
-  const { value: appBarHeight } = useAppState("appBarHeight");
+  const { appBarHeight } = useAppState("appBarHeight");
 
   useEffect(() => {
     appBarHeight?.onChange && appBarHeight.onChange(200);

@@ -60,21 +60,21 @@ export class Record {
 
           const appStateRecord: any = this._app.getFromAppState(valueSplit[1])
 
-          if (!this._callbacks.hasOwnProperty(fieldValue)) {
+          if (!this._callbacks.hasOwnProperty(valueSplit[1])) {
 
             const callback = (newRecord: Record) => {
-              // console.log('record value callback', fieldValue, newRecord)
+              // console.log('record value callback', valueSplit[1], fieldValue, newRecord)
               this._notifySubscribers(field.name)
               // setValue((currentValue) => ({...currentValue, [key]: { ...currentValue[key], value: newRecord.value[field]}}));
               // setValue({...value, [field]: newRecord.value[field]});
             }
 
-            this._callbacks[fieldValue] = callback;
-            appStateRecord.subscribe('value', callback);
+            this._callbacks[valueSplit[1]] = callback;
+            appStateRecord.subscribe(valueSplit[1], callback);
           }
 
           // console.log('Record.value app_collection collectionKeySplit', appStateRecord);
-          const collectionKeySplit = appStateRecord?.value?.value?.split('.');
+          const collectionKeySplit = appStateRecord?.value?.[valueSplit[1]]?.split('.');
           if (collectionKeySplit && collectionKeySplit.length > 1 && collectionKeySplit[0] === 'app') {
             const collection = this._app.getReferencedAppCollection(collectionKeySplit[1], collectionKeySplit[3])
             fields[field.name] = collection;
@@ -114,7 +114,7 @@ export class Record {
   }
 
   updateField(fieldName: string, newValue: any) {
-    // console.log('updateField', fieldName, newValue)
+    // console.log('updateField', fieldName, newValue, this._record)
     const newRecord = { ...this._record };
 
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
@@ -152,7 +152,7 @@ export class Record {
   }
 
   private _notifySubscribers(type: string) {
-
+    // console.log("Record _notifySubscribers", this._subscriptions)
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
       if (type === '*' || selector === type) {
         // console.log("Record _notifySubscribers", selector, type, callbacks.length)

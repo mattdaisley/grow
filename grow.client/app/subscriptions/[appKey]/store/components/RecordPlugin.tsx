@@ -25,27 +25,28 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   });
   // console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
   const useRecordsResults = useRecords(recordFieldRequest);
-
-  if (
-    !useRecordsResults ||
-    Object.keys(useRecordsResults).length === 0 ||
-    Object.values(useRecordsResults).filter(
-      (recordValue) => recordValue === undefined
-    ).length > 0
-  ) {
-    return null;
-  }
   // console.log("RecordPlugin useRecordsResults", useRecordsResults);
 
   if (useRecordsResults.collection !== undefined) {
+    if (useRecordsResults.collection.value === undefined) {
+      // console.log(
+      //   "RecordPlugin useRecordsResults.collection.value is undefined"
+      // );
+      return null;
+    }
+
+    // console.log("RecordPlugin useRecordsResults has value", useRecordsResults);
     return (
       <ComponentsCollection components={useRecordsResults.collection.value} />
     );
   }
 
-  const pluginKey = useRecordsResults[`plugin_key`];
-  const plugin = app.plugins[pluginKey?.value];
+  const plugin = app.plugins[useRecordsResults.plugin_key.value];
   // console.log("RecordPlugin plugin", pluginKey, plugin);
+
+  if (!plugin) {
+    return null;
+  }
 
   const referencedFields = {};
 

@@ -16,8 +16,8 @@ export default function PlugiDrawer({ anchor, components, variant, ...props }) {
 
   const [open, setOpen] = useState(true);
 
-  const { value: drawerHeight } = useAppState("drawerHeight");
-  const { value: drawerWidth } = useAppState("drawerWidth");
+  const { drawerHeight } = useAppState("drawerHeight");
+  const { drawerWidth } = useAppState("drawerWidth");
 
   useEffect(() => {
     if (variant === "persistent" && anchor === "bottom") {
@@ -90,7 +90,7 @@ export default function PlugiDrawer({ anchor, components, variant, ...props }) {
 }
 
 function DrawerHeader() {
-  const { value: selectedRecord } = useAppState("selectedRecord");
+  const { selectedRecord } = useAppState("selectedRecord");
 
   return <>Selected record {selectedRecord?.value}</>;
 }

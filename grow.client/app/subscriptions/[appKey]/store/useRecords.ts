@@ -21,7 +21,7 @@ export interface useRecordsResult {
 interface callbacksCache {
   [valueKey: string]: { 
     record: Record, 
-    field: string, 
+    fieldName: string, 
     callback: Function 
   } 
 }
@@ -49,7 +49,12 @@ interface callbacksCache {
  */
 export default function useRecords(recordFieldRequests: RecordsFieldRequest): useRecordsResult {
 
-  const [value, setValue] = useState<useRecordsResult>({});
+  const initialResult = {}
+  Object.keys(recordFieldRequests).forEach((key) => {
+    initialResult[key] = { value: undefined, onChange: undefined };
+  });
+
+  const [value, setValue] = useState<useRecordsResult>(initialResult);
 
   useEffect(() => {
     // console.log('useRecord useEffect', recordFieldRequests)
@@ -60,31 +65,17 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
 
     Object.entries(recordFieldRequests).forEach(([key, recordFieldRequest]) => {
 
-      const record = recordFieldRequest.record;
-      let field = recordFieldRequest.field;
-      if (!field) {
-        field = key;
-      }
-      if (typeof field === "string" && field.startsWith("schema.fields.")) {
-        const fieldKey = field.split(".")[2];
-        field = record.schema.fields[fieldKey].name;
-      }
+      const {record, field} = recordFieldRequest;
 
-      function callback(newRecord: Record) {
-        // console.log('useRecord callback', field, newRecord)
-        setValue((currentValue) => ({...currentValue, [key]: { ...currentValue[key], value: newRecord.value[field]}}));
-        // setValue({...value, [field]: newRecord.value[field]});
-      }
+      const fieldName = getFieldName(key, field, record);
 
-      callbacks[key] = { record: record, field, callback };
-      record.subscribe(field, callback);
+      callbacks[key] = { record: record, fieldName, callback: getCallback(key, fieldName, setValue) };
+      record.subscribe(fieldName, callbacks[key].callback);
 
-      function onChange (newValue: any) {
-        // console.log('useRecord onChange', record, field, newValue)
-        record.updateField(field, newValue);
-      }
-
-      values[key] = { value: record.value[field], onChange};
+      values[key] = { 
+        value: record.value[fieldName],
+        onChange: getOnChangeHandler(record, fieldName)
+      };
     })
 
     setValue(values);
@@ -92,13 +83,53 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
     // console.log('useRecord callbacks', callbacks)
 
     return () => {
-      // console.log('useRecord cleanup')
       Object.entries(callbacks).forEach(([key, recordCallback]) => {
-        recordCallback.record.unsubscribe(recordCallback.field, recordCallback.callback);
+        // console.log('useRecord cleanup', recordCallback.fieldName)
+        recordCallback.record.unsubscribe(recordCallback.fieldName, recordCallback.callback);
       });
     };
 
   }, [JSON.stringify(Object.entries(recordFieldRequests).map(([key, recordFieldRequest]) => key + recordFieldRequest.record.key + recordFieldRequest.field))]);
 
   return value;
+}
+
+function getFieldName(key: string, field: string, record: Record): string {
+  let fieldName = key;
+
+  if (field) {
+    fieldName = field;
+  }
+
+  if (typeof fieldName === "string" && fieldName.startsWith("schema.fields.")) {
+    const fieldKey = fieldName.split(".")[2];
+    fieldName = record.schema.fields[fieldKey].name;
+  }
+  // console.log('useRecord getFieldName', key, field, fieldName)
+
+  return fieldName;
+}
+
+function getCallback(key: string, field: string, setValue: Function): Function {
+
+  return function callback(newRecord: Record) {
+    // console.log('useRecord callback', field, newRecord)
+    setValue((currentValue: useRecordsResult) => {
+      return {
+        ...currentValue, 
+        [key]: { 
+          ...currentValue[key], 
+          value: newRecord.value[field]
+        }
+      }
+    });
+    // setValue({...value, [field]: newRecord.value[field]});
+  }
+}
+
+function getOnChangeHandler(record: Record, field: string): Function {
+  return function onChange(newValue: any) {
+    // console.log('useRecord onChange', record, field, newValue)
+    record.updateField(field, newValue);
+  }
 }
