@@ -33,6 +33,12 @@ export class Record {
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
       const field = this.schema.fields[fieldKey];
       // console.log('record field', fieldKey, field, this._record[fieldKey], this.schema.fields)
+
+      if (fieldKey === 'createdDate' || fieldKey === 'updatedDate') {
+        fields[fieldKey] = new Date(this._record[fieldKey]);
+        return;
+      }
+
       if (field.type === 'collection') {
         const fieldValue = this._record[fieldKey];
         // console.log('record field', fieldKey, field, this._record)

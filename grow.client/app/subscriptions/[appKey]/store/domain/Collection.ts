@@ -41,7 +41,14 @@ export class Collection {
 
   setCollection(collection: ICollection) {
     // console.log('Collection setCollection', collection)
-    this.schema = { ...collection.schema};
+    this.schema = { 
+      ...collection.schema, 
+      fields: { 
+        ...collection.schema.fields,
+        createdDate: { type: 'date', name: 'createdDate', readonly: true }, 
+        updatedDate: { type: 'date', name: 'updatedDate', readonly: true } 
+      } 
+    };
     !!collection.records && this._createRecords(collection.records);
 
     this._notifySubscribers('*');

@@ -14,12 +14,12 @@ export class AppRecord extends BaseEntity {
     collectionKey: number;
 
     @Column('jsonb', { nullable: false, default: {} })
-    contents: string;
+    contents: object;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP'})
     createdDate: Date
     
-    @UpdateDateColumn()
+    @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP'})
     updatedDate: Date
 }
 

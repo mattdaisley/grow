@@ -302,9 +302,14 @@ export class SubscriptionsGateway {
 
     const collectionRecords = {}
     const appRecordEntities = await this.appRecordRepository.findBy({ appKey: body.appKey, collectionKey: body.collectionKey })
-    // console.log('collectionRecords', collectionRecords)
+    // console.log('collectionRecords', appRecordEntities)
     appRecordEntities.forEach(record => {
-      collectionRecords[record.id] = record.contents;
+      // console.log('record', record.id, typeof record.contents)
+      collectionRecords[record.id] = { 
+        ...record.contents,
+        createdDate: record.createdDate, 
+        updatedDate: record.updatedDate
+      };
     })
 
     this.apps[body.appKey].collections[body.collectionKey] = { schema: collectionEntity.contents, records: collectionRecords };

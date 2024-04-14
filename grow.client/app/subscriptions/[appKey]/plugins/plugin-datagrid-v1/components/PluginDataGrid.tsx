@@ -42,7 +42,7 @@ export default function PluginDataGrid({
     const cell: GridColDef<(typeof rows)[number]> = {
       field: key,
       headerName: field.name,
-      width: 200,
+      width: 180,
     };
 
     if (key !== "id") {
