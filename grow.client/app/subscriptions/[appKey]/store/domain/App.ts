@@ -63,8 +63,6 @@ export class App {
 
       this.handleEvent(data);
     });
-
-    this._socket.emit('get-collection-list', { appKey: this.key })
   }
 
   private _createPlugins(plugins: { [key: string]: IPlugin; }) {
@@ -113,6 +111,13 @@ export class App {
   }
 
   public getCollectionDisplayList(): Collection {
+    if (!this._collections_display_list) {
+      // console.log(`App ${this.key}: ${this._instance} getCollectionDisplayList not found`)
+      this._socket.emit('get-collection-list', { appKey: this.key })
+
+      this._collections_display_list = new Collection(this, {key: undefined, schema: undefined, records: undefined});
+    }
+
     return this._collections_display_list;
   }
 
@@ -145,11 +150,9 @@ export class App {
           });
           break;
         case 'cl':
-          const newCollection = new Collection(this, { key: value.collectionKey, schema: value.schema, records: value.records });
-          this._collections_display_list = newCollection;
-          // Object.entries(value).forEach(([collectionKey, minimalCollection]: [string, any]) => {
-          //   this._collections_display_list[collectionKey] = new Collection(this, { key: collectionKey, ...minimalCollection });
-          // });
+          if (this._collections_display_list) {
+            this._collections_display_list.setCollection({ schema: value.schema, records: value.records });
+          }
           break;
         default:
           console.log('Unknown event type', key, value);

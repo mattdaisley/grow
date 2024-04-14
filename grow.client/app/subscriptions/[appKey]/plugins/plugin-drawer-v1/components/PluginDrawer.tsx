@@ -11,7 +11,18 @@ import { IconButton } from "@mui/material";
 import useAppState from "../../../store/useAppState";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
 
-export default function PlugiDrawer({ anchor, components, variant, ...props }) {
+interface IPluginDrawerProps {
+  anchor?: "bottom" | "right" | "left" | "top";
+  components: Record<string, any>;
+  variant?: "persistent" | "permanent" | "temporary";
+}
+
+export default function PlugiDrawer({
+  anchor,
+  components,
+  variant,
+  ...props
+}: IPluginDrawerProps) {
   // console.log("PluginDrawer", anchor, components, variant, props);
 
   const [open, setOpen] = useState(true);

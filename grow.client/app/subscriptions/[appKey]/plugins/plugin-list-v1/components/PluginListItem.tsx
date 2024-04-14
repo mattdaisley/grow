@@ -11,8 +11,8 @@ export function PluginListItem({
   ...props
 }: {
   listItemRecord: Record;
-  primary: string;
-  secondary: string;
+  primary?: string;
+  secondary?: string;
 }) {
   // console.log("PluginListItem", listItemRecord);
 

@@ -9,9 +9,9 @@ export const drawerWidth = 200;
 
 interface IPluginListProps {
   listItemCollection: Collection;
-  sort_key: string;
-  primary: string;
-  secondary: string;
+  sort_key?: string;
+  primary?: string;
+  secondary?: string;
 }
 
 export default function PluginList({

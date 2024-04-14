@@ -64,7 +64,7 @@ export class Record {
         if (valueSplit.length > 1 && valueSplit[0] === 'appState') {
           // console.log('Record.value app_collection appState', valueSplit)
 
-          const appStateRecord: any = this._app.getFromAppState(valueSplit[1])
+          const appStateRecord: Record = this._app.getFromAppState(valueSplit[1])
 
           if (!this._callbacks.hasOwnProperty(valueSplit[1])) {
 

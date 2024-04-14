@@ -25,7 +25,11 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   });
   // console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
   const useRecordsResults = useRecords(recordFieldRequest);
-  // console.log("RecordPlugin useRecordsResults", useRecordsResults);
+  // console.log(
+  //   "RecordPlugin useRecordsResults",
+  //   useRecordsResults,
+  //   recordFieldRequest
+  // );
 
   if (useRecordsResults.collection !== undefined) {
     if (useRecordsResults.collection.value === undefined) {
@@ -84,6 +88,16 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
       />
     );
   }
-  // console.log("RecordPlugin RecordPluginComponent", plugin, record);
-  return <RecordPluginComponent plugin={plugin} record={record} />;
+  // console.log(
+  //   "RecordPlugin RecordPluginComponent",
+  //   plugin,
+  //   record,
+  //   useRecordsResults
+  // );
+  return (
+    <RecordPluginComponent
+      plugin={plugin}
+      useRecordsResults={useRecordsResults}
+    />
+  );
 }

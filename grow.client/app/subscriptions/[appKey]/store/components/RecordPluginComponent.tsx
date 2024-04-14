@@ -3,7 +3,7 @@ import { lazy } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { Plugin } from "../domain/Plugin";
-import { Record } from "../domain/Record";
+import { useRecordsResult } from "../useRecords";
 
 export const plugins = {
   "plugin-container-v1": lazy(
@@ -26,12 +26,12 @@ export const plugins = {
 
 interface IRecordPluginComponentProps {
   plugin: Plugin;
-  record: Record;
+  useRecordsResults: useRecordsResult;
 }
 
 export function RecordPluginComponent({
   plugin,
-  record,
+  useRecordsResults,
   ...props
 }: IRecordPluginComponentProps) {
   // console.log(
@@ -64,7 +64,8 @@ export function RecordPluginComponent({
     >
       <PluginComponent
         {...plugin.properties}
-        {...(record?.value ?? {})}
+        {...useRecordsResults}
+        // {...(record?.value ?? {})}
         {...props}
       />
     </ErrorBoundary>

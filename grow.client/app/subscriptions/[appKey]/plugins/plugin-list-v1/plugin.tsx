@@ -2,25 +2,22 @@
 
 import { useEffect, useState } from "react";
 import PluginList from "./components/PluginList";
-import { Collection } from "../../store/domain/Collection";
 
-interface IPluginListProps {
-  components: Collection;
-  sort_key: string;
-  primary: string;
-  secondary: string;
-}
-
-export default function Plugin({ components, ...props }: IPluginListProps) {
+export default function Plugin({ components, ...props }) {
   // console.log("plugin-list-v1", "components", components, "props", props);
 
-  if (components === undefined) {
+  if (components?.value === undefined) {
     return null;
   }
 
+  const propValues = {};
+  Object.entries(props).forEach(([key, value]) => {
+    propValues[key] = value.value;
+  });
+
   return (
     <>
-      <PluginList listItemCollection={components} {...props} />
+      <PluginList listItemCollection={components.value} {...propValues} />
     </>
   );
 }

@@ -727,6 +727,12 @@
             "display_name": "Field Group 1"
           },
           "records": {
+            "39": {
+              "f_1_0_0": "plugin-textfield-v1",
+              "f_1_0_1": "textfield1",
+              "f_1_0_2": "test",
+              "f_1_0_3": "test"
+            },
             "18": {
               "f_1_0_0": "plugin-textfield-v1",
               "f_1_0_1": "textfield1",
