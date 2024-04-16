@@ -68,6 +68,7 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
       const {record, field} = recordFieldRequest;
 
       const fieldName = getFieldName(key, field, record);
+      // console.log('useRecord fieldName', fieldName, key, field, record)
 
       callbacks[key] = { record: record, fieldName, callback: getCallback(key, fieldName, setValue) };
       record.subscribe(fieldName, callbacks[key].callback);
@@ -95,6 +96,7 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
 }
 
 function getFieldName(key: string, field: string, record: Record): string {
+  // console.log('useRecord getFieldName', key, field, record)
   let fieldName = key;
 
   if (field) {
@@ -105,7 +107,6 @@ function getFieldName(key: string, field: string, record: Record): string {
     const fieldKey = fieldName.split(".")[2];
     fieldName = record.schema.fields[fieldKey].name;
   }
-  // console.log('useRecord getFieldName', key, field, fieldName)
 
   return fieldName;
 }

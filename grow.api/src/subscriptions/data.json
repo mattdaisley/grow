@@ -67,6 +67,22 @@
             "1_0_2": {
               "type": "string",
               "name": "secondary"
+            },
+            "1_0_3": {
+              "type": "boolean",
+              "name": "button"
+            },
+            "1_0_4": {
+              "type": "string",
+              "name": "clickAction"
+            },
+            "1_0_5": {
+              "type": "string",
+              "name": "appStateKey"
+            },
+            "1_0_6": {
+              "type": "string",
+              "name": "appStateValue"
             }
           }
         }
@@ -408,6 +424,22 @@
               "f_1_5_5": {
                 "type": "string",
                 "name": "sort_key"
+              },
+              "f_1_5_6": {
+                "type": "boolean",
+                "name": "button"
+              },
+              "f_1_5_7": {
+                "type": "string",
+                "name": "clickAction"
+              },
+              "f_1_5_8": {
+                "type": "string",
+                "name": "appStateKey"
+              },
+              "f_1_5_9": {
+                "type": "string",
+                "name": "appStateValue"
               }
             },
             "display_name": "Drawer List 1"
@@ -417,7 +449,11 @@
               "f_1_5_0": "plugin-list-v1",
               "f_1_5_2": "app.2",
               "f_1_5_3": "schema.fields.display_name",
-              "f_1_5_5": "schema.fields.display_name"
+              "f_1_5_5": "schema.fields.display_name",
+              "f_1_5_6": true,
+              "f_1_5_7": "setAppState",
+              "f_1_5_8": "selectedRecord",
+              "f_1_5_9": "schema.fields.collectionKey"
             }
           }
         }
@@ -425,7 +461,7 @@
     },
     "2": {
       "plugins": {
-        "p_1_0": {
+        "plugin-appbar-v1": {
           "name": "plugin-appbar-v1",
           "parent": "layout",
           "order": 1,
@@ -436,7 +472,7 @@
             }
           }
         },
-        "p_1_1": {
+        "plugin-navdrawer-v1": {
           "name": "plugin-navdrawer-v1",
           "parent": "layout",
           "order": 0,
@@ -447,7 +483,7 @@
             }
           }
         },
-        "p_1_2": {
+        "plugin-data-v1": {
           "name": "plugin-data-v1",
           "parent": "component",
           "properties": {
@@ -499,7 +535,7 @@
             }
           }
         },
-        "p_1_5": {
+        "plugin-list-v1": {
           "name": "plugin-list-v1",
           "parent": "component",
           "properties": {
@@ -517,7 +553,7 @@
             }
           }
         },
-        "p_1_6": {
+        "plugin-datagrid-v1": {
           "name": "plugin-datagrid-v1",
           "parent": "component",
           "properties": {
@@ -835,7 +871,7 @@
           },
           "records": {
             "22": {
-              "f_1_5_0": "p_1_5",
+              "f_1_5_0": "plugin-list-v1",
               "f_1_5_2": "7",
               "f_1_5_3": "schema.fields.f_1_0_1",
               "f_1_5_4": "schema.fields.f_1_0_2"
@@ -983,7 +1019,7 @@
           },
           "records": {
             "29": {
-              "f_1_5_0": "p_1_6",
+              "f_1_5_0": "plugin-datagrid-v1",
               "f_1_5_2": "7"
             }
           }

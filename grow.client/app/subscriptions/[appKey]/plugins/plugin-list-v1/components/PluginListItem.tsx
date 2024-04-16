@@ -8,24 +8,36 @@ import { Record } from "../../../store/domain/Record";
 
 export function PluginListItem({
   listItemRecord,
+  appStateKey,
+  appStateValue,
+  button,
+  clickAction,
   ...props
 }: {
   listItemRecord: Record;
   primary?: string;
   secondary?: string;
+  button?: boolean;
+  clickAction?: string;
+  appStateValue?: string;
+  appStateKey?: string;
 }) {
-  // console.log("PluginListItem", listItemRecord);
+  // console.log("PluginListItem", listItemRecord, props);
 
-  const { selectedRecord } = useAppState("selectedRecord");
-
-  const recordFieldRequest = {};
-
-  Object.entries(props).forEach(([key, value]) => {
-    recordFieldRequest[key] = {
+  const recordFieldRequest = {
+    primary: {
       record: listItemRecord,
-      field: value,
-    };
-  });
+      field: props.primary,
+    },
+    secondary: {
+      record: listItemRecord,
+      field: props.secondary,
+    },
+    appStateValue: {
+      record: listItemRecord,
+      field: appStateValue,
+    },
+  };
 
   const useRecordResults = useRecords(recordFieldRequest);
   // console.log(
@@ -36,22 +48,47 @@ export function PluginListItem({
   // );
 
   let primary = useRecordResults.primary.value;
-  let secondary = useRecordResults.secondary.value;
+  let secondary = useRecordResults.secondary?.value;
 
-  const handleButtonClick = () => {
-    const selectedRecordKey = `app.2.collections.${listItemRecord.key}`;
-    selectedRecord?.onChange && selectedRecord.onChange(selectedRecordKey);
-  };
+  const BoundingComponent =
+    button && clickAction === "setAppState"
+      ? PluginListItemButton
+      : ({ children }) => <>{children}</>;
 
   return (
     <>
       <ListItem>
-        <ListItemButton dense onClick={handleButtonClick}>
+        <BoundingComponent
+          useRecordResults={useRecordResults}
+          appStateKey={appStateKey}
+        >
           <ListItemText primary={primary} secondary={secondary} />
-        </ListItemButton>
+        </BoundingComponent>
       </ListItem>
       {/* <PageHeader pageRecord={listItemRecord} />
       <ComponentsCollection components={components.value} /> */}
     </>
+  );
+}
+
+function PluginListItemButton({ useRecordResults, appStateKey, children }) {
+  const useAppStateResults = useAppState(appStateKey);
+
+  const handleButtonClick = () => {
+    const selectedRecordKey = `app.2.collections.${useRecordResults.appStateValue?.value}`;
+    // console.log("PluginListItemButton", selectedRecordKey);
+
+    Object.entries(useAppStateResults).forEach(
+      ([key, useAppStateResult]: [string, any]) => {
+        useAppStateResult.onChange &&
+          useAppStateResult.onChange(selectedRecordKey);
+      }
+    );
+  };
+
+  return (
+    <ListItemButton dense onClick={handleButtonClick}>
+      {children}
+    </ListItemButton>
   );
 }
