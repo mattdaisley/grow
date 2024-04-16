@@ -485,6 +485,20 @@
             }
           }
         },
+        "plugin-select-v1": {
+          "name": "plugin-select-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "string",
+              "name": "value"
+            },
+            "1_0_1": {
+              "type": "string",
+              "name": "label"
+            }
+          }
+        },
         "p_1_5": {
           "name": "plugin-list-v1",
           "parent": "component",
@@ -722,6 +736,10 @@
               "f_1_0_3": {
                 "type": "string",
                 "name": "value"
+              },
+              "f_1_0_4": {
+                "type": "collection",
+                "name": "components"
               }
             },
             "display_name": "Field Group 1"
@@ -729,9 +747,16 @@
           "records": {
             "39": {
               "f_1_0_0": "plugin-textfield-v1",
-              "f_1_0_1": "textfield1",
-              "f_1_0_2": "test",
-              "f_1_0_3": "test"
+              "f_1_0_1": "textfield5",
+              "f_1_0_2": "Test Text Field",
+              "f_1_0_3": "test test"
+            },
+            "40": {
+              "f_1_0_0": "plugin-select-v1",
+              "f_1_0_1": "select1",
+              "f_1_0_2": "Test Select",
+              "f_1_0_3": "",
+              "f_1_0_4": "7"
             },
             "18": {
               "f_1_0_0": "plugin-textfield-v1",

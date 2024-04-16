@@ -22,6 +22,9 @@ export const plugins = {
   "plugin-textfield-v1": lazy(
     () => import(`../../plugins/plugin-textfield-v1/plugin`)
   ),
+  "plugin-select-v1": lazy(
+    () => import(`../../plugins/plugin-select-v1/plugin`)
+  ),
 };
 
 interface IRecordPluginComponentProps {
