@@ -113,7 +113,7 @@ export class App {
 
   public getAppDisplayList(): Collection {
     if (!this._app_display_list) {
-      console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
+      // console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
       this._socket.emit('get-app-list', { appKey: this.key })
 
       this._app_display_list = new Collection(this, {key: undefined, schema: undefined, records: undefined});
@@ -162,7 +162,6 @@ export class App {
           });
           break;
         case 'al':
-          console.log('App handleEvent', key, value, collection)
           if (this._app_display_list) {
             this._app_display_list.setCollection({ schema: value.schema, records: value.records });
           }
