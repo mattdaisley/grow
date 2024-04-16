@@ -380,7 +380,7 @@
         },
         "24": {
           "schema": {
-            "name": "drawer_container1",
+            "name": "drawer_container2",
             "fields": {
               "f_1_0_0": {
                 "type": "string",
@@ -407,7 +407,7 @@
                 "name": "paper"
               }
             },
-            "display_name": "Drawer Container 1"
+            "display_name": "Drawer Container 2"
           },
           "records": {
             "37": {
@@ -478,14 +478,14 @@
         },
         "26": {
           "schema": {
-            "name": "collection1",
+            "name": "collection2",
             "fields": {
               "f_2_0_0": {
                 "type": "collection",
                 "name": "collection"
               }
             },
-            "display_name": "collection1"
+            "display_name": "collection2"
           },
           "records": {
             "42": {
@@ -565,7 +565,7 @@
               "f_1_0_0": "plugin-select-v1",
               "f_1_0_1": "select2",
               "f_1_0_2": "app",
-              "f_1_0_3": "2",
+              "f_1_0_3": "1",
               "f_1_0_4": "1"
             }
           }

@@ -12,6 +12,7 @@ export interface ICollection {
 export class Collection {
   key: string;
   schema: ISchema;
+  type: string;
   records: {
     [key: string]: Record;
   }
@@ -21,10 +22,11 @@ export class Collection {
     [selector: string]: Function[] 
   };
 
-  constructor(app: App, { key, schema, records }) {
+  constructor(app: App, { key, schema, records, type = 'collection' }) {
     this._app = app;
     this.key = key;
     this.schema = schema;
+    this.type = type;
     this._subscriptions = {};
     
     !!records && this._createRecords(records);

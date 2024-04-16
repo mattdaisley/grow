@@ -30,7 +30,11 @@ function DataGridCellEdit({ useRecordsResults, field }) {
     return null;
   }
 
-  if (field.type === "collection") {
+  if (
+    field.type === "collection" ||
+    field.type === "app_list" ||
+    field.type === "app_collection_list"
+  ) {
     const collection = value;
 
     if (!collection) {
@@ -50,8 +54,15 @@ function DataGridCellEdit({ useRecordsResults, field }) {
 }
 
 function CellSelect({ collection, onChange }) {
-  const collectionDisplayList =
-    collection?._app?.getCollectionDisplayList() || {};
+  let optionsList = {};
+
+  // console.log("CellSelect", collection);
+  if (collection?.type === "app_list") {
+    optionsList = collection?._app?.getAppDisplayList()?.records || {};
+  }
+  if (collection?.type === "collection") {
+    optionsList = collection?._app?.getCollectionDisplayList()?.records || {};
+  }
 
   // console.log("DataGridRow", useRecordsResults, collectionDisplayList, field);
 
@@ -61,7 +72,7 @@ function CellSelect({ collection, onChange }) {
       value={collection.key}
       onChange={(e) => onChange && onChange(String(e.target.value))}
     >
-      {Object.entries(collectionDisplayList.records || {})
+      {Object.entries(optionsList || {})
         .sort(([_a, a]: any, [_b, b]: any) => {
           // console.log(a, b);
           if (a.value.display_name < b.value.display_name) {
