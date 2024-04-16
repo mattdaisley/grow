@@ -34,6 +34,7 @@ export class App {
   private _collections: {
     [key: string]: Collection;
   };
+  private _app_display_list: Collection;
   private _collections_display_list: Collection;
   private _subscriptions: { 
     [selector: string]: Function[] 
@@ -110,6 +111,17 @@ export class App {
     return this._collections[collectionKey];
   }
 
+  public getAppDisplayList(): Collection {
+    if (!this._app_display_list) {
+      console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
+      this._socket.emit('get-app-list', { appKey: this.key })
+
+      this._app_display_list = new Collection(this, {key: undefined, schema: undefined, records: undefined});
+    }
+
+    return this._app_display_list;
+  }
+
   public getCollectionDisplayList(): Collection {
     if (!this._collections_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getCollectionDisplayList not found`)
@@ -148,6 +160,12 @@ export class App {
           Object.entries(value.records).forEach(([recordKey, record]) => {
             collection?.updateRecord(recordKey, record);
           });
+          break;
+        case 'al':
+          console.log('App handleEvent', key, value, collection)
+          if (this._app_display_list) {
+            this._app_display_list.setCollection({ schema: value.schema, records: value.records });
+          }
           break;
         case 'cl':
           if (this._collections_display_list) {

@@ -14,7 +14,7 @@ export default function PluginSelect({
   onChange,
 }) {
   const menuItemsResponse = useCollections([menuItemsCollection]);
-  // console.log("PluginSelect", menuItemsResponse);
+  // console.log("PluginSelect", menuItemsCollection, menuItemsResponse);
   if (
     !menuItemsResponse ||
     !menuItemsResponse[menuItemsCollection.key]?.records

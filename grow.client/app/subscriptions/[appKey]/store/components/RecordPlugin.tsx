@@ -25,11 +25,11 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   });
   // console.log("RecordPlugin recordFieldRequest", recordFieldRequest);
   const useRecordsResults = useRecords(recordFieldRequest);
-  // console.log(
-  //   "RecordPlugin useRecordsResults",
-  //   useRecordsResults,
-  //   recordFieldRequest
-  // );
+  console.log(
+    "RecordPlugin useRecordsResults",
+    useRecordsResults,
+    recordFieldRequest
+  );
 
   if (useRecordsResults.collection !== undefined) {
     if (useRecordsResults.collection.value === undefined) {

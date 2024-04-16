@@ -6,7 +6,7 @@ export default function Plugin({ components, value, label, ...props }) {
   if (components?.value === undefined) {
     return null;
   }
-  // console.log("plugin-select-v1", value, label, props);
+  // console.log("plugin-select-v1", components, value, label, props);
 
   return (
     <>

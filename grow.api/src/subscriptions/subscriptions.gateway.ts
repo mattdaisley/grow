@@ -140,6 +140,7 @@ export class SubscriptionsGateway {
 
         const newApp = plainToClass(App, {
           id: Number(appKey),
+          display_name: appValue['display_name'],
           contents: { plugins: appValue['plugins'] }
         });
 
@@ -240,6 +241,40 @@ export class SubscriptionsGateway {
     const response = { key: body.appKey, plugins, collections: {} };
 
     // console.log('handleGetAppEvent returning', event)
+    client.emit(event, response)
+    return response;
+  }
+
+  @SubscribeMessage('get-app-list')
+  async handleGetAppListEvent(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+    const appsMap = {
+      schema: {
+        fields: {
+          appKey: { type: 'string', name: 'appKey' },
+          display_name: { type: 'string', name: 'display_name' },
+        }
+      },
+      records: {}
+    }
+
+    const apps = await this.appRepository.find({ order: { id: 'ASC' }})
+
+    apps.forEach(app => {
+      appsMap.records[app.id] = {
+        appKey: app.id,
+        display_name: app.display_name
+      };
+    })
+
+    console.log('handleGetAppListEvent', body, appsMap)
+    const event = `subscriptions-${body.appKey}`;
+
+    const response = { al: appsMap }
+
+    // console.log('handleGetAppListEvent returning', event)
     client.emit(event, response)
     return response;
   }

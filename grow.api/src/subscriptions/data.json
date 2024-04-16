@@ -1,6 +1,7 @@
 {
   "apps": {
     "1": {
+      "display_name": "App 1",
       "plugins": {
         "plugin-pages-v1": {
           "name": "plugin-pages-v1",
@@ -83,6 +84,24 @@
             "1_0_6": {
               "type": "string",
               "name": "appStateValue"
+            }
+          }
+        },
+        "plugin-select-v1": {
+          "name": "plugin-select-v1",
+          "parent": "component",
+          "properties": {
+            "1_0_0": {
+              "type": "string",
+              "name": "value"
+            },
+            "1_0_1": {
+              "type": "string",
+              "name": "label"
+            },
+            "1_0_2": {
+              "type": "collection",
+              "name": "components"
             }
           }
         }
@@ -352,7 +371,7 @@
             "36": {
               "f_1_0_0": "plugin-container-v1",
               "f_1_0_1": "container2",
-              "f_1_0_2": "25",
+              "f_1_0_2": "27",
               "f_1_0_3": "2",
               "f_1_0_4": "0",
               "f_1_0_5": true
@@ -401,7 +420,7 @@
             }
           }
         },
-        "25": {
+        "28": {
           "schema": {
             "name": "list1",
             "fields": {
@@ -456,10 +475,105 @@
               "f_1_5_9": "schema.fields.collectionKey"
             }
           }
+        },
+        "26": {
+          "schema": {
+            "name": "collection1",
+            "fields": {
+              "f_2_0_0": {
+                "type": "collection",
+                "name": "collection"
+              }
+            },
+            "display_name": "collection1"
+          },
+          "records": {
+            "42": {
+              "f_2_0_0": "25"
+            },
+            "43": {
+              "f_2_0_0": "28"
+            }
+          }
+        },
+        "27": {
+          "schema": {
+            "name": "drawer_left_container1",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "padding"
+              }
+            },
+            "display_name": "Drawer Left Container 1"
+          },
+          "records": {
+            "41": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "container3",
+              "f_1_0_2": "26",
+              "f_1_0_3": "12",
+              "f_1_0_4": "0"
+            }
+          }
+        },
+        "25": {
+          "schema": {
+            "name": "fieldgroup5",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "label"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "value"
+              },
+              "f_1_0_4": {
+                "type": "app_list",
+                "name": "components"
+              }
+            },
+            "display_name": "Field Group 4"
+          },
+          "records": {
+            "44": {
+              "f_1_0_0": "plugin-select-v1",
+              "f_1_0_1": "select2",
+              "f_1_0_2": "app",
+              "f_1_0_3": "",
+              "f_1_0_4": "1"
+            }
+          }
         }
       }
     },
     "2": {
+      "display_name": "App 2",
       "plugins": {
         "plugin-appbar-v1": {
           "name": "plugin-appbar-v1",
@@ -532,6 +646,10 @@
             "1_0_1": {
               "type": "string",
               "name": "label"
+            },
+            "1_0_2": {
+              "type": "collection",
+              "name": "components"
             }
           }
         },

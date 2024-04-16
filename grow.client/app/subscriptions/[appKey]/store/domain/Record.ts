@@ -102,6 +102,17 @@ export class Record {
         }
 
       }
+
+      if (field.type === 'app_list') {
+        // value doesn't currently matter. Just returns all apps.
+        // could be used to filter apps in the future.
+        const fieldValue = this._record[fieldKey];
+
+        fields[field.name] = this._app.getAppDisplayList();
+        // console.log('Record.app_list', fieldValue, fields[field.name])
+        return;
+
+      }
       
       fields[field.name] = fieldValue;
 

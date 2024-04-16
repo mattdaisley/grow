@@ -5,6 +5,9 @@ export class App extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({ type: 'text', nullable: true, default: '' })
+    display_name: string;
+
     @Column('jsonb', { nullable: false, default: {} })
     contents: object;
 
