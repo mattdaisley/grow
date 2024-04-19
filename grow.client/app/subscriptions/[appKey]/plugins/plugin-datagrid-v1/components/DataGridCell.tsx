@@ -95,7 +95,7 @@ function CellSelect({ collection, onChange }) {
 function DataGridCellValue({ useRecordsResults, field }) {
   // console.log("DataGridRow", useRecordsResults);
   const { value } = useRecordsResults[field.name];
-  // console.log("DataGridRowValue", field, fieldValue, useRecordsResults);
+  // console.log("DataGridRowValue", field, value, useRecordsResults);
 
   // console.log("DataGridRowValue", fieldValue);
 
@@ -107,5 +107,5 @@ function DataGridCellValue({ useRecordsResults, field }) {
     );
   }
 
-  return <>{value}</>;
+  return <>{value?.toString()}</>;
 }
