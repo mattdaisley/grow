@@ -26,7 +26,7 @@ export class Record {
   _callbacks: { [key: string]: Function } = {};
   _referencedFields: {};
 
-  get value(): Object {
+  get rawValue(): Object {
     
     const fields = {};
 
@@ -40,7 +40,6 @@ export class Record {
       }
 
       if (field.type === 'collection') {
-        const fieldValue = this._record[fieldKey];
         // console.log('record field', fieldKey, field, this._record)
         // const collection = this._app.collections[this._record[fieldKey]];
         const collection = this._app.getCollection(fieldValue);
@@ -50,7 +49,6 @@ export class Record {
       }
       
       if (field.type === 'app_collection') {
-        const fieldValue = this._record[fieldKey];
         const valueSplit = fieldValue.split('.');
         if (valueSplit.length > 1 && valueSplit[0] === 'app') {
           // console.log('Record.value app_collection', valueSplit)
@@ -90,7 +88,6 @@ export class Record {
       }
 
       if (field.type === 'app_collection_list') {
-        const fieldValue = this._record[fieldKey];
         const valueSplit = fieldValue.split('.');
         if (valueSplit.length > 1 && valueSplit[0] === 'app') {
           // console.log('Record.value app_collection_list', valueSplit)
@@ -106,7 +103,6 @@ export class Record {
       if (field.type === 'app_list') {
         // value doesn't currently matter. Just returns all apps.
         // could be used to filter apps in the future.
-        const fieldValue = this._record[fieldKey];
 
         fields[field.name] = this._app.getAppDisplayList();
         // console.log('Record.app_list', fieldValue, fields[field.name])
@@ -116,6 +112,84 @@ export class Record {
       
       fields[field.name] = fieldValue;
 
+    });
+
+    return fields;
+  }
+
+  get value(): Object {
+    
+    const fields = this.rawValue;
+
+    Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
+      const field = this.schema.fields[fieldKey];
+
+      var pattern = new RegExp("({{ *([a-zA-Z0-9-_.]*) *}})", "g");
+      var match;
+      var selectors = [];
+      while ((match = pattern.exec(fieldValue)) !== null) {
+        selectors.push(match[1]); // push the nested group to the selectors array
+      }
+      if (selectors.length > 0) {
+        // console.log("Record value selectors", selectors, fieldValue); // logs an array of all matched selectors
+
+        let patternValue: string = fieldValue
+
+        selectors.forEach((selector) => {
+          const regex =
+            /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
+          const matches = selector.match(regex);
+          if (matches) {
+            const appKey = matches[1];
+            const collectionKey = matches[2];
+            const recordKey = matches[3];
+            const nestedFieldKey = matches[4];
+            // console.log(
+            //   "Record value match group properties",
+            //   selector,
+            //   matches,
+            //   appKey,
+            //   collectionKey,
+            //   recordKey,
+            //   nestedFieldKey
+            // );
+
+            let nestedCollection: Collection;
+            if (appKey === this._app.key) {
+              nestedCollection = this._app.getCollection(collectionKey);
+            }
+            else {
+              nestedCollection = this._app.getReferencedAppCollection(appKey, collectionKey);
+            } 
+
+            if (nestedCollection) {
+              if (nestedCollection.records?.hasOwnProperty(recordKey)) {
+                const nestedRecord = nestedCollection.records[recordKey];
+                const nestedField = nestedRecord.schema.fields[nestedFieldKey];
+                if (nestedField) {
+
+                  if (!this._callbacks.hasOwnProperty(fieldValue)) {
+
+                    const callback = (_: Record) => {
+                      // console.log("nested record callback")
+                      this._notifySubscribers(field.name)
+                    }
+
+                    this._callbacks[fieldValue] = callback;
+                    nestedRecord.subscribe(nestedField.name, callback);
+                  }
+
+                  patternValue = patternValue.replace(selector, nestedRecord.value[nestedField.name]);
+                }
+              }
+            }
+          }
+        });
+
+        // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
+        fields[field.name] = patternValue;
+        return;
+      }
     });
 
     return fields;

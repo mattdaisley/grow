@@ -24,7 +24,7 @@ export function DataGridCell({ record, field, editable }) {
 function DataGridCellEdit({ useRecordsResults, field }) {
   // console.log("DataGridRow", useRecordsResults, field);
 
-  const { value, onChange } = useRecordsResults[field.name];
+  const { value, rawValue, onChange } = useRecordsResults[field.name];
 
   if (onChange === undefined) {
     return null;
@@ -46,7 +46,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
 
   return (
     <input
-      value={value}
+      value={rawValue}
       onChange={(e) => onChange(e.target.value)}
       disabled={field.readonly}
     />

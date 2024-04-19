@@ -894,6 +894,10 @@
               "f_1_0_4": {
                 "type": "collection",
                 "name": "components"
+              },
+              "f_1_0_5": {
+                "type": "boolean",
+                "name": "readonly"
               }
             },
             "display_name": "Field Group 1"
@@ -902,14 +906,15 @@
             "39": {
               "f_1_0_0": "plugin-textfield-v1",
               "f_1_0_1": "textfield5",
-              "f_1_0_2": "Test Text Field",
-              "f_1_0_3": "test test"
+              "f_1_0_2": "Test Text Field (read only)",
+              "f_1_0_3": "Name: \"{{ a.2.c.7.r.8.f_1_0_1 }}\" | Path: \"{{ a.2.c.7.r.8.f_1_0_2 }}\"",
+              "f_1_0_5": true
             },
             "40": {
               "f_1_0_0": "plugin-select-v1",
               "f_1_0_1": "select1",
               "f_1_0_2": "Test Select",
-              "f_1_0_3": "",
+              "f_1_0_3": "10",
               "f_1_0_4": "7"
             },
             "18": {

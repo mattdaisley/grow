@@ -2,7 +2,7 @@
 
 import PluginTextField from "./components/TextField";
 
-export default function Plugin({ value, label, ...props }) {
+export default function Plugin({ value, label, readonly, ...props }) {
   if (value === undefined) {
     return null;
   }
@@ -13,6 +13,7 @@ export default function Plugin({ value, label, ...props }) {
       <PluginTextField
         value={value.value}
         label={label?.value ?? ""}
+        readonly={readonly?.value ?? false}
         onChange={value.onChange}
         {...props}
       />

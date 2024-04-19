@@ -15,6 +15,7 @@ export interface RecordsFieldRequest {
 export interface useRecordsResult {
   [valueKey: string]: { 
     value: any, 
+    rawValue: any,
     onChange: Function 
   }
 }
@@ -75,6 +76,7 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
 
       values[key] = { 
         value: record.value[fieldName],
+        rawValue: record.rawValue[fieldName],
         onChange: getOnChangeHandler(record, fieldName)
       };
     })
@@ -120,7 +122,8 @@ function getCallback(key: string, field: string, setValue: Function): Function {
         ...currentValue, 
         [key]: { 
           ...currentValue[key], 
-          value: newRecord.value[field]
+          value: newRecord.value[field],
+          rawValue: newRecord.rawValue[field]
         }
       }
     });
