@@ -327,6 +327,9 @@ export class SubscriptionsGateway {
     @ConnectedSocket() client: Socket
   ): Promise<any> {
     const collectionEntity = await this.appCollectionRepository.findOneBy({ id: body.collectionKey, appKey: body.appKey })
+    if (!collectionEntity) {
+      return;
+    }
 
     if (!this.apps.hasOwnProperty(body.appKey)) { 
       const app = await this.appRepository.findOneBy({ id: body.appKey })
@@ -371,16 +374,23 @@ export class SubscriptionsGateway {
     @ConnectedSocket() client: Socket
   ): Promise<any> {
 
-    if (!this.apps.hasOwnProperty(body.appKey)) { 
+    const {
+      appKey,
+      appInstance,
+      collectionKey,
+      recordKey,
+      fieldKey,
+      newValue
+    } = body;
+
+    if (!this.apps.hasOwnProperty(appKey)) { 
       const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
-      this.apps[body.appKey] = data.apps[body.appKey];
+      this.apps[appKey] = data.apps[appKey];
     }
 
 
     console.log('handleUpdateRecordEvent', body)
     const event = `subscriptions-${body.appKey}`;
-
-    const { appKey, collectionKey, recordKey, fieldKey, newValue } = body;
 
     this.apps[body.appKey].collections[body.collectionKey].records[body.recordKey][body.fieldKey] = body.newValue;
 
@@ -409,6 +419,7 @@ export class SubscriptionsGateway {
     }
 
     const response = { 
+      appInstance,
       client: client.id, 
       u: { 
         collectionKey: body.collectionKey, 
@@ -420,10 +431,8 @@ export class SubscriptionsGateway {
       } 
     }
 
-    // console.log('handleUpdateRecordEvent returning', event)
-    setTimeout(() => {
-      this.server?.emit(event, response)
-    }, 100) // simulating data fetch delay
+    // console.log('handleUpdateRecordEvent returning', event, response)
+    this.server?.emit(event, response)
     return response;
   }
 }

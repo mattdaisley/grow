@@ -87,8 +87,6 @@ function PluginListItemButton({ useRecordResults, appStateKey, children }) {
   };
 
   return (
-    <ListItemButton dense onClick={handleButtonClick}>
-      {children}
-    </ListItemButton>
+    <ListItemButton onClick={handleButtonClick}>{children}</ListItemButton>
   );
 }

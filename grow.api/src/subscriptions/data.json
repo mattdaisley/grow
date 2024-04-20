@@ -459,6 +459,14 @@
               "f_1_5_9": {
                 "type": "string",
                 "name": "appStateValue"
+              },
+              "f_1_5_10": {
+                "type": "string",
+                "name": "padding"
+              },
+              "f_1_5_11": {
+                "type": "boolean",
+                "name": "dense"
               }
             },
             "display_name": "Drawer List 1"
@@ -472,7 +480,9 @@
               "f_1_5_6": true,
               "f_1_5_7": "setAppState",
               "f_1_5_8": "selectedRecord",
-              "f_1_5_9": "schema.fields.collectionKey"
+              "f_1_5_9": "schema.fields.collectionKey",
+              "f_1_5_10": "0",
+              "f_1_5_11": true
             }
           }
         },

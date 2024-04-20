@@ -12,10 +12,19 @@ interface IPluginListProps {
   sort_key?: string;
   primary?: string;
   secondary?: string;
+  padding?: string;
+  px?: string;
+  py?: string;
+  dense?: boolean;
 }
 
 export default function PluginList({
   listItemCollection,
+  dense,
+  padding,
+  px,
+  py,
+  sort_key,
   ...props
 }: IPluginListProps) {
   // console.log("Rendering PluginList listItemCollection", listItemCollection);
@@ -34,7 +43,7 @@ export default function PluginList({
 
   let listItems = Object.entries(listItemRecords);
 
-  if (props.sort_key) {
+  if (sort_key) {
     listItems.sort((a, b) => {
       // console.log(a, b);
       if (a[1].value["display_name"] < b[1].value["display_name"]) {
@@ -49,8 +58,14 @@ export default function PluginList({
 
   return (
     <>
-      <Box sx={{ padding: 2 }}>
-        <List>
+      <Box
+        sx={{
+          padding: padding ? Number(padding ?? 0) : undefined,
+          px: px ? Number(px ?? 0) : undefined,
+          py: py ? Number(py ?? 0) : undefined,
+        }}
+      >
+        <List dense={dense}>
           {listItems.map(([key, listItemRecord]) => {
             return (
               <PluginListItem

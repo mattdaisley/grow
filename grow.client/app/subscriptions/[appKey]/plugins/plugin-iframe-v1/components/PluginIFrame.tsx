@@ -11,7 +11,11 @@ export default function PluginIFrame(props) {
     let interval = undefined;
     // if (!iframeRef.current) {
     interval = setInterval(() => {
-      // console.log(iframeRef?.current?.contentWindow?.location?.href);
+      const href = iframeRef?.current?.contentWindow?.location?.href;
+      // console.log(href);
+
+      if (href === undefined || href === "about:blank") return;
+
       setUrl(iframeRef?.current?.contentWindow?.location?.href);
     }, 200);
     // }

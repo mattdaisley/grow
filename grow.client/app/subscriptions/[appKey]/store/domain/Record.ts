@@ -123,11 +123,18 @@ export class Record {
           // console.log('Record.value app_collection_list', patternValue);
           const valueSplit = patternValue.split('.');
           if (valueSplit.length > 1 && valueSplit[0] === 'app') {
+            const appKey = valueSplit[1];
             // console.log('Record.value app_collection_list', valueSplit)
             // console.log(valueSplit);
+            let nestedApp: App;
+            if (appKey === this._app.key) {
+              nestedApp = this._app;
+            }
+            else {
+              nestedApp = this._app.getReferencedApp(appKey);
+            }
 
-            const app = this._app.getReferencedApp(valueSplit[1])
-            fields[field.name] = app.getCollectionDisplayList();
+            fields[field.name] = nestedApp.getCollectionDisplayList();
             return;
           }
         }
@@ -136,8 +143,18 @@ export class Record {
           const collectionKeySplit = patternValue.split('.');
           if (collectionKeySplit && collectionKeySplit.length > 1 && collectionKeySplit[0] === 'app' && collectionKeySplit[2] === 'collections') {
             // console.log('Record.value app_collection_list', collectionKeySplit)
-            const collection = this._app.getReferencedAppCollection(collectionKeySplit[1], collectionKeySplit[3])
-            fields[field.name] = collection;
+            const appKey = collectionKeySplit[1];
+            const collectionKey = collectionKeySplit[3];
+
+            let nestedCollection: Collection;
+            if (appKey === this._app.key) {
+              nestedCollection = this._app.getCollection(collectionKey);
+            }
+            else {
+              nestedCollection = this._app.getReferencedAppCollection(appKey, collectionKey);
+            }
+
+            fields[field.name] = nestedCollection;
             return;
           }
         }

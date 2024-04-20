@@ -36,8 +36,8 @@ export class App {
   };
   private _app_display_list: Collection;
   private _collections_display_list: Collection;
-  private _subscriptions: { 
-    [selector: string]: Function[] 
+  private _subscriptions: {
+    [selector: string]: Function[]
   };
 
   private _socket: Socket;
@@ -58,7 +58,7 @@ export class App {
     // console.log('registering socket listener', `subscriptions-${this.key}`)
     this._socket.on(`subscriptions-${this.key}`, (data) => {
       // console.log(`subscriptions-${this.key}`, data, this._socket.id);
-      if (this._socket.id === data.client) {
+      if (this._socket.id === data.client && this._instance === data.appInstance) {
         return;
       }
 
@@ -83,6 +83,7 @@ export class App {
   }
 
   public unregisterMessageListeners() {
+    // console.log('unregistering socket listener', `subscriptions-${this.key}`)
     this._socket.off(`subscriptions-${this.key}`);
   }
 
@@ -103,7 +104,7 @@ export class App {
   public getCollection(collectionKey: string): Collection {
     if (!this._collections[collectionKey]) {
       // console.log(`App ${this.key}: ${this._instance} getCollection key not found`, collectionKey)
-      this._socket.emit('get-collection', { appKey: this.key, collectionKey });
+      this._emitEvent('get-collection', { collectionKey });
 
       this._collections[collectionKey] = new Collection(this, {key: collectionKey, schema: undefined, records: undefined});
     }
@@ -114,7 +115,7 @@ export class App {
   public getAppDisplayList(): Collection {
     if (!this._app_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
-      this._socket.emit('get-app-list', { appKey: this.key })
+      this._emitEvent('get-app-list')
 
       this._app_display_list = new Collection(this, {key: undefined, schema: undefined, records: undefined, type: 'app_list'});
     }
@@ -125,7 +126,7 @@ export class App {
   public getCollectionDisplayList(): Collection {
     if (!this._collections_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getCollectionDisplayList not found`)
-      this._socket.emit('get-collection-list', { appKey: this.key })
+      this._emitEvent('get-collection-list')
 
       this._collections_display_list = new Collection(this, {key: `${this.key}.cl`, schema: undefined, records: undefined, type: 'collection_list'});
     }
@@ -134,7 +135,18 @@ export class App {
   }
 
   public pushRecordUpdate(collectionKey: string, recordKey: string, fieldKey: string, newValue: any) {
-    this._socket.emit('update-record', { appKey: this.key, collectionKey, recordKey, fieldKey, newValue });
+    this._emitEvent('update-record', { collectionKey, recordKey, fieldKey, newValue });
+  }
+
+  private _emitEvent(event: string, data: any = {}) {
+    let eventData = {
+      appKey: this.key,
+      appInstance: this._instance,
+      ...data
+    };
+
+
+    this._socket.emit(event, eventData);
   }
 
   handleEvent(data: any) {
@@ -179,19 +191,19 @@ export class App {
 
   public getFromAppState(key: string): Record {
     if (!this._appState.hasOwnProperty(key)) {
-      this._appState[key] = new Record(this, undefined, { 
-        schema: { 
-          name: "", 
-          display_name: "", 
+      this._appState[key] = new Record(this, undefined, {
+        schema: {
+          name: "",
+          display_name: "",
           fields: {
-            [key]: { 
-              type: "string", 
+            [key]: {
+              type: "string",
               name: key
             }
           }
-        }, 
-        key, 
-        record: { [key]: undefined } 
+        },
+        key,
+        record: { [key]: undefined }
       });
     }
 
