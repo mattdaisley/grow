@@ -75,7 +75,7 @@ function PluginListItemButton({ useRecordResults, appStateKey, children }) {
   const useAppStateResults = useAppState(appStateKey);
 
   const handleButtonClick = () => {
-    const selectedRecordKey = `app.2.collections.${useRecordResults.appStateValue?.value}`;
+    const selectedRecordKey = `${useRecordResults.appStateValue?.value}`;
     // console.log("PluginListItemButton", selectedRecordKey);
 
     Object.entries(useAppStateResults).forEach(

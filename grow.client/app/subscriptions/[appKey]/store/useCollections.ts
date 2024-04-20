@@ -36,6 +36,7 @@ export default function useCollections(collections: Collection[]): IUseCollectio
     setValue(values);
 
     return () => {
+      // console.log('useCollection cleanup', collectionCallbacks);
       Object.entries(collectionCallbacks).forEach(([field, collectionCallback]) => {
         collectionCallback.collection.unsubscribe('*', collectionCallback.callback);
       });

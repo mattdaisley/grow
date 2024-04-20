@@ -26,6 +26,7 @@ select * from public.app_record order by id asc;
 insert into public.app_record ("appKey", "collectionKey", contents) values (1,30, '{}')
 
 
+TRUNCATE TABLE public.app RESTART IDENTITY;
 TRUNCATE TABLE public.app_collection RESTART IDENTITY;
 TRUNCATE TABLE public.app_record RESTART IDENTITY;
 

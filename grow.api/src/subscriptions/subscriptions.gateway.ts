@@ -124,7 +124,7 @@ export class SubscriptionsGateway {
 
       // console.log('subscriptions-1', typeIndex, randomWord)
       if (message) {
-        this.server?.emit('subscriptions-2', message );
+        // this.server?.emit('subscriptions-2', message );
       }
     }, 10000);
   }
@@ -178,7 +178,9 @@ export class SubscriptionsGateway {
             // console.log('seed record', collectionKey, key)
             const newItem = plainToClass(AppRecord, {
               id: Number(key),
-              appKey, collectionKey: Number(collectionKey), contents: recordValue
+              appKey, 
+              collectionKey: Number(collectionKey), 
+              contents: recordValue
             });
 
             const existingItem = await this.appRecordRepository.findOneBy({ appKey: Number(appKey), collectionKey: Number(collectionKey), id: Number(key) })
@@ -378,9 +380,45 @@ export class SubscriptionsGateway {
     console.log('handleUpdateRecordEvent', body)
     const event = `subscriptions-${body.appKey}`;
 
+    const { appKey, collectionKey, recordKey, fieldKey, newValue } = body;
+
     this.apps[body.appKey].collections[body.collectionKey].records[body.recordKey][body.fieldKey] = body.newValue;
 
-    const response = { client: client.id, u: { collectionKey: body.collectionKey, records: { [body.recordKey]: { [body.fieldKey]: body.newValue } } } }
+    const existingItem = await this.appRecordRepository.findOneBy({ 
+      appKey: Number(appKey), 
+      collectionKey: Number(collectionKey), 
+      id: Number(recordKey)
+    })
+
+    // console.log('seed record existingItem', existingItem, key, recordValue)
+    if (!existingItem) {
+      const newItem = plainToClass(AppRecord, {
+        id: Number(recordKey),
+        appKey, 
+        collectionKey: Number(collectionKey), 
+        contents: { [fieldKey]: newValue }
+      });
+      // console.log('seed record saving', newItem);
+      const savedItem = await this.appRecordRepository.save(newItem)
+      console.log('handleUpdateRecordEvent new record saved', savedItem);
+    }
+    else {
+      existingItem.contents[fieldKey] = newValue;
+      const updatedItem = await this.appRecordRepository.update(existingItem.id, existingItem)
+      console.log('handleUpdateRecordEvent record updated', updatedItem);
+    }
+
+    const response = { 
+      client: client.id, 
+      u: { 
+        collectionKey: body.collectionKey, 
+        records: { 
+          [body.recordKey]: { 
+            [body.fieldKey]: body.newValue 
+          } 
+        } 
+      } 
+    }
 
     // console.log('handleUpdateRecordEvent returning', event)
     setTimeout(() => {

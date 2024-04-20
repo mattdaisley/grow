@@ -127,7 +127,7 @@ export class App {
       // console.log(`App ${this.key}: ${this._instance} getCollectionDisplayList not found`)
       this._socket.emit('get-collection-list', { appKey: this.key })
 
-      this._collections_display_list = new Collection(this, {key: undefined, schema: undefined, records: undefined, type: 'collection_list'});
+      this._collections_display_list = new Collection(this, {key: `${this.key}.cl`, schema: undefined, records: undefined, type: 'collection_list'});
     }
 
     return this._collections_display_list;

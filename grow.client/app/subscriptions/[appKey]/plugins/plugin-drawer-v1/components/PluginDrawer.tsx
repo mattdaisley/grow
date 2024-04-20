@@ -102,6 +102,7 @@ export default function PlugiDrawer({
 
 function DrawerHeader() {
   const { selectedRecord } = useAppState("selectedRecord");
+  // console.log("DrawerHeader", selectedRecord);
 
   return <>Selected record {selectedRecord?.value}</>;
 }

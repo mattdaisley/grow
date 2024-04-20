@@ -47,58 +47,6 @@ export class Record {
         fields[field.name] = collection;
         return; 
       }
-      
-      if (field.type === 'app_collection') {
-        const valueSplit = fieldValue.split('.');
-        if (valueSplit.length > 1 && valueSplit[0] === 'app') {
-          // console.log('Record.value app_collection', valueSplit)
-          // console.log(valueSplit);
-
-          const collection = this._app.getReferencedAppCollection(valueSplit[1], valueSplit[3])
-          fields[field.name] = collection;
-          return;
-        }
-
-        if (valueSplit.length > 1 && valueSplit[0] === 'appState') {
-          // console.log('Record.value app_collection appState', valueSplit)
-
-          const appStateRecord: Record = this._app.getFromAppState(valueSplit[1])
-
-          if (!this._callbacks.hasOwnProperty(valueSplit[1])) {
-
-            const callback = (newRecord: Record) => {
-              // console.log('record value callback', valueSplit[1], fieldValue, newRecord)
-              this._notifySubscribers(field.name)
-              // setValue((currentValue) => ({...currentValue, [key]: { ...currentValue[key], value: newRecord.value[field]}}));
-              // setValue({...value, [field]: newRecord.value[field]});
-            }
-
-            this._callbacks[valueSplit[1]] = callback;
-            appStateRecord.subscribe(valueSplit[1], callback);
-          }
-
-          // console.log('Record.value app_collection collectionKeySplit', appStateRecord);
-          const collectionKeySplit = appStateRecord?.value?.[valueSplit[1]]?.split('.');
-          if (collectionKeySplit && collectionKeySplit.length > 1 && collectionKeySplit[0] === 'app') {
-            const collection = this._app.getReferencedAppCollection(collectionKeySplit[1], collectionKeySplit[3])
-            fields[field.name] = collection;
-            return;
-          }
-        }
-      }
-
-      if (field.type === 'app_collection_list') {
-        const valueSplit = fieldValue.split('.');
-        if (valueSplit.length > 1 && valueSplit[0] === 'app') {
-          // console.log('Record.value app_collection_list', valueSplit)
-          // console.log(valueSplit);
-
-          const app = this._app.getReferencedApp(valueSplit[1])
-          fields[field.name] = app.getCollectionDisplayList();
-          return;
-        }
-
-      }
 
       if (field.type === 'app_list') {
         // value doesn't currently matter. Just returns all apps.
@@ -124,6 +72,8 @@ export class Record {
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
       const field = this.schema.fields[fieldKey];
 
+      let patternValue: string = fieldValue
+
       var pattern = new RegExp("({{ *([a-zA-Z0-9-_.]*) *}})", "g");
       var match;
       var selectors = [];
@@ -133,66 +83,151 @@ export class Record {
       if (selectors.length > 0) {
         // console.log("Record value selectors", selectors, fieldValue); // logs an array of all matched selectors
 
-        let patternValue: string = fieldValue
-
         selectors.forEach((selector) => {
-          const regex =
+          const appRecordRegex =
             /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
-          const matches = selector.match(regex);
-          if (matches) {
-            const appKey = matches[1];
-            const collectionKey = matches[2];
-            const recordKey = matches[3];
-            const nestedFieldKey = matches[4];
-            // console.log(
-            //   "Record value match group properties",
-            //   selector,
-            //   matches,
-            //   appKey,
-            //   collectionKey,
-            //   recordKey,
-            //   nestedFieldKey
-            // );
-
-            let nestedCollection: Collection;
-            if (appKey === this._app.key) {
-              nestedCollection = this._app.getCollection(collectionKey);
+          const appRecordMatches = selector.match(appRecordRegex);
+          if (appRecordMatches) {
+            const appRecordValue = this._getAppRecordValue(appRecordMatches, fieldValue, field);
+            // console.log('Record.value appRecordValue',  appRecordValue, selector)
+            if (appRecordValue !== undefined) {
+              patternValue = patternValue.replace(selector, appRecordValue);
             }
-            else {
-              nestedCollection = this._app.getReferencedAppCollection(appKey, collectionKey);
-            } 
+          }
 
-            if (nestedCollection) {
-              if (nestedCollection.records?.hasOwnProperty(recordKey)) {
-                const nestedRecord = nestedCollection.records[recordKey];
-                const nestedField = nestedRecord.schema.fields[nestedFieldKey];
-                if (nestedField) {
-
-                  if (!this._callbacks.hasOwnProperty(fieldValue)) {
-
-                    const callback = (_: Record) => {
-                      // console.log("nested record callback")
-                      this._notifySubscribers(field.name)
-                    }
-
-                    this._callbacks[fieldValue] = callback;
-                    nestedRecord.subscribe(nestedField.name, callback);
-                  }
-
-                  patternValue = patternValue.replace(selector, nestedRecord.value[nestedField.name]);
-                }
-              }
+          const appStateRegex = /appState\.([a-zA-Z0-9-_]+)/;
+          const appStateMatches = selector.match(appStateRegex);
+          if (appStateMatches) {
+            const appStateValue = this._getAppStateValue(appStateMatches, field);
+            // console.log('Record.value appStateValue',  appStateValue, selector)
+            if (appStateValue !== undefined) {
+              patternValue = patternValue.replace(selector, appStateValue);
             }
           }
         });
 
-        // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
-        fields[field.name] = patternValue;
-        return;
+        if (pattern.exec(patternValue) !== null) {
+          // not able to replace all selectors
+          // console.log('Record.value not able to replace all selectors', patternValue);
+          fields[field.name] = patternValue
+          return;
+        }
+
+        fields[field.name] = patternValue
       }
+
+      if (patternValue !== undefined && typeof patternValue === 'string') {
+        // console.log('Record.value after possible selectors', patternValue, field.type);
+
+        if (field.type === 'app_collection_list') {
+          // console.log('Record.value app_collection_list', patternValue);
+          const valueSplit = patternValue.split('.');
+          if (valueSplit.length > 1 && valueSplit[0] === 'app') {
+            // console.log('Record.value app_collection_list', valueSplit)
+            // console.log(valueSplit);
+
+            const app = this._app.getReferencedApp(valueSplit[1])
+            fields[field.name] = app.getCollectionDisplayList();
+            return;
+          }
+        }
+
+        if (field.type === 'app_collection') {
+          const collectionKeySplit = patternValue.split('.');
+          if (collectionKeySplit && collectionKeySplit.length > 1 && collectionKeySplit[0] === 'app' && collectionKeySplit[2] === 'collections') {
+            // console.log('Record.value app_collection_list', collectionKeySplit)
+            const collection = this._app.getReferencedAppCollection(collectionKeySplit[1], collectionKeySplit[3])
+            fields[field.name] = collection;
+            return;
+          }
+        }
+
+        // fields[field.name] = patternValue;
+      }
+
+      // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
     });
 
     return fields;
+  }
+
+  private _getAppRecordValue(matches: any, fieldValue: any, field: any) {
+    const appKey = matches[1];
+    const collectionKey = matches[2];
+    const recordKey = matches[3];
+    const nestedFieldKey = matches[4];
+    // console.log(
+    //   "Record value match group properties",
+    //   matches,
+    //   appKey,
+    //   collectionKey,
+    //   recordKey,
+    //   nestedFieldKey
+    // );
+    let nestedCollection: Collection;
+    if (appKey === this._app.key) {
+      nestedCollection = this._app.getCollection(collectionKey);
+    }
+    else {
+      nestedCollection = this._app.getReferencedAppCollection(appKey, collectionKey);
+    }
+
+    const nestedCollectionCallbacksKey = `${appKey}.${collectionKey}`;
+    if (!this._callbacks.hasOwnProperty(nestedCollectionCallbacksKey)) {
+
+      const callback = (_: Record) => {
+        // console.log("nested collection callback")
+        this._notifySubscribers(field.name);
+      };
+
+      this._callbacks[nestedCollectionCallbacksKey] = callback;
+      nestedCollection.subscribe('*', callback);
+    }
+
+    // console.log("Record value nestedCollection", nestedCollection?.records, nestedCollection?.records?.hasOwnProperty(recordKey))
+    if (nestedCollection) {
+      if (nestedCollection.records?.hasOwnProperty(recordKey)) {
+        const nestedRecord = nestedCollection.records[recordKey];
+        const nestedField = nestedRecord.schema.fields[nestedFieldKey];
+        // console.log("Record value nestedRecord", nestedRecord, nestedFieldKey, nestedField)
+        if (nestedField) {
+          const callbacksKey = `${appKey}.${collectionKey}.${recordKey}.${nestedFieldKey}`;
+
+          if (!this._callbacks.hasOwnProperty(callbacksKey)) {
+
+            const callback = (_: Record) => {
+              // console.log("nested record callback")
+              this._notifySubscribers(field.name);
+            };
+
+            this._callbacks[callbacksKey] = callback;
+            nestedRecord.subscribe(nestedField.name, callback);
+          }
+
+          return nestedRecord.value[nestedField.name];
+        }
+      }
+    }
+  }
+
+  private _getAppStateValue(matches: any, field: any): string {
+    const appStateKey = matches[1];
+    const appStateRecord: Record = this._app.getFromAppState(appStateKey)
+
+    if (!this._callbacks.hasOwnProperty(appStateKey)) {
+
+      const callback = (newRecord: Record) => {
+        // console.log('record value callback', appStateKey, newRecord)
+        this._notifySubscribers(field.name)
+        // setValue((currentValue) => ({...currentValue, [key]: { ...currentValue[key], value: newRecord.value[field]}}));
+        // setValue({...value, [field]: newRecord.value[field]});
+      }
+
+      this._callbacks[appStateKey] = callback;
+      appStateRecord.subscribe(appStateKey, callback);
+    }
+
+    return appStateRecord?.value?.[appStateKey];
   }
 
   update(record: object) {

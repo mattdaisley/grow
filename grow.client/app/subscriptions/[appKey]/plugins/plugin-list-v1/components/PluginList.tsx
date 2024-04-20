@@ -18,10 +18,10 @@ export default function PluginList({
   listItemCollection,
   ...props
 }: IPluginListProps) {
-  // console.log("Rendering PluginList", listItemCollection);
+  // console.log("Rendering PluginList listItemCollection", listItemCollection);
 
   const listItemsResponse = useCollections([listItemCollection]);
-  // console.log("PluginList", listItemsResponse);
+  // console.log("PluginList listItemsResponse", listItemsResponse);
   if (
     !listItemsResponse ||
     !listItemsResponse[listItemCollection.key]?.records
@@ -30,6 +30,7 @@ export default function PluginList({
   }
 
   const listItemRecords = listItemsResponse[listItemCollection.key].records;
+  // console.log("PluginList listItemRecords", listItemRecords);
 
   let listItems = Object.entries(listItemRecords);
 
