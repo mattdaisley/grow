@@ -50,7 +50,7 @@ export default function useCollections(collections: Collection[]): IUseCollectio
 interface IUseCollectionResponse  { 
   [collectionKey: string]: { 
     schema: ISchema, 
-    records: Record[] 
+    records: {[recordKey: string]: Record}
   } 
 }
 

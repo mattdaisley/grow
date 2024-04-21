@@ -281,6 +281,48 @@ export class SubscriptionsGateway {
     return response;
   }
 
+  @SubscribeMessage('get-plugin-list')
+  async handleGetPluginListEvent(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+    const pluginsMap = {
+      schema: {
+        fields: {
+          display_name: { type: 'string', name: 'display_name' },
+          parent: { type: 'string', name: 'parent' },
+        }
+      },
+      records: {}
+    }
+
+    const app = await this.appRepository
+      .createQueryBuilder("app")
+      .select("app.id")
+      .addSelect("app.contents")
+      .where("app.id = :appKey", { appKey: body.appKey })
+      .orderBy("id", "ASC")
+      .getOne();
+
+    // console.log('handleGetPluginListEvent', body, app)
+    Object.entries(app.contents.plugins).forEach(([key, value]) => {
+      console.log(value, app.contents.plugins[key]);
+      pluginsMap.records[key] = {
+        display_name: value.name,
+        parent: value.parent
+      };
+    })
+
+    // console.log('handleGetPluginListEvent', body, pluginsMap)
+    const event = `subscriptions-${body.appKey}`;
+
+    const response = { pl: pluginsMap }
+
+    // console.log('handleGetCollectionListEvent returning', event)
+    client.emit(event, response)
+    return response;
+  }
+
   @SubscribeMessage('get-collection-list')
   async handleGetCollectionListEvent(
     @MessageBody() body: any,

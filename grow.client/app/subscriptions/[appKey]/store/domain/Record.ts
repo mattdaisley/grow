@@ -32,19 +32,10 @@ export class Record {
 
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
       const field = this.schema.fields[fieldKey];
-      // console.log('record field', fieldKey, field, this._record[fieldKey], this.schema.fields)
+      // console.log('record field', this, fieldKey, field, this._record[fieldKey], this.schema.fields)
 
       if (fieldKey === 'createdDate' || fieldKey === 'updatedDate') {
         fields[fieldKey] = new Date(this._record[fieldKey]);
-        return;
-      }
-
-      if (field.type === 'collection') {
-        // console.log('record field', fieldKey, field, this._record)
-        // const collection = this._app.collections[this._record[fieldKey]];
-        const collection = this._app.getCollection(fieldValue);
-        // console.log('record collection', field.name, collection)
-        fields[field.name] = collection;
         return;
       }
 
@@ -56,6 +47,21 @@ export class Record {
         // console.log('Record.app_list', fieldValue, fields[field.name])
         return;
 
+      }
+
+      if (field.type === 'app_plugin_list') {
+        fields[field.name] = { key: fieldValue, type: 'plugin', _app: this._app, value: { display_name: fieldValue } };
+        // console.log('Record.app_plugin_list', fieldValue, fields[field.name])
+        return;
+      }
+
+      if (field.type === 'collection') {
+        // console.log('record field', fieldKey, field, this._record)
+        // const collection = this._app.collections[this._record[fieldKey]];
+        const collection = this._app.getCollection(fieldValue);
+        // console.log('record collection', field.name, collection)
+        fields[field.name] = collection;
+        return;
       }
 
       fields[field.name] = fieldValue;
@@ -126,15 +132,10 @@ export class Record {
             const appKey = valueSplit[1];
             // console.log('Record.value app_collection_list', valueSplit)
             // console.log(valueSplit);
-            let nestedApp: App;
-            if (appKey === this._app.key) {
-              nestedApp = this._app;
-            }
-            else {
-              nestedApp = this._app.getReferencedApp(appKey);
-            }
+            let nestedApp: App = this._app.getReferencedApp(appKey);
 
             fields[field.name] = nestedApp.getCollectionDisplayList();
+            // console.log('Record.value app_collection_list', appKey, field.name, fields[field.name])
             return;
           }
         }

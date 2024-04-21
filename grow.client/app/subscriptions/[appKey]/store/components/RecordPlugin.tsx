@@ -45,8 +45,8 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
     );
   }
 
-  const plugin = app.plugins[useRecordsResults.plugin_key.value];
-  // console.log("RecordPlugin plugin", pluginKey, plugin);
+  const plugin = app.plugins[useRecordsResults.plugin_key.value?.key];
+  // console.log("RecordPlugin plugin", useRecordsResults.plugin_key, plugin);
 
   if (!plugin) {
     return null;

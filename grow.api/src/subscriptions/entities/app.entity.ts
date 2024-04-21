@@ -9,7 +9,7 @@ export class App extends BaseEntity {
     display_name: string;
 
     @Column('jsonb', { nullable: false, default: {} })
-    contents: object;
+    contents: AppContents;
 
     @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP'})
     createdDate: Date
@@ -18,3 +18,9 @@ export class App extends BaseEntity {
     updatedDate: Date
 }
 
+interface AppContents {
+    plugins: { [key: string]: {
+        name: string;
+        parent: string;
+    } };
+}

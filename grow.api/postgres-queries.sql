@@ -1,5 +1,5 @@
 select 
-	contents->'schema'->>'display_name' as display_name 
+	contents->>'display_name' as display_name 
 from public.app_collection;
 
 select *

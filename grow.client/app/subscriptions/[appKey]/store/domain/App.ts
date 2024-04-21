@@ -35,6 +35,7 @@ export class App {
     [key: string]: Collection;
   };
   private _app_display_list: Collection;
+  private _plugins_display_list: Collection;
   private _collections_display_list: Collection;
   private _subscriptions: {
     [selector: string]: Function[]
@@ -91,7 +92,22 @@ export class App {
     return this._instance;
   }
 
+  public getAppDisplayList(): Collection {
+    if (!this._app_display_list) {
+      // console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
+      this._emitEvent('get-app-list')
+
+      this._app_display_list = new Collection(this, {key: `${this.key}.al`, schema: undefined, records: undefined, type: 'app_list'});
+    }
+
+    return this._app_display_list;
+  }
+
   public getReferencedApp(appKey: string): App {
+    if (appKey === this.key) {
+      return this;
+    }
+    
     if (!this._referencedApps[appKey]) {
       this._referencedApps[appKey] = new App({ key: appKey, plugins: {}, collections: {} }, this._socket);
     }
@@ -105,26 +121,16 @@ export class App {
     return app.getCollection(collectionKey);
   }
 
-  public getCollection(collectionKey: string): Collection {
-    if (!this._collections[collectionKey]) {
-      // console.log(`App ${this.key}: ${this._instance} getCollection key not found`, collectionKey)
-      this._emitEvent('get-collection', { collectionKey });
+  public getPluginDisplayList(): Collection {
+    if (!this._plugins_display_list) {
+      // console.log(`App ${this.key}: ${this._instance} getPluginDisplayList not found`)
+      this._emitEvent('get-plugin-list')
 
-      this._collections[collectionKey] = new Collection(this, {key: collectionKey, schema: undefined, records: undefined});
+      this._plugins_display_list = new Collection(this, {key: `${this.key}.pl`, schema: undefined, records: undefined, type: 'plugin_list'});
     }
 
-    return this._collections[collectionKey];
-  }
-
-  public getAppDisplayList(): Collection {
-    if (!this._app_display_list) {
-      // console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
-      this._emitEvent('get-app-list')
-
-      this._app_display_list = new Collection(this, {key: undefined, schema: undefined, records: undefined, type: 'app_list'});
-    }
-
-    return this._app_display_list;
+    // console.log(`App ${this.key}: ${this._instance}`, this._plugins_display_list)
+    return this._plugins_display_list;
   }
 
   public getCollectionDisplayList(): Collection {
@@ -136,6 +142,17 @@ export class App {
     }
 
     return this._collections_display_list;
+  }
+
+  public getCollection(collectionKey: string): Collection {
+    if (!this._collections[collectionKey]) {
+      // console.log(`App ${this.key}: ${this._instance} getCollection key not found`, collectionKey)
+      this._emitEvent('get-collection', { collectionKey });
+
+      this._collections[collectionKey] = new Collection(this, {key: collectionKey, schema: undefined, records: undefined});
+    }
+
+    return this._collections[collectionKey];
   }
 
   public pushRecordUpdate(collectionKey: string, recordKey: string, fieldKey: string, newValue: any) {
@@ -185,6 +202,11 @@ export class App {
         case 'cl':
           if (this._collections_display_list) {
             this._collections_display_list.setCollection({ schema: value.schema, records: value.records });
+          }
+          break;
+        case 'pl':
+          if (this._plugins_display_list) {
+            this._plugins_display_list.setCollection({ schema: value.schema, records: value.records });
           }
           break;
         default:
