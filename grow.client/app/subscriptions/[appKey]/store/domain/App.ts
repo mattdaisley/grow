@@ -87,6 +87,10 @@ export class App {
     this._socket.off(`subscriptions-${this.key}`);
   }
 
+  public getAppInstance() {
+    return this._instance;
+  }
+
   public getReferencedApp(appKey: string): App {
     if (!this._referencedApps[appKey]) {
       this._referencedApps[appKey] = new App({ key: appKey, plugins: {}, collections: {} }, this._socket);

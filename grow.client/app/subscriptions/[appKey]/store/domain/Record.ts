@@ -10,8 +10,8 @@ export class Record {
 
   private _app: App;
   private _collection: Collection;
-  private _subscriptions: { 
-    [selector: string]: Function[] 
+  private _subscriptions: {
+    [selector: string]: Function[]
   };
 
   constructor(app: App, collection: Collection, {schema, key, record}: {schema: ISchema, key: string, record: object}) {
@@ -27,7 +27,7 @@ export class Record {
   _referencedFields: {};
 
   get rawValue(): Object {
-    
+
     const fields = {};
 
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
@@ -45,7 +45,7 @@ export class Record {
         const collection = this._app.getCollection(fieldValue);
         // console.log('record collection', field.name, collection)
         fields[field.name] = collection;
-        return; 
+        return;
       }
 
       if (field.type === 'app_list') {
@@ -57,7 +57,7 @@ export class Record {
         return;
 
       }
-      
+
       fields[field.name] = fieldValue;
 
     });
@@ -66,7 +66,7 @@ export class Record {
   }
 
   get value(): Object {
-    
+
     const fields = this.rawValue;
 
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
@@ -99,7 +99,7 @@ export class Record {
           const appStateMatches = selector.match(appStateRegex);
           if (appStateMatches) {
             const appStateValue = this._getAppStateValue(appStateMatches, field);
-            // console.log('Record.value appStateValue',  appStateValue, selector)
+            // console.log('Record.value appStateValue',  appStateValue, selector, field, this._app.getAppInstance())
             if (appStateValue !== undefined) {
               patternValue = patternValue.replace(selector, appStateValue);
             }
@@ -234,7 +234,7 @@ export class Record {
     if (!this._callbacks.hasOwnProperty(appStateKey)) {
 
       const callback = (newRecord: Record) => {
-        // console.log('record value callback', appStateKey, newRecord)
+        // console.log('_getAppStateValue callback', appStateKey, newRecord)
         this._notifySubscribers(field.name)
         // setValue((currentValue) => ({...currentValue, [key]: { ...currentValue[key], value: newRecord.value[field]}}));
         // setValue({...value, [field]: newRecord.value[field]});

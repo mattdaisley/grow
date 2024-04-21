@@ -18,7 +18,7 @@ interface IPluginDrawerProps {
   variant?: "persistent" | "permanent" | "temporary";
 }
 
-export default function PlugiDrawer({
+export default function PluginDrawer({
   anchor,
   components,
   headerComponents,

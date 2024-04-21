@@ -22,6 +22,7 @@ export const plugins = {
     () => import(`../../plugins/plugin-iframe-v1/plugin`)
   ),
   "plugin-list-v1": lazy(() => import(`../../plugins/plugin-list-v1/plugin`)),
+  "plugin-modal-v1": lazy(() => import(`../../plugins/plugin-modal-v1/plugin`)),
   "plugin-textfield-v1": lazy(
     () => import(`../../plugins/plugin-textfield-v1/plugin`)
   ),
@@ -43,8 +44,8 @@ export function RecordPluginComponent({
   // console.log(
   //   "RecordPluginComponent plugin",
   //   plugin,
-  //   "record",
-  //   record,
+  //   "useRecordsResults",
+  //   useRecordsResults,
   //   "props",
   //   props
   // );
@@ -69,7 +70,6 @@ export function RecordPluginComponent({
       }}
     >
       <PluginComponent
-        {...plugin.properties}
         {...useRecordsResults}
         // {...(record?.value ?? {})}
         {...props}
