@@ -44,6 +44,7 @@ export function ResponsiveNavDrawer({ segment, children }) {
 
   return (
     <Box
+      data-plugin="plugin-navdrawer-v1"
       component="nav"
       sx={{
         position: "fixed",

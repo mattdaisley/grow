@@ -1,13 +1,9 @@
 "use client";
 
-import { useContext } from "react";
-
 import PluginDrawer from "./components/PluginDrawer";
-import { SubscriptionStoreContext } from "../../store/SubscriptionStoreContext";
 
-export default function Plugin({ components, ...props }) {
-  // console.log("plugin-drawer-v1", components);
-  const app = useContext(SubscriptionStoreContext);
+export default function Plugin({ components, header_components, ...props }) {
+  // console.log("plugin-drawer-v1", components, header_components);
 
   if (components === undefined) {
     return null;
@@ -20,7 +16,11 @@ export default function Plugin({ components, ...props }) {
 
   return (
     <>
-      <PluginDrawer components={components.value} {...propValues} />
+      <PluginDrawer
+        components={components.value}
+        headerComponents={header_components?.value}
+        {...propValues}
+      />
     </>
   );
 }

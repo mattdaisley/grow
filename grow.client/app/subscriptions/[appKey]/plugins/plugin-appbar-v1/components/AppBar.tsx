@@ -90,6 +90,7 @@ export default function PluginAppBar(props) {
 
   return (
     <AppBar
+      data-plugin="plugin-appbar-v1"
       position="sticky"
       color="transparent"
       sx={{

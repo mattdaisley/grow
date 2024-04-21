@@ -50,7 +50,7 @@ export default function PluginSelect({
   }
 
   return (
-    <Grid xs={12} sx={{ padding: 2 }}>
+    <Grid data-plugin="plugin-select-v1" xs={12} sx={{ padding: 2 }}>
       <TextField
         select
         fullWidth

@@ -28,6 +28,7 @@ export default function PluginIFrame(props) {
   return (
     <>
       <Box
+        data-plugin="plugin-iframe-v1"
         sx={{
           display: "flex",
           flexDirection: "column",

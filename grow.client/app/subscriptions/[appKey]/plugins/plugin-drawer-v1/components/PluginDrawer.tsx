@@ -14,12 +14,14 @@ import { ComponentsCollection } from "../../../store/components/ComponentsCollec
 interface IPluginDrawerProps {
   anchor?: "bottom" | "right" | "left" | "top";
   components: Record<string, any>;
+  headerComponents?: Record<string, any>;
   variant?: "persistent" | "permanent" | "temporary";
 }
 
 export default function PlugiDrawer({
   anchor,
   components,
+  headerComponents,
   variant,
   ...props
 }: IPluginDrawerProps) {
@@ -45,6 +47,7 @@ export default function PlugiDrawer({
 
   return (
     <Drawer
+      data-plugin="plugin-drawer-v1"
       variant={variant}
       anchor={anchor}
       open={true}
@@ -76,7 +79,7 @@ export default function PlugiDrawer({
               justifyContent: "flex-start",
             }}
           >
-            <DrawerHeader />
+            <DrawerHeader headerComponents={headerComponents} />
           </Box>
           <Box
             sx={{
@@ -100,9 +103,15 @@ export default function PlugiDrawer({
   );
 }
 
-function DrawerHeader() {
-  const { selectedRecord } = useAppState("selectedRecord");
-  // console.log("DrawerHeader", selectedRecord);
+function DrawerHeader({ headerComponents }) {
+  // console.log("DrawerHeader", headerComponents);
+  if (!headerComponents) {
+    return null;
+  }
 
-  return <>Selected record {selectedRecord?.value}</>;
+  return (
+    <>
+      <ComponentsCollection components={headerComponents} />
+    </>
+  );
 }

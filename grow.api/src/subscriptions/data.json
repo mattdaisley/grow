@@ -13,6 +13,11 @@
             }
           }
         },
+        "plugin-button-v1": {
+          "name": "plugin-button-v1",
+          "parent": "component",
+          "properties": {}
+        },
         "plugin-container-v1": {
           "name": "plugin-container-v1",
           "parent": "component",
@@ -265,10 +270,14 @@
                 "name": "components"
               },
               "f_1_0_2": {
+                "type": "collection",
+                "name": "header_components"
+              },
+              "f_1_0_3": {
                 "type": "string",
                 "name": "variant"
               },
-              "f_1_0_3": {
+              "f_1_0_4": {
                 "type": "string",
                 "name": "anchor"
               }
@@ -279,8 +288,9 @@
             "6": {
               "f_1_0_0": "plugin-drawer-v1",
               "f_1_0_1": "22",
-              "f_1_0_2": "persistent",
-              "f_1_0_3": "bottom"
+              "f_1_0_2": "29",
+              "f_1_0_3": "persistent",
+              "f_1_0_4": "bottom"
             }
           }
         },
@@ -577,6 +587,157 @@
               "f_1_0_2": "app",
               "f_1_0_3": "1",
               "f_1_0_4": "1"
+            }
+          }
+        },
+        "29": {
+          "schema": {
+            "name": "drawer_header_collection1",
+            "fields": {
+              "f_2_0_0": {
+                "type": "collection",
+                "name": "collection"
+              }
+            },
+            "display_name": "Drawer Header Collection 1"
+          },
+          "records": {
+            "45": {
+              "f_2_0_0": "30"
+            }
+          }
+        },
+        "30": {
+          "schema": {
+            "name": "drawer_header_container1",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "width"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "padding"
+              },
+              "f_1_0_5": {
+                "type": "boolean",
+                "name": "paper"
+              }
+            },
+            "display_name": "Drawer Header Container 1"
+          },
+          "records": {
+            "46": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "drawer_header_container1",
+              "f_1_0_2": "31",
+              "f_1_0_3": "2",
+              "f_1_0_4": "0",
+              "f_1_0_5": false
+            },
+            "48": {
+              "f_1_0_0": "plugin-container-v1",
+              "f_1_0_1": "drawer_header_container2",
+              "f_1_0_2": "32",
+              "f_1_0_3": "10",
+              "f_1_0_4": "0",
+              "f_1_0_5": false
+            }
+          }
+        },
+        "31": {
+          "schema": {
+            "name": "fieldgroup6",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "label"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "clickAction"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "appStateKey"
+              },
+              "f_1_0_5": {
+                "type": "string",
+                "name": "appStateValue"
+              }
+            },
+            "display_name": "Field Group 6"
+          },
+          "records": {
+            "47": {
+              "f_1_0_0": "plugin-button-v1",
+              "f_1_0_1": "button1",
+              "f_1_0_2": "Add Collection",
+              "f_1_0_3": "setAppState",
+              "f_1_0_4": "toggleAddCollection",
+              "f_1_0_5": "toggle"
+            }
+          }
+        },
+        "32": {
+          "schema": {
+            "name": "fieldgroup7",
+            "fields": {
+              "f_1_0_0": {
+                "type": "string",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "label"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "clickAction"
+              },
+              "f_1_0_4": {
+                "type": "string",
+                "name": "appStateKey"
+              },
+              "f_1_0_5": {
+                "type": "string",
+                "name": "appStateValue"
+              }
+            },
+            "display_name": "Field Group 7"
+          },
+          "records": {
+            "49": {
+              "f_1_0_0": "plugin-button-v1",
+              "f_1_0_1": "button2",
+              "f_1_0_2": "Add Column",
+              "f_1_0_3": "setAppState",
+              "f_1_0_4": "toggleAddColumn",
+              "f_1_0_5": "toggle"
             }
           }
         }

@@ -32,13 +32,14 @@ export default function PluginContainer({
   border,
   paper,
 }: IPluginContainerProps) {
-  // console.log("Rendering PluginContainer", padding, px, py);
+  // console.log("Rendering PluginContainer", components, padding, px, py);
 
   const BoundingComponent: any = paper ? Paper : Box;
 
   return (
     <>
       <Grid
+        data-plugin="plugin-container-v1"
         xs={12}
         sm={Number(width ?? 12)}
         sx={{ height: height ?? "auto", position: "relative" }}

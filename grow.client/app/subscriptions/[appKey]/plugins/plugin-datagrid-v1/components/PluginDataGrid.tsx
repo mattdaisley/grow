@@ -82,7 +82,11 @@ function DataGridTemplate({ rows, columns, height }) {
         </h3>
       </Grid> */}
 
-      <Grid xs={12} sx={{ padding: 2, height: height ? Number(height) : 402 }}>
+      <Grid
+        data-plugin="plugin-datagrid-v1"
+        xs={12}
+        sx={{ padding: 2, height: height ? Number(height) : 402 }}
+      >
         <DataGrid
           rows={rows}
           columns={columns}

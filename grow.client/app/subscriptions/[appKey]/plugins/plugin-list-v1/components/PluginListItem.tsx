@@ -75,13 +75,12 @@ function PluginListItemButton({ useRecordResults, appStateKey, children }) {
   const useAppStateResults = useAppState(appStateKey);
 
   const handleButtonClick = () => {
-    const selectedRecordKey = `${useRecordResults.appStateValue?.value}`;
+    const appStateValue = `${useRecordResults.appStateValue?.value}`;
     // console.log("PluginListItemButton", selectedRecordKey);
 
     Object.entries(useAppStateResults).forEach(
       ([key, useAppStateResult]: [string, any]) => {
-        useAppStateResult.onChange &&
-          useAppStateResult.onChange(selectedRecordKey);
+        useAppStateResult.onChange && useAppStateResult.onChange(appStateValue);
       }
     );
   };

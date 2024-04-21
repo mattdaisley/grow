@@ -33,6 +33,7 @@ export default function PluginMain({ pagesCollection, filter }) {
 
   return (
     <Box
+      data-plugin="plugin-pages-v1"
       component="main"
       sx={(theme) => {
         return {

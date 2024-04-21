@@ -59,6 +59,7 @@ export default function PluginList({
   return (
     <>
       <Box
+        data-plugin="plugin-list-v1"
         sx={{
           padding: padding ? Number(padding ?? 0) : undefined,
           px: px ? Number(px ?? 0) : undefined,

@@ -20,7 +20,7 @@ export default function PluginTextField({ value, label, readonly, onChange }) {
   }
 
   return (
-    <Grid xs={12} sx={{ padding: 2 }}>
+    <Grid data-plugin="plugin-textfield-v1" xs={12} sx={{ padding: 2 }}>
       <TextField
         fullWidth
         variant="outlined"
