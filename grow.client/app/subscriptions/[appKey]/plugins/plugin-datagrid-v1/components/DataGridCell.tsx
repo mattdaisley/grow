@@ -1,7 +1,7 @@
 "use client";
 import { Collection } from "../../../store/domain/Collection";
 import useCollections from "../../../store/useCollections";
-import useRecords from "../../../store/useRecords";
+import useRecords, { RecordsFieldRequest } from "../../../store/useRecords";
 import { Record } from "./../../../store/domain/Record";
 
 export function DataGridCell({ record, field, editable }) {
@@ -27,7 +27,7 @@ export function DataGridCell({ record, field, editable }) {
 function DataGridCellEdit({ useRecordsResults, field }) {
   // console.log("DataGridCellEdit", useRecordsResults, field);
 
-  const { value, rawValue, onChange } = useRecordsResults[field.name];
+  const { record, value, rawValue, onChange } = useRecordsResults[field.name];
 
   if (onChange === undefined || value === undefined) {
     return null;
@@ -43,34 +43,29 @@ function DataGridCellEdit({ useRecordsResults, field }) {
     // console.log(
     //   "DataGridCellEdit appListCollection",
     //   appListCollection,
+    //   rawValue,
     //   value,
     //   onChange
     // );
-    return (
-      <CellSelectAppList
-        appListCollection={appListCollection}
-        value={value.key}
-        onChange={onChange}
-      />
-    );
+    return <>All Apps</>;
+    // return (
+    //   <CellSelectAppList
+    //     appListCollection={appListCollection}
+    //     value={rawValue}
+    //     onChange={onChange}
+    //   />
+    // );
+  }
+
+  if (field.type == "app_plugins") {
+    return <>All Plugins</>;
   }
 
   if (field.type === "app_plugin_list") {
-    const pluginListCollection = value._app?.getPluginDisplayList();
-
-    if (!pluginListCollection) {
-      return null;
-    }
-
-    // console.log(
-    //   "DataGridCellEdit pluginListCollection",
-    //   pluginListCollection,
-    //   value,
-    //   onChange
-    // );
+    // console.log("DataGridCellEdit app_plugin_list", value);
     return (
-      <CellSelectPluginList
-        pluginListCollection={pluginListCollection}
+      <CellSelectPluginRecordKey
+        app={value._app}
         value={value.key}
         onChange={onChange}
       />
@@ -105,11 +100,112 @@ function DataGridCellEdit({ useRecordsResults, field }) {
     );
   }
 
+  if (field.type === "record_key") {
+    // console.log("DataGridCellEdit record_key", record, value);
+    return (
+      <CellSelectRecordKeyWrapper
+        record={record}
+        rawValue={rawValue}
+        value={value}
+        readonly={field.readonly}
+        onChange={onChange}
+      />
+    );
+  }
+
+  return (
+    <CellInput value={rawValue} onChange={onChange} readonly={field.readonly} />
+  );
+}
+
+function CellInput({ value, onChange, readonly }) {
   return (
     <input
-      value={rawValue}
+      value={value}
       onChange={(e) => onChange(e.target.value)}
-      disabled={field.readonly}
+      disabled={readonly}
+    />
+  );
+}
+
+function CellSelectRecordKeyWrapper({
+  record,
+  rawValue,
+  value,
+  readonly,
+  onChange,
+}) {
+  const recordsFieldRequest: RecordsFieldRequest = {
+    components: { record },
+  };
+  const { components } = useRecords(recordsFieldRequest);
+  // console.log(
+  //   "CellSelectRecordKeyWrapper record_key",
+  //   components?.value,
+  //   components?.value === "plugin_key"
+  // );
+
+  if (components?.value === undefined) {
+    // the record does not have components so just render an input
+    // console.log("CellSelectRecordKeyWrapper no components", rawValue);
+    return (
+      <CellInput value={rawValue} onChange={onChange} readonly={readonly} />
+    );
+  }
+
+  if (components.value === "plugin_key") {
+    return (
+      <CellSelectPluginRecordKey
+        app={record._app}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  }
+
+  return (
+    <CellSelectRecordKey
+      components={components.value}
+      value={value}
+      onChange={onChange}
+    />
+  );
+}
+
+function CellSelectRecordKey({ components, value, onChange }) {
+  const listItems = useCollections([components]);
+  // console.log("CellSelectRecordKey", listItems, value);
+  if (!listItems || !listItems[components.key]?.records) {
+    return null;
+  }
+
+  return (
+    <CellSelect
+      optionRecords={listItems[components.key]?.records}
+      value={value}
+      onChange={onChange}
+    />
+  );
+}
+
+function CellSelectPluginRecordKey({ app, value, onChange }) {
+  const pluginListCollection = app?.getPluginDisplayList();
+  // console.log(
+  //   "CellSelectPluginRecordKey",
+  //   pluginListCollection,
+  //   value,
+  //   onChange
+  // );
+
+  if (!pluginListCollection) {
+    return null;
+  }
+
+  return (
+    <CellSelectPluginList
+      pluginListCollection={pluginListCollection}
+      value={value}
+      onChange={onChange}
     />
   );
 }
@@ -180,7 +276,7 @@ function CellSelect({
   let optionsList = optionRecords || {};
   let numberKey = typeof value === "number";
 
-  // console.log("CellSelect", value, optionsList);
+  // console.log("CellSelect", optionsList, value);
 
   return (
     <select
@@ -188,6 +284,7 @@ function CellSelect({
       value={value}
       onChange={(e) => onChange && onChange(String(e.target.value))}
     >
+      <option>None</option>
       {Object.entries(optionsList || {})
         .sort(([_a, a]: any, [_b, b]: any) => {
           // console.log(a, b);

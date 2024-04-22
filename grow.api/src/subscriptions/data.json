@@ -578,7 +578,7 @@
                 "name": "label"
               },
               "f_1_0_3": {
-                "type": "string",
+                "type": "record_key",
                 "name": "value"
               },
               "f_1_0_4": {
@@ -746,6 +746,14 @@
               "f_1_0_3": "setAppState",
               "f_1_0_4": "toggleAddColumn",
               "f_1_0_5": "toggle"
+            },
+            "56": {
+              "f_1_0_0": "plugin-button-v1",
+              "f_1_0_1": "button3",
+              "f_1_0_2": "Add Row",
+              "f_1_0_3": "setAppState",
+              "f_1_0_4": "toggleAddRow",
+              "f_1_0_5": "toggle"
             }
           }
         },
@@ -766,6 +774,9 @@
             },
             "53": {
               "f_2_0_0": "35"
+            },
+            "57": {
+              "f_2_0_0": "36"
             }
           }
         },
@@ -796,7 +807,7 @@
             "52": {
               "f_1_0_0": "plugin-modal-v1",
               "f_1_0_1": "modal1",
-              "f_1_0_2": "31",
+              "f_1_0_2": "37",
               "f_1_0_3": "toggleAddCollection"
             }
           }
@@ -830,6 +841,75 @@
               "f_1_0_1": "modal1",
               "f_1_0_2": "32",
               "f_1_0_3": "toggleAddColumn"
+            }
+          }
+        },
+        "36": {
+          "schema": {
+            "name": "modal3",
+            "fields": {
+              "f_1_0_0": {
+                "type": "app_plugin_list",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "collection",
+                "name": "components"
+              },
+              "f_1_0_3": {
+                "type": "string",
+                "name": "appStateKey"
+              }
+            },
+            "display_name": "Modal 3"
+          },
+          "records": {
+            "58": {
+              "f_1_0_0": "plugin-modal-v1",
+              "f_1_0_1": "modal1",
+              "f_1_0_2": "32",
+              "f_1_0_3": "toggleAddRow"
+            }
+          }
+        },
+        "37": {
+          "schema": {
+            "name": "fieldgroup8",
+            "fields": {
+              "f_1_0_0": {
+                "type": "app_plugin_list",
+                "name": "plugin_key"
+              },
+              "f_1_0_1": {
+                "type": "string",
+                "name": "name"
+              },
+              "f_1_0_2": {
+                "type": "string",
+                "name": "label"
+              },
+              "f_1_0_3": {
+                "type": "record_key",
+                "name": "value"
+              },
+              "f_1_0_4": {
+                "type": "app_plugins",
+                "name": "components"
+              }
+            },
+            "display_name": "Collection Modal Field Group"
+          },
+          "records": {
+            "59": {
+              "f_1_0_0": "plugin-select-v1",
+              "f_1_0_1": "select3",
+              "f_1_0_2": "Plugin Key",
+              "f_1_0_3": "",
+              "f_1_0_4": "plugin_key"
             }
           }
         }
@@ -1151,7 +1231,7 @@
                 "name": "label"
               },
               "f_1_0_3": {
-                "type": "string",
+                "type": "record_key",
                 "name": "value"
               },
               "f_1_0_4": {

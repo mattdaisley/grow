@@ -39,28 +39,40 @@ export class Record {
         return;
       }
 
-      if (field.type === 'app_list') {
-        // value doesn't currently matter. Just returns all apps.
-        // could be used to filter apps in the future.
+      // if (field.type === 'app_list') {
+      //   // value doesn't currently matter. Just returns all apps.
+      //   // could be used to filter apps in the future.
 
-        fields[field.name] = this._app.getAppDisplayList();
-        // console.log('Record.app_list', fieldValue, fields[field.name])
-        return;
-
-      }
+      //   fields[field.name] = this._app.getAppDisplayList();
+      //   console.log('Record.app_list', fieldValue, fields[field.name])
+      //   return;
+      // }
 
       if (field.type === 'app_plugin_list') {
         fields[field.name] = { key: fieldValue, type: 'plugin', _app: this._app, value: { display_name: fieldValue } };
-        // console.log('Record.app_plugin_list', fieldValue, fields[field.name])
+        // fields[field.name] = this._app.getPluginDisplayList();
+        // console.log('Record.app_plugin_list', field.name, fieldValue, fields[field.name])
+        return;
+      }
+
+      if (field.type === 'app_plugins') {
+        // fields[field.name] = { key: fieldValue, type: 'plugin', _app: this._app, value: { display_name: fieldValue } };
+        fields[field.name] = this._app.getPluginDisplayList();
+        // console.log('Record.app_plugin', field.name, fieldValue, fields[field.name])
         return;
       }
 
       if (field.type === 'collection') {
-        // console.log('record field', fieldKey, field, this._record)
-        // const collection = this._app.collections[this._record[fieldKey]];
-        const collection = this._app.getCollection(fieldValue);
-        // console.log('record collection', field.name, collection)
-        fields[field.name] = collection;
+        // console.log('Record.collection', field.name, fieldValue)
+        fields[field.name] = this._app.getCollection(fieldValue);
+        // console.log('Record.collection', field.name, fieldValue, fields[field.name])
+        return;
+      }
+
+      if (field.type === 'record_key') {
+        // console.log('Record.record_key', field.name, fieldValue)
+        fields[field.name] = fieldValue;
+        // console.log('Record.record_key', field.name, fieldValue, fields[field.name])
         return;
       }
 
@@ -74,7 +86,7 @@ export class Record {
   get value(): Object {
 
     const fields = this.rawValue;
-
+    
     Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
       const field = this.schema.fields[fieldKey];
 
@@ -124,6 +136,15 @@ export class Record {
 
       if (patternValue !== undefined && typeof patternValue === 'string') {
         // console.log('Record.value after possible selectors', patternValue, field.type);
+
+        if (field.type === 'app_list') {
+          // value doesn't currently matter. Just returns all apps.
+          // could be used to filter apps in the future.
+
+          fields[field.name] = this._app.getAppDisplayList();
+          // console.log('Record.app_list', fieldValue, fields[field.name])
+          return;
+        }
 
         if (field.type === 'app_collection_list') {
           // console.log('Record.value app_collection_list', patternValue);

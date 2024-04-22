@@ -24,7 +24,7 @@ export function PluginPage({ pageRecord, filter }) {
   return (
     <>
       {/* <PageHeader pageRecord={pageRecord} /> */}
-      <Grid container sx={{ height: height.value ?? height }}>
+      <Grid container sx={{ height: height.value ?? 1 }}>
         <ComponentsCollection components={components.value} />
       </Grid>
     </>
