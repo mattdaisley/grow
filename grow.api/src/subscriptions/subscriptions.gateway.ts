@@ -226,6 +226,7 @@ export class SubscriptionsGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket
   ): Promise<any> {
+    console.log('handleGetAppEvent', body)
 
     const app = await this.appRepository.findOneBy({ id: body.appKey })
 
@@ -252,6 +253,8 @@ export class SubscriptionsGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket
   ): Promise<any> {
+    console.log('handleGetAppListEvent', body)
+
     const appsMap = {
       schema: {
         fields: {
@@ -271,7 +274,7 @@ export class SubscriptionsGateway {
       };
     })
 
-    console.log('handleGetAppListEvent', body, appsMap)
+    // console.log('handleGetAppListEvent', body, appsMap)
     const event = `subscriptions-${body.appKey}`;
 
     const response = { al: appsMap }
@@ -286,6 +289,8 @@ export class SubscriptionsGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket
   ): Promise<any> {
+    console.log('handleGetPluginListEvent', body)
+
     const pluginsMap = {
       schema: {
         fields: {
@@ -306,7 +311,7 @@ export class SubscriptionsGateway {
 
     // console.log('handleGetPluginListEvent', body, app)
     Object.entries(app.contents.plugins).forEach(([key, value]) => {
-      console.log(value, app.contents.plugins[key]);
+      // console.log(value, app.contents.plugins[key]);
       pluginsMap.records[key] = {
         display_name: value.name,
         parent: value.parent
@@ -328,6 +333,8 @@ export class SubscriptionsGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket
   ): Promise<any> {
+    console.log('handleGetCollectionListEvent', body)
+
     const collectionsMap = {
       schema: {
         fields: {
@@ -368,6 +375,8 @@ export class SubscriptionsGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket
   ): Promise<any> {
+    // console.log('handleGetCollectionEvent', body)
+
     const collectionEntity = await this.appCollectionRepository.findOneBy({ id: body.collectionKey, appKey: body.appKey })
     if (!collectionEntity) {
       return;
