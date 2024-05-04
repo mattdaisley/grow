@@ -486,4 +486,22 @@ export class SubscriptionsGateway {
     this.server?.emit(event, response)
     return response;
   }
+
+
+  
+
+  @SubscribeMessage('mouse-moved')
+  async handleMouseMoveEvent(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+    // console.log('handleMouseMoveEvent', body)
+    const event = `mouse-moved-${body.appKey}`;
+
+    const response = { ...body }
+
+    // console.log('handleMouseMoveEvent returning', event, response)
+    this.server?.emit(event, response)
+    return response;
+  }
 }

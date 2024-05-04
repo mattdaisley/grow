@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import { Box, Paper } from "@mui/material";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
@@ -36,6 +37,29 @@ export default function PluginContainer({
 
   const BoundingComponent: any = paper ? Paper : Box;
 
+  const scrollableRef = useRef(null);
+
+  useEffect(() => {
+    if (!scrollableRef?.current) return;
+
+    const handleScroll = (e) => {
+      console.log(
+        "Scrolled inside Container",
+        e.target.scrollTop,
+        e.target.scrollHeight,
+        e.target.clientHeight
+      );
+    };
+
+    const scrollableElement = scrollableRef.current;
+
+    scrollableElement.addEventListener("scroll", handleScroll);
+
+    return () => {
+      scrollableElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [scrollableRef?.current]);
+
   return (
     <>
       <Grid
@@ -45,6 +69,7 @@ export default function PluginContainer({
         sx={{ height: height ?? "auto", position: "relative" }}
       >
         <BoundingComponent
+          ref={scrollableRef}
           sx={(theme) => ({
             position: "relative",
             boxSizing: "border-box",

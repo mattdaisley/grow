@@ -2,6 +2,8 @@ import { Box, Button, ButtonGroup } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 
 export default function PluginIFrame(props) {
+  // console.log("PluginIFrame", props.src);
+
   const iframeRef = useRef(null);
   const [url, setUrl] = useState(props.src);
 
@@ -14,9 +16,9 @@ export default function PluginIFrame(props) {
       const href = iframeRef?.current?.contentWindow?.location?.href;
       // console.log(href);
 
-      if (href === undefined || href === "about:blank") return;
+      if (href === undefined || href === "about:blank" || href === url) return;
 
-      setUrl(iframeRef?.current?.contentWindow?.location?.href);
+      setUrl(href);
     }, 200);
     // }
 
