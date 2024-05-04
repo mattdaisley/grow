@@ -308,7 +308,7 @@ function CellSelect({
 function DataGridCellValue({ useRecordsResults, field }) {
   // console.log("DataGridRow", useRecordsResults);
   const { value } = useRecordsResults[field.name];
-  // console.log("DataGridRowValue", field, value, useRecordsResults);
+  // console.log("DataGridRowValue", field.name, value, field, useRecordsResults);
 
   // console.log("DataGridRowValue", fieldValue);
 
@@ -318,6 +318,10 @@ function DataGridCellValue({ useRecordsResults, field }) {
         {value?.key} - {value?.schema?.display_name}
       </>
     );
+  }
+
+  if (field.type === "app_plugin_list") {
+    return <>{value?.value?.display_name}</>;
   }
 
   return <>{value?.toString()}</>;
