@@ -99,22 +99,32 @@ function MouseWatcher({ currentApp }: { currentApp: App }) {
   const socket = useContext(SocketContext);
 
   const [mousePosition, setMousePosition] = useState({ x: -20, y: -20 });
-  const [otherMousePosition, setOtherMousePosition] = useState({
-    x: -20,
-    y: -20,
-  });
+  const [otherMousePositions, setOtherMousePositions] = useState({});
+
+  const emitPosition = (x, y) => {
+    // console.log(
+    //   "emit mouse-moved",
+    //   socket.id,
+    //   currentApp.getAppInstance(),
+    //   x,
+    //   y
+    // );
+    socket.emit(`mouse-moved`, {
+      clientId: socket.id,
+      instance: currentApp.getAppInstance(),
+      appKey: currentApp.key,
+      x,
+      y,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+    });
+  };
 
   const handleMouseMove = (e) => {
     setMousePosition({ x: e.clientX, y: e.clientY });
     // console.log("emit mouse-moved", e, e.clientX, e.clientY, window.parent);
-    socket.emit(`mouse-moved`, {
-      appKey: currentApp.key,
-      instance: currentApp.getAppInstance(),
-      x: e.clientX,
-      y: e.clientY,
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-    });
+
+    emitPosition(e.clientX, e.clientY);
 
     if (window.self !== window.top) {
       window.parent.postMessage("Mouse moved inside iframe", "*");
@@ -135,12 +145,7 @@ function MouseWatcher({ currentApp }: { currentApp: App }) {
   const handleMouseOut = (e) => {
     if (!e.relatedTarget && !e.toElement) {
       setMousePosition({ x: -20, y: -20 });
-      socket.emit("mouse-moved", {
-        appKey: currentApp.key,
-        instance: currentApp.getAppInstance(),
-        x: -20,
-        y: -20,
-      });
+      emitPosition(-20, -20);
       // console.log("Mouse left document");
     }
   };
@@ -152,62 +157,91 @@ function MouseWatcher({ currentApp }: { currentApp: App }) {
 
     // console.log("Mouse moved inside iframe", e.data);
     setMousePosition({ x: -20, y: -20 });
-    socket.emit("mouse-moved", {
-      appKey: currentApp.key,
-      instance: currentApp.getAppInstance(),
-      x: -20,
-      y: -20,
+    emitPosition(-20, -20);
+  };
+
+  const handleMouseMoveEvent = (data) => {
+    if (data.clientId === socket.id) {
+      return;
+    }
+    // console.log("mouse-moved", data, socket.id, currentApp.getAppInstance());
+
+    const windowWidth = data.windowWidth
+      ? parseInt(data.windowWidth)
+      : undefined;
+    const windowHeight = data.windowHeight
+      ? parseInt(data.windowHeight)
+      : undefined;
+    let x = parseInt(data.x);
+    let y = parseInt(data.y);
+
+    // scale x to current window width relative to other client's window width
+    if (windowWidth) {
+      // left nav drawer has width of 200
+      if (x > 200) {
+        x = ((x - 200) / (windowWidth - 200)) * (window.innerWidth - 200) + 200;
+      }
+    }
+
+    // scale y to current window height relative to other client's window height
+    // if (windowHeight) {
+    //   y = (y / windowHeight) * window.innerHeight;
+    // }
+
+    // console.log("handle mouse-moved event", data, {
+    //   x,
+    //   y,
+    //   instance: currentApp.getAppInstance(),
+    // });
+
+    const client = otherMousePositions[data.clientId] ?? {};
+    if (!client.color) {
+      client.color = Math.floor(Math.random() * 16777215).toString(16);
+    }
+    client.x = x;
+    client.y = y;
+
+    setOtherMousePositions({
+      ...otherMousePositions,
+      [data.clientId]: { ...client },
     });
   };
 
+  const handleClientDisconnectEvent = (data) => {
+    console.log("socket disconnected", data, Object.keys(otherMousePositions));
+
+    const newState = { ...otherMousePositions };
+    delete newState[data.clientId];
+    setOtherMousePositions(newState);
+  };
+
   useEffect(() => {
+    console.log();
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseout", handleMouseOut);
     window.addEventListener("message", handleMouseMoveInsideIframe);
 
-    socket.on(`mouse-moved-${currentApp.key}`, (data) => {
-      if (data.instance === currentApp.getAppInstance()) {
-        return;
-      }
-
-      const windowWidth = data.windowWidth
-        ? parseInt(data.windowWidth)
-        : undefined;
-      const windowHeight = data.windowHeight
-        ? parseInt(data.windowHeight)
-        : undefined;
-      let x = parseInt(data.x);
-      let y = parseInt(data.y);
-
-      // scale x to current window width relative to other client's window width
-      if (windowWidth) {
-        // left nav drawer has width of 200
-        if (x > 200) {
-          x =
-            ((x - 200) / (windowWidth - 200)) * (window.innerWidth - 200) + 200;
-        }
-      }
-
-      // scale y to current window height relative to other client's window height
-      // if (windowHeight) {
-      //   y = (y / windowHeight) * window.innerHeight;
-      // }
-
-      // console.log("handle mouse-moved event", data, {
-      //   x,
-      //   y,
-      //   instance: currentApp.getAppInstance(),
-      // });
-      setOtherMousePosition({ x, y });
-    });
+    socket.on(`mouse-moved-${currentApp.key}`, handleMouseMoveEvent);
+    socket.on(`client-disconnect`, handleClientDisconnectEvent);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseout", handleMouseOut);
       window.removeEventListener("message", handleMouseMoveInsideIframe);
-      socket.off(`mouse-moved`);
+      socket.off(`mouse-moved-${currentApp.key}`, handleMouseMoveEvent);
+      socket.off("client-disconnect", handleClientDisconnectEvent);
     };
-  }, []);
+  }, [
+    otherMousePositions,
+    emitPosition,
+    setOtherMousePositions,
+    handleMouseMove,
+    handleMouseOut,
+    handleMouseMoveInsideIframe,
+    handleMouseMoveEvent,
+    handleClientDisconnectEvent,
+    currentApp.key,
+  ]);
 
   return (
     <>
@@ -225,19 +259,25 @@ function MouseWatcher({ currentApp }: { currentApp: App }) {
         }}
       ></div> */}
 
-      <div
-        style={{
-          position: "absolute",
-          left: otherMousePosition.x - 5,
-          top: otherMousePosition.y - 5,
-          width: 20,
-          height: 20,
-          backgroundColor: "red",
-          borderRadius: 10,
-          zIndex: 10000,
-          pointerEvents: "none",
-        }}
-      ></div>
+      {Object.keys(otherMousePositions).map((key) => {
+        const position = otherMousePositions[key];
+        return (
+          <div
+            key={key}
+            style={{
+              position: "absolute",
+              left: position.x - 5,
+              top: position.y - 5,
+              width: 20,
+              height: 20,
+              backgroundColor: `#${position.color}`,
+              borderRadius: 10,
+              zIndex: 10000,
+              pointerEvents: "none",
+            }}
+          ></div>
+        );
+      })}
     </>
   );
 }

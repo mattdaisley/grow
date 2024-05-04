@@ -36,6 +36,7 @@ export class SubscriptionsGateway {
 
   apps = {}
 
+  clientInstances = {}
 
   constructor(
     @InjectRepository(App)
@@ -209,15 +210,16 @@ export class SubscriptionsGateway {
     }
   }
 
+  handleConnection(client: Socket, ...args: any[]) {
+    console.log(`Client connected: ${client.id}`);
+    client.emit('discover')
+  }
+
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
     insertedIds = []
     insertedMessages = {}
-  }
-
-  handleConnection(client: Socket, ...args: any[]) {
-    console.log(`Client connected: ${client.id}`);
-    client.emit('discover')
+    this.server?.emit('client-disconnect', { clientId: client.id })
   }
 
 
@@ -501,6 +503,7 @@ export class SubscriptionsGateway {
     const response = { ...body }
 
     // console.log('handleMouseMoveEvent returning', event, response)
+    // console.log('handleMouseMoveEvent returning', event, body.x, body.y)
     this.server?.emit(event, response)
     return response;
   }
