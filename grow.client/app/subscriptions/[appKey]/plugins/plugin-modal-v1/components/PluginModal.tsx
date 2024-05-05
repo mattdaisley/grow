@@ -5,6 +5,7 @@ import { IconButton, Modal } from "@mui/material";
 
 import useAppState from "../../../store/useAppState";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
+import { HardCodedAddRow } from "./HardCodedAddRow";
 
 export default function PluginModal({ components, appStateKey, ...props }) {
   // console.log("PluginModal", components, appStateKey, props);
@@ -40,7 +41,11 @@ export default function PluginModal({ components, appStateKey, ...props }) {
   return (
     <Modal data-plugin="plugin-modal-v1" open={open} onClose={toggleDrawer}>
       <Box sx={style}>
-        <ComponentsCollection components={components} />
+        {components?.value?.schema?.display_name === "Field Group 7" ? (
+          <HardCodedAddRow components={components} />
+        ) : (
+          <ComponentsCollection components={components.value} />
+        )}
       </Box>
     </Modal>
   );

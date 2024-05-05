@@ -378,6 +378,9 @@ export class SubscriptionsGateway {
     @ConnectedSocket() client: Socket
   ): Promise<any> {
     // console.log('handleGetCollectionEvent', body)
+    if (!body.appKey || body.collectionKey === '') {
+      return;
+    }
 
     const collectionEntity = await this.appCollectionRepository.findOneBy({ id: body.collectionKey, appKey: body.appKey })
     if (!collectionEntity) {
@@ -488,6 +491,56 @@ export class SubscriptionsGateway {
     this.server?.emit(event, response)
     return response;
   }
+
+  @SubscribeMessage('create-record')
+  async handleCreateRecordEvent(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+      const {
+        appKey,
+        appInstance,
+        collectionKey
+      } = body;
+  
+      // console.log('handleCreateRecordEvent', body)
+      const event = `subscriptions-${body.appKey}`;
+  
+      // this.apps[body.appKey].collections[body.collectionKey].records[body.recordKey] = body.record;
+  
+      const newItem = plainToClass(AppRecord, {
+        appKey, 
+        collectionKey: Number(collectionKey), 
+        contents: {}
+      });
+  
+      const savedItem = await this.appRecordRepository.save(newItem)
+      // console.log('handleCreateRecordEvent new record saved', savedItem); 
+
+      const newRecord = {
+        ...savedItem.contents,
+        createdDate: savedItem.createdDate, 
+        updatedDate: savedItem.updatedDate
+      }
+  
+      const response = { 
+        appInstance,
+        // client: client.id, // drop so client can respone to it's own insert events. Not sure when a client would not need to.
+        i: { 
+          collectionKey: body.collectionKey, 
+          records: { 
+            [savedItem.id]: newRecord
+          } 
+        } 
+      }
+
+      this.apps[body.appKey].collections[body.collectionKey].records[savedItem.id] = newRecord;
+  
+      // console.log('handleCreateRecordEvent returning', event, response)
+      this.server?.emit(event, response)
+      return response;
+  }
+
 
 
   

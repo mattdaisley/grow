@@ -28,6 +28,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
   // console.log("DataGridCellEdit", useRecordsResults, field);
 
   const { record, value, rawValue, onChange } = useRecordsResults[field.name];
+  // console.log("DataGridCellEdit", record, value, rawValue, onChange);
 
   if (onChange === undefined || value === undefined) {
     return null;
@@ -142,6 +143,7 @@ function CellSelectRecordKeyWrapper({
   // console.log(
   //   "CellSelectRecordKeyWrapper record_key",
   //   components?.value,
+  //   components?.rawValue,
   //   components?.value === "plugin_key"
   // );
 
@@ -153,15 +155,15 @@ function CellSelectRecordKeyWrapper({
     );
   }
 
-  if (components.value === "plugin_key") {
-    return (
-      <CellSelectPluginRecordKey
-        app={record._app}
-        value={value}
-        onChange={onChange}
-      />
-    );
-  }
+  // if (components.value === "plugin_key") {
+  //   return (
+  //     <CellSelectPluginRecordKey
+  //       app={record._app}
+  //       value={value}
+  //       onChange={onChange}
+  //     />
+  //   );
+  // }
 
   return (
     <CellSelectRecordKey
@@ -177,6 +179,17 @@ function CellSelectRecordKey({ components, value, onChange }) {
   // console.log("CellSelectRecordKey", listItems, value);
   if (!listItems || !listItems[components.key]?.records) {
     return null;
+  }
+
+  const optionRecords = listItems[components.key]?.records;
+  // console.log(
+  //   "CellSelectRecordKey",
+  //   optionRecords,
+  //   value,
+  //   !optionRecords.hasOwnProperty(value)
+  // );
+  if (!optionRecords.hasOwnProperty(value)) {
+    return <CellInput value={value} onChange={onChange} readonly={false} />;
   }
 
   return (
@@ -234,10 +247,12 @@ function CellSelectPluginList({ pluginListCollection, value, onChange }) {
     return null;
   }
 
+  const optionRecords = listItems[pluginListCollection.key]?.records;
+
   // return <>CellSelectPluginList</>;
   return (
     <CellSelect
-      optionRecords={listItems[pluginListCollection.key]?.records}
+      optionRecords={optionRecords}
       value={value}
       onChange={onChange}
     />

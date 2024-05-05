@@ -30,8 +30,8 @@ export class Record {
 
     const fields = {};
 
-    Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
-      const field = this.schema.fields[fieldKey];
+    Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
+      const fieldValue = this._record[fieldKey];
       // console.log('record field', this, fieldKey, field, this._record[fieldKey], this.schema.fields)
 
       if (fieldKey === 'createdDate' || fieldKey === 'updatedDate') {
@@ -49,7 +49,9 @@ export class Record {
       // }
 
       if (field.type === 'app_plugin_list') {
-        fields[field.name] = { key: fieldValue, type: 'plugin', _app: this._app, value: { display_name: fieldValue } };
+        const selectedPluginValue = fieldValue ? fieldValue : 'None';
+
+        fields[field.name] = { key: selectedPluginValue, type: 'plugin', _app: this._app, value: { display_name: selectedPluginValue } };
         // fields[field.name] = this._app.getPluginDisplayList();
         // console.log('Record.app_plugin_list', field.name, fieldValue, fields[field.name])
         return;
@@ -70,8 +72,9 @@ export class Record {
       }
 
       if (field.type === 'record_key') {
+        const recordKeyValue = fieldValue ? fieldValue : '';
         // console.log('Record.record_key', field.name, fieldValue)
-        fields[field.name] = fieldValue;
+        fields[field.name] = recordKeyValue;
         // console.log('Record.record_key', field.name, fieldValue, fields[field.name])
         return;
       }
@@ -86,9 +89,29 @@ export class Record {
   get value(): Object {
 
     const fields = this.rawValue;
-    
-    Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
-      const field = this.schema.fields[fieldKey];
+
+    Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
+      const fieldValue = this._record[fieldKey];
+      
+      if (fieldValue === undefined && fields[field.name] === undefined) {
+        if (field.type === 'string') {
+          fields[field.name] = '';
+          return;
+        }
+
+        if (field.type === 'number') {
+          fields[field.name] = 0;
+          return;
+        }
+
+        if (field.type === 'boolean') {
+          fields[field.name] = false;
+          return;
+        }
+
+        fields[field.name] = undefined;
+        return;
+      }
 
       let patternValue: string = fieldValue
 
@@ -282,8 +305,8 @@ export class Record {
     // console.log('updateField', fieldName, newValue, this._record)
     const newRecord = { ...this._record };
 
-    Object.entries(this._record).forEach(([fieldKey, fieldValue]) => {
-      const field = this.schema.fields[fieldKey];
+    Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
+      const fieldValue = this._record[fieldKey];
 
       if (field.name === fieldName && fieldValue !== newValue) {
         newRecord[fieldKey] = newValue;

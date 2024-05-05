@@ -3,7 +3,7 @@
 import PluginContainer, { IPluginContainerProps } from "./components/Container";
 
 export default function Plugin({ components, ...props }) {
-  console.log("plugin-container-v1", components, props);
+  // console.log("plugin-container-v1", components, props);
 
   if (components === undefined) {
     return null;

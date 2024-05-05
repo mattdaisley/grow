@@ -159,6 +159,10 @@ export class App {
     this._emitEvent('update-record', { collectionKey, recordKey, fieldKey, newValue });
   }
 
+  public pushRecordCreate(collectionKey: string) {
+    this._emitEvent('create-record', { collectionKey });
+  }
+
   private _emitEvent(event: string, data: any = {}) {
     let eventData = {
       appKey: this.key,
@@ -210,7 +214,7 @@ export class App {
           }
           break;
         default:
-          console.log('Unknown event type', key, value);
+          // console.log('Unknown event type', key, value);
       }
     });
   }

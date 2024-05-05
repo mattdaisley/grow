@@ -17,7 +17,7 @@ export default function Plugin({ components, appStateKey, ...props }) {
   return (
     <>
       <PluginModal
-        components={components.value}
+        components={components}
         appStateKey={appStateKey.value}
         {...propValues}
       />
