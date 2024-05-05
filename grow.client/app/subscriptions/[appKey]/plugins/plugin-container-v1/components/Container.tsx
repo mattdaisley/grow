@@ -4,10 +4,16 @@ import { useEffect, useRef } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import { Box, Paper } from "@mui/material";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
+import { Record } from "./../../../store/domain/Record";
 
 export interface IPluginContainerProps {
   components: {
-    [pageKey: string]: Object;
+    record?: Record;
+    value: {
+      [pageKey: string]: Object;
+    };
+    rawValue: any;
+    onChange: Function;
   };
   width?: string;
   height?: string;
@@ -64,6 +70,7 @@ export default function PluginContainer({
     <>
       <Grid
         data-plugin="plugin-container-v1"
+        data-record-key={components.record?.key}
         xs={12}
         sm={Number(width ?? 12)}
         sx={{ height: height ?? "auto", position: "relative" }}
@@ -86,7 +93,7 @@ export default function PluginContainer({
             overflowY: "auto",
           })}
         >
-          <ComponentsCollection components={components} />
+          <ComponentsCollection components={components.value} />
         </BoundingComponent>
       </Grid>
     </>
