@@ -23,8 +23,8 @@ export default function useCollections(collections: Collection[]): IUseCollectio
     collections.forEach(collection => {
 
       function callback(newRecords: Record[]) {
-        // console.log('useRecord callback', field, newRecord)
-        setValue({...value, [collection.key]: { schema: collection.schema, records: newRecords }});
+        // console.log('useCollections callback', collection, newRecords)
+        setValue((prevValue) => ({...prevValue, [collection.key]: { schema: collection.schema, records: newRecords }}));
       }
 
       collectionCallbacks[collection.key] = { collection, callback };

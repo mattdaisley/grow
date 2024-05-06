@@ -19,7 +19,7 @@ export default function Plugin({
     <>
       <PluginButton
         label={label?.value ?? ""}
-        clickAction={clickAction.value}
+        clickAction={clickAction?.value}
         appStateKey={appStateKey}
         appStateValue={appStateValue}
         {...props}

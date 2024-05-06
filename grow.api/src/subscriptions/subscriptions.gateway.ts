@@ -541,7 +541,46 @@ export class SubscriptionsGateway {
       return response;
   }
 
+  @SubscribeMessage('create-collection-schema-field')
+  async handleCreateCollectionSchemaField(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+    const {
+      appKey,
+      appInstance,
+      collectionKey,
+      field
+    } = body;
 
+    // console.log('handleCreateCollectionSchemaField', body)
+
+    const event = `subscriptions-${body.appKey}`;
+
+    const collectionEntity = await this.appCollectionRepository.findOneBy({ id: body.collectionKey, appKey: body.appKey })
+
+    const newFieldId = uuidv4();
+
+    collectionEntity.contents['fields'][newFieldId] = field;
+
+    const updatedCollection = await this.appCollectionRepository.update(collectionEntity.id, collectionEntity)
+
+    // console.log('handleCreateCollectionSchemaField', updatedCollection)
+
+    this.apps[body.appKey].collections[body.collectionKey].schema = collectionEntity.contents;
+
+    const response = { 
+      appInstance,
+      l: { 
+        collectionKey: body.collectionKey, 
+        schema: collectionEntity.contents
+      } 
+    }
+
+    // console.log('handleCreateCollectionSchemaField returning', event, response)
+
+    this.server?.emit(event, response)
+  }
 
   
 

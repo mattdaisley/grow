@@ -323,6 +323,10 @@ export class Record {
 
   }
 
+  updateSchema(schema: ISchema) {
+    this.schema = schema;
+  }
+
   subscribe(selector: string, callback: Function) {
 
     // console.log('record subscribe', selector, this.key)

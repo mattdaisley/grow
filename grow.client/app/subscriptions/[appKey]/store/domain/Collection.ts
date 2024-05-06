@@ -51,7 +51,14 @@ export class Collection {
         updatedDate: { type: 'date', name: 'updatedDate', readonly: true } 
       } 
     };
-    !!collection.records && this._createRecords(collection.records);
+    if (!!collection.records) {
+      this._createRecords(collection.records);
+    }
+    else {
+      Object.values(this.records).forEach((record) => {
+        record.updateSchema(this.schema)
+      });
+    }
 
     this._notifySubscribers('*');
   }

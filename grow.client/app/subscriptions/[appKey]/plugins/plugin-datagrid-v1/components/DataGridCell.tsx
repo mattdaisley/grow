@@ -5,6 +5,7 @@ import useRecords, { RecordsFieldRequest } from "../../../store/useRecords";
 import { Record } from "./../../../store/domain/Record";
 
 export function DataGridCell({ record, field, editable }) {
+  // console.log("DataGridCell", field, editable);
   const useRecordsResults = useRecords({
     [field.name]: { record },
   });
@@ -28,7 +29,14 @@ function DataGridCellEdit({ useRecordsResults, field }) {
   // console.log("DataGridCellEdit", useRecordsResults, field);
 
   const { record, value, rawValue, onChange } = useRecordsResults[field.name];
-  // console.log("DataGridCellEdit", record, value, rawValue, onChange);
+  // console.log(
+  //   "DataGridCellEdit",
+  //   field.name,
+  //   record,
+  //   value,
+  //   rawValue,
+  //   onChange
+  // );
 
   if (onChange === undefined || value === undefined) {
     return null;
@@ -120,12 +128,15 @@ function DataGridCellEdit({ useRecordsResults, field }) {
 }
 
 function CellInput({ value, onChange, readonly }) {
+  // console.log("CellInput", value, onChange, readonly);
+  const inputValue = value === undefined ? "" : value;
+
+  const handleChange = (e) => {
+    onChange && onChange(e.target.value);
+  };
+
   return (
-    <input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={readonly}
-    />
+    <input value={inputValue} onChange={handleChange} disabled={readonly} />
   );
 }
 
@@ -182,13 +193,14 @@ function CellSelectRecordKey({ components, value, onChange }) {
   }
 
   const optionRecords = listItems[components.key]?.records;
-  // console.log(
-  //   "CellSelectRecordKey",
-  //   optionRecords,
-  //   value,
-  //   !optionRecords.hasOwnProperty(value)
-  // );
   if (!optionRecords.hasOwnProperty(value)) {
+    // console.log(
+    //   "CellSelectRecordKey",
+    //   optionRecords,
+    //   value,
+    //   typeof value,
+    //   onChange
+    // );
     return <CellInput value={value} onChange={onChange} readonly={false} />;
   }
 

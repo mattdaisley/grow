@@ -32,6 +32,7 @@ export default function PluginDataGrid({
 
   const listItemRecords = listItems[dataSource.key].records;
   const schema = listItems[dataSource.key].schema;
+  // console.log("PluginDataGrid", JSON.stringify(schema, null, 2));
 
   const columns: GridColDef<(typeof rows)[number]>[] = Object.entries({
     id: { name: "Id" },
@@ -47,6 +48,11 @@ export default function PluginDataGrid({
 
     if (key !== "id") {
       cell.renderCell = (params) => {
+        if (!params?.value) {
+          console.log("renderCell !params?.value", params);
+          return null;
+        }
+
         return (
           <DataGridCell
             record={params.row.record}
