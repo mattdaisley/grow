@@ -163,6 +163,10 @@ export class App {
     this._emitEvent('create-record', { collectionKey });
   }
 
+  public pushCollectionCreate({ name, displayName }: { name: string, displayName: string }) {
+    this._emitEvent('create-collection', { name, displayName });
+  }
+
   public pushCollectionShemaFieldCreate(collectionKey: string, field: { name: string, type: string }) {
     this._emitEvent('create-collection-schema-field', { collectionKey, field });
   }

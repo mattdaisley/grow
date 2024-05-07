@@ -5,7 +5,7 @@ import { Button, TextField } from "@mui/material";
 import { App } from "../../../store/domain/App";
 import useAppState from "../../../store/useAppState";
 
-export function HardCodedAddRow({ components }) {
+export function HardCodedAddRowOrColumn({ components }) {
   const { selectedRecord } = useAppState("selectedRecord");
 
   const [columnName, setColumnName] = useState("");

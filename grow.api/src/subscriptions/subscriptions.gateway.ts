@@ -48,7 +48,7 @@ export class SubscriptionsGateway {
     @InjectRepository(AppRecord)
     private appRecordRepository: Repository<AppRecord>,
   ) {
-    this.seedAppCollection().then(() => { console.log("seeded collections")});
+    // this.seedAppCollection().then(() => { console.log("seeded collections")});
 
     const timer = setInterval(() => {
 
@@ -418,9 +418,7 @@ export class SubscriptionsGateway {
     const response = { l: { collectionKey: body.collectionKey, ...collection } }
 
     // console.log('handleGetCollectionEvent returning', event)
-    setTimeout(() => {
-      client.emit(event, response)
-    }, 100) // simulating data fetch delay
+    client.emit(event, response)
     return response;
   }
 
@@ -541,6 +539,48 @@ export class SubscriptionsGateway {
       return response;
   }
 
+  @SubscribeMessage('create-collection')
+  async handleCreateCollection(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+    const {
+      appKey,
+      name,
+      displayName
+    } = body;
+
+    // console.log('handleCreateCollection', body)
+
+    const event = `subscriptions-${appKey}`;
+
+    const newItem = plainToClass(AppCollection, {
+      appKey,
+      contents: {
+        name,
+        display_name: displayName,
+        fields: {}
+      }
+    });
+
+    const savedAppCollection = await this.appCollectionRepository.save(newItem)
+
+    const collection = { schema: savedAppCollection.contents, records: {} };
+    // console.log('handleCreateCollection', savedCollection)
+
+    this.apps[appKey].collections[savedAppCollection.id] = collection;
+
+    // console.log('handleGetCollectionEvent', body, collectionEntity)
+
+    const response = { l: { collectionKey: savedAppCollection.id, ...collection } }
+
+    // console.log('handleCreateCollection returning', event, response)
+
+    this.server?.emit(event, response)
+
+    await this.handleGetCollectionListEvent({ appKey }, client)
+  }
+
   @SubscribeMessage('create-collection-schema-field')
   async handleCreateCollectionSchemaField(
     @MessageBody() body: any,
@@ -555,7 +595,7 @@ export class SubscriptionsGateway {
 
     // console.log('handleCreateCollectionSchemaField', body)
 
-    const event = `subscriptions-${body.appKey}`;
+    const event = `subscriptions-${appKey}`;
 
     const collectionEntity = await this.appCollectionRepository.findOneBy({ id: body.collectionKey, appKey: body.appKey })
 
@@ -567,12 +607,12 @@ export class SubscriptionsGateway {
 
     // console.log('handleCreateCollectionSchemaField', updatedCollection)
 
-    this.apps[body.appKey].collections[body.collectionKey].schema = collectionEntity.contents;
+    this.apps[appKey].collections[collectionKey].schema = collectionEntity.contents;
 
     const response = { 
       appInstance,
       l: { 
-        collectionKey: body.collectionKey, 
+        collectionKey: collectionKey, 
         schema: collectionEntity.contents
       } 
     }
