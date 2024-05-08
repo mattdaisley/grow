@@ -41,7 +41,7 @@ export default function PluginContainer({
 }: IPluginContainerProps) {
   // console.log("Rendering PluginContainer", components, padding, px, py);
 
-  const BoundingComponent: any = paper ? Paper : Box;
+  const BoundingComponent: any = paper ? Paper : Grid;
 
   const scrollableRef = useRef(null);
 
@@ -90,10 +90,20 @@ export default function PluginContainer({
             height: `calc(100% - ${theme.spacing(
               Number(margin ?? 0)
             )} - ${theme.spacing(Number(margin ?? 0))})`,
-            overflowY: "auto",
           })}
         >
-          <ComponentsCollection components={components.value} />
+          <Grid
+            container
+            direction={"row"}
+            spacing={0}
+            sx={(theme) => ({
+              height: height ?? "auto",
+              position: "relative",
+              overflowY: "auto",
+            })}
+          >
+            <ComponentsCollection components={components.value} />
+          </Grid>
         </BoundingComponent>
       </Grid>
     </>

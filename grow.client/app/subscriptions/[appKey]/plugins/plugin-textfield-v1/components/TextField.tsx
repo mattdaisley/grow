@@ -5,7 +5,21 @@ import * as React from "react";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Unstable_Grid2";
 
-export default function PluginTextField({ value, label, readonly, onChange }) {
+interface IPluginTextFieldProps {
+  value: string;
+  onChange: Function;
+  label?: string;
+  readonly?: boolean;
+  width?: string;
+}
+
+export default function PluginTextField({
+  value,
+  onChange,
+  label = "",
+  readonly = false,
+  width,
+}: IPluginTextFieldProps) {
   // console.log("Rendering PluginTextField", value, label);
 
   function handleChange(e) {
@@ -19,11 +33,20 @@ export default function PluginTextField({ value, label, readonly, onChange }) {
     inputProps.readOnly = true;
   }
 
+  // console.log("PluginTextField", width, Number(width ?? 12));
+
   return (
-    <Grid data-plugin="plugin-textfield-v1" xs={12} sx={{ padding: 2 }}>
+    <Grid
+      data-plugin="plugin-textfield-v1"
+      xs={12}
+      sm={Number(width ?? 12)}
+      sx={{ p: 1 }}
+    >
       <TextField
         fullWidth
         variant="outlined"
+        size="small"
+        sx={{ fontSize: "small" }}
         label={label ?? ""}
         value={value ?? ""}
         onChange={handleChange}

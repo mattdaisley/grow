@@ -50,11 +50,13 @@ export default function PluginSelect({
   }
 
   return (
-    <Grid data-plugin="plugin-select-v1" xs={12} sx={{ padding: 2 }}>
+    <Grid data-plugin="plugin-select-v1" xs={12} sx={{ padding: 1 }}>
       <TextField
         select
         fullWidth
         variant="outlined"
+        size="small"
+        sx={{ fontSize: "small" }}
         label={label ?? ""}
         value={value ?? ""}
         onChange={handleChange}

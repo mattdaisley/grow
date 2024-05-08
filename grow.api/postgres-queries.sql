@@ -19,9 +19,9 @@ select * from (
 ) q1
 where jsonb_extract_path_text(kv, 'value', 'parent') = 'page'
 	
-select * from public.app order by id asc;
-select * from public.app_collection order by id asc;
-select * from public.app_record order by id asc;
+select * from public.app order by id desc;
+select * from public.app_collection order by id desc;
+select * from public.app_record order by id desc;
 
 insert into public.app_record ("appKey", "collectionKey", contents) values (1,30, '{}')
 

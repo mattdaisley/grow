@@ -35,14 +35,14 @@ export default function PluginDataGrid({
   // console.log("PluginDataGrid", JSON.stringify(schema, null, 2));
 
   const columns: GridColDef<(typeof rows)[number]>[] = Object.entries({
-    id: { name: "Id" },
+    id: { name: "Id", type: "primaryKey" },
     ...schema.fields,
-  }).map(([key, field]) => {
+  }).map(([key, field]: [string, { name: string; type: string }]) => {
     // console.log("columns", key, field);
 
     const cell: GridColDef<(typeof rows)[number]> = {
       field: key,
-      headerName: field.name,
+      headerName: `${field.name} (${field.type})`,
       width: 180,
     };
 

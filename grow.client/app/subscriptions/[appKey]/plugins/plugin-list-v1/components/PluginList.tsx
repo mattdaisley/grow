@@ -1,9 +1,10 @@
 "use client";
 
 import { Box, List } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
 import useCollections from "../../../store/useCollections";
-import { PluginListItem } from "./PluginListItem";
 import { Collection } from "../../../store/domain/Collection";
+import { PluginListItem } from "./PluginListItem";
 
 export const drawerWidth = 200;
 
@@ -58,8 +59,9 @@ export default function PluginList({
 
   return (
     <>
-      <Box
+      <Grid
         data-plugin="plugin-list-v1"
+        xs={12}
         sx={{
           padding: padding ? Number(padding ?? 0) : undefined,
           px: px ? Number(px ?? 0) : undefined,
@@ -77,7 +79,7 @@ export default function PluginList({
             );
           })}
         </List>
-      </Box>
+      </Grid>
     </>
   );
 }

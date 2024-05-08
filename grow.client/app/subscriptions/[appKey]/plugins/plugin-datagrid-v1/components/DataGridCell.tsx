@@ -132,11 +132,17 @@ function CellInput({ value, onChange, readonly }) {
   const inputValue = value === undefined ? "" : value;
 
   const handleChange = (e) => {
+    e.stopPropagation();
     onChange && onChange(e.target.value);
   };
 
   return (
-    <input value={inputValue} onChange={handleChange} disabled={readonly} />
+    <input
+      value={inputValue}
+      onKeyDown={(e) => e.stopPropagation()}
+      onChange={handleChange}
+      disabled={readonly}
+    />
   );
 }
 

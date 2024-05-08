@@ -12,7 +12,8 @@ export function HardCodedAddCollection({ components }) {
   // console.log("HardCodedAddRow", selectedRecord?.value);
 
   const handleAddCollectionClick = () => {
-    const app: App = components.value._app; // Assume current app but need to change to selected app
+    const currentApp: App = components.value._app; // Assume current app but need to change to selected app
+    const app = currentApp.getReferencedApp("3");
 
     const newCollection = {
       name: collectionName,

@@ -19,7 +19,8 @@ export function HardCodedAddRowOrColumn({ components }) {
 
   const handleAddColumnClick = () => {
     const collectionKey: string = selectedRecord.value.toString();
-    const app: App = components.value._app;
+    const currentApp: App = components.value._app;
+    const app = currentApp.getReferencedApp("3");
 
     const newField = {
       name: columnName,
@@ -33,7 +34,8 @@ export function HardCodedAddRowOrColumn({ components }) {
 
   const handleAddRowClick = () => {
     const collectionKey: string = selectedRecord.value.toString();
-    const app: App = components.value._app;
+    const currentApp: App = components.value._app;
+    const app = currentApp.getReferencedApp("3");
     app.pushRecordCreate(collectionKey);
 
     // console.log("Add Row button clicked", collectionKey);
