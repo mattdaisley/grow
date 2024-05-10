@@ -24,7 +24,11 @@ export function PluginPage({ pageRecord, filter }) {
   return (
     <>
       {/* <PageHeader pageRecord={pageRecord} /> */}
-      <Grid container sx={{ height: height.value ?? 1 }}>
+      <Grid
+        container
+        data-plugin="plugin-pages-v1.container"
+        sx={{ height: height?.value ?? "auto", maxHeight: "100%" }}
+      >
         <ComponentsCollection components={components.value} />
       </Grid>
     </>

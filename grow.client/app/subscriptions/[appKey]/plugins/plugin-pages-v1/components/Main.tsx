@@ -31,6 +31,19 @@ export default function PluginMain({ pagesCollection, filter }) {
   const pageRecords = pages[pagesCollection.key].records;
   // console.log("PluginMain pageRecords", pageRecords, filter);
 
+  const drawerWidthPixels =
+    drawerWidth?.value && drawerWidth.value !== ""
+      ? parseInt(drawerWidth.value)
+      : 0;
+  const appBarPixels =
+    appBarHeight?.value && appBarHeight.value !== ""
+      ? parseInt(appBarHeight.value)
+      : 0;
+  const drawerPixels =
+    drawerHeight?.value && drawerHeight.value !== ""
+      ? parseInt(drawerHeight.value)
+      : 0;
+
   return (
     <Box
       data-plugin="plugin-pages-v1"
@@ -38,17 +51,16 @@ export default function PluginMain({ pagesCollection, filter }) {
       sx={(theme) => {
         return {
           flexGrow: 1,
+          boxSizing: "border-box",
           pl: {
             xs: 2,
-            md: `calc(${theme.spacing(4)} + ${drawerWidth?.value ?? 0}px)`,
+            md: `calc(${theme.spacing(4)} + ${drawerWidthPixels}px)`,
           },
           pr: { xs: 2, md: 4 },
           // width: {sm: `calc(100% - ${drawerWidth?.value}px)` },
           width: 1,
           height: 1,
-          maxHeight: `calc(100% - ${appBarHeight?.value ?? 0}px - ${
-            drawerHeight?.value ?? 0
-          }px)`,
+          maxHeight: `calc(100% - ${appBarPixels}px - ${drawerPixels}px)`,
           // position: "fixed",
           // overflowY: "scroll",
         };

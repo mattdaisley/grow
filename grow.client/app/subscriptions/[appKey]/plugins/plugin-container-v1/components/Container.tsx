@@ -87,7 +87,8 @@ export default function PluginContainer({
             px: px ? Number(px ?? 0) : undefined,
             py: py ? Number(py ?? 0) : undefined,
             border,
-            height: `calc(100% - ${theme.spacing(
+            height: "100%",
+            maxHeight: `calc(100% - ${theme.spacing(
               Number(margin ?? 0)
             )} - ${theme.spacing(Number(margin ?? 0))})`,
           })}
@@ -95,9 +96,9 @@ export default function PluginContainer({
           <Grid
             container
             direction={"row"}
-            spacing={0}
             sx={(theme) => ({
-              height: height ?? "auto",
+              height: "100%",
+              maxHeight: "100%",
               position: "relative",
               overflowY: "auto",
             })}
