@@ -48,6 +48,14 @@ export class Record {
       //   return;
       // }
 
+      if (field.type === 'app') {
+        if (fieldValue === undefined) {
+          fields[field.name] = '';
+          // console.log('Record.app', field.name, fields[field.name])
+          return;
+        }
+      }
+
       if (field.type === 'app_plugin_list') {
         const selectedPluginValue = fieldValue ? fieldValue : 'None';
 
@@ -62,6 +70,14 @@ export class Record {
         fields[field.name] = this._app.getPluginDisplayList();
         // console.log('Record.app_plugin', field.name, fieldValue, fields[field.name])
         return;
+      }
+
+      if (field.type === 'app_collection') {
+        if (fieldValue === undefined) {
+          fields[field.name] = '';
+          // console.log('Record.app_collection', field.name, fields[field.name])
+          return;
+        }
       }
 
       if (field.type === 'collection') {
@@ -159,6 +175,25 @@ export class Record {
 
       if (patternValue !== undefined && typeof patternValue === 'string') {
         // console.log('Record.value after possible selectors', patternValue, field.type);
+        if (field.type === 'app') {
+          // e.g. "app.2" or "app.{{a.1.c.25.r.44.f_1_0_3}}"
+          const appKeySplit = patternValue.split('.');
+          if (appKeySplit.length > 1 && appKeySplit[0] === 'app') {
+            const appKey = appKeySplit[1];
+            // console.log('Record.value app', appKey)
+
+            let nestedApp: App;
+            if (appKey === this._app.key) {
+              nestedApp = this._app;
+            }
+            else {
+              nestedApp = this._app.getReferencedApp(appKey);
+            }
+            fields[field.name] = nestedApp;
+
+            return;
+          }
+        }
 
         if (field.type === 'app_list') {
           // value doesn't currently matter. Just returns all apps.
@@ -176,7 +211,15 @@ export class Record {
             const appKey = valueSplit[1];
             // console.log('Record.value app_collection_list', valueSplit)
             // console.log(valueSplit);
-            let nestedApp: App = this._app.getReferencedApp(appKey);
+            
+            let nestedApp: App;
+            if (appKey === this._app.key) {
+              nestedApp = this._app;
+            }
+            else {
+              nestedApp = this._app.getReferencedApp(appKey);
+            }
+            fields[field.name] = nestedApp;
 
             fields[field.name] = nestedApp.getCollectionDisplayList();
             // console.log('Record.value app_collection_list', appKey, field.name, fields[field.name])
@@ -185,6 +228,7 @@ export class Record {
         }
 
         if (field.type === 'app_collection') {
+          // e.g. "app.2.collections.4" or "app.{{a.1.c.25.r.44.f_1_0_3}}.collections.{{appState.selectedRecord}}"
           const collectionKeySplit = patternValue.split('.');
           if (collectionKeySplit && collectionKeySplit.length > 1 && collectionKeySplit[0] === 'app' && collectionKeySplit[2] === 'collections') {
             // console.log('Record.value app_collection_list', collectionKeySplit)
@@ -202,9 +246,25 @@ export class Record {
             fields[field.name] = nestedCollection;
             return;
           }
+          else {
+            // console.log('Record.value app_collection', field.name, fieldValue)
+            fields[field.name] = fieldValue;
+          }
         }
 
         // fields[field.name] = patternValue;
+      }
+
+      // console.log('field.type', field.type, fields[field.name])
+      if (field.type === 'number') {
+        const numberValue = parseFloat(fields[field.name])
+
+        if (!isNaN(numberValue)) {
+          fields[field.name] = numberValue
+          return;
+        }
+        console.log('Record.value not a number', fields[field.name])
+        fields[field.name] = 0
       }
 
       // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
@@ -314,7 +374,7 @@ export class Record {
         // this._notifySubscribers(fieldName)
 
         if (this._collection?.key) {
-          this._app.pushRecordUpdate(this._collection.key, this.key, fieldKey, newValue)
+          this._app.pushUpdateRecord(this._collection.key, this.key, fieldKey, newValue)
         }
       }
     });

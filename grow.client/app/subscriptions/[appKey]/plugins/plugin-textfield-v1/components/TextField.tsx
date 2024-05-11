@@ -10,7 +10,7 @@ interface IPluginTextFieldProps {
   onChange: Function;
   label?: string;
   readonly?: boolean;
-  width?: string;
+  width?: number;
 }
 
 export default function PluginTextField({
@@ -20,7 +20,7 @@ export default function PluginTextField({
   readonly = false,
   width,
 }: IPluginTextFieldProps) {
-  // console.log("Rendering PluginTextField", value, label);
+  // console.log("Rendering PluginTextField", value, label, width);
 
   function handleChange(e) {
     // console.log("PluginTextField handleChange", e.target.value);
@@ -35,11 +35,13 @@ export default function PluginTextField({
 
   // console.log("PluginTextField", width, Number(width ?? 12));
 
+  const fieldWidth = width === 0 ? 12 : Number(width ?? 12);
+
   return (
     <Grid
       data-plugin="plugin-textfield-v1"
       xs={12}
-      sm={Number(width ?? 12)}
+      sm={fieldWidth}
       sx={{ p: 1 }}
     >
       <TextField

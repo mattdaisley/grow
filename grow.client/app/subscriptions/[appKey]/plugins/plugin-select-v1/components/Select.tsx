@@ -7,14 +7,29 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { MenuItem } from "@mui/material";
 import useCollections from "../../../store/useCollections";
 
+interface IPluginSelectProps {
+  menuItemsCollection: any;
+  value: string;
+  onChange: Function;
+  label?: string;
+  width?: number;
+}
+
 export default function PluginSelect({
   menuItemsCollection,
   value,
-  label,
   onChange,
-}) {
+  label = "",
+  width,
+}: IPluginSelectProps) {
   const menuItemsResponse = useCollections([menuItemsCollection]);
-  // console.log("PluginSelect", menuItemsCollection, menuItemsResponse);
+  // console.log(
+  //   "PluginSelect",
+  //   menuItemsCollection,
+  //   menuItemsResponse,
+  //   width,
+  //   typeof width
+  // );
   if (
     !menuItemsResponse ||
     !menuItemsResponse[menuItemsCollection.key]?.records
@@ -49,8 +64,17 @@ export default function PluginSelect({
     onChange(e.target.value);
   }
 
+  const fieldWidth = width === 0 ? 12 : Number(width ?? 12);
+
   return (
-    <Grid data-plugin="plugin-select-v1" xs={12} sx={{ padding: 1 }}>
+    <Grid
+      data-plugin="plugin-select-v1"
+      xs={12}
+      sm={fieldWidth}
+      sx={{
+        padding: 1,
+      }}
+    >
       <TextField
         select
         fullWidth

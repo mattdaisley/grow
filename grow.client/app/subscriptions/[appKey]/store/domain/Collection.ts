@@ -41,6 +41,14 @@ export class Collection {
     });
   }
 
+  createSchemaField({ name, type }) {
+    this._app.pushCreateCollectionSchemaField(this.key, { name, type });
+  }
+
+  createRecord() {
+    this._app.pushCreateRecord(this.key);
+  }
+
   setCollection(collection: ICollection) {
     // console.log('Collection setCollection', collection)
     this.schema = { 

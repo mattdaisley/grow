@@ -1,12 +1,10 @@
 "use client";
 
 import Box from "@mui/material/Box";
-import { IconButton, Modal } from "@mui/material";
+import { Modal } from "@mui/material";
 
 import useAppState from "../../../store/useAppState";
 import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
-import { HardCodedAddRowOrColumn } from "./HardCodedAddRowOrColumn";
-import { HardCodedAddCollection } from "./HardCodedAddCollection";
 
 export default function PluginModal({ components, appStateKey, ...props }) {
   // console.log("PluginModal", components, appStateKey, props);
@@ -42,26 +40,8 @@ export default function PluginModal({ components, appStateKey, ...props }) {
   return (
     <Modal data-plugin="plugin-modal-v1" open={open} onClose={toggleDrawer}>
       <Box sx={style}>
-        <ModalContents components={components} />
+        <ComponentsCollection components={components.value} />
       </Box>
     </Modal>
-  );
-}
-
-function ModalContents({ components }) {
-  if (
-    components?.value?.schema?.display_name === "Collection Modal Field Group"
-  ) {
-    return <HardCodedAddCollection components={components} />;
-  }
-
-  if (components?.value?.schema?.display_name === "Field Group 7") {
-    return <HardCodedAddRowOrColumn components={components} />;
-  }
-
-  return (
-    <>
-      <ComponentsCollection components={components} />
-    </>
   );
 }

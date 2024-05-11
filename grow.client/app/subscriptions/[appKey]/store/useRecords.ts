@@ -108,6 +108,7 @@ function getFieldName(key: string, field: string, record: Record): string {
   }
 
   if (typeof fieldName === "string" && fieldName.startsWith("schema.fields.")) {
+    // console.log('useRecord getFieldName', fieldName, record)
     const fieldKey = fieldName.split(".")[2];
     fieldName = record.schema.fields[fieldKey].name;
   }

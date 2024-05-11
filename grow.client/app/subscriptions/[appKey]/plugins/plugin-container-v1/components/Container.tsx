@@ -73,16 +73,19 @@ export default function PluginContainer({
         data-record-key={components.record?.key}
         xs={12}
         sm={Number(width ?? 12)}
-        sx={{ height: height ?? "auto", position: "relative" }}
+        sx={{
+          height: height ?? "auto",
+          position: "relative",
+          padding: margin ? Number(margin ?? 0) : undefined,
+          px: mx ? Number(mx ?? 0) : undefined,
+          py: my ? Number(my ?? 0) : undefined,
+        }}
       >
         <BoundingComponent
           ref={scrollableRef}
           sx={(theme) => ({
             position: "relative",
             boxSizing: "border-box",
-            margin: margin ? Number(margin ?? 0) : undefined,
-            mx: mx ? Number(mx ?? 0) : undefined,
-            my: my ? Number(my ?? 0) : undefined,
             padding: padding ? Number(padding ?? 0) : undefined,
             px: px ? Number(px ?? 0) : undefined,
             py: py ? Number(py ?? 0) : undefined,

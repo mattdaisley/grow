@@ -12,7 +12,7 @@ export default function Plugin({ components, ...props }) {
 
   const propValues = {};
   Object.entries(props).forEach(([key, value]) => {
-    propValues[key] = value.value;
+    propValues[key] = value?.value;
   });
 
   return (

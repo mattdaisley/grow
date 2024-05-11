@@ -155,21 +155,22 @@ export class App {
     return this._collections[collectionKey];
   }
 
-  public pushRecordUpdate(collectionKey: string, recordKey: string, fieldKey: string, newValue: any) {
-    this._emitEvent('update-record', { collectionKey, recordKey, fieldKey, newValue });
+  public pushCreateCollectionSchemaField(collectionKey: string, field: { name: string, type: string }) {
+    this._emitEvent('create-collection-schema-field', { collectionKey, field });
   }
 
-  public pushRecordCreate(collectionKey: string) {
-    this._emitEvent('create-record', { collectionKey });
-  }
-
-  public pushCollectionCreate({ name, displayName }: { name: string, displayName: string }) {
+  public pushCreateCollection({ name, displayName }: { name: string, displayName: string }) {
     this._emitEvent('create-collection', { name, displayName });
   }
 
-  public pushCollectionShemaFieldCreate(collectionKey: string, field: { name: string, type: string }) {
-    this._emitEvent('create-collection-schema-field', { collectionKey, field });
+  public pushCreateRecord(collectionKey: string) {
+    this._emitEvent('create-record', { collectionKey });
   }
+
+  public pushUpdateRecord(collectionKey: string, recordKey: string, fieldKey: string, newValue: any) {
+    this._emitEvent('update-record', { collectionKey, recordKey, fieldKey, newValue });
+  }
+
 
   private _emitEvent(event: string, data: any = {}) {
     let eventData = {

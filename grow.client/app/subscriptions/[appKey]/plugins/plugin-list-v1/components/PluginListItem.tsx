@@ -48,7 +48,7 @@ export function PluginListItem({
   // );
 
   let primary = useRecordResults.primary.value;
-  let secondary = useRecordResults.secondary?.value;
+  let secondary = useRecordResults.secondary?.value ?? props.secondary;
 
   const BoundingComponent =
     button && clickAction === "setAppState"
