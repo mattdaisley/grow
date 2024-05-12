@@ -8,6 +8,16 @@ import { ThemeProvider } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
+declare module "@mui/material/styles" {
+  interface Palette {
+    brackets: Palette["primary"];
+  }
+
+  interface PaletteOptions {
+    brackets?: PaletteOptions["primary"];
+  }
+}
+
 export const roboto = Roboto({
   weight: ["400", "500"],
   subsets: ["latin"],
@@ -34,6 +44,10 @@ export const theme = createTheme({
     },
     text: {
       primary: "#494949",
+    },
+    brackets: {
+      main: "cornflowerblue",
+      contrastText: "white",
     },
   },
   typography: {

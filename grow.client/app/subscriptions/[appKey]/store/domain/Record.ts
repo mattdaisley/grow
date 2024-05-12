@@ -56,11 +56,11 @@ export class Record {
         }
 
         fields[field.name] = undefined;
-        return;
+        // return;
       }
 
       if (fieldKey === "createdDate" || fieldKey === "updatedDate") {
-        fields[fieldKey] = new Date(this._record[fieldKey]);
+        fields[fieldKey] = new Date(this._record[fieldKey]).toLocaleString();
         return;
       }
 
@@ -157,7 +157,7 @@ export class Record {
             return;
           }
 
-          const bracketValue = this.getBracketValue(
+          const bracketValue = this._getBracketValue(
             bracketSelector,
             fieldValue,
             field
@@ -315,7 +315,15 @@ export class Record {
     return fields;
   }
 
-  private getBracketValue(bracketSelector: any, fieldValue: any, field: any) {
+  get appDisplayName(): string {
+    return this._app.key;
+  }
+
+  get collectionDisplayName(): string {
+    return this._collection.schema.display_name;
+  }
+
+  private _getBracketValue(bracketSelector: any, fieldValue: any, field: any) {
     const appRecordRegex =
       /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
     const appRecordMatches = bracketSelector.match(appRecordRegex);
@@ -339,39 +347,6 @@ export class Record {
     }
 
     return bracketSelector;
-  }
-
-  private replaceBracketValues(
-    patternValue: string,
-    selector: any,
-    fieldValue: any,
-    field: any
-  ) {
-    const appRecordRegex =
-      /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
-    const appRecordMatches = selector.match(appRecordRegex);
-    if (appRecordMatches) {
-      const appRecordValue = this._getAppRecordValue(
-        appRecordMatches,
-        fieldValue,
-        field
-      );
-      // console.log('Record.value appRecordValue',  appRecordValue, selector)
-      if (appRecordValue !== undefined) {
-        patternValue = patternValue.replace(selector, appRecordValue);
-      }
-    }
-
-    const appStateRegex = /appState\.([a-zA-Z0-9-_]+)/;
-    const appStateMatches = selector.match(appStateRegex);
-    if (appStateMatches) {
-      const appStateValue = this._getAppStateValue(appStateMatches, field);
-      // console.log('Record.value appStateValue',  appStateValue, selector, field, this._app.getAppInstance())
-      if (appStateValue !== undefined) {
-        patternValue = patternValue.replace(selector, appStateValue);
-      }
-    }
-    return patternValue;
   }
 
   private _getAppRecordValue(matches: any, fieldValue: any, field: any) {

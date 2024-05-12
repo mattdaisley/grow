@@ -33,6 +33,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
   // console.log(
   //   "DataGridCellEdit",
   //   field.name,
+  //   field.type,
   //   record,
   //   value,
   //   rawValue,
@@ -95,6 +96,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
   }
 
   if (field.type === "collection") {
+    // console.log("DataGridCellEdit collection", field.name, value, onChange);
     const collection = value._app?.getCollectionDisplayList();
 
     if (!collection) {
@@ -116,6 +118,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
     return (
       <CellSelectRecordKeyWrapper
         record={record}
+        fieldName={field.name}
         rawValue={rawValue}
         value={value}
         bracketValues={bracketValues}
@@ -127,6 +130,8 @@ function DataGridCellEdit({ useRecordsResults, field }) {
 
   return (
     <CellInput
+      record={record}
+      fieldName={field.name}
       rawValue={rawValue}
       value={value}
       bracketValues={bracketValues}
@@ -138,6 +143,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
 
 function CellSelectRecordKeyWrapper({
   record,
+  fieldName,
   rawValue,
   value,
   bracketValues,
@@ -160,6 +166,8 @@ function CellSelectRecordKeyWrapper({
     // console.log("CellSelectRecordKeyWrapper no components", rawValue);
     return (
       <CellInput
+        record={record}
+        fieldName={fieldName}
         rawValue={rawValue}
         value={value}
         bracketValues={bracketValues}
@@ -182,6 +190,8 @@ function CellSelectRecordKeyWrapper({
   return (
     <CellSelectRecordKey
       components={components.value}
+      record={record}
+      fieldName={fieldName}
       rawValue={rawValue}
       value={value}
       bracketValues={bracketValues}
@@ -190,7 +200,7 @@ function CellSelectRecordKeyWrapper({
   );
 }
 
-function CellSelectRecordKey({ components, rawValue, value, bracketValues, onChange }) {
+function CellSelectRecordKey({ components, record, fieldName, rawValue, value, bracketValues, onChange }) {
   const listItems = useCollections([components]);
   // console.log("CellSelectRecordKey", listItems, value);
   if (!listItems || !listItems[components.key]?.records) {
@@ -208,6 +218,8 @@ function CellSelectRecordKey({ components, rawValue, value, bracketValues, onCha
     // );
     return (
       <CellInput
+        record={record}
+        fieldName={fieldName}
         rawValue={rawValue}
         value={value}
         bracketValues={bracketValues}
