@@ -1,13 +1,13 @@
 "use client";
 import { Collection } from "../../../store/domain/Collection";
 import useCollections from "../../../store/useCollections";
-import useRecords, { RecordsFieldRequest } from "../../../store/useRecords";
+import useRecords, { RecordsFieldRequest, useRecordsResult } from "../../../store/useRecords";
 import { Record } from "./../../../store/domain/Record";
 import { CellInput } from "./CellInput";
 
 export function DataGridCell({ record, field, editable }) {
   // console.log("DataGridCell", field, editable);
-  const useRecordsResults = useRecords({
+  const useRecordsResults: useRecordsResult = useRecords({
     [field.name]: { record },
   });
   // console.log("DataGridCell", useRecordsResults, field, editable);
@@ -29,13 +29,14 @@ export function DataGridCell({ record, field, editable }) {
 function DataGridCellEdit({ useRecordsResults, field }) {
   // console.log("DataGridCellEdit", useRecordsResults, field);
 
-  const { record, value, rawValue, onChange } = useRecordsResults[field.name];
+  const { record, value, rawValue, bracketValues, onChange } = useRecordsResults[field.name];
   // console.log(
   //   "DataGridCellEdit",
   //   field.name,
   //   record,
   //   value,
   //   rawValue,
+  //   bracketValues,
   //   onChange
   // );
 
@@ -117,6 +118,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
         record={record}
         rawValue={rawValue}
         value={value}
+        bracketValues={bracketValues}
         readonly={field.readonly}
         onChange={onChange}
       />
@@ -124,7 +126,13 @@ function DataGridCellEdit({ useRecordsResults, field }) {
   }
 
   return (
-    <CellInput value={rawValue} onChange={onChange} readonly={field.readonly} />
+    <CellInput
+      rawValue={rawValue}
+      value={value}
+      bracketValues={bracketValues}
+      onChange={onChange}
+      readonly={field.readonly}
+    />
   );
 }
 
@@ -132,6 +140,7 @@ function CellSelectRecordKeyWrapper({
   record,
   rawValue,
   value,
+  bracketValues,
   readonly,
   onChange,
 }) {
@@ -150,7 +159,13 @@ function CellSelectRecordKeyWrapper({
     // the record does not have components so just render an input
     // console.log("CellSelectRecordKeyWrapper no components", rawValue);
     return (
-      <CellInput value={rawValue} onChange={onChange} readonly={readonly} />
+      <CellInput
+        rawValue={rawValue}
+        value={value}
+        bracketValues={bracketValues}
+        onChange={onChange}
+        readonly={readonly}
+      />
     );
   }
 
@@ -167,13 +182,15 @@ function CellSelectRecordKeyWrapper({
   return (
     <CellSelectRecordKey
       components={components.value}
+      rawValue={rawValue}
       value={value}
+      bracketValues={bracketValues}
       onChange={onChange}
     />
   );
 }
 
-function CellSelectRecordKey({ components, value, onChange }) {
+function CellSelectRecordKey({ components, rawValue, value, bracketValues, onChange }) {
   const listItems = useCollections([components]);
   // console.log("CellSelectRecordKey", listItems, value);
   if (!listItems || !listItems[components.key]?.records) {
@@ -189,7 +206,15 @@ function CellSelectRecordKey({ components, value, onChange }) {
     //   typeof value,
     //   onChange
     // );
-    return <CellInput value={value} onChange={onChange} readonly={false} />;
+    return (
+      <CellInput
+        rawValue={rawValue}
+        value={value}
+        bracketValues={bracketValues}
+        onChange={onChange}
+        readonly={false}
+      />
+    );
   }
 
   return (

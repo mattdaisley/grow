@@ -1,31 +1,61 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { renderToString } from "react-dom/server";
 import sanitizeHtml from "sanitize-html";
 import { Box } from "@mui/material";
 
-export function CellInput({ value, onChange, readonly }) {
-  // console.log("CellInput", value, onChange, readonly);
-  const inputValue = value === undefined ? "" : value;
+const sanitizeConf = {
+  allowedTags: ["b", "i", "a", "p"],
+  allowedAttributes: { a: ["href"] },
+};
 
-  // return <div contentEditable html={inputValue}></div>;
-  const contentEditableRef = useRef(null);
+const InputValue = ({ displayValue }) => {
+  // console.log('InputValue', displayValue)
+
+  return (
+    <div
+      contentEditable="false"
+      dangerouslySetInnerHTML={{ __html: displayValue }}
+      style={{
+        backgroundColor: "lightsteelblue",
+        display: "inline-block",
+        borderRadius: 4,
+        padding: "0 4px 0 4px",
+      }}
+    />
+  );
+};
+
+export function CellInput({ rawValue, value, bracketValues, onChange, readonly }) {
+  // console.log("CellInput", rawValue, value, bracketValues, onChange, readonly);
+
+  const [inputValue, setInputValue] = useState("");
+
+  const sanitizedValue =
+    rawValue === undefined ? "" : sanitizeHtml(rawValue, sanitizeConf);
+
+  let html = sanitizedValue;
+
+  if (bracketValues !== undefined && Object.keys(bracketValues).length > 0) {
+    Object.entries(bracketValues).forEach(([selector, bracketValue]) => {
+      html = html.replace(
+        selector,
+        renderToString(<InputValue displayValue={bracketValue} />)
+      );
+    });
+  }
 
   useEffect(() => {
-    if (contentEditableRef.current.textContent !== inputValue) {
-      contentEditableRef.current.textContent = inputValue;
-    }
-  }, [contentEditableRef.current]);
+    // console.log(displayValue, html);
+    setInputValue(html);
+  }, [html]);
 
   const handleChange = (e) => {
-    const sanitizeConf = {
-      allowedTags: ["b", "i", "a", "p"],
-      allowedAttributes: { a: ["href"] },
-    };
-
-    const sanitizedValue = sanitizeHtml(e.target.textContent, sanitizeConf);
+    console.log(e.target.innerHtml);
+    const sanitizedValue = sanitizeHtml(e.target.innerHtml, sanitizeConf);
     // console.log(onChange, sanitizedValue);
-    onChange && onChange(sanitizedValue);
+    // onChange && onChange(sanitizedValue);
   };
 
   return (
@@ -41,9 +71,9 @@ export function CellInput({ value, onChange, readonly }) {
         sx={{
           overflow: "hidden",
           lineHeight: "1.5",
-          p: 1,
-          minWidth: "160px",
           "&:focus": {
+            p: 1,
+            minWidth: "160px",
             border: "1px solid #000",
             borderRadius: "4px",
             backgroundColor: "white",
@@ -51,9 +81,9 @@ export function CellInput({ value, onChange, readonly }) {
           },
         }}
         contentEditable="true"
-        ref={contentEditableRef}
         onKeyDown={(e) => e.stopPropagation()}
         onInput={handleChange}
+        dangerouslySetInnerHTML={{ __html: inputValue }}
       />
     </div>
   );
