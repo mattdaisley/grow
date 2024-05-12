@@ -3,6 +3,7 @@ import { Collection } from "../../../store/domain/Collection";
 import useCollections from "../../../store/useCollections";
 import useRecords, { RecordsFieldRequest } from "../../../store/useRecords";
 import { Record } from "./../../../store/domain/Record";
+import { CellInput } from "./CellInput";
 
 export function DataGridCell({ record, field, editable }) {
   // console.log("DataGridCell", field, editable);
@@ -124,25 +125,6 @@ function DataGridCellEdit({ useRecordsResults, field }) {
 
   return (
     <CellInput value={rawValue} onChange={onChange} readonly={field.readonly} />
-  );
-}
-
-function CellInput({ value, onChange, readonly }) {
-  // console.log("CellInput", value, onChange, readonly);
-  const inputValue = value === undefined ? "" : value;
-
-  const handleChange = (e) => {
-    e.stopPropagation();
-    onChange && onChange(e.target.value);
-  };
-
-  return (
-    <input
-      value={inputValue}
-      onKeyDown={(e) => e.stopPropagation()}
-      onChange={handleChange}
-      disabled={readonly}
-    />
   );
 }
 
