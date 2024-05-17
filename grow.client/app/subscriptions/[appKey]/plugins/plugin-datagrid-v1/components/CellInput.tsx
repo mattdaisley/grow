@@ -55,6 +55,51 @@ export function CellInput({
   const [boxFocused, setBoxFocused] = useState(false);
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
+  const boxRef = useRef<any>(null);
+  const caretPos = useRef<any>(null);
+
+  useEffect(() => {
+    let html = sanitizedValue;
+
+    if (bracketValues !== undefined && Object.keys(bracketValues).length > 0) {
+      Object.entries(bracketValues).forEach(([selector, bracketValue]) => {
+        html = html.replace(
+          selector,
+          renderToString(
+            <BracketValue selector={selector} displayValue={bracketValue} />
+          )
+        );
+      });
+    }
+
+    // console.log("CellInput html useEffect", sanitizedValue, html);
+
+    setInputValue(html);
+  }, [sanitizedValue]);
+
+  useEffect(() => {
+    if (!boxRef.current || !caretPos.current) return;
+
+    if (boxFocused) { 
+      setCaret(boxRef.current, caretPos.current);
+      boxRef.current.focus();
+    }
+
+    // let range = document.createRange();
+    // let sel = window.getSelection();
+
+    // if (!range || !sel) return;
+
+    // console.log(boxRef.current, range, sel, caretPosition);
+    // boxRef.current.selectionStart = caretPosition;
+    // range.setStart(boxRef.current.childNodes[0], caretPosition);
+    // range.collapse(true);
+
+    // sel.removeAllRanges();
+    // sel.addRange(range);
+    // boxRef.current.focus();
+  }, [boxRef.current, boxFocused, inputValue]);
+
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (readonly) return;
     // console.log("handleBoxClick");
@@ -83,35 +128,40 @@ export function CellInput({
   const handlePopperClose = () => {
     setPopperFocused(false);
     setAnchorEl(null);
+    setPopperText("");
+  };
+
+  const handleChange = (e) => {
+    if (e.nativeEvent.data === '{') {
+      console.log('open popper');
+      setAnchorEl(e.target);
+      setPopperFocused(true);
+    }
+
+    if (open) {
+      setPopperText((oldValue) => oldValue + e.nativeEvent.data);
+    }
+
+    const collection = e.target.children;
+    for (let i = 0; i < collection.length; i++) {
+      const element = collection[i];
+      const selector = element.getAttribute("data-bracket-selector");
+
+      if (!selector) continue;
+
+      element.innerHTML = selector;
+      // console.log(element.innerHTML, selector)
+    }
+
+    caretPos.current = getCaret(e.target);
+    // console.log(e, caretPosition, caretPos.current);
+
+    const sanitizedValue = sanitizeHtml(e.target.innerHTML, sanitizeConf);
+    // console.log(sanitizedValue);
+    onChange && onChange(sanitizedValue);
   };
 
   const open = Boolean(anchorEl);
-
-  useEffect(() => {
-    let html = sanitizedValue;
-
-    if (bracketValues !== undefined && Object.keys(bracketValues).length > 0) {
-      Object.entries(bracketValues).forEach(([selector, bracketValue]) => {
-        html = html.replace(
-          selector,
-          renderToString(
-            <BracketValue selector={selector} displayValue={bracketValue} />
-          )
-        );
-      });
-    }
-
-    // console.log("CellInput html useEffect", sanitizedValue, html);
-
-    setInputValue(html);
-  }, [sanitizedValue]);
-
-  const handleChange = (e) => {
-    console.log(e.target.innerHtml);
-    const sanitizedValue = sanitizeHtml(e.target.innerHtml, sanitizeConf);
-    // console.log(onChange, sanitizedValue);
-    // onChange && onChange(sanitizedValue);
-  };
 
   return (
     <div
@@ -153,6 +203,7 @@ export function CellInput({
               },
             },
         ]}
+        ref={boxRef}
         contentEditable={!readonly}
         onClick={handleClick}
         onFocus={() => setBoxFocused(true)}
@@ -186,4 +237,88 @@ export function CellInput({
       disabled={readonly}
     />
   );
+}
+
+
+function getCaret(el) {
+  let caretAt = 0;
+  const sel = window.getSelection();
+
+  if (sel.rangeCount == 0) {
+    return caretAt;
+  }
+
+  const range = sel.getRangeAt(0);
+  const preRange = range.cloneRange();
+  preRange.selectNodeContents(el);
+  preRange.setEnd(range.endContainer, range.endOffset);
+  caretAt = preRange.toString().length;
+
+  return caretAt;
+}
+
+function setCaret(el, offset) {
+  if (el.childNodes.length === 0) {
+    return;
+  }
+  
+  let sel = window.getSelection();
+  let range = document.createRange();
+
+  let targetOffset = offset;
+
+  let nodeIndex = 0;
+  let nodesLength = 0;
+  for (let i = 0; i < el.childNodes.length; i++) {
+
+    const selector =
+      el.childNodes[i]?.getAttribute &&
+      el.childNodes[i]?.getAttribute("data-bracket-selector");
+
+    const childNodeTextLength = el.childNodes[i].textContent?.length;
+    
+
+    if (selector) {
+      targetOffset = targetOffset - selector.length + childNodeTextLength; 
+      nodesLength += childNodeTextLength;
+    }
+    else {
+      nodesLength += el.childNodes[i].length;
+    }
+
+    // console.log(
+    //   el.childNodes[i].length,
+    //   el.childNodes[i].textContent,
+    //   childNodeTextLength,
+    //   selector,
+    //   selector?.length,
+    //   " - ",
+    //   el.childNodes[i].outerHTML?.length,
+    //   " - ",
+    //   nodesLength,
+    //   targetOffset
+    // );
+
+    if (nodesLength >= targetOffset) {
+      nodeIndex = i;
+      break;
+    }
+  }
+
+  let caretPos = 0;
+    // el.childNodes[0].length > offset ? offset : el.childNodes[0].length;
+
+  if (nodesLength <= targetOffset) {
+    caretPos = targetOffset - (nodesLength - el.childNodes[nodeIndex].length);
+  }
+  else {
+    caretPos = el.childNodes[nodeIndex].length - (nodesLength - targetOffset);
+  }
+
+  // console.log(el.childNodes, offset, targetOffset, nodeIndex, nodesLength, caretPos);
+
+  range.setStart(el.childNodes[nodeIndex], caretPos);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
 }
