@@ -341,7 +341,13 @@ export class Record {
     const appStateMatches = bracketSelector.match(appStateRegex);
     if (appStateMatches) {
       const appStateValue = this._getAppStateValue(appStateMatches, field);
-      // console.log('Record.value appStateValue',  appStateValue, selector, field, this._app.getAppInstance())
+      // console.log(
+      //   "Record.value appStateValue",
+      //   appStateValue,
+      //   bracketSelector,
+      //   field,
+      //   this._app.getAppInstance()
+      // );
 
       return appStateValue !== undefined ? appStateValue : bracketSelector;
     }

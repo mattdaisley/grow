@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Box } from "@mui/material";
 
 import useCollections from "../../../store/useCollections";
@@ -9,8 +10,9 @@ import useAppState from "../../../store/useAppState";
 
 // export const drawerWidth = 200;
 
-export default function PluginMain({ pagesCollection, filter }) {
-  // console.log("Rendering PluginMain");
+export default function PluginMain({ pagesCollection, filter, selectedRecord: selectedRecordValue }) {
+  // console.log("Rendering PluginMain", filter, selectedRecordValue);
+  const { selectedRecord } = useAppState("selectedRecord");
   const { appBarHeight } = useAppState("appBarHeight");
   const { drawerHeight } = useAppState("drawerHeight");
   const { drawerWidth } = useAppState("drawerWidth");
@@ -20,10 +22,22 @@ export default function PluginMain({ pagesCollection, filter }) {
   //   "PluginMain",
   //   pages,
   //   pagesCollection,
+  //   selectedRecord,
   //   appBarHeight,
   //   drawerHeight,
   //   drawerWidth
   // );
+
+  useEffect(() => {
+    if (
+      selectedRecordValue !== undefined &&
+      selectedRecord?.value !== selectedRecordValue &&
+      selectedRecord?.onChange !== undefined
+    ) {
+      selectedRecord.onChange(selectedRecordValue);
+    }
+  }, [selectedRecord?.value, selectedRecord?.onChange, selectedRecordValue]);
+
   if (!pages || !pages[pagesCollection.key]?.records) {
     return null;
   }

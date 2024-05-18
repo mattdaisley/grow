@@ -1,7 +1,7 @@
 import SubscriptionsTemplate from "./SubscriptionsTemplate";
 
-export default async function Page({ params }) {
-  console.log("Rendering Page params:", params);
+export default function Page({ params, searchParams }) {
+  // console.log("Rendering Page params:", params, ", searchParams", searchParams);
 
   // let appKey: string = "";
   // if (params.appKey !== undefined) {
@@ -22,7 +22,11 @@ export default async function Page({ params }) {
 
   return (
     <>
-      <SubscriptionsTemplate filter={params.filter} />
+      <SubscriptionsTemplate
+        routerParams={{ ...params }}
+        searchParams={{ ...searchParams }}
+        filter={params.filter}
+      />
     </>
   );
 }

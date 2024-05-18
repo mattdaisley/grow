@@ -7,11 +7,19 @@ interface IPluginPagesProps {
   pagesCollection: {
     [pageKey: string]: Object;
   };
+  routerParams: {
+    [key: string]: any;
+  };
+  searchParams: {
+    [key: string]: any;
+  };
   filter?: string[];
 }
 
 export default function Plugin({
   pagesCollection,
+  routerParams,
+  searchParams,
   filter,
   ...props
 }: IPluginPagesProps) {
@@ -23,7 +31,11 @@ export default function Plugin({
 
   return (
     <>
-      <PluginMain pagesCollection={pagesCollection} filter={filter} />
+      <PluginMain
+        pagesCollection={pagesCollection}
+        filter={routerParams.filter}
+        selectedRecord={searchParams.selectedRecord}
+      />
     </>
   );
 }

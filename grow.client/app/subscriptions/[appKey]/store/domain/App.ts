@@ -236,7 +236,7 @@ export class App {
           display_name: "",
           fields: {
             [key]: {
-              type: "string",
+              type: "appStateKey",
               name: key
             }
           }

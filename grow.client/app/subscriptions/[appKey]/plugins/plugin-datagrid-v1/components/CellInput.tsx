@@ -179,6 +179,7 @@ export function CellInput({
             overflow: "hidden",
             lineHeight: "1.5",
             cursor: "pointer",
+            textOverflow: "ellipsis",
 
             "& span": {
               color: theme.palette.brackets.main,
