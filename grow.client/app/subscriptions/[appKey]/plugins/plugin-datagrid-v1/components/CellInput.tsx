@@ -102,7 +102,7 @@ export function CellInput({
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (readonly) return;
-    // console.log("handleBoxClick");
+    // console.log("handleBoxClick", anchorEl, e.currentTarget, e.target);
     setBoxFocused(true);
 
     const target = (e.target as HTMLElement).closest("[data-bracket-selector]");
@@ -162,7 +162,7 @@ export function CellInput({
   };
 
   const open = Boolean(anchorEl);
-  // console.log(inputValue);
+  // console.log(inputValue, anchorEl);
 
   return (
     <div
@@ -212,7 +212,6 @@ export function CellInput({
         onKeyDown={(e) => e.stopPropagation()}
         onInput={handleChange}
         dangerouslySetInnerHTML={{ __html: inputValue }}
-        key={new Date().getTime()}
       />
       <Popper open={open} anchorEl={anchorEl} placement="top-start">
         <Paper sx={{ width: 400, height: 200, p: 2 }}>
