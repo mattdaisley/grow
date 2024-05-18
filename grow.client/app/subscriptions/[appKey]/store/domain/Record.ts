@@ -135,184 +135,232 @@ export class Record {
     const bracketValues = {};
 
     Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
-      const fieldValue = this._record[fieldKey];
-
-      bracketValues[field.name] = {};
-
-      if (fieldValue === undefined) {
-        // obviously no bracket values to replace
-        return;
-      }
-
-      var match;
-      var bracketSelectors = [];
-      while ((match = BRACKET_PATTERN.exec(fieldValue)) !== null) {
-        bracketSelectors.push(match[1]); // push the nested group to the selectors array
-      }
-      if (bracketSelectors.length > 0) {
-        // console.log("Record value selectors", selectors, fieldValue); // logs an array of all matched selectors
-
-        bracketSelectors.forEach((bracketSelector) => {
-          if (bracketValues[field.name].hasOwnProperty(bracketSelector)) {
-            return;
-          }
-
-          const bracketValue = this._getBracketValue(
-            bracketSelector,
-            fieldValue,
-            field
-          );
-
-          bracketValues[field.name][bracketSelector] = bracketValue;
-        });
-      }
+      bracketValues[field.name] = this._getBracketFieldValue(
+        field,
+        this._record[fieldKey]
+      );
     });
 
     return bracketValues;
   }
 
+  bracketValueByFieldName(fieldName: string) {
+    const bracketValues = {};
+
+    const matchingFields = Object.entries(this.schema.fields).filter(
+      ([fieldKey, field]) => field.name === fieldName
+    );
+
+    matchingFields.forEach(([fieldKey, field]) => {
+      bracketValues[field.name] = this._getBracketFieldValue(
+        field,
+        this._record[fieldKey]
+      );
+    });
+
+    return bracketValues[fieldName];
+  }
+
+  private _getBracketFieldValue(field, fieldValue) {
+    let returnBracketValue = {};
+
+    if (fieldValue === undefined) {
+      // obviously no bracket values to replace
+      return returnBracketValue;
+    }
+
+    var match;
+    var bracketSelectors = [];
+    while ((match = BRACKET_PATTERN.exec(fieldValue)) !== null) {
+      bracketSelectors.push(match[1]); // push the nested group to the selectors array
+    }
+    if (bracketSelectors.length > 0) {
+      // console.log("Record value selectors", selectors, fieldValue); // logs an array of all matched selectors
+
+      bracketSelectors.forEach((bracketSelector) => {
+        if (returnBracketValue.hasOwnProperty(bracketSelector)) {
+          return;
+        }
+
+        const bracketValue = this._getBracketValue(
+          bracketSelector,
+          fieldValue,
+          field
+        );
+
+        returnBracketValue[bracketSelector] = bracketValue;
+      });
+    }
+
+    return returnBracketValue;
+  }
+
   get value(): Object {
-    const fields = this.rawValue;
+    const fields = {};
     const bracketValues = this.bracketValues;
 
     Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
-      const fieldValue = this._record[fieldKey];
+      let fieldValue = this._getFieldValue(
+        this.rawValue[field.name],
+        field,
+        bracketValues[field.name]
+      );
 
-      if (fieldValue === undefined) {
-        // let the rawValue be returned
-        return;
-      }
-
-      let patternValue: string = fieldValue;
-
-      if (Object.keys(bracketValues[field.name]).length > 0) {
-        Object.entries(bracketValues[field.name]).forEach(
-          ([selector, bracketValue]) => {
-            try {
-              patternValue = patternValue.replace(selector, bracketValue);
-            } catch (e) {
-              console.log(
-                "Record.value bracketValues",
-                selector,
-                bracketValue,
-                patternValue,
-                e
-              );
-            }
-          }
-        );
-
-        fields[field.name] = patternValue;
-
-        if (BRACKET_PATTERN.exec(patternValue) !== null) {
-          // not able to replace all selectors
-          // console.log('Record.value not able to replace all selectors', patternValue);
-          return;
-        }
-      }
-
-      if (patternValue !== undefined && typeof patternValue === "string") {
-        // console.log('Record.value after possible selectors', patternValue, field.type);
-        if (field.type === "app") {
-          // e.g. "app.2" or "app.{{a.1.c.25.r.44.f_1_0_3}}"
-          const appKeySplit = patternValue.split(".");
-          if (appKeySplit.length > 1 && appKeySplit[0] === "app") {
-            const appKey = appKeySplit[1];
-            // console.log('Record.value app', appKey)
-
-            let nestedApp: App;
-            if (appKey === this._app.key) {
-              nestedApp = this._app;
-            } else {
-              nestedApp = this._app.getReferencedApp(appKey);
-            }
-            fields[field.name] = nestedApp;
-
-            return;
-          }
-        }
-
-        if (field.type === "app_list") {
-          // value doesn't currently matter. Just returns all apps.
-          // could be used to filter apps in the future.
-
-          fields[field.name] = this._app.getAppDisplayList();
-          // console.log('Record.app_list', fieldValue, fields[field.name])
-          return;
-        }
-
-        if (field.type === "app_collection_list") {
-          // console.log('Record.value app_collection_list', patternValue);
-          const valueSplit = patternValue.split(".");
-          if (valueSplit.length > 1 && valueSplit[0] === "app") {
-            const appKey = valueSplit[1];
-            // console.log('Record.value app_collection_list', valueSplit)
-            // console.log(valueSplit);
-
-            let nestedApp: App;
-            if (appKey === this._app.key) {
-              nestedApp = this._app;
-            } else {
-              nestedApp = this._app.getReferencedApp(appKey);
-            }
-            fields[field.name] = nestedApp;
-
-            fields[field.name] = nestedApp.getCollectionDisplayList();
-            // console.log('Record.value app_collection_list', appKey, field.name, fields[field.name])
-            return;
-          }
-        }
-
-        if (field.type === "app_collection") {
-          // e.g. "app.2.collections.4" or "app.{{a.1.c.25.r.44.f_1_0_3}}.collections.{{appState.selectedRecord}}"
-          const collectionKeySplit = patternValue.split(".");
-          if (
-            collectionKeySplit &&
-            collectionKeySplit.length > 1 &&
-            collectionKeySplit[0] === "app" &&
-            collectionKeySplit[2] === "collections"
-          ) {
-            // console.log('Record.value app_collection_list', collectionKeySplit)
-            const appKey = collectionKeySplit[1];
-            const collectionKey = collectionKeySplit[3];
-
-            let nestedCollection: Collection;
-            if (appKey === this._app.key) {
-              nestedCollection = this._app.getCollection(collectionKey);
-            } else {
-              nestedCollection = this._app.getReferencedAppCollection(
-                appKey,
-                collectionKey
-              );
-            }
-
-            fields[field.name] = nestedCollection;
-            return;
-          } else {
-            // console.log('Record.value app_collection', field.name, fieldValue)
-            fields[field.name] = fieldValue;
-          }
-        }
-
-        // fields[field.name] = patternValue;
-      }
-
-      // console.log('field.type', field.type, fields[field.name])
-      if (field.type === "number") {
-        const numberValue = parseFloat(fields[field.name]);
-
-        if (!isNaN(numberValue)) {
-          fields[field.name] = numberValue;
-          return;
-        }
-        console.log("Record.value not a number", fields[field.name]);
-        fields[field.name] = 0;
-      }
-
-      // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
+      fields[field.name] = fieldValue;
     });
 
     return fields;
+  }
+
+  valueByFieldName(fieldName: string): any {
+    const fields = {};
+    const bracketValue = this.bracketValueByFieldName(fieldName);
+
+    const matchingFields = Object.entries(this.schema.fields).filter(
+      ([fieldKey, field]) => field.name === fieldName
+    );
+
+    matchingFields.forEach(([fieldKey, field]) => {
+      let fieldValue = this._getFieldValue(
+        this.rawValue[field.name],
+        field,
+        bracketValue
+      );
+
+      fields[field.name] = fieldValue;
+    });
+
+    return fields[fieldName];
+  }
+
+  private _getFieldValue(rawValue, field, fieldBracketValue: Object): any {
+    let resultFieldValue = rawValue;
+
+    if (rawValue === undefined) {
+      // let the rawValue be returned
+      return resultFieldValue;
+    }
+
+    let patternValue: string = rawValue;
+
+    if (Object.keys(fieldBracketValue).length > 0) {
+      Object.entries(fieldBracketValue).forEach(([selector, bracketValue]) => {
+        try {
+          patternValue = patternValue.replace(selector, bracketValue);
+        } catch (e) {
+          console.log(
+            "Record.value bracketValues",
+            selector,
+            bracketValue,
+            patternValue,
+            e
+          );
+        }
+      });
+
+      resultFieldValue = patternValue;
+
+      if (BRACKET_PATTERN.exec(patternValue) !== null) {
+        // not able to replace all selectors
+        // console.log('Record.value not able to replace all selectors', patternValue);
+        return resultFieldValue;
+      }
+    }
+
+    if (patternValue !== undefined && typeof patternValue === "string") {
+      // console.log('Record.value after possible selectors', patternValue, field.type);
+      if (field.type === "app") {
+        // e.g. "app.2" or "app.{{a.1.c.25.r.44.f_1_0_3}}"
+        const appKeySplit = patternValue.split(".");
+        if (appKeySplit.length > 1 && appKeySplit[0] === "app") {
+          const appKey = appKeySplit[1];
+          // console.log('Record.value app', appKey)
+
+          let nestedApp: App;
+          if (appKey === this._app.key) {
+            nestedApp = this._app;
+          } else {
+            nestedApp = this._app.getReferencedApp(appKey);
+          }
+
+          return nestedApp;
+        }
+      }
+
+      if (field.type === "app_list") {
+        // value doesn't currently matter. Just returns all apps.
+        // could be used to filter apps in the future.
+
+        resultFieldValue = this._app.getAppDisplayList();
+
+        // console.log('Record.app_list', fieldValue, resultFieldValue)
+        return resultFieldValue;
+      }
+
+      if (field.type === "app_collection_list") {
+        // console.log('Record.value app_collection_list', patternValue);
+        const valueSplit = patternValue.split(".");
+        if (valueSplit.length > 1 && valueSplit[0] === "app") {
+          const appKey = valueSplit[1];
+          // console.log('Record.value app_collection_list', valueSplit)
+          // console.log(valueSplit);
+
+          let nestedApp: App;
+          if (appKey === this._app.key) {
+            nestedApp = this._app;
+          } else {
+            nestedApp = this._app.getReferencedApp(appKey);
+          }
+
+          // console.log('Record.value app_collection_list', appKey, field.name)
+          return nestedApp.getCollectionDisplayList();
+        }
+      }
+
+      if (field.type === "app_collection") {
+        // e.g. "app.2.collections.4" or "app.{{a.1.c.25.r.44.f_1_0_3}}.collections.{{appState.selectedRecord}}"
+        const collectionKeySplit = patternValue.split(".");
+        if (
+          collectionKeySplit &&
+          collectionKeySplit.length > 1 &&
+          collectionKeySplit[0] === "app" &&
+          collectionKeySplit[2] === "collections"
+        ) {
+          // console.log('Record.value app_collection_list', collectionKeySplit)
+          const appKey = collectionKeySplit[1];
+          const collectionKey = collectionKeySplit[3];
+
+          let nestedCollection: Collection;
+          if (appKey === this._app.key) {
+            nestedCollection = this._app.getCollection(collectionKey);
+          } else {
+            nestedCollection = this._app.getReferencedAppCollection(
+              appKey,
+              collectionKey
+            );
+          }
+
+          return nestedCollection;
+        } else {
+          // console.log('Record.value app_collection', field.name, fieldValue)
+          resultFieldValue = rawValue;
+        }
+      }
+    }
+
+    // console.log('field.type', field.type, resultFieldValue)
+    if (field.type === "number") {
+      const numberValue = parseFloat(resultFieldValue);
+
+      if (!isNaN(numberValue)) {
+        return numberValue;
+      }
+      console.log("Record.value not a number", resultFieldValue);
+      resultFieldValue = 0;
+    }
+
+    return resultFieldValue;
+    // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
   }
 
   get appDisplayName(): string {
@@ -404,7 +452,7 @@ export class Record {
               // console.log("nested record callback", callbacksKey, field.name)
               this._notifySubscribers(field.name);
             };
-            
+
             // console.log(
             //   "nested record subscribing callback",
             //   callbacksKey,
@@ -415,7 +463,7 @@ export class Record {
             nestedRecord.subscribe(nestedField.name, callback);
           }
 
-          return nestedRecord.value[nestedField.name];
+          return nestedRecord.valueByFieldName(nestedField.name);
         }
       }
     }

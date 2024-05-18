@@ -80,11 +80,14 @@ function ReferencedField2({
   recordValues,
 }: IReferencedField2Props) {
   const recordFieldRequest = {};
+  // console.log("ReferencedField2 collectionRecords", collectionRecords, ', collectionRecords', referencedFields);
   Object.entries(referencedFields).map(([key, referencedField]) => {
-    const record =
-      collectionRecords[referencedField.collection.key].records[
-        referencedField.recordKey
-      ];
+    const collectionRecord = collectionRecords[referencedField.collection.key];
+    if (!collectionRecord?.records) {
+      return;
+    }
+
+    const record = collectionRecord.records[referencedField.recordKey];
     const field = record.schema.fields[referencedField.fieldKey]?.name;
     recordFieldRequest[field] = {
       record,
@@ -104,10 +107,11 @@ function ReferencedField2({
   const lookedUpValues = {};
 
   Object.entries(referencedFields).forEach(([key, referencedField]) => {
-    const record =
-      collectionRecords[referencedField.collection.key].records[
-        referencedField.recordKey
-      ];
+    const collectionRecord = collectionRecords[referencedField.collection.key];
+    if (!collectionRecord?.records) {
+      return;
+    }
+    const record = collectionRecord.records[referencedField.recordKey];
     const useRecordKey = record.schema.fields[referencedField.fieldKey]?.name;
 
     lookedUpValues[key] = useRecordsResults[useRecordKey];

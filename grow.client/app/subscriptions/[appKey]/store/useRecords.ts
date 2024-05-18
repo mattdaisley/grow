@@ -78,9 +78,9 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
 
       values[key] = {
         record,
-        value: record.value[fieldName],
+        value: record.valueByFieldName(fieldName),
         rawValue: record.rawValue[fieldName],
-        bracketValues: record.bracketValues[fieldName],
+        bracketValues: record.bracketValueByFieldName(fieldName),
         onChange: getOnChangeHandler(record, fieldName),
       };
     })
@@ -133,9 +133,9 @@ function getCallback(key: string, fieldName: string, setValue: Function): Functi
         ...currentValue,
         [key]: {
           record: newRecord,
-          value: newRecord.value[fieldName],
+          value: newRecord.valueByFieldName(fieldName),
           rawValue: newRecord.rawValue[fieldName],
-          bracketValues: newRecord.bracketValues[fieldName],
+          bracketValues: newRecord.bracketValueByFieldName(fieldName),
           onChange: currentValue[key].onChange,
         },
       };

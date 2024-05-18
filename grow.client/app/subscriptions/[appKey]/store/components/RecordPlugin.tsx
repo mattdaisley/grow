@@ -61,7 +61,12 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
     if (typeof value === "string" && value.startsWith("collections.")) {
       const regex =
         /collections\.([a-zA-Z0-9-_]+)\.records\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
-      const matches = useRecordsResult.value.match(regex);
+      const matches = value.match(regex);
+      // console.log("RecordPlugin useRecordsResult", key, value, matches);
+      if (!matches) {
+        return;
+      }
+      
       const collectionKey = matches[1];
       const recordKey = matches[2];
       const fieldKey = matches[3];
