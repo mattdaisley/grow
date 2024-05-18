@@ -356,6 +356,7 @@ export class Record {
     const nestedFieldKey = matches[4];
     // console.log(
     //   "Record value match group properties",
+    //   field,
     //   matches,
     //   appKey,
     //   collectionKey,
@@ -390,14 +391,20 @@ export class Record {
         const nestedField = nestedRecord.schema.fields[nestedFieldKey];
         // console.log("Record value nestedRecord", nestedRecord, nestedFieldKey, nestedField)
         if (nestedField) {
-          const callbacksKey = `${appKey}.${collectionKey}.${recordKey}.${nestedFieldKey}`;
+          const callbacksKey = `${field.name}-${appKey}.${collectionKey}.${recordKey}.${nestedFieldKey}`;
 
           if (!this._callbacks.hasOwnProperty(callbacksKey)) {
             const callback = (_: Record) => {
-              // console.log("nested record callback")
+              // console.log("nested record callback", callbacksKey, field.name)
               this._notifySubscribers(field.name);
             };
-
+            
+            // console.log(
+            //   "nested record subscribing callback",
+            //   callbacksKey,
+            //   field.name,
+            //   nestedField.nam
+            // );
             this._callbacks[callbacksKey] = callback;
             nestedRecord.subscribe(nestedField.name, callback);
           }
@@ -486,7 +493,7 @@ export class Record {
   }
 
   private _notifySubscribers(type: string) {
-    // console.log("Record _notifySubscribers", this._subscriptions)
+    // console.log("Record _notifySubscribers", type, this._subscriptions)
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
       if (type === "*" || selector === type) {
         // console.log("Record _notifySubscribers", selector, type, callbacks.length)

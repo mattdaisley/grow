@@ -121,8 +121,14 @@ function getFieldName(key: string, field: string, record: Record): string {
 function getCallback(key: string, fieldName: string, setValue: Function): Function {
 
   return function callback(newRecord: Record) {
-    // console.log('useRecord callback', field, newRecord)
     setValue((currentValue: useRecordsResult) => {
+      // console.log(
+      //   "useRecord callback",
+      //   currentValue,
+      //   key,
+      //   fieldName,
+      //   newRecord
+      // );
       return {
         ...currentValue,
         [key]: {

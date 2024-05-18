@@ -75,7 +75,7 @@ export function CellInput({
     // console.log("CellInput html useEffect", sanitizedValue, html);
 
     setInputValue(html);
-  }, [sanitizedValue]);
+  }, [sanitizedValue, JSON.stringify(bracketValues)]);
 
   useEffect(() => {
     if (!boxRef.current || !caretPos.current) return;
@@ -162,6 +162,7 @@ export function CellInput({
   };
 
   const open = Boolean(anchorEl);
+  // console.log(inputValue);
 
   return (
     <div
@@ -211,6 +212,7 @@ export function CellInput({
         onKeyDown={(e) => e.stopPropagation()}
         onInput={handleChange}
         dangerouslySetInnerHTML={{ __html: inputValue }}
+        key={new Date().getTime()}
       />
       <Popper open={open} anchorEl={anchorEl} placement="top-start">
         <Paper sx={{ width: 400, height: 200, p: 2 }}>
@@ -313,6 +315,10 @@ function setCaret(el, offset) {
   }
   else {
     caretPos = el.childNodes[nodeIndex].length - (nodesLength - targetOffset);
+  }
+
+  if (caretPos > el.childNodes[nodeIndex].length) {
+    caretPos = el.childNodes[nodeIndex].length;
   }
 
   // console.log(el.childNodes, offset, targetOffset, nodeIndex, nodesLength, caretPos);
