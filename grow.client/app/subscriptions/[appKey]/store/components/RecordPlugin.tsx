@@ -32,7 +32,7 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   // );
 
   if (useRecordsResults.collection !== undefined) {
-    if (useRecordsResults.collection.value === undefined) {
+    if (useRecordsResults.collection.value === undefined || useRecordsResults.collection.value.key === undefined) {
       // console.log(
       //   "RecordPlugin useRecordsResults.collection.value is undefined"
       // );

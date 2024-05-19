@@ -13,7 +13,7 @@ export interface RecordsFieldRequest {
   }
 }
 export interface useRecordsResult {
-  [valueKey: string]: { 
+  [key: string]: { 
     record?: Record,
     value: any, 
     rawValue: any,
@@ -22,7 +22,7 @@ export interface useRecordsResult {
   }
 }
 interface callbacksCache {
-  [valueKey: string]: { 
+  [key: string]: { 
     record: Record, 
     fieldName: string, 
     callback: Function 
@@ -34,19 +34,12 @@ interface callbacksCache {
  *  The schema defines the fields that each record has. 
  *  Records are objects with properties that map to the field id in the schema.
  *
- * @param {Record} record - The record to subscribe to.
- * @param {string[]} fields - The fields in the record to subscribe to. E.g. "display_name"
- * @returns {any} The value of the field in the record. E.g. "Display Name"
+ * @param {RecordsFieldRequest} recordsFieldRequest - The record to subscribe to.
+ * @returns {useRecordsResult} The value of the field in the record. E.g. "Display Name"
  * @example
- *   fields: {
- *     "id-field": {
- *       type: "string",
- *       name: "display_name"
- *     }
- *   }
- *   records: {
- *     "id-record": {
- *       ["id-field"]: "Display Name"
+ *   recordsFieldRequest: {
+ *     "field_name": {
+ *       record: Record,
  *     }
  *   }
  */
