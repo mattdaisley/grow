@@ -9,6 +9,9 @@ export const plugins = {
   "plugin-button-v1": lazy(
     () => import(`../../plugins/plugin-button-v1/plugin`)
   ),
+  "plugin-button-group-v1": lazy(
+    () => import(`../../plugins/plugin-button-group-v1/plugin`)
+  ),
   "plugin-container-v1": lazy(
     () => import(`../../plugins/plugin-container-v1/plugin`)
   ),
