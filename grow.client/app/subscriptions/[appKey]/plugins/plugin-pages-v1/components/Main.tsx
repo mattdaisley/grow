@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 
 import useCollections from "../../../store/useCollections";
@@ -13,9 +13,11 @@ import useAppState from "../../../store/useAppState";
 export default function PluginMain({ pagesCollection, filter, selectedRecord: selectedRecordValue }) {
   // console.log("Rendering PluginMain", filter, selectedRecordValue);
   const { selectedRecord } = useAppState("selectedRecord");
-  const { appBarHeight } = useAppState("appBarHeight");
-  const { drawerHeight } = useAppState("drawerHeight");
-  const { drawerWidth } = useAppState("drawerWidth");
+  const { appBarHeight } = useAppState("appBarHeight", false);
+  const { drawerHeight } = useAppState("drawerHeight", false);
+  const { drawerWidth } = useAppState("drawerWidth", false);
+
+  const [lastSelectedRecordValue, setLastSelectedRecordValue] = useState();
 
   const pages = useCollections([pagesCollection]);
   // console.log(
@@ -29,14 +31,22 @@ export default function PluginMain({ pagesCollection, filter, selectedRecord: se
   // );
 
   useEffect(() => {
+    // console.log(
+    //   "PluginMain selectedRecordValue",
+    //   lastSelectedRecordValue,
+    //   selectedRecordValue,
+    //   selectedRecord?.value
+    // );
     if (
       selectedRecordValue !== undefined &&
-      selectedRecord?.value !== selectedRecordValue &&
+      (selectedRecord?.value !== selectedRecordValue || lastSelectedRecordValue === undefined) &&
+      lastSelectedRecordValue !== selectedRecordValue &&
       selectedRecord?.onChange !== undefined
     ) {
+      setLastSelectedRecordValue(selectedRecordValue);
       selectedRecord.onChange(selectedRecordValue);
     }
-  }, [selectedRecord?.value, selectedRecord?.onChange, selectedRecordValue]);
+  }, [selectedRecord?.value, selectedRecord?.onChange, selectedRecordValue, lastSelectedRecordValue]);
 
   if (!pages || !pages[pagesCollection.key]?.records) {
     return null;

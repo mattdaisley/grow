@@ -23,7 +23,13 @@ export default function Plugin({
   filter,
   ...props
 }: IPluginPagesProps) {
-  // console.log("plugin-page-v1 pages", pagesCollection, filter, props);
+  // console.log(
+  //   "plugin-page-v1 pages",
+  //   pagesCollection,
+  //   filter,
+  //   searchParams, 
+  //   props
+  // );
 
   if (pagesCollection === undefined) {
     return null;

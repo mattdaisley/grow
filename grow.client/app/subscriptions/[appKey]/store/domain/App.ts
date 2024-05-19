@@ -230,6 +230,18 @@ export class App {
 
   public getFromAppState(key: string): Record {
     if (!this._appState.hasOwnProperty(key)) {
+      let params = new URL(document.location.toString()).searchParams;
+      let searchParamValue: string = params.get(key);
+      let initialValue: any = searchParamValue;
+
+      if (searchParamValue?.toLowerCase() === 'false') {
+        initialValue = false;
+      }
+      if (searchParamValue?.toLowerCase() === 'true') {
+        initialValue = true;
+      }
+      // console.log("getFromAppState", key, searchParamValue, initialValue);
+
       this._appState[key] = new Record(this, undefined, {
         schema: {
           name: "",
@@ -237,12 +249,12 @@ export class App {
           fields: {
             [key]: {
               type: "appStateKey",
-              name: key
-            }
-          }
+              name: key,
+            },
+          },
         },
         key,
-        record: { [key]: undefined }
+        record: { [key]: initialValue },
       });
     }
 

@@ -29,8 +29,8 @@ export default function PluginDrawer({
 
   const [open, setOpen] = useState(true);
 
-  const { drawerHeight } = useAppState("drawerHeight");
-  const { drawerWidth } = useAppState("drawerWidth");
+  const { drawerHeight } = useAppState("drawerHeight", false);
+  const { drawerWidth } = useAppState("drawerWidth", false);
 
   useEffect(() => {
     if (variant === "persistent" && anchor === "bottom") {
