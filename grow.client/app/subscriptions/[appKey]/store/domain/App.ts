@@ -59,9 +59,9 @@ export class App {
     // console.log('registering socket listener', `subscriptions-${this.key}`)
     this._socket.on(`subscriptions-${this.key}`, (data) => {
       // console.log(`subscriptions-${this.key}`, data, this._socket.id);
-      if (this._socket.id === data.client && this._instance === data.appInstance) {
-        return;
-      }
+      // if (this._socket.id === data.client && this._instance === data.appInstance) {
+      //   return;
+      // }
 
       this.handleEvent(data);
     });

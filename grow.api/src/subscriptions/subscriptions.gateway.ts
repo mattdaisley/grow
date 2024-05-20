@@ -455,6 +455,8 @@ export class SubscriptionsGateway {
     })
 
     // console.log('seed record existingItem', existingItem, key, recordValue)
+    let savedItem;
+
     if (!existingItem) {
       const newItem = plainToClass(AppRecord, {
         id: Number(recordKey),
@@ -463,13 +465,13 @@ export class SubscriptionsGateway {
         contents: { [fieldKey]: newValue }
       });
       // console.log('seed record saving', newItem);
-      const savedItem = await this.appRecordRepository.save(newItem)
-      console.log('handleUpdateRecordEvent new record saved', savedItem);
+      savedItem = await this.appRecordRepository.save(newItem)
+      // console.log('handleUpdateRecordEvent new record saved', savedItem);
     }
     else {
       existingItem.contents[fieldKey] = newValue;
-      const updatedItem = await this.appRecordRepository.update(existingItem.id, existingItem)
-      console.log('handleUpdateRecordEvent record updated', updatedItem);
+      savedItem = await this.appRecordRepository.save(existingItem);
+      // console.log('handleUpdateRecordEvent record updated', savedItem);
     }
 
     const response = { 
@@ -479,13 +481,14 @@ export class SubscriptionsGateway {
         collectionKey: body.collectionKey, 
         records: { 
           [body.recordKey]: { 
-            [body.fieldKey]: body.newValue 
+            [body.fieldKey]: body.newValue,
+            updatedDate: savedItem.updatedDate
           } 
         } 
       } 
     }
 
-    // console.log('handleUpdateRecordEvent returning', event, response)
+    console.log('handleUpdateRecordEvent returning', event, response)
     this.server?.emit(event, response)
     return response;
   }

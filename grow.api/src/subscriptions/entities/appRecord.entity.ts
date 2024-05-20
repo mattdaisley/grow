@@ -19,7 +19,7 @@ export class AppRecord extends BaseEntity {
     @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP'})
     createdDate: Date
     
-    @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP'})
+    @UpdateDateColumn({ type: 'timestamptz' })
     updatedDate: Date
 }
 
