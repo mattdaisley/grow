@@ -55,6 +55,14 @@ export class Record {
           return;
         }
 
+        if (field.type === "app_list" || field.type === "app_collection_list" || field.type === "collection_field_list") {
+          // value doesn't currently matter. Just returns an empty string so the actual 'value' can return all apps.
+          // could be used to filter apps in the future.
+
+          fields[field.name] = "";
+          return;
+        }
+
         fields[field.name] = undefined;
         // return;
       }
@@ -293,7 +301,7 @@ export class Record {
 
         resultFieldValue = this._app.getAppDisplayList();
 
-        // console.log('Record.app_list', fieldValue, resultFieldValue)
+        // console.log("Record.app_list", field, resultFieldValue);
         return resultFieldValue;
       }
 
@@ -316,6 +324,30 @@ export class Record {
           return nestedApp.getCollectionDisplayList();
         }
       }
+
+      if (field.type === "collection_field_list") {
+        // console.log('Record.value collection_field_list', patternValue);
+        const valueSplit = patternValue.split(".");
+        if (valueSplit.length > 3 && valueSplit[0] === "app") {
+          const appKey = valueSplit[1];
+          // console.log('Record.value app_collection_list', valueSplit)
+          // console.log(valueSplit);
+
+          let nestedApp: App;
+          if (appKey === this._app.key) {
+            nestedApp = this._app;
+          } else {
+            nestedApp = this._app.getReferencedApp(appKey);
+          }
+
+          const collectionKey = valueSplit[3];
+          const collection = nestedApp.getCollection(collectionKey);
+
+          // console.log('Record.value app_collection_list', appKey, field.name)
+          return collection.getFieldsDisplayList();
+        }
+
+      } 
 
       if (field.type === "app_collection") {
         // e.g. "app.2.collections.4" or "app.{{a.1.c.25.r.44.f_1_0_3}}.collections.{{appState.selectedRecord}}"

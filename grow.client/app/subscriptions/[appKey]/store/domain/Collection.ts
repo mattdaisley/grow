@@ -15,29 +15,33 @@ export class Collection {
   type: string;
   records: {
     [key: string]: Record;
-  }
-
-  private _app: App;
-  private _subscriptions: { 
-    [selector: string]: Function[] 
   };
 
-  constructor(app: App, { key, schema, records, type = 'collection' }) {
+  private _app: App;
+  private _fields_display_list: Collection;
+  private _subscriptions: {
+    [selector: string]: Function[];
+  };
+
+  constructor(app: App, { key, schema, records, type = "collection" }) {
     this._app = app;
     this.key = key;
     this.schema = schema;
     this.type = type;
     this._subscriptions = {};
-    
+
     !!records && this._createRecords(records);
   }
 
-  _createRecords(records: {[key: string]: object}) {
-
+  _createRecords(records: { [key: string]: object }) {
     this.records = {};
 
     Object.entries(records).forEach(([recordKey, record]) => {
-      this.records[recordKey] = new Record(this._app, this, {schema: this.schema, key: recordKey, record});
+      this.records[recordKey] = new Record(this._app, this, {
+        schema: this.schema,
+        key: recordKey,
+        record,
+      });
     });
   }
 
@@ -51,39 +55,49 @@ export class Collection {
 
   setCollection(collection: ICollection) {
     // console.log('Collection setCollection', collection)
-    this.schema = { 
-      ...collection.schema, 
-      fields: { 
+
+    this.schema = {
+      ...collection.schema,
+      fields: {
         ...collection.schema.fields,
-        createdDate: { type: 'date', name: 'createdDate', readonly: true }, 
-        updatedDate: { type: 'date', name: 'updatedDate', readonly: true } 
-      } 
+        createdDate: { type: "date", name: "createdDate", readonly: true },
+        updatedDate: { type: "date", name: "updatedDate", readonly: true },
+      },
     };
     if (!!collection.records) {
       this._createRecords(collection.records);
-    }
-    else {
+    } else {
       Object.values(this.records).forEach((record) => {
-        record.updateSchema(this.schema)
+        record.updateSchema(this.schema);
       });
     }
+    
+    if (this.schema?.fields !== undefined) {
+      this._setFieldsDisplayListRecords();
+    }
 
-    this._notifySubscribers('*');
+    this._notifySubscribers("*");
   }
 
   addRecord(recordKey: string, record: any) {
     // console.log('Collection addRecord', recordKey, record)
-    this.records = { ...this.records, [recordKey]: new Record(this._app, this, {schema: this.schema, key: recordKey, record})}
+    this.records = {
+      ...this.records,
+      [recordKey]: new Record(this._app, this, {
+        schema: this.schema,
+        key: recordKey,
+        record,
+      }),
+    };
 
-    this._notifySubscribers('*');
+    this._notifySubscribers("*");
   }
 
   removeRecord(recordKey: string) {
-
     this.records = { ...this.records };
     delete this.records[recordKey];
 
-    this._notifySubscribers('*');
+    this._notifySubscribers("*");
   }
 
   updateRecord(recordKey: string, record: any) {
@@ -93,8 +107,55 @@ export class Collection {
     }
   }
 
-  subscribe(selector: string, callback: Function) {
+  getFieldsDisplayList(): Collection {
+    if (!this._fields_display_list) {
+      this._createCollectionDisplayList();
+    }
 
+    return this._fields_display_list;
+  }
+
+  _createCollectionDisplayList() {
+    const collectionDefinition = {
+      key: `${this.key}.fl`,
+      schema: {
+        fields: {
+          display_name: { type: "string", name: "display_name" },
+          type: { type: "string", name: "type" },
+        },
+      },
+      records: {},
+      type: "collection_field_list",
+    };
+
+    this._fields_display_list = new Collection(this._app, collectionDefinition);
+
+    if (this.schema?.fields !== undefined) {
+      this._setFieldsDisplayListRecords();
+    }
+  }
+
+  _setFieldsDisplayListRecords() {
+    // if it's undefined no one has asked for it yet so wait until they do
+    if (this._fields_display_list !== undefined) {
+      const records = {};
+
+      Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
+        records[fieldKey] = {
+          display_name: `${field.name} (${field.type})`,
+          type: field.type,
+        };
+      });
+
+      // console.log("Collection getFieldsDisplayList", collectionDefinition);
+      this._fields_display_list.setCollection({
+        schema: this._fields_display_list.schema,
+        records,
+      });
+    }
+  }
+
+  subscribe(selector: string, callback: Function) {
     if (!this._subscriptions[selector]) {
       this._subscriptions[selector] = [];
     }
@@ -102,18 +163,18 @@ export class Collection {
   }
 
   unsubscribe(selector: string, callback: Function) {
-
     if (this._subscriptions[selector]) {
-      this._subscriptions[selector] = this._subscriptions[selector].filter(cb => cb !== callback);
+      this._subscriptions[selector] = this._subscriptions[selector].filter(
+        (cb) => cb !== callback
+      );
     }
   }
 
   private _notifySubscribers(type: string) {
-
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
-      if (type === '*') {
+      if (type === "*") {
         // console.log('Collection _notifySubscribers', selector, this.records)
-        callbacks.forEach(cb => cb(this.records))
+        callbacks.forEach((cb) => cb(this.records));
       }
     });
   }

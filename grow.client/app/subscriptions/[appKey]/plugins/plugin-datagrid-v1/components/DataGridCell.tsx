@@ -84,7 +84,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
     );
   }
 
-  if (field.type === "app_collection_list") {
+  if (field.type === "app_collection_list" || field.type === "collection_field_list") {
     // console.log("DataGridCellEdit app_collection_list", value, onChange);
     return (
       <CellSelect
@@ -161,7 +161,7 @@ function CellSelectRecordKeyWrapper({
   //   components?.value === "plugin_key"
   // );
 
-  if (components?.value === undefined) {
+  if (components?.value === undefined || typeof components?.value === "string") {
     // the record does not have components so just render an input
     // console.log("CellSelectRecordKeyWrapper no components", rawValue);
     return (
@@ -201,6 +201,7 @@ function CellSelectRecordKeyWrapper({
 }
 
 function CellSelectRecordKey({ components, record, fieldName, rawValue, value, bracketValues, onChange }) {
+  // console.log("CellSelectRecordKey", fieldName, components);
   const listItems = useCollections([components]);
   // console.log("CellSelectRecordKey", listItems, value);
   if (!listItems || !listItems[components.key]?.records) {

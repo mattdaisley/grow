@@ -2,8 +2,8 @@
 
 import PluginSelect from "./components/Select";
 
-export default function Plugin({ value, components, ...props }) {
-  // console.log("plugin-select-v1", value, props);
+export default function Plugin({ components, value, ...props }) {
+  // console.log("plugin-select-v1", components, value, props);
   if (components?.value === undefined) {
     return null;
   }
