@@ -358,7 +358,7 @@ export class SubscriptionsGateway {
     collections.forEach(collection => {
       collectionsMap.records[collection.collection_key] = {
         collectionKey: collection.collection_key,
-        display_name: collection.display_name
+        display_name: `${collection.collection_key}: ${collection.display_name}`,
       };
     })
 

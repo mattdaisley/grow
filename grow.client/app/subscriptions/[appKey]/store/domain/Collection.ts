@@ -19,6 +19,7 @@ export class Collection {
 
   private _app: App;
   private _fields_display_list: Collection;
+  private _record_display_list: Collection;
   private _subscriptions: {
     [selector: string]: Function[];
   };
@@ -66,12 +67,13 @@ export class Collection {
     };
     if (!!collection.records) {
       this._createRecords(collection.records);
+      this._setRecordsDisplayListRecords();
     } else {
       Object.values(this.records).forEach((record) => {
         record.updateSchema(this.schema);
       });
     }
-    
+
     if (this.schema?.fields !== undefined) {
       this._setFieldsDisplayListRecords();
     }
@@ -109,13 +111,13 @@ export class Collection {
 
   getFieldsDisplayList(): Collection {
     if (!this._fields_display_list) {
-      this._createCollectionDisplayList();
+      this._createFieldsDisplayList();
     }
 
     return this._fields_display_list;
   }
 
-  _createCollectionDisplayList() {
+  _createFieldsDisplayList() {
     const collectionDefinition = {
       key: `${this.key}.fl`,
       schema: {
@@ -150,6 +152,52 @@ export class Collection {
       // console.log("Collection getFieldsDisplayList", collectionDefinition);
       this._fields_display_list.setCollection({
         schema: this._fields_display_list.schema,
+        records,
+      });
+    }
+  }
+
+  getRecordsDisplayList(): Collection {
+    if (!this._record_display_list) {
+      this._createRecordsDisplayList();
+    }
+
+    return this._record_display_list;
+  }
+
+  _createRecordsDisplayList() {
+    const collectionDefinition = {
+      key: `${this.key}.fl`,
+      schema: {
+        fields: {
+          display_name: { type: "string", name: "display_name" },
+        },
+      },
+      records: {},
+      type: "collection_record_list",
+    };
+
+    this._record_display_list = new Collection(this._app, collectionDefinition);
+
+    if (this.records !== undefined) {
+      this._setRecordsDisplayListRecords();
+    }
+  }
+
+  _setRecordsDisplayListRecords() {
+    // if it's undefined no one has asked for it yet so wait until they do
+    if (this._record_display_list !== undefined) {
+      const records = {};
+
+      Object.entries(this.records).forEach(([key, record]) => {
+        records[key] = {
+          display_name: `${record.key}`,
+        };
+      });
+
+      // console.log("Collection getFieldsDisplayList", collectionDefinition);
+      this._record_display_list.setCollection({
+        schema: this._record_display_list.schema,
         records,
       });
     }

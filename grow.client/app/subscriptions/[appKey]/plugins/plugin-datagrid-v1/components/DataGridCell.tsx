@@ -84,7 +84,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
     );
   }
 
-  if (field.type === "app_collection_list" || field.type === "collection_field_list") {
+  if (field.type === "app_collection_list" || field.type === "collection_field_list" || field.type === "collection_record_list") {
     // console.log("DataGridCellEdit app_collection_list", value, onChange);
     return (
       <CellSelect

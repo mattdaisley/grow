@@ -23,6 +23,11 @@ select * from public.app order by id desc;
 select * from public.app_collection order by id desc;
 select * from public.app_record order by id desc;
 
+{{a.1.c.71.r.163.3121c66f-8b86-4b65-8afb-bca9da2fea8d}}
+{{a.1.c.70.r.162.6d17dc5d-3f3a-44b8-ba7c-b78eb04eb656}}
+{{a.1.c.73.r.167.14fd6ca5-9fbb-4a56-99b9-6dcbe2dbd690}}
+{{a.1.c.75.r.170.d4e105aa-45d9-4981-9aa8-7578a26952ad}}
+
 insert into public.app_record ("appKey", "collectionKey", contents) values (1,30, '{}')
 
 
