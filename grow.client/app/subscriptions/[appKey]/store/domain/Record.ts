@@ -169,23 +169,32 @@ export class Record {
     return bracketValues[fieldName];
   }
 
-  private _getBracketFieldValue(field, fieldValue) {
+  private _getBracketFieldValue(field, fieldValue: string) {
+    // console.log("Record._getBracketFieldValue", field, fieldValue, typeof fieldValue)
     let returnBracketValue = {};
 
-    if (fieldValue === undefined) {
+    if (typeof fieldValue !== "string") {
       // obviously no bracket values to replace
+      // console.log("Record._getBracketFieldValue fieldValue not a string", fieldValue, fieldValue === undefined)
+      return returnBracketValue;
+    }
+
+    if (!fieldValue.match(BRACKET_PATTERN)) {
+      // console.log("Record._getBracketFieldValue fieldValue has no matches for the bracket pattern", fieldValue, BRACKET_PATTERN)
       return returnBracketValue;
     }
 
     var match;
     var bracketSelectors = [];
     while ((match = BRACKET_PATTERN.exec(fieldValue)) !== null) {
+      // console.log('Record._getBracketFieldValue match', match)
       bracketSelectors.push(match[1]); // push the nested group to the selectors array
     }
+    // console.log("Record._getBracketFieldValue bracketSelectors", bracketSelectors); // logs an array of all matched selectors
     if (bracketSelectors.length > 0) {
-      // console.log("Record value selectors", selectors, fieldValue); // logs an array of all matched selectors
 
       bracketSelectors.forEach((bracketSelector) => {
+        // console.log("Record._getBracketFieldValue returnBracketValue has bracketSelector", returnBracketValue, bracketSelector); // logs an array of all matched selectors
         if (returnBracketValue.hasOwnProperty(bracketSelector)) {
           return;
         }
@@ -206,6 +215,7 @@ export class Record {
   get value(): Object {
     const fields = {};
     const bracketValues = this.bracketValues;
+    // console.log("Record.value", this);
 
     Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
       let fieldValue = this._getFieldValue(
@@ -223,6 +233,7 @@ export class Record {
   valueByFieldName(fieldName: string): any {
     const fields = {};
     const bracketValue = this.bracketValueByFieldName(fieldName);
+    // console.log("Record.valueByFieldName", fieldName, this, bracketValue);
 
     const matchingFields = Object.entries(this.schema.fields).filter(
       ([fieldKey, field]) => field.name === fieldName
@@ -250,14 +261,15 @@ export class Record {
     }
 
     let patternValue: string = rawValue;
-
+    // console.log("Record._getFieldValue", rawValue, fieldBracketValue, field.type);
     if (Object.keys(fieldBracketValue).length > 0) {
       Object.entries(fieldBracketValue).forEach(([selector, bracketValue]) => {
+        // console.log('Record._getFieldValue replacing selector', selector, bracketValue, patternValue);
         try {
           patternValue = patternValue.replace(selector, bracketValue);
         } catch (e) {
           console.log(
-            "Record.value bracketValues",
+            "Record._getFieldValue bracketValues",
             selector,
             bracketValue,
             patternValue,
@@ -270,8 +282,9 @@ export class Record {
 
       if (BRACKET_PATTERN.exec(patternValue) !== null) {
         // not able to replace all selectors
-        // console.log('Record.value not able to replace all selectors', patternValue);
-        return resultFieldValue;
+        // console.log('Record._getFieldValue not able to replace all selectors', patternValue);
+        // this is now valid because of nested selectors that are not yet replaced
+        // return resultFieldValue;
       }
     }
 
@@ -433,6 +446,7 @@ export class Record {
     const appRecordRegex =
       /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
     const appRecordMatches = bracketSelector.match(appRecordRegex);
+    // console.log("Record._getBracketValue appRecordMatches", bracketSelector, appRecordMatches)
     if (appRecordMatches) {
       const appRecordValue = this._getAppRecordValue(
         appRecordMatches,
@@ -445,6 +459,7 @@ export class Record {
 
     const appStateRegex = /appState\.([a-zA-Z0-9-_]+)/;
     const appStateMatches = bracketSelector.match(appStateRegex);
+    // console.log('Record._getBracketValue appStateMatches', appStateMatches)
     if (appStateMatches) {
       const appStateValue = this._getAppStateValue(appStateMatches, field);
       // console.log(
@@ -467,7 +482,7 @@ export class Record {
     const recordKey = matches[3];
     const nestedFieldKey = matches[4];
     // console.log(
-    //   "Record value match group properties",
+    //   "Record._getAppRecordValue, value match group properties",
     //   field,
     //   matches,
     //   appKey,
@@ -488,7 +503,7 @@ export class Record {
     const nestedCollectionCallbacksKey = `${appKey}.${collectionKey}`;
     if (!this._callbacks.hasOwnProperty(nestedCollectionCallbacksKey)) {
       const callback = (_: Record) => {
-        // console.log("nested collection callback")
+        // console.log("Record._getAppRecordValue nested collection callback");
         this._notifySubscribers(field.name);
       };
 
@@ -496,18 +511,27 @@ export class Record {
       nestedCollection.subscribe("*", callback);
     }
 
-    // console.log("Record value nestedCollection", nestedCollection?.records, nestedCollection?.records?.hasOwnProperty(recordKey))
+    // console.log(
+    //   "Record._getAppRecordValue value nestedCollection",
+    //   nestedCollection?.records,
+    //   nestedCollection?.records?.hasOwnProperty(recordKey)
+    // );
     if (nestedCollection) {
       if (nestedCollection.records?.hasOwnProperty(recordKey)) {
         const nestedRecord = nestedCollection.records[recordKey];
         const nestedField = nestedRecord.schema.fields[nestedFieldKey];
-        // console.log("Record value nestedRecord", nestedRecord, nestedFieldKey, nestedField)
+        // console.log("Record._getAppRecordValue nestedRecord", nestedRecord, nestedFieldKey, nestedField)
         if (nestedField) {
           const callbacksKey = `${field.name}-${appKey}.${collectionKey}.${recordKey}.${nestedFieldKey}`;
 
           if (!this._callbacks.hasOwnProperty(callbacksKey)) {
+            // console.log("Record._getAppRecordValue adding callback", callbacksKey);
             const callback = (_: Record) => {
-              // console.log("nested record callback", callbacksKey, field.name)
+              // console.log(
+              //   "Record._getAppRecordValue nested record callback",
+              //   callbacksKey,
+              //   field.name
+              // );
               this._notifySubscribers(field.name);
             };
 

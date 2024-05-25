@@ -24,6 +24,10 @@ interface IPluginButton {
   components?: Collection;
   column_name?: string;
   column_type?: string;
+
+  // if clickAction === "addRow"
+  // components?: Collection; -- shared with addColumn
+  source_collection?: Collection;
 }
 
 export default function PluginButton({
@@ -37,6 +41,7 @@ export default function PluginButton({
   components,
   column_name,
   column_type,
+  source_collection,
 }: IPluginButton) {
   // console.log(
   //   "PluginButton",
@@ -51,7 +56,7 @@ export default function PluginButton({
   const useAppStateResults = useAppState(appStateKey);
 
   function handleClick() {
-    // console.log("PluginButton handleClick", clickAction);
+    // console.log("PluginButton handleClick", clickAction, components);
 
     if (clickAction === "setAppState" && appStateValue !== undefined) {
       Object.entries(useAppStateResults).forEach(
@@ -129,11 +134,23 @@ export default function PluginButton({
 
     if (
       clickAction === "addRow" &&
-      components !== undefined &&
+      components?.key !== undefined &&
       components.key !== ""
     ) {
-      // console.log("button clickAction addRow", components);
-      components.createRecord();
+      // console.log("button clickAction addRow", components, source_collection);
+      const contents = {}
+      if (source_collection?.records !== undefined) {
+        Object.values(source_collection.records).forEach((record) => {
+          const recordValue = record.value as {
+            target_field: string;
+            target_value: string;
+          };
+          contents[recordValue.target_field] = recordValue.target_value;
+        });
+      }
+      // console.log("button clickAction addRow", contents);
+
+      components.createRecord(contents);
     }
   }
 

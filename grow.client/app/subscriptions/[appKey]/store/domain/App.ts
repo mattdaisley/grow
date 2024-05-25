@@ -163,8 +163,8 @@ export class App {
     this._emitEvent('create-collection', { name, displayName });
   }
 
-  public pushCreateRecord(collectionKey: string) {
-    this._emitEvent('create-record', { collectionKey });
+  public pushCreateRecord(collectionKey: string, contents: { [key: string]: any }) {
+    this._emitEvent('create-record', { collectionKey, contents });
   }
 
   public pushUpdateRecord(collectionKey: string, recordKey: string, fieldKey: string, newValue: any) {

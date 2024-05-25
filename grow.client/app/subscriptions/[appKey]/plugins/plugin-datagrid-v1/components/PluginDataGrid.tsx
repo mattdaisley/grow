@@ -104,6 +104,8 @@ function DataGridTemplate({ rows, columns, height }) {
             },
           }}
           pageSizeOptions={[5, 10]}
+          checkboxSelection
+          disableRowSelectionOnClick
         />
       </Grid>
     </>

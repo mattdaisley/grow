@@ -112,7 +112,7 @@ function getFieldName(key: string, field: string, record: Record): string {
 }
 
 function getCallback(key: string, fieldName: string, setValue: Function): Function {
-
+  // console.log('useRecord getCallback', key, fieldName, setValue)
   return function callback(newRecord: Record) {
     setValue((currentValue: useRecordsResult) => {
       // console.log(

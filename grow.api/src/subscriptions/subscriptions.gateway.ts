@@ -49,85 +49,6 @@ export class SubscriptionsGateway {
     private appRecordRepository: Repository<AppRecord>,
   ) {
     // this.seedAppCollection().then(() => { console.log("seeded collections")});
-
-    const timer = setInterval(() => {
-
-      let typeIndex = Math.floor(Math.random() * 3);
-      if (insertedIds.length === 0) {
-        typeIndex = 0;
-      }
-      // let typeIndex = (lastIndex + 1) % 3;
-      lastIndex = typeIndex;
-
-      const wordsList = [
-        'apple', 'banana', 'cherry', 'date', 'elderberry',
-        'fig', 'grape', 'honeydew', 'iceberg', 'jackfruit',
-        'kiwi', 'lemon', 'mango', 'nectarine', 'orange',
-        'pineapple', 'quince', 'raspberry', 'strawberry', 'tomato',
-        'ugli', 'victoria', 'watermelon', 'xigua', 'yellow',
-        'zucchini'
-      ];
-
-      const randomWord = wordsList[Math.floor(Math.random() * wordsList.length)];
-
-      const record = {
-        "f_1_0_0": "plugin-page-v1",
-        "f_1_0_1": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
-        "f_1_0_2": `/${randomWord}`,
-        "f_1_0_3": "8",
-        "f_1_0_4": "1"
-      }
-
-      let message;
-      if (typeIndex === 0) {
-        const id = `${uuidv4()}`;
-        message = {
-          i: {
-            'collectionKey': '7',
-            'records': {
-              [id]: record
-            }
-          }
-        }
-        insertedIds.push(id)
-        insertedMessages[id] = message;
-
-        if (this.apps['2']?.collections['7']?.records) {
-          this.apps['2'].collections['7'].records[id] = record;
-        }
-      }
-      if (typeIndex === 1 && insertedIds.length > 0) {
-        const idToUpdate = insertedIds[Math.floor(Math.random() * insertedIds.length)];
-        message = { u: {
-            'collectionKey': '7',
-            'records': {
-              [idToUpdate]: {
-                "f_1_0_1": randomWord.charAt(0).toUpperCase() + randomWord.slice(1),
-                "f_1_0_2": `/${randomWord}`,
-              }
-            }
-          }
-        }
-      }
-      if (typeIndex === 2 && insertedIds.length > 0) {
-        const idToDelete = insertedIds[Math.floor(Math.random() * insertedIds.length)];
-        message = { d: {
-            'collectionKey': '7',
-            'records': {
-              [idToDelete]: {}
-            }
-          }
-        }
-        insertedIds.splice(insertedIds.indexOf(idToDelete), 1)
-
-        this.apps['2']?.collections['7']?.records?.delete && this.apps['2']?.collections['7']?.records?.delete(idToDelete);
-      }
-
-      // console.log('subscriptions-1', typeIndex, randomWord)
-      if (message) {
-        // this.server?.emit('subscriptions-2', message );
-      }
-    }, 10000);
   }
 
   private async seedAppCollection() {
@@ -236,12 +157,11 @@ export class SubscriptionsGateway {
       return;
     }
 
-    this.apps[body.appKey] = app.contents;
 
     // console.log('handleGetAppEvent', body, app.contents)
     const event = `app-${body.appKey}`;
 
-    const plugins = this.apps[body.appKey].plugins;
+    const plugins = app.contents.plugins;
 
     const response = { key: body.appKey, plugins, collections: {} };
 
@@ -377,6 +297,7 @@ export class SubscriptionsGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: Socket
   ): Promise<any> {
+
     // console.log('handleGetCollectionEvent', body)
     if (!body.appKey || body.collectionKey === '') {
       return;
@@ -387,14 +308,9 @@ export class SubscriptionsGateway {
       return;
     }
 
-    if (!this.apps.hasOwnProperty(body.appKey)) { 
-      const app = await this.appRepository.findOneBy({ id: body.appKey })
-      this.apps[body.appKey] = app.contents;  
-    }
+    const event = `subscriptions-${body.appKey}`;
 
-    if (!this.apps[body.appKey].collections) {
-      this.apps[body.appKey].collections = {};
-    }
+    const app = await this.appRepository.findOneBy({ id: body.appKey });
 
     const collectionRecords = {}
     const appRecordEntities = await this.appRecordRepository.findBy({ appKey: body.appKey, collectionKey: body.collectionKey })
@@ -408,12 +324,12 @@ export class SubscriptionsGateway {
       };
     })
 
-    this.apps[body.appKey].collections[body.collectionKey] = { schema: collectionEntity.contents, records: collectionRecords };
+    const collection = {
+      schema: collectionEntity.contents,
+      records: collectionRecords,
+    };
 
     // console.log('handleGetCollectionEvent', body, collectionEntity)
-    const event = `subscriptions-${body.appKey}`;
-
-    const collection = this.apps[body.appKey].collections[body.collectionKey];
 
     const response = { l: { collectionKey: body.collectionKey, ...collection } }
 
@@ -437,16 +353,8 @@ export class SubscriptionsGateway {
       newValue
     } = body;
 
-    if (!this.apps.hasOwnProperty(appKey)) { 
-      const data = JSON.parse(fs.readFileSync('./src/subscriptions/data.json', 'utf8'));
-      this.apps[appKey] = data.apps[appKey];
-    }
-
-
     console.log('handleUpdateRecordEvent', body)
     const event = `subscriptions-${body.appKey}`;
-
-    this.apps[body.appKey].collections[body.collectionKey].records[body.recordKey][body.fieldKey] = body.newValue;
 
     const existingItem = await this.appRecordRepository.findOneBy({ 
       appKey: Number(appKey), 
@@ -501,18 +409,17 @@ export class SubscriptionsGateway {
       const {
         appKey,
         appInstance,
-        collectionKey
+        collectionKey,
+        contents = {}
       } = body;
   
       // console.log('handleCreateRecordEvent', body)
       const event = `subscriptions-${body.appKey}`;
   
-      // this.apps[body.appKey].collections[body.collectionKey].records[body.recordKey] = body.record;
-  
       const newItem = plainToClass(AppRecord, {
         appKey, 
         collectionKey: Number(collectionKey), 
-        contents: {}
+        contents
       });
   
       const savedItem = await this.appRecordRepository.save(newItem)
@@ -535,8 +442,6 @@ export class SubscriptionsGateway {
         } 
       }
 
-      this.apps[body.appKey].collections[body.collectionKey].records[savedItem.id] = newRecord;
-  
       // console.log('handleCreateRecordEvent returning', event, response)
       this.server?.emit(event, response)
       return response;
@@ -570,9 +475,6 @@ export class SubscriptionsGateway {
 
     const collection = { schema: savedAppCollection.contents, records: {} };
     // console.log('handleCreateCollection', savedCollection)
-
-    this.apps[appKey].collections[savedAppCollection.id] = collection;
-
     // console.log('handleGetCollectionEvent', body, collectionEntity)
 
     const response = { l: { collectionKey: savedAppCollection.id, ...collection } }
@@ -609,8 +511,6 @@ export class SubscriptionsGateway {
     const updatedCollection = await this.appCollectionRepository.update(collectionEntity.id, collectionEntity)
 
     // console.log('handleCreateCollectionSchemaField', updatedCollection)
-
-    this.apps[appKey].collections[collectionKey].schema = collectionEntity.contents;
 
     const response = { 
       appInstance,

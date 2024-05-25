@@ -50,8 +50,8 @@ export class Collection {
     this._app.pushCreateCollectionSchemaField(this.key, { name, type });
   }
 
-  createRecord() {
-    this._app.pushCreateRecord(this.key);
+  createRecord(contents) {
+    this._app.pushCreateRecord(this.key, contents);
   }
 
   setCollection(collection: ICollection) {

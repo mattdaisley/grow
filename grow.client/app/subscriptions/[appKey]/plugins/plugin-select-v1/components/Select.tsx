@@ -13,6 +13,7 @@ interface IPluginSelectProps {
   onChange: Function;
   label?: string;
   width?: number;
+  menuItemField?: string;
 }
 
 export default function PluginSelect({
@@ -21,6 +22,7 @@ export default function PluginSelect({
   onChange,
   label = "",
   width,
+  menuItemField,
 }: IPluginSelectProps) {
   const menuItemsResponse = useCollections([menuItemsCollection]);
   // console.log(
@@ -92,7 +94,8 @@ export default function PluginSelect({
           // console.log("PluginSelect menuItemRecord", menuItemRecord);
           return (
             <MenuItem key={key} value={key}>
-              {menuItemRecord.value["display_name"]}
+              {(menuItemField && menuItemRecord.value[menuItemField]) ??
+                menuItemRecord.value["display_name"]}
             </MenuItem>
           );
         })}

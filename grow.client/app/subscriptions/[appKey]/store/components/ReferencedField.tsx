@@ -88,6 +88,11 @@ function ReferencedField2({
     }
 
     const record = collectionRecord.records[referencedField.recordKey];
+
+    if (record?.schema?.fields === undefined) {
+      return;
+    }
+
     const field = record.schema.fields[referencedField.fieldKey]?.name;
     recordFieldRequest[field] = {
       record,
@@ -112,6 +117,11 @@ function ReferencedField2({
       return;
     }
     const record = collectionRecord.records[referencedField.recordKey];
+
+    if (record?.schema?.fields === undefined) {
+      return;
+    }
+
     const useRecordKey = record.schema.fields[referencedField.fieldKey]?.name;
 
     lookedUpValues[key] = useRecordsResults[useRecordKey];
