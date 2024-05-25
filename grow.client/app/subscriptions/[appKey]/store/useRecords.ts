@@ -13,13 +13,14 @@ export interface RecordsFieldRequest {
   }
 }
 export interface useRecordsResult {
-  [key: string]: { 
-    record?: Record,
-    value: any, 
-    rawValue: any,
-    bracketValues: any,
-    onChange: Function 
-  }
+  [key: string]: {
+    record?: Record;
+    value: any;
+    displayValue: any;
+    rawValue: any;
+    bracketValues: any;
+    onChange: Function;
+  };
 }
 interface callbacksCache {
   [key: string]: { 
@@ -72,6 +73,7 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
       values[key] = {
         record,
         value: record.valueByFieldName(fieldName),
+        displayValue: record.getDisplayValueByFieldName(fieldName),
         rawValue: record.rawValue[fieldName],
         bracketValues: record.bracketValueByFieldName(fieldName),
         onChange: getOnChangeHandler(record, fieldName),
@@ -122,11 +124,13 @@ function getCallback(key: string, fieldName: string, setValue: Function): Functi
       //   fieldName,
       //   newRecord
       // );
+
       return {
         ...currentValue,
         [key]: {
           record: newRecord,
           value: newRecord.valueByFieldName(fieldName),
+          displayValue: newRecord.getDisplayValueByFieldName(fieldName),
           rawValue: newRecord.rawValue[fieldName],
           bracketValues: newRecord.bracketValueByFieldName(fieldName),
           onChange: currentValue[key].onChange,

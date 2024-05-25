@@ -359,23 +359,14 @@ function CellSelect({
 }
 
 function DataGridCellValue({ useRecordsResults, field }) {
-  // console.log("DataGridRow", useRecordsResults);
-  const { value } = useRecordsResults[field.name];
-  // console.log("DataGridRowValue", field.name, value, field, useRecordsResults);
-
-  // console.log("DataGridRowValue", fieldValue);
-
-  if (field.type === "collection") {
-    return (
-      <>
-        {value?.key} - {value?.schema?.display_name}
-      </>
-    );
+  // console.log("DataGridCellValue", useRecordsResults, field);
+  if (useRecordsResults[field.name] === undefined) {
+    // console.log("DataGridCellValue", field.name, 'not in useRecordsResults')
+    return null;
   }
 
-  if (field.type === "app_plugin_list") {
-    return <>{value?.value?.display_name}</>;
-  }
+  const { displayValue } = useRecordsResults[field.name];
+  // console.log("DataGridRowValue", field.name, displayValue, field, useRecordsResults);
 
-  return <>{value?.toString()}</>;
+  return <>{displayValue}</>;
 }

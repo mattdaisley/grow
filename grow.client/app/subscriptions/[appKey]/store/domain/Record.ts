@@ -55,7 +55,12 @@ export class Record {
           return;
         }
 
-        if (field.type === "app_list" || field.type === "app_collection_list" || field.type === "collection_field_list" || field.type === "collection_record_list") {
+        if (
+          field.type === "app_list" ||
+          field.type === "app_collection_list" ||
+          field.type === "collection_field_list" ||
+          field.type === "collection_record_list"
+        ) {
           // value doesn't currently matter. Just returns an empty string so the actual 'value' can return all apps.
           // could be used to filter apps in the future.
 
@@ -192,7 +197,7 @@ export class Record {
     }
     // console.log("Record._getBracketFieldValue bracketSelectors", bracketSelectors); // logs an array of all matched selectors
     if (bracketSelectors.length > 0) {
-
+      
       bracketSelectors.forEach((bracketSelector) => {
         // console.log("Record._getBracketFieldValue returnBracketValue has bracketSelector", returnBracketValue, bracketSelector); // logs an array of all matched selectors
         if (returnBracketValue.hasOwnProperty(bracketSelector)) {
@@ -235,11 +240,11 @@ export class Record {
     const bracketValue = this.bracketValueByFieldName(fieldName);
     // console.log("Record.valueByFieldName", fieldName, this, bracketValue);
 
-    const matchingFields = Object.entries(this.schema.fields).filter(
-      ([fieldKey, field]) => field.name === fieldName
+    const matchingFields = Object.values(this.schema.fields).filter(
+      (field) => field.name === fieldName
     );
 
-    matchingFields.forEach(([fieldKey, field]) => {
+    matchingFields.forEach((field) => {
       let fieldValue = this._getFieldValue(
         this.rawValue[field.name],
         field,
@@ -432,6 +437,34 @@ export class Record {
 
     return resultFieldValue;
     // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
+  }
+
+  getDisplayValueByFieldName(fieldName: string): string {
+    const value = this.valueByFieldName(fieldName);
+    const fieldType = this.fieldTypeByFieldName(fieldName);
+
+    // console.log('Record.getDisplayValueByFieldName', fieldName, value, fieldType)
+    let displayValue = value?.toString();
+
+    if (fieldType === "collection") {
+      displayValue = `${value?.key} - ${value?.schema?.display_name}`;
+    }
+
+    if (fieldType === "app_plugin_list") {
+      displayValue = `${value?.value?.display_name}`;
+    }
+
+    return displayValue;
+  }
+
+  fieldTypeByFieldName(fieldName: string): string {
+    const matchingFields = Object.values(this.schema.fields).filter(
+      (field) => field.name === fieldName
+    );
+
+    if (matchingFields.length > 0) {
+      return matchingFields[0].type;
+    }
   }
 
   get appDisplayName(): string {

@@ -1,8 +1,8 @@
 "use client";
 
-import { Box } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridComparatorFn, gridDateComparator, gridNumberComparator, gridStringOrNumberComparator } from "@mui/x-data-grid";
+
 import useCollections from "../../../store/useCollections";
 import { Collection } from "../../../store/domain/Collection";
 import { DataGridCell } from "./DataGridCell";
@@ -13,15 +13,53 @@ interface IPluginDataGridProps {
   dataSource: Collection;
   height?: string;
   editable?: boolean;
+  sortField?: string;
 }
+
+const recordValueSortComparator: GridComparatorFn = (v1, v2, param1, param2) => {
+  // console.log(
+  //   "recordValueSortComparator",
+  //   v1,
+  //   v2,
+  //   param1.api?.getCellParams(param1.id, param1.field)?.formattedValue
+  // );
+
+  let param1TextContent =
+    param1.api?.getCellParams(param1.id, param1.field)?.formattedValue
+
+  if (param1TextContent === undefined) {
+    param1TextContent = param1.api?.getCellElement(param1.id, param1.field)?.textContent ?? v1;
+  }
+  
+  let param2TextContent =
+    param2.api?.getCellParams(param2.id, param2.field)?.formattedValue;
+
+  if (param2TextContent === undefined) {
+    param2TextContent = param2.api?.getCellElement(param2.id, param2.field)?.textContent ?? v2;
+  }
+
+  // console.log("recordValueSortComparator", v1, v2, param1, param2, param1TextContent, param2TextContent);
+
+  if (v1.type === 'date' && v2.type === 'date') {
+    return gridDateComparator(param1TextContent, param2TextContent, param1, param2);
+  }
+
+  if (v1.type === 'number' && v2.type === 'number') {
+    return gridNumberComparator(param1TextContent, param2TextContent, param1, param2);
+  }
+
+  // type is string or anything else
+  return gridStringOrNumberComparator(param1TextContent, param2TextContent, param1, param2);
+};
 
 export default function PluginDataGrid({
   dataSource,
   height,
   editable,
+  sortField,
   ...props
 }: IPluginDataGridProps) {
-  // console.log("Rendering PluginDataGrid", dataSource, height, editable);
+  // console.log("Rendering PluginDataGrid", dataSource, height, editable, props);
 
   const listItems = useCollections([dataSource]);
   // console.log("PluginDataGrid", listItems, dataSource);
@@ -44,10 +82,22 @@ export default function PluginDataGrid({
       field: key,
       headerName: `${field.name} (${field.type})`,
       width: 180,
+      sortComparator: recordValueSortComparator,
+      valueFormatter: (value, row) => {
+        if (key === "id") {
+          return value;
+        }
+
+        const displayValue = row.record.getDisplayValueByFieldName(field.name);
+        // console.log("valueFormatter", key, field.name, displayValue, value, row);
+
+        return displayValue;
+      }
     };
 
     if (key !== "id") {
       cell.renderCell = (params) => {
+        // console.log("renderCell", params);
         if (!params?.value) {
           console.log("renderCell !params?.value", params);
           return null;
@@ -76,10 +126,10 @@ export default function PluginDataGrid({
     };
   });
 
-  return <DataGridTemplate rows={rows} columns={columns} height={height} />;
+  return <DataGridTemplate rows={rows} columns={columns} height={height} sortField={sortField} />;
 }
 
-function DataGridTemplate({ rows, columns, height }) {
+function DataGridTemplate({ rows, columns, height, sortField }) {
   return (
     <>
       {/* <Grid xs={12} sx={{ pl: 2, pr: 2 }}>
@@ -102,8 +152,11 @@ function DataGridTemplate({ rows, columns, height }) {
                 pageSize: 10,
               },
             },
+            sorting: {
+              sortModel: [{ field: sortField ?? 'id', sort: 'desc' }],
+            },
           }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[5, 10, 25]}
           checkboxSelection
           disableRowSelectionOnClick
         />
