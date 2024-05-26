@@ -17,8 +17,8 @@ export default function Plugin({ components, value, ...props }) {
     <>
       <PluginSelect
         menuItemsCollection={components.value}
-        value={value.value}
-        onChange={value.onChange}
+        value={value?.value}
+        onChange={value?.onChange}
         {...propValues}
       />
     </>
