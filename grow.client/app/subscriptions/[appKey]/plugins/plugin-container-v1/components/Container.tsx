@@ -41,7 +41,7 @@ export default function PluginContainer({
 }: IPluginContainerProps) {
   // console.log("Rendering PluginContainer", components, padding, px, py);
 
-  const BoundingComponent: any = paper ? Paper : Grid;
+  const BoundingComponent: any = !!paper ? Paper : Grid;
 
   const scrollableRef = useRef(null);
 

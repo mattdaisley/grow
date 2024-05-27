@@ -12,7 +12,7 @@ export function DataGridTemplate({ rows, columns, height, sortField, sortDirecti
       <Grid
         data-plugin="plugin-datagrid-v1"
         xs={12}
-        sx={{ px: 2, pb: 2, height: height ? Number(height) : 402 }}
+        sx={{ height: height ? Number(height) : 402 }}
       >
         <DataGrid
           rows={rows}
