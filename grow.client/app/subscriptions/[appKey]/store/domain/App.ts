@@ -168,6 +168,10 @@ export class App {
     this._emitEvent('update-record', { collectionKey, recordKey, fieldKey, newValue });
   }
 
+  public pushDeleteRecords(collectionKey: string, recordKeys: string[]) {
+    this._emitEvent("delete-records", { collectionKey, recordKeys });
+  }
+
 
   private _emitEvent(event: string, data: any = {}) {
     let eventData = {
@@ -185,7 +189,8 @@ export class App {
     Object.entries(data).forEach(([key, value]: [string, any]) => {
       const collection = this._collections[value.collectionKey];
       // console.log('App handleEvent', key, value, collection)
-      const allowedSelfUpdateTypes = ['i'];
+      
+      const allowedSelfUpdateTypes = ['i', 'd'];
       if (!allowedSelfUpdateTypes.includes(key) && (this._socket.id === data.client && this._instance === data.appInstance)) {
         return;
       }

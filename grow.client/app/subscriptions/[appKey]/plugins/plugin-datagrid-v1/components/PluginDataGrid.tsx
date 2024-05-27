@@ -6,6 +6,7 @@ import { DataGrid, GridColDef, GridComparatorFn, gridDateComparator, gridNumberC
 import useCollections from "../../../store/useCollections";
 import { Collection } from "../../../store/domain/Collection";
 import { DataGridCell } from "./DataGridCell";
+import { DataGridToolbar } from "./DataGridToolbar";
 
 export const drawerWidth = 200;
 
@@ -154,7 +155,7 @@ function DataGridTemplate({ rows, columns, height, sortField, sortDirection }) {
       <Grid
         data-plugin="plugin-datagrid-v1"
         xs={12}
-        sx={{ padding: 2, height: height ? Number(height) : 402 }}
+        sx={{ px: 2, pb: 2, height: height ? Number(height) : 402 }}
       >
         <DataGrid
           rows={rows}
@@ -167,9 +168,9 @@ function DataGridTemplate({ rows, columns, height, sortField, sortDirection }) {
             },
             sorting: {
               sortModel: [
-                { 
-                  field: sortField ?? "id", 
-                  sort: sortDirection ?? "asc" 
+                {
+                  field: sortField ?? "id",
+                  sort: sortDirection ?? "asc",
                 },
               ],
             },
@@ -177,6 +178,9 @@ function DataGridTemplate({ rows, columns, height, sortField, sortDirection }) {
           pageSizeOptions={[5, 10, 25]}
           checkboxSelection
           disableRowSelectionOnClick
+          slots={{
+            toolbar: DataGridToolbar,
+          }}
         />
       </Grid>
     </>

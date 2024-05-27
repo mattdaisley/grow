@@ -54,6 +54,10 @@ export class Collection {
     this._app.pushCreateRecord(this.key, contents);
   }
 
+  deleteRecords(recordKeys: string[]) {
+    this._app.pushDeleteRecords(this.key, recordKeys);
+  }
+
   setCollection(collection: ICollection) {
     // console.log('Collection setCollection', collection)
 

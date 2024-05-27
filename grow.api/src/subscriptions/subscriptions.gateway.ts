@@ -525,6 +525,40 @@ export class SubscriptionsGateway {
     this.server?.emit(event, response)
   }
 
+  @SubscribeMessage('delete-records')
+  async handleDeleteRecordsEvent(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket
+  ): Promise<any> {
+    const {
+      appKey,
+      appInstance,
+      recordKeys
+    } = body;
+
+    // console.log('handleDeleteRecordEvent', body)
+    const event = `subscriptions-${appKey}`;
+
+    const deletedRecords = {};
+
+    recordKeys.forEach(recordKey => deletedRecords[recordKey] = recordKey)
+
+    await this.appRecordRepository.delete(recordKeys);
+
+    const response = {
+      appInstance,
+      client: client.id,
+      d: {
+        collectionKey: body.collectionKey,
+        records: deletedRecords,
+      },
+    };
+
+    // console.log('handleDeleteRecordEvent returning', event, response)
+    this.server?.emit(event, response)
+    return response;
+  }
+
   
 
   @SubscribeMessage('mouse-moved')
