@@ -14,6 +14,7 @@ interface IPluginDataGridProps {
   height?: string;
   editable?: boolean;
   sortField?: string;
+  sortDirection?: string;
 }
 
 const recordValueSortComparator: GridComparatorFn = (v1, v2, param1, param2) => {
@@ -57,6 +58,7 @@ export default function PluginDataGrid({
   height,
   editable,
   sortField,
+  sortDirection,
   ...props
 }: IPluginDataGridProps) {
   // console.log("Rendering PluginDataGrid", dataSource, height, editable, props);
@@ -70,7 +72,10 @@ export default function PluginDataGrid({
 
   const listItemRecords = listItems[dataSource.key].records;
   const schema = listItems[dataSource.key].schema;
-  // console.log("PluginDataGrid", JSON.stringify(schema, null, 2));
+  // console.log("PluginDataGrid", sortField, JSON.stringify(schema.fields, null, 2));
+
+  const sortFieldKeyPair = Object.entries(schema.fields).find(([key, field]) => field.name === sortField);
+  const sortFieldKey = sortFieldKeyPair && sortFieldKeyPair.length > 0 ? sortFieldKeyPair[0] : "id";
 
   const columns: GridColDef<(typeof rows)[number]>[] = Object.entries({
     id: { name: "Id", type: "primaryKey" },
@@ -126,10 +131,18 @@ export default function PluginDataGrid({
     };
   });
 
-  return <DataGridTemplate rows={rows} columns={columns} height={height} sortField={sortField} />;
+  return (
+    <DataGridTemplate
+      rows={rows}
+      columns={columns}
+      height={height}
+      sortField={sortFieldKey}
+      sortDirection={sortDirection}
+    />
+  );
 }
 
-function DataGridTemplate({ rows, columns, height, sortField }) {
+function DataGridTemplate({ rows, columns, height, sortField, sortDirection }) {
   return (
     <>
       {/* <Grid xs={12} sx={{ pl: 2, pr: 2 }}>
@@ -153,7 +166,12 @@ function DataGridTemplate({ rows, columns, height, sortField }) {
               },
             },
             sorting: {
-              sortModel: [{ field: sortField ?? 'id', sort: 'desc' }],
+              sortModel: [
+                { 
+                  field: sortField ?? "id", 
+                  sort: sortDirection ?? "asc" 
+                },
+              ],
             },
           }}
           pageSizeOptions={[5, 10, 25]}
