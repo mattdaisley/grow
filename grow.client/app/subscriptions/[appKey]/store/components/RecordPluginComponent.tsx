@@ -21,6 +21,9 @@ export const plugins = {
   "plugin-drawer-v1": lazy(
     () => import(`../../plugins/plugin-drawer-v1/plugin`)
   ),
+  "plugin-flow-v1": lazy(
+    () => import(`../../plugins/plugin-flow-v1/plugin`)
+  ),
   "plugin-iframe-v1": lazy(
     () => import(`../../plugins/plugin-iframe-v1/plugin`)
   ),

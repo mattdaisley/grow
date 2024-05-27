@@ -10,6 +10,7 @@ export interface RecordsFieldRequest {
   [key: string]: {
     record: Record;
     field?: string;
+    callback?: Function;
   }
 }
 export interface useRecordsResult {
@@ -62,12 +63,12 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
 
     Object.entries(recordFieldRequests).forEach(([key, recordFieldRequest]) => {
 
-      const {record, field} = recordFieldRequest;
+      const {record, field, callback: requestCallback} = recordFieldRequest;
 
       const fieldName = getFieldName(key, field, record);
       // console.log('useRecord fieldName', fieldName, key, field, record)
 
-      callbacks[key] = { record: record, fieldName, callback: getCallback(key, fieldName, setValue) };
+      callbacks[key] = { record: record, fieldName, callback: getCallback(key, fieldName, setValue, requestCallback) };
       record.subscribe(fieldName, callbacks[key].callback);
 
       values[key] = {
@@ -113,7 +114,7 @@ function getFieldName(key: string, field: string, record: Record): string {
   return fieldName;
 }
 
-function getCallback(key: string, fieldName: string, setValue: Function): Function {
+function getCallback(key: string, fieldName: string, setValue: Function, requestCallback?: Function): Function {
   // console.log('useRecord getCallback', key, fieldName, setValue)
   return function callback(newRecord: Record) {
     setValue((currentValue: useRecordsResult) => {
@@ -125,17 +126,24 @@ function getCallback(key: string, fieldName: string, setValue: Function): Functi
       //   newRecord
       // );
 
-      return {
+      const newRecordValue = {
+        record: newRecord,
+        value: newRecord.valueByFieldName(fieldName),
+        displayValue: newRecord.getDisplayValueByFieldName(fieldName),
+        rawValue: newRecord.rawValue[fieldName],
+        bracketValues: newRecord.bracketValueByFieldName(fieldName),
+        onChange: currentValue[key].onChange,
+      }
+
+      const newValue = {
         ...currentValue,
-        [key]: {
-          record: newRecord,
-          value: newRecord.valueByFieldName(fieldName),
-          displayValue: newRecord.getDisplayValueByFieldName(fieldName),
-          rawValue: newRecord.rawValue[fieldName],
-          bracketValues: newRecord.bracketValueByFieldName(fieldName),
-          onChange: currentValue[key].onChange,
-        },
+        [key]: newRecordValue,
       };
+
+      requestCallback && requestCallback({ [newRecord.key]: newValue });
+
+      return newValue;
+
     });
     // setValue({...value, [field]: newRecord.value[field]});
   }
@@ -143,7 +151,7 @@ function getCallback(key: string, fieldName: string, setValue: Function): Functi
 
 function getOnChangeHandler(record: Record, field: string): Function {
   return function onChange(newValue: any) {
-    // console.log('useRecord onChange', record, field, newValue)
+    // console.log("useRecord onChange", record, field, newValue);
     record.updateField(field, newValue);
   }
 }

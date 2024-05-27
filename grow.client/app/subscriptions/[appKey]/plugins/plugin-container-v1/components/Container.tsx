@@ -75,6 +75,7 @@ export default function PluginContainer({
         sm={Number(width ?? 12)}
         sx={{
           height: height ?? "auto",
+          // height: '100%',
           position: "relative",
           padding: margin ? Number(margin ?? 0) : undefined,
           px: mx ? Number(mx ?? 0) : undefined,

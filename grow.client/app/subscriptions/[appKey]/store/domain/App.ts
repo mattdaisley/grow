@@ -59,9 +59,6 @@ export class App {
     // console.log('registering socket listener', `subscriptions-${this.key}`)
     this._socket.on(`subscriptions-${this.key}`, (data) => {
       // console.log(`subscriptions-${this.key}`, data, this._socket.id);
-      // if (this._socket.id === data.client && this._instance === data.appInstance) {
-      //   return;
-      // }
 
       this.handleEvent(data);
     });
@@ -188,6 +185,11 @@ export class App {
     Object.entries(data).forEach(([key, value]: [string, any]) => {
       const collection = this._collections[value.collectionKey];
       // console.log('App handleEvent', key, value, collection)
+      const allowedSelfUpdateTypes = ['i'];
+      if (!allowedSelfUpdateTypes.includes(key) && (this._socket.id === data.client && this._instance === data.appInstance)) {
+        return;
+      }
+
       switch (key) {
         case 'l':
           collection?.setCollection(value);
