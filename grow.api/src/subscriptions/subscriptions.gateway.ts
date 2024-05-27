@@ -353,7 +353,7 @@ export class SubscriptionsGateway {
       newValue
     } = body;
 
-    console.log('handleUpdateRecordEvent', body)
+    // console.log('handleUpdateRecordEvent', body)
     const event = `subscriptions-${body.appKey}`;
 
     const existingItem = await this.appRecordRepository.findOneBy({ 
@@ -396,7 +396,7 @@ export class SubscriptionsGateway {
       } 
     }
 
-    console.log('handleUpdateRecordEvent returning', event, response)
+    // console.log('handleUpdateRecordEvent returning', event, response)
     this.server?.emit(event, response)
     return response;
   }
@@ -508,7 +508,7 @@ export class SubscriptionsGateway {
 
     collectionEntity.contents['fields'][newFieldId] = field;
 
-    const updatedCollection = await this.appCollectionRepository.update(collectionEntity.id, collectionEntity)
+    await this.appCollectionRepository.update(collectionEntity.id, collectionEntity)
 
     // console.log('handleCreateCollectionSchemaField', updatedCollection)
 

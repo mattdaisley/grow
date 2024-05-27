@@ -10,12 +10,32 @@ import {
   GridToolbarExport,
   GridToolbarDensitySelector,
   useGridApiContext,
+  GridToolbarContainerProps,
 } from "@mui/x-data-grid";
+
 import { Collection } from "../../../store/domain/Collection";
 
-export function DataGridToolbar() {
+
+declare module "@mui/x-data-grid" {
+  interface ToolbarPropsOverrides {
+    allowDelete?: boolean,
+    editable?: boolean;
+  }
+}
+
+type CustomGridToolbarProps = {
+  allowDelete: boolean;
+  editable: boolean;
+};
+
+export function DataGridToolbar(
+  props: GridToolbarContainerProps & CustomGridToolbarProps
+) {
+  // console.log("DataGridToolbar", props)
+  const { allowDelete, editable } = props;
+
   const apiRef = useGridApiContext();
-  
+
   const selectedRows = apiRef?.current?.getSelectedRows();
 
   const handleDeleteClick = () => {
@@ -29,7 +49,10 @@ export function DataGridToolbar() {
     selectedRows.forEach((row) => {
       const collectionKey = row.record._collection.key;
       if (!collections[collectionKey]) {
-        collections[collectionKey] = { collection: row.record._collection, recordKeys: [] }
+        collections[collectionKey] = {
+          collection: row.record._collection,
+          recordKeys: [],
+        };
       }
 
       collections[collectionKey].recordKeys.push(row.record.key);
@@ -42,14 +65,26 @@ export function DataGridToolbar() {
 
   return (
     <GridToolbarContainer>
-      <GridToolbarColumnsButton />
+      <GridToolbarColumnsButton
+        slotProps={{
+          tooltip: {
+            placement: "top-start",
+            PopperProps: { placement: "top-start" },
+          },
+        }}
+      />
       <GridToolbarFilterButton />
       {/* <GridToolbarDensitySelector
         slotProps={{ tooltip: { title: "Change density" } }}
       /> */}
       <Box sx={{ flexGrow: 1 }} />
-      { selectedRows && selectedRows.size > 0 && (
-        <Button variant="outlined" size="small" startIcon={<DeleteIcon />} onClick={handleDeleteClick}>
+      {(!!allowDelete || !!editable) && selectedRows && selectedRows.size > 0 && (
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<DeleteIcon />}
+          onClick={handleDeleteClick}
+        >
           Delete
         </Button>
       )}
