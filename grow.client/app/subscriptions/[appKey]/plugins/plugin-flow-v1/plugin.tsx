@@ -14,12 +14,15 @@ export default function Plugin({ nodes, edges, ...props }) {
     propValues[key] = value?.value;
   });
 
+  const nodesCollection = nodes.value;
+  const edgesCollection = edges.value;
+
   return (
     <>
       <PluginFlow
         // components={components.value}
-        nodesCollection={nodes.value}
-        edgesCollection={edges.value}
+        nodesCollection={nodesCollection}
+        edgesCollection={edgesCollection}
         {...propValues}
       />
     </>

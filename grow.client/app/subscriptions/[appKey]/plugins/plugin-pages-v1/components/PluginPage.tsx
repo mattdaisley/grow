@@ -13,7 +13,7 @@ export function PluginPage({ pageRecord, filter }) {
     py: { record: pageRecord },
   });
 
-  console.log("PluginPage", pageRecord, filter, components, path, height, py);
+  // console.log("PluginPage", pageRecord, filter, components, path, height, py);
   if (filter !== undefined && path.value !== "/" + filter[0]) {
     return null;
   }
