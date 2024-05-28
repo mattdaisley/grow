@@ -5,31 +5,41 @@ import useCollections from "../../../store/useCollections";
 import { FlowDiagram } from "./FlowDiagram";
 
 interface IPluginFlowProps {
-  nodesCollection: Collection,
   edgesCollection: Collection,
+  nodesCollection: Collection,
   panel?: Collection
   viewport?: Collection,
 }
 
 export default function PluginFlow({
-  nodesCollection,
   edgesCollection,
+  nodesCollection,
   panel,
   viewport,
   ...props
 }: IPluginFlowProps) {
   const useCollectionsResponse = useCollections([
-    nodesCollection,
     edgesCollection,
+    nodesCollection,
   ]);
   // console.log("PluginFlow useCollectionsResponse", useCollectionsResponse);
   if (!useCollectionsResponse) {
     return null;
   }
 
-  const nodeRecords = useCollectionsResponse[nodesCollection.key]?.records;
   const edgeRecords = useCollectionsResponse[edgesCollection.key]?.records;
+  const nodeRecords = useCollectionsResponse[nodesCollection.key]?.records;
   // console.log("PluginFlow nodeRecords and edgeRecords", nodeRecords, edgeRecords);
+
+  const edges = Object.entries(edgeRecords).map(([key, edgeRecord]) => {
+    const { source, target } = edgeRecord.value as any;
+
+    return {
+      id: key,
+      source,
+      target,
+    };
+  });
 
   const nodes = Object.entries(nodeRecords).map(([key, nodeRecord]) => {
     const { x, y, label } = nodeRecord.value as any;
@@ -39,16 +49,6 @@ export default function PluginFlow({
       type: "recordNode",
       position: { x, y },
       data: { record: nodeRecord, label },
-    };
-  });
-
-  const edges = Object.entries(edgeRecords).map(([key, edgeRecord]) => {
-    const { source, target } = edgeRecord.value as any;
-
-    return {
-      id: key,
-      source,
-      target,
     };
   });
 
@@ -74,14 +74,26 @@ export default function PluginFlow({
     edgesCollection.createRecord(contents);
   };
 
+  const handleEdgeRemoved = (recordKey: string) => {
+    // console.log("handleEdgeRemoved", edge);
+    edgesCollection.deleteRecords([recordKey]);
+  };
+
+  const handleNodeRemoved = (recordKey: string) => {
+    // console.log("handleNodeRemoved", recordKey);
+    nodesCollection.deleteRecords([recordKey]);
+  }
+
   return (
     <>
       <FlowDiagram
-        initialNodes={nodes}
         initialEdges={edges}
+        initialNodes={nodes}
+        onEdgeConnected={handleEdgeConnected}
+        onEdgeRemoved={handleEdgeRemoved}
+        onNodeRemoved={handleNodeRemoved}
         panelCollection={panel}
         viewportCollection={viewport}
-        onEdgeConnected={handleEdgeConnected}
       />
     </>
   );

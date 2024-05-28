@@ -32,23 +32,33 @@ const handleCallbackChange = (recordCallbackRef, newRecordValue, onChange) => {
   onChange && onChange(change);
 };
 
-export function RecordNode({ data, dragging, xPos, yPos, onChange }) {
-  // console.log("RecordNode", data, onChange);
+export function RecordNode({
+  data,
+  dragging,
+  onChange,
+  selected,
+  xPos,
+  yPos,
+  ...props
+}) {
+  // console.log("RecordNode", dragging, selected, xPos, yPos, props);
   const recordCallbackRef = useRef({
     xPos,
     yPos,
-    onChange: undefined
+    onChange: undefined,
   });
 
   const useRecordsResult = useRecords({
     label: { record: data.record },
     x: {
       record: data.record,
-      callback: (newRecordValue) => handleCallbackChange(recordCallbackRef, newRecordValue, onChange),
+      callback: (newRecordValue) =>
+        handleCallbackChange(recordCallbackRef, newRecordValue, onChange),
     },
     y: {
       record: data.record,
-      callback: (newRecordValue) => handleCallbackChange(recordCallbackRef, newRecordValue, onChange),
+      callback: (newRecordValue) =>
+        handleCallbackChange(recordCallbackRef, newRecordValue, onChange),
     },
   });
 
@@ -82,8 +92,19 @@ export function RecordNode({ data, dragging, xPos, yPos, onChange }) {
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <Paper sx={{ py: 1, px: 2 }}>
-        {useRecordsResult?.label?.value ?? ''}
+      <Paper
+        sx={(theme) => ({
+          py: 1,
+          px: 2,
+          bgcolor: selected
+            ? theme.palette.primary.light
+            : theme.palette.background.default,
+          color: selected
+            ? theme.palette.text.primary
+            : theme.palette.primary.contrastText,
+        })}
+      >
+        {useRecordsResult?.label?.value ?? ""}
       </Paper>
       <Handle type="source" position={Position.Bottom} />
     </>

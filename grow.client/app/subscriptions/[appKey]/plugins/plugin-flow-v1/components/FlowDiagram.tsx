@@ -2,14 +2,18 @@
 
 import { useCallback, useEffect, useMemo } from "react";
 import ReactFlow, {
-  Controls,
+  applyNodeChanges,
   Background,
   BackgroundVariant,
+  Connection,
+  Controls,
+  EdgeChange,
   MiniMap,
+  NodeChange,
+  NodeProps,
   SelectionMode, applyEdgeChanges,
-  applyNodeChanges,
-  useNodesState,
   useEdgesState,
+  useNodesState,
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -19,7 +23,15 @@ import { FlowPanel } from "./FlowPanel";
 import { ViewportCollectionUpdater } from "./ViewportCollectionUpdater";
 
 
-export function FlowDiagram({ initialNodes, initialEdges, viewportCollection, panelCollection, onEdgeConnected }) {
+export function FlowDiagram({
+  initialEdges,
+  initialNodes,
+  onEdgeConnected,
+  onEdgeRemoved,
+  onNodeRemoved,
+  panelCollection,
+  viewportCollection,
+}) {
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initialEdges);
 
@@ -31,23 +43,37 @@ export function FlowDiagram({ initialNodes, initialEdges, viewportCollection, pa
   //   panelCollection
   // );
   const handleNodesChange = useCallback(
-    (changes) => {
-      // console.log("onNodesChange", changes[0])
+    (changes: NodeChange[]) => {
+      // console.log("onNodesChange", changes[0]);
+      changes.forEach((change) => {
+        if (change.type === "remove") {
+          // console.log("remove node", change.id);
+          onNodeRemoved && onNodeRemoved(change.id);
+        }
+      });
       setNodes((nds) => applyNodeChanges(changes, nds));
     },
     [setNodes]
   );
 
   const handleEdgesChange = useCallback(
-    (changes) => setEdges((eds) => {
-      console.log('handleEdgesChange', changes);
-      return applyEdgeChanges(changes, eds);
-    }),
+    (changes: EdgeChange[]) =>
+      setEdges((eds) => {
+        // console.log("handleEdgesChange", changes);
+        changes.forEach((change) => {
+          if (change.type === "remove") {
+            // console.log("remove edge", change.id);
+            onEdgeRemoved && onEdgeRemoved(change.id);
+          }
+        });
+
+        return applyEdgeChanges(changes, eds);
+      }),
     [setEdges, onEdgeConnected]
   );
 
   const onConnect = useCallback(
-    (params) => onEdgeConnected && onEdgeConnected({ ...params }),
+    (params: Connection) => onEdgeConnected && onEdgeConnected({ ...params }),
     // setEdges((eds) => {
     //   console.log("onConnect", params);
     //   onEdgeConnected && onEdgeConnected({ ...params });
@@ -101,7 +127,7 @@ export function FlowDiagram({ initialNodes, initialEdges, viewportCollection, pa
 
   const nodeTypes = useMemo(
     () => ({
-      recordNode: (props) => (
+      recordNode: (props: NodeProps) => (
         <RecordNode onChange={recordNodeChange} {...props} />
       ),
     }),
