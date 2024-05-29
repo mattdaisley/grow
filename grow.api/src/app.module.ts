@@ -39,6 +39,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
           password,
           database,
           entities: [__dirname + '/subscriptions/**/*.entity{.ts,.js}'],
+          subscribers: [__dirname + '/subscriptions/**/*.subscriber{.ts,.js}'],
           synchronize: true,
         }
       },

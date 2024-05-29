@@ -603,12 +603,24 @@ export class Record {
     return appStateRecord?.value?.[appStateKey];
   }
 
-  update(record: object) {
+  update(record: any, isSelfUpdate = false) {
     const difference = Object.keys(record).filter(
       (k) => this._record[k] !== record[k]
     );
 
-    this._record = { ...this._record, ...record };
+    if (!isSelfUpdate) {
+      this._record = {
+        ...this._record,
+        ...record,
+      };
+    }
+    else {
+      this._record = {
+        ...this._record,
+        updatedDate: record.updatedDate,
+        version: record.version,
+      }
+    }
 
     difference.forEach((k) =>
       this._notifySubscribers(this.schema.fields[k].name)

@@ -190,8 +190,9 @@ export class App {
       const collection = this._collections[value.collectionKey];
       // console.log('App handleEvent', key, value, collection)
       
-      const allowedSelfUpdateTypes = ['i', 'd'];
-      if (!allowedSelfUpdateTypes.includes(key) && (this._socket.id === data.client && this._instance === data.appInstance)) {
+      const allowedSelfUpdateKeys = ['i', 'u', 'd'];
+      let isSelfUpdate = this._socket.id === data.client && this._instance === data.appInstance;
+      if (!allowedSelfUpdateKeys.includes(key) && isSelfUpdate) {
         return;
       }
 
@@ -211,7 +212,7 @@ export class App {
           break;
         case 'u':
           Object.entries(value.records).forEach(([recordKey, record]) => {
-            collection?.updateRecord(recordKey, record);
+            collection?.updateRecord(recordKey, record, isSelfUpdate);
           });
           break;
         case 'al':

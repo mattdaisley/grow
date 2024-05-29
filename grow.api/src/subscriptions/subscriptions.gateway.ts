@@ -320,7 +320,8 @@ export class SubscriptionsGateway {
       collectionRecords[record.id] = { 
         ...record.contents,
         createdDate: record.createdDate, 
-        updatedDate: record.updatedDate
+        updatedDate: record.updatedDate,
+        version: record.version
       };
     })
 
@@ -378,6 +379,7 @@ export class SubscriptionsGateway {
     }
     else {
       existingItem.contents[fieldKey] = newValue;
+      existingItem.version += 1;
       savedItem = await this.appRecordRepository.save(existingItem);
       // console.log('handleUpdateRecordEvent record updated', savedItem);
     }
@@ -390,7 +392,8 @@ export class SubscriptionsGateway {
         records: { 
           [body.recordKey]: { 
             [body.fieldKey]: body.newValue,
-            updatedDate: savedItem.updatedDate
+            updatedDate: savedItem.updatedDate,
+            version: savedItem.version
           } 
         } 
       } 
@@ -428,7 +431,8 @@ export class SubscriptionsGateway {
       const newRecord = {
         ...savedItem.contents,
         createdDate: savedItem.createdDate, 
-        updatedDate: savedItem.updatedDate
+        updatedDate: savedItem.updatedDate,
+        version: savedItem.version
       }
   
       const response = { 

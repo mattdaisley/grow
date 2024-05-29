@@ -67,6 +67,7 @@ export class Collection {
         ...collection.schema.fields,
         createdDate: { type: "date", name: "createdDate", readonly: true },
         updatedDate: { type: "date", name: "updatedDate", readonly: true },
+        version: { type: "number", name: "version", readonly: true },
       },
     };
     if (!!collection.records) {
@@ -106,10 +107,10 @@ export class Collection {
     this._notifySubscribers("*");
   }
 
-  updateRecord(recordKey: string, record: any) {
+  updateRecord(recordKey: string, record: any, isSelfUpdate = false) {
     // console.log('Collection updateRecord', recordKey, record)
     if (this.records[recordKey] !== undefined) {
-      this.records[recordKey].update(record);
+      this.records[recordKey].update(record, isSelfUpdate);
     }
   }
 

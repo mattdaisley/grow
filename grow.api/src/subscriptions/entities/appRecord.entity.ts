@@ -21,5 +21,8 @@ export class AppRecord extends BaseEntity {
     
     @UpdateDateColumn({ type: 'timestamptz' })
     updatedDate: Date
+
+    @Column({ nullable: false, default: 0 })
+    version: number;
 }
 

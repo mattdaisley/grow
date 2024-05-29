@@ -48,6 +48,7 @@
     "serialport": "^10.4.0",
     "sqlite3": "^5.1.2",
     "typeorm": "^0.3.20",
+    "typeorm-revisions": "^0.0.5",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
