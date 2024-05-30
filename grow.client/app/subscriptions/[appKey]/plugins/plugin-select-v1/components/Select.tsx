@@ -14,6 +14,8 @@ interface IPluginSelectProps {
   label?: string;
   width?: number;
   menuItemField?: string;
+  value_field?: string;
+  sort_key?: string;
 }
 
 export default function PluginSelect({
@@ -23,6 +25,8 @@ export default function PluginSelect({
   label = "",
   width,
   menuItemField,
+  value_field,
+  sort_key,
 }: IPluginSelectProps) {
   const menuItemsResponse = useCollections([menuItemsCollection]);
   // console.log(
@@ -43,18 +47,19 @@ export default function PluginSelect({
 
   let menuItems = Object.entries(menuItemRecords);
 
-  // if (props.sort_key) {
-  //   menuItems.sort((a, b) => {
-  //     // console.log(a, b);
-  //     if (a[1].value["display_name"] < b[1].value["display_name"]) {
-  //       return -1;
-  //     }
-  //     if (a[1].value["display_name"] > b[1].value["display_name"]) {
-  //       return 1;
-  //     }
-  //     return 0;
-  //   });
-  // }
+  if (sort_key !== undefined) {
+    menuItems.sort((a, b) => {
+      // console.log(a, b);
+      if (a[1].value[sort_key] < b[1].value[sort_key]) {
+        return -1;
+      }
+      if (a[1].value[sort_key] > b[1].value[sort_key]) {
+        return 1;
+      }
+      return 0;
+    });
+
+  }
   // console.log("Rendering PluginSelect", value, label);
 
   function handleChange(e) {
@@ -91,9 +96,17 @@ export default function PluginSelect({
           <em>None</em>
         </MenuItem>
         {menuItems.map(([key, menuItemRecord]) => {
-          // console.log("PluginSelect menuItemRecord", menuItemRecord);
+          // console.log(
+          //   "PluginSelect menuItemRecord",
+          //   value_field,
+          //   menuItemRecord
+          // );
+          const value =
+            value_field !== undefined
+              ? menuItemRecord.value[menuItemRecord.schema.fields[value_field].name]
+              : key;
           return (
-            <MenuItem key={key} value={key}>
+            <MenuItem key={key} value={value}>
               {(menuItemField && menuItemRecord.value[menuItemField]) ??
                 menuItemRecord.value["display_name"]}
             </MenuItem>

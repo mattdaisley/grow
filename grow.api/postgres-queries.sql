@@ -18,10 +18,12 @@ select * from (
 	from public.app
 ) q1
 where jsonb_extract_path_text(kv, 'value', 'parent') = 'page'
-	
+
+select * from public.plugin order by key asc;
 select * from public.app order by id desc;
 select * from public.app_collection order by id desc;
 select * from public.app_record order by id desc;
+select * from public.app_record_history order by id desc;
 
 {{a.1.c.71.r.163.3121c66f-8b86-4b65-8afb-bca9da2fea8d}}
 {{a.1.c.70.r.162.6d17dc5d-3f3a-44b8-ba7c-b78eb04eb656}}
@@ -38,3 +40,5 @@ TRUNCATE TABLE public.app_record RESTART IDENTITY;
 DROP TABLE public.app;
 DROP TABLE public.app_collection;
 DROP TABLE public.app_record;
+
+

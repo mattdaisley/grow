@@ -18,6 +18,7 @@ import * as fs from 'fs';
 import { App } from './entities/app.entity';
 import { AppCollection } from './entities/appCollection.entity';
 import { AppRecord } from './entities/appRecord.entity';
+import { Plugin } from './entities/plugin.entity';
 
 let insertedIds = []
 let insertedMessages = {}
@@ -39,6 +40,9 @@ export class SubscriptionsGateway {
   clientInstances = {}
 
   constructor(
+    @InjectRepository(Plugin)
+    private pluginRepository: Repository<Plugin>,
+
     @InjectRepository(App)
     private appRepository: Repository<App>,
 
@@ -231,14 +235,16 @@ export class SubscriptionsGateway {
       .orderBy("id", "ASC")
       .getOne();
 
+    const plugins = await this.pluginRepository.find({ order: { key: 'ASC' }})
+
     // console.log('handleGetPluginListEvent', body, app)
-    Object.entries(app.contents.plugins).forEach(([key, value]) => {
+    Object.entries(plugins).forEach(([id, plugin]) => {
       // console.log(value, app.contents.plugins[key]);
-      pluginsMap.records[key] = {
-        display_name: value.name,
-        parent: value.parent
+      pluginsMap.records[plugin.key] = {
+        display_name: plugin.contents.name,
+        parent: plugin.contents.parent,
       };
-    })
+    });
 
     // console.log('handleGetPluginListEvent', body, pluginsMap)
     const event = `subscriptions-${body.appKey}`;
