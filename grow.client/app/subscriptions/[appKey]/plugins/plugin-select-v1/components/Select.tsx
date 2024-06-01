@@ -58,7 +58,6 @@ export default function PluginSelect({
       }
       return 0;
     });
-
   }
   // console.log("Rendering PluginSelect", value, label);
 

@@ -8,8 +8,6 @@ import { DataGridCell } from "./DataGridCell";
 import { DataGridTemplate } from "./DataGridTemplate";
 import { recordValueSortComparator } from "./recordValueSortComparator";
 
-export const drawerWidth = 200;
-
 interface IPluginDataGridProps {
   dataSource: Collection;
   height?: string;

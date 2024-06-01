@@ -29,6 +29,7 @@ export const plugins = {
   ),
   "plugin-list-v1": lazy(() => import(`../../plugins/plugin-list-v1/plugin`)),
   "plugin-modal-v1": lazy(() => import(`../../plugins/plugin-modal-v1/plugin`)),
+  "plugin-tabs-v1": lazy(() => import(`../../plugins/plugin-tabs-v1/plugin`)),
   "plugin-textfield-v1": lazy(
     () => import(`../../plugins/plugin-textfield-v1/plugin`)
   ),
@@ -59,7 +60,7 @@ export function RecordPluginComponent({
   const PluginComponent = plugins[plugin.name];
 
   if (PluginComponent === undefined) {
-    console.log(`Plugin not found: `, plugin);
+    // console.log(`Plugin not found: `, plugin);
     return null;
   }
 

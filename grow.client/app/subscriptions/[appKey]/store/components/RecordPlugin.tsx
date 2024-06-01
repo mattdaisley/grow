@@ -49,6 +49,7 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
   // console.log("RecordPlugin plugin", useRecordsResults.plugin_key, plugin);
 
   if (!plugin) {
+    // console.log(`RecordPlugin plugin ${plugin} is undefined`);
     return null;
   }
 

@@ -6,9 +6,6 @@ import { Box } from "@mui/material";
 import useCollections from "../../../store/useCollections";
 import { PluginPage } from "./PluginPage";
 import useAppState from "../../../store/useAppState";
-// import { drawerWidth } from './../../../../../testing/[dynamic]/DynamicAppDrawer';
-
-// export const drawerWidth = 200;
 
 export default function PluginMain({ pagesCollection, filter, selectedRecord: selectedRecordValue }) {
   // console.log("Rendering PluginMain", filter, selectedRecordValue);

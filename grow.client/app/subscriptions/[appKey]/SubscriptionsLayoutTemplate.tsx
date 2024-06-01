@@ -8,8 +8,6 @@ import { SubscriptionStoreContext } from "./store/SubscriptionStoreContext";
 import { IApp, App } from "./store/domain/App";
 import { LayoutPlugins } from "./LayoutPlugins";
 
-const drawerWidth = 200;
-
 interface Props {
   appKey: string;
   children: React.ReactNode;

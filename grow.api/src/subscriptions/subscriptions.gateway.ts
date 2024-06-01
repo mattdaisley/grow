@@ -166,10 +166,31 @@ export class SubscriptionsGateway {
     const event = `app-${body.appKey}`;
 
     const plugins = app.contents.plugins;
+    
+    const globalPlugins = await this.pluginRepository.find({ order: { key: 'ASC' } });
 
-    const response = { key: body.appKey, plugins, collections: {} };
+    const pluginsMap = {};
 
-    // console.log('handleGetAppEvent returning', event)
+    // console.log('handleGetPluginListEvent', body, app)
+    Object.entries(globalPlugins).forEach(([id, plugin]) => {
+      // console.log(value, app.contents.plugins[key]);
+      pluginsMap[plugin.key] = {
+        ...plugin.contents,
+      };
+    });
+
+    Object.entries(plugins).forEach(([id, plugin]) => {
+      // console.log('handleGetAppEvent', id, plugin)
+      pluginsMap[id] = {
+        ...pluginsMap[id],
+        ...plugin,
+      };
+    });
+    // console.log('handleGetAppEvent', plugins, pluginsMap)
+
+    const response = { key: body.appKey, plugins: pluginsMap, collections: {} };
+
+    console.log('handleGetAppEvent returning', event, response);
     client.emit(event, response)
     return response;
   }
@@ -226,14 +247,6 @@ export class SubscriptionsGateway {
       },
       records: {}
     }
-
-    const app = await this.appRepository
-      .createQueryBuilder("app")
-      .select("app.id")
-      .addSelect("app.contents")
-      .where("app.id = :appKey", { appKey: body.appKey })
-      .orderBy("id", "ASC")
-      .getOne();
 
     const plugins = await this.pluginRepository.find({ order: { key: 'ASC' }})
 
@@ -305,7 +318,7 @@ export class SubscriptionsGateway {
   ): Promise<any> {
 
     // console.log('handleGetCollectionEvent', body)
-    if (!body.appKey || body.collectionKey === '') {
+    if (!body.appKey || !body.collectionKey || body.collectionKey === '' || body.collectionKey === 'null') {
       return;
     }
 

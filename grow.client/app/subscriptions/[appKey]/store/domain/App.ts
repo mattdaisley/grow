@@ -46,7 +46,7 @@ export class App {
   constructor({ key, plugins, collections }: IApp, socket: Socket) {
     this._instance = uuidv4()
 
-    // console.log('App constructor app key:', key);
+    // console.log('App constructor app key:', key, plugins);
     this.key = key;
     this._plugins = plugins;
     this.plugins = this._createPlugins(plugins);

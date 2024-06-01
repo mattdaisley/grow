@@ -39,7 +39,7 @@ export default function PluginContainer({
   border,
   paper,
 }: IPluginContainerProps) {
-  // console.log("Rendering PluginContainer", components, padding, px, py);
+  // console.log("Rendering PluginContainer", components, height, width, padding, px, py);
 
   const BoundingComponent: any = !!paper ? Paper : Grid;
 

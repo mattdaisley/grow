@@ -6,8 +6,6 @@ import useCollections from "../../../store/useCollections";
 import { Collection } from "../../../store/domain/Collection";
 import { PluginListItem } from "./PluginListItem";
 
-export const drawerWidth = 200;
-
 interface IPluginListProps {
   listItemCollection: Collection;
   sort_key?: string;
