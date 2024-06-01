@@ -52,6 +52,26 @@ export default function PluginMain({ pagesCollection, filter, selectedRecord: se
   const pageRecords = pages[pagesCollection.key].records;
   // console.log("PluginMain pageRecords", pageRecords, filter);
 
+  let sortedPages = Object.entries(pageRecords);
+  const sort_key = 'sortOrder';
+
+  if (
+    Object.values(pagesCollection.schema.fields)
+      .map((f: any) => f.name)
+      .includes(sort_key)
+  ) {
+    sortedPages.sort((a, b) => {
+      // console.log(a, b);
+      if (a[1].value[sort_key] < b[1].value[sort_key]) {
+        return -1;
+      }
+      if (a[1].value[sort_key] > b[1].value[sort_key]) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
   const drawerWidthPixels =
     drawerWidth?.value && drawerWidth.value !== ""
       ? parseInt(drawerWidth.value)
@@ -87,7 +107,7 @@ export default function PluginMain({ pagesCollection, filter, selectedRecord: se
         };
       }}
     >
-      {Object.entries(pageRecords).map(([key, pageRecord]) => {
+      {sortedPages.map(([key, pageRecord]) => {
         return <PluginPage key={key} pageRecord={pageRecord} filter={filter} />;
       })}
     </Box>

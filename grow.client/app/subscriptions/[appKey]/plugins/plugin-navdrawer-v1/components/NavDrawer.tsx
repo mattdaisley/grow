@@ -20,11 +20,31 @@ export default function PluginNavDrawer(props) {
 
   const pageRecords = pages[props.pages.key].records;
 
-  // console.log("PluginNavDrawer", pages, pageRecords);
+  let sortedPages = Object.entries(pageRecords);
+  const sort_key = "sortOrder";
+
+  if (
+    Object.values(props.pages.schema.fields)
+      .map((f: any) => f.name)
+      .includes(sort_key)
+  ) {
+    sortedPages.sort((a, b) => {
+      // console.log(a, b);
+      if (a[1].value[sort_key] < b[1].value[sort_key]) {
+        return -1;
+      }
+      if (a[1].value[sort_key] > b[1].value[sort_key]) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
+  // console.log("PluginNavDrawer", pages, pageRecords, sortedPages);
 
   return (
     <ResponsiveNavDrawer segment={segment}>
-      {Object.entries(pageRecords).map(([pageKey, page]) => (
+      {sortedPages.map(([pageKey, page]) => (
         <NavItem key={pageKey} segment={segment} page={page} />
       ))}
     </ResponsiveNavDrawer>
