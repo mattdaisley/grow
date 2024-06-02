@@ -281,23 +281,27 @@ export class SubscriptionsGateway {
         fields: {
           collectionKey: { type: 'string', name: 'collectionKey' },
           display_name: { type: 'string', name: 'display_name' },
+          name: { type: 'string', name: 'name' },
         }
       },
       records: {}
     }
 
     const collections = await this.appCollectionRepository
-      .createQueryBuilder("app_collection")
-      .select("app_collection.id", "collection_key")
-      .addSelect("app_collection.contents->>'display_name'", "display_name")
-      .where("app_collection.appKey = :appKey", { appKey: body.appKey })
-      .orderBy("collection_key", "ASC")
+      .createQueryBuilder('app_collection')
+      .select('app_collection.id', 'collection_key')
+      .addSelect("app_collection.contents->>'display_name'", 'display_name')
+      .addSelect("app_collection.contents->>'name'", 'name')
+      .where('app_collection.appKey = :appKey', { appKey: body.appKey })
+      .orderBy('collection_key', 'ASC')
       .getRawMany();
 
     collections.forEach(collection => {
       collectionsMap.records[collection.collection_key] = {
         collectionKey: collection.collection_key,
-        display_name: `${collection.collection_key}: ${collection.display_name}`,
+        // display_name: `${collection.display_name} (${collection.collection_key})`,
+        display_name: collection.display_name,
+        name: collection.name,
       };
     })
 

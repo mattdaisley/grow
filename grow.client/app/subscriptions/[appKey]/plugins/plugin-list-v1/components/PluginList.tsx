@@ -1,10 +1,12 @@
 "use client";
 
-import { Box, List } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
+
 import useCollections from "../../../store/useCollections";
 import { Collection } from "../../../store/domain/Collection";
-import { PluginListItem } from "./PluginListItem";
+import { Record } from "../../../store/domain/Record";
+import { CollapseList } from "./CollapseList";
+import { INestedListItems } from "./INestedListItems";
 
 interface IPluginListProps {
   listItemCollection: Collection;
@@ -42,18 +44,11 @@ export default function PluginList({
 
   let listItems = Object.entries(listItemRecords);
 
-  if (sort_key) {
-    listItems.sort((a, b) => {
-      // console.log(a, b);
-      if (a[1].value["display_name"] < b[1].value["display_name"]) {
-        return -1;
-      }
-      if (a[1].value["display_name"] > b[1].value["display_name"]) {
-        return 1;
-      }
-      return 0;
-    });
-  }
+  sortListItems(sort_key, listItems);
+
+  const nestedListItems = transformList(listItems);
+  // console.log("nestedListItems", nestedListItems)
+
 
   return (
     <>
@@ -66,18 +61,58 @@ export default function PluginList({
           py: py ? Number(py ?? 0) : undefined,
         }}
       >
-        <List dense={dense}>
-          {listItems.map(([key, listItemRecord]) => {
-            return (
-              <PluginListItem
-                key={key}
-                listItemRecord={listItemRecord}
-                {...props}
-              />
-            );
-          })}
-        </List>
+        {
+          <CollapseList
+            dense={dense}
+            nestedListItems={nestedListItems}
+            {...props}
+          />
+        }
       </Grid>
     </>
   );
 }
+
+
+function sortListItems(sort_key: string, listItems: [string, Record][]) {
+  if (sort_key) {
+    listItems.sort((a, b) => {
+      // console.log(a, b);
+      if (a[1].value["display_name"] < b[1].value["display_name"]) {
+        return -1;
+      }
+      if (a[1].value["display_name"] > b[1].value["display_name"]) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+}
+
+function transformList(listItems): INestedListItems {
+  let result: INestedListItems = {};
+
+  listItems.forEach(([itemKey, item]) => {
+    let keys = item.value.display_name.split("/");
+    let currentLevel = result;
+
+    keys.forEach((key, index) => {
+      if (!currentLevel[key]) {
+        currentLevel[key] = {
+          listItemRecord: null,
+          nestedListItems: {},
+        };
+      }
+
+      if (index === keys.length - 1) {
+        currentLevel[key].listItemRecord = item;
+      }
+
+      currentLevel = currentLevel[key].nestedListItems;
+    });
+  });
+
+  return result;
+}
+
+

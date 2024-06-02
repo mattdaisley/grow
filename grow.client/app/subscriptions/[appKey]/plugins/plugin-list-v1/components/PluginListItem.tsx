@@ -1,8 +1,9 @@
 "use client";
 
+import { MouseEventHandler } from "react";
+import { ListItem, ListItemButton, ListItemText, SxProps, Theme } from "@mui/material";
+
 import useRecords from "../../../store/useRecords";
-import { ComponentsCollection } from "../../../store/components/ComponentsCollection";
-import { ListItem, ListItemButton, ListItemText } from "@mui/material";
 import useAppState from "../../../store/useAppState";
 import { Record } from "../../../store/domain/Record";
 
@@ -11,16 +12,22 @@ export function PluginListItem({
   appStateKey,
   appStateValue,
   button,
+  onClick,
   clickAction,
+  children,
+  sx,
   ...props
 }: {
   listItemRecord: Record;
   primary?: string;
   secondary?: string;
   button?: boolean;
+  onClick?: (e: MouseEventHandler<HTMLDivElement>) => void;
   clickAction?: string;
   appStateValue?: string;
   appStateKey?: string;
+  children?: any;
+  sx?: SxProps<Theme>;
 }) {
   // console.log("PluginListItem", listItemRecord, props);
 
@@ -50,28 +57,32 @@ export function PluginListItem({
   let primary = useRecordResults.primary.value;
   let secondary = useRecordResults.secondary?.value ?? props.secondary;
 
-  const BoundingComponent =
-    button && clickAction === "setAppState"
-      ? PluginListItemButton
-      : ({ children }) => <>{children}</>;
+  const primarySplit = primary?.split('/') || [''];
 
   return (
     <>
-      <ListItem>
-        <BoundingComponent
+      {button && clickAction === "setAppState" ? (
+        <PluginListItemButton
           useRecordResults={useRecordResults}
           appStateKey={appStateKey}
+          onClick={onClick}
+          sx={sx}
         >
-          <ListItemText primary={primary} secondary={secondary} />
-        </BoundingComponent>
-      </ListItem>
+          <ListItemText primary={primarySplit[primarySplit.length - 1]} secondary={secondary} />
+          {/* <ListItemText primary={primary} secondary={secondary} /> */}
+          {children}
+        </PluginListItemButton>
+      ) : (
+        <ListItem>{children}</ListItem>
+      )}
+
       {/* <PageHeader pageRecord={listItemRecord} />
       <ComponentsCollection components={components.value} /> */}
     </>
   );
 }
 
-function PluginListItemButton({ useRecordResults, appStateKey, children }) {
+function PluginListItemButton({ useRecordResults, appStateKey, onClick, children, sx }) {
   const useAppStateResults = useAppState(appStateKey);
 
   const handleButtonClick = () => {
@@ -83,9 +94,11 @@ function PluginListItemButton({ useRecordResults, appStateKey, children }) {
         useAppStateResult.onChange && useAppStateResult.onChange(appStateValue);
       }
     );
+
+    onClick && onClick();
   };
 
   return (
-    <ListItemButton onClick={handleButtonClick}>{children}</ListItemButton>
+    <ListItemButton sx={sx} onClick={handleButtonClick}>{children}</ListItemButton>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import PluginList from "./components/PluginList";
 
 export default function Plugin({ components, ...props }) {

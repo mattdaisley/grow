@@ -31,6 +31,10 @@ export default function PluginFlow({
   const nodeRecords = useCollectionsResponse[nodesCollection.key]?.records;
   // console.log("PluginFlow nodeRecords and edgeRecords", nodeRecords, edgeRecords);
 
+  if (!edgeRecords || !nodeRecords) {
+    return null;
+  }
+
   const edges = Object.entries(edgeRecords).map(([key, edgeRecord]) => {
     const { source, target } = edgeRecord.value as any;
 
