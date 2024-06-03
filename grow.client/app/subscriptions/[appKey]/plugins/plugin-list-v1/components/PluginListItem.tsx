@@ -59,25 +59,32 @@ export function PluginListItem({
 
   const primarySplit = primary?.split('/') || [''];
 
+  if (button && clickAction === "setAppState") {
+    return (
+      <PluginListItemButton
+        useRecordResults={useRecordResults}
+        appStateKey={appStateKey}
+        onClick={onClick}
+        sx={sx}
+      >
+        <ListItemText primary={primarySplit[primarySplit.length - 1]} secondary={secondary} />
+        {/* <ListItemText primary={primary} secondary={secondary} /> */}
+        {children}
+      </PluginListItemButton>
+    )
+  }
+
+  if (primary !== undefined) {
+    return (
+      <ListItem>
+        <ListItemText primary={primary} secondary={secondary} />
+      </ListItem>
+    )
+  }
+
   return (
     <>
-      {button && clickAction === "setAppState" ? (
-        <PluginListItemButton
-          useRecordResults={useRecordResults}
-          appStateKey={appStateKey}
-          onClick={onClick}
-          sx={sx}
-        >
-          <ListItemText primary={primarySplit[primarySplit.length - 1]} secondary={secondary} />
-          {/* <ListItemText primary={primary} secondary={secondary} /> */}
-          {children}
-        </PluginListItemButton>
-      ) : (
-        <ListItem>{children}</ListItem>
-      )}
-
-      {/* <PageHeader pageRecord={listItemRecord} />
-      <ComponentsCollection components={components.value} /> */}
+      <ListItem>{children}</ListItem>
     </>
   );
 }
