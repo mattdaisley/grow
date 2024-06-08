@@ -4,6 +4,7 @@ import { List } from "@mui/material";
 
 import { CollapseListItem } from "./CollapseListItem";
 import { INestedListItems } from "./INestedListItems";
+import { Collection } from "../../../store/domain/Collection";
 
 
 export function CollapseList({
@@ -12,7 +13,11 @@ export function CollapseList({
   nestedListItems: INestedListItems;
   dense?: boolean;
   level?: number;
+  selectedRecord?: Collection;
 }) {
+  
+  // console.log("CollapseList", nestedListItems, level, useAppStateResults);
+  
   return (
     <>
       <List dense={dense} disablePadding>

@@ -3,6 +3,7 @@
 import PluginList from "./components/PluginList";
 
 export default function Plugin({ components, ...props }) {
+  // console.log("plugin-list-v1", "selectedRecord", props.selectedRecord.value.schema.display_name);
   // console.log("plugin-list-v1", "components", components, "props", props);
 
   if (components?.value === undefined) {

@@ -1,20 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Collapse, ListItemButton, ListItemText } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
 import { PluginListItem } from "./PluginListItem";
 import { INestedListItem } from "./INestedListItems";
 import { CollapseList } from "./CollapseList";
+import { Collection } from "../../../store/domain/Collection";
 
 export function CollapseListItem({
-  label, listItem, dense, level, ...props
+  label, listItem, dense, level, selectedRecord, ...props
 }: {
   label: string;
   listItem: INestedListItem;
   dense: boolean;
   level: number;
+  selectedRecord?: Collection;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -22,7 +24,28 @@ export function CollapseListItem({
     setOpen(!open);
   };
   const hasNestedListItems = Object.keys(listItem.nestedListItems).length > 0;
-  // console.log("CollapseListItem", label, listItem, level, hasNestedListItems);
+  // console.log(
+  //   "CollapseListItem",
+  //   // label,
+  //   // listItem,
+  //   // level,
+  //   // hasNestedListItems,
+  //   (listItem.listItemRecord?.value as any)?.display_name,
+  //   selectedRecord,
+  //   selectedRecord?.schema?.display_name
+  // );
+
+  const displayName = (listItem.listItemRecord?.value as any)?.display_name;
+
+  const matchesSelectedRecord = selectedRecord?.schema?.display_name.indexOf(displayName+"/") === 0;
+
+  useEffect(() => {
+    if (matchesSelectedRecord) {
+      setOpen(true);
+    }
+  }, [matchesSelectedRecord]);
+
+
   return (
     <>
       {listItem.listItemRecord !== null ? (
@@ -40,17 +63,9 @@ export function CollapseListItem({
             ))}
         </PluginListItem>
       ) : (
-        <ListItemButton
-          onClick={handleClick}
-          sx={{ pl: level * 2 }}
-        >
+        <ListItemButton onClick={handleClick} sx={{ pl: level * 2 }}>
           <ListItemText primary={label} />
-          {hasNestedListItems &&
-            (open ? (
-              <ExpandLess />
-            ) : (
-              <ExpandMore />
-            ))}
+          {hasNestedListItems && (open ? <ExpandLess /> : <ExpandMore />)}
         </ListItemButton>
       )}
       {hasNestedListItems && (
@@ -59,7 +74,9 @@ export function CollapseListItem({
             nestedListItems={listItem.nestedListItems}
             dense={dense}
             level={level + 1}
-            {...props} />
+            selectedRecord={selectedRecord}
+            {...props}
+          />
         </Collapse>
       )}
     </>

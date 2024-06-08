@@ -26,7 +26,15 @@ select * from public.app_record order by id desc;
 select * from public.app_record_history order by id desc;
 
 
-select  contents->>'display_name' as display_name, * from public.app_collection where "appKey" = 3 order by display_name desc;
+select  contents->>'display_name' as display_name, * from public.app_collection where "appKey" = 1 order by display_name desc;
+
+select  
+	contents->>'display_name' as display_name, 
+	* 
+from public.app_collection 
+where "appKey" = 1 
+order by display_name desc;
+
 
 {{a.1.c.71.r.163.3121c66f-8b86-4b65-8afb-bca9da2fea8d}}
 {{a.1.c.70.r.162.6d17dc5d-3f3a-44b8-ba7c-b78eb04eb656}}

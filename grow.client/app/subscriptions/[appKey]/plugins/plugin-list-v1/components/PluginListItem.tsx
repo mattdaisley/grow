@@ -51,27 +51,32 @@ export function PluginListItem({
   //   "PluginListItem useRecordResults",
   //   useRecordResults,
   //   "recordFieldRequest",
-  //   recordFieldRequest
+  //   recordFieldRequest,
+  //   useRecordResults.appStateValue.value
   // );
 
   let primary = useRecordResults.primary.value;
   let secondary = useRecordResults.secondary?.value ?? props.secondary;
 
-  const primarySplit = primary?.split('/') || [''];
+  const primarySplit = primary?.split("/") || [""];
 
   if (button && clickAction === "setAppState") {
     return (
       <PluginListItemButton
+        listItemRecord={listItemRecord}
         useRecordResults={useRecordResults}
         appStateKey={appStateKey}
         onClick={onClick}
         sx={sx}
       >
-        <ListItemText primary={primarySplit[primarySplit.length - 1]} secondary={secondary} />
+        <ListItemText
+          primary={primarySplit[primarySplit.length - 1]}
+          secondary={secondary}
+        />
         {/* <ListItemText primary={primary} secondary={secondary} /> */}
         {children}
       </PluginListItemButton>
-    )
+    );
   }
 
   if (primary !== undefined) {
@@ -79,7 +84,7 @@ export function PluginListItem({
       <ListItem>
         <ListItemText primary={primary} secondary={secondary} />
       </ListItem>
-    )
+    );
   }
 
   return (
@@ -89,8 +94,9 @@ export function PluginListItem({
   );
 }
 
-function PluginListItemButton({ useRecordResults, appStateKey, onClick, children, sx }) {
+function PluginListItemButton({ listItemRecord, useRecordResults, appStateKey, onClick, children, sx }) {
   const useAppStateResults = useAppState(appStateKey);
+  // console.log("PluginListItemButton", listItemRecord, useRecordResults, useAppStateResults);
 
   const handleButtonClick = () => {
     const appStateValue = `${useRecordResults.appStateValue?.value}`;
@@ -105,7 +111,12 @@ function PluginListItemButton({ useRecordResults, appStateKey, onClick, children
     onClick && onClick();
   };
 
+  const itemSelected =
+    listItemRecord.key === useAppStateResults.selectedRecord?.value;
+
   return (
-    <ListItemButton sx={sx} onClick={handleButtonClick}>{children}</ListItemButton>
+    <ListItemButton selected={itemSelected} sx={sx} onClick={handleButtonClick}>
+      {children}
+    </ListItemButton>
   );
 }

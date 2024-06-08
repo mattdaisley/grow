@@ -7,6 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { green, lightBlue } from "@mui/material/colors";
 
 declare module "@mui/material/styles" {
   interface Palette {
@@ -26,18 +27,21 @@ export const roboto = Roboto({
 export const theme = createTheme({
   spacing: 8,
   palette: {
-    primary: {
-      main: "#90a4ae",
-      light: "#c1d5e0",
-      dark: "#62757f",
-      contrastText: "#000",
-    },
-    secondary: {
-      main: "#26a69a",
-      light: "#80e27e",
-      dark: "#087f23",
-      contrastText: "#000000",
-    },
+    primary: green,
+    secondary: lightBlue,
+    // primary: {
+      // main: "#E74F09",
+      // main: "#90a4ae",
+      // light: "#c1d5e0",
+      // dark: "#62757f",
+      // contrastText: "#000",
+    // },
+    // secondary: {
+    //   main: "#26a69a",
+    //   light: "#80e27e",
+    //   dark: "#087f23",
+    //   contrastText: "#000000",
+    // },
     background: {
       paper: "#ffffff",
       default: "#fafafa",

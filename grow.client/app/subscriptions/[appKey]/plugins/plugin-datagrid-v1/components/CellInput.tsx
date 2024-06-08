@@ -6,6 +6,7 @@ import sanitizeHtml from 'sanitize-html';
 import { Box, IconButton, Paper, Popper } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Record } from "../../../store/domain/Record";
+import { AutoFixHigh } from "@mui/icons-material";
 
 const sanitizeConf = {
   allowedTags: ["b", "i", "a", "p"],
@@ -50,7 +51,7 @@ export function CellInput({
   // console.log("CellInput rendering -", typeof rawValue, '-', sanitizeHtml(rawValue), '-', sanitizedValue, inputValue);
 
   const [popperFocused, setPopperFocused] = useState(false);
-  const [popperText, setPopperText] = useState("");
+  // const [popperText, setPopperText] = useState(rawValue);
 
   const [boxFocused, setBoxFocused] = useState(false);
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
@@ -114,33 +115,53 @@ export function CellInput({
     // );
     if (!target) return;
 
-    const selector = target.getAttribute("data-bracket-selector");
-    setPopperText(selector);
+    // const selector = target.getAttribute("data-bracket-selector");
+    // setPopperText(selector);
     setAnchorEl(anchorEl ? null : e.currentTarget);
     setPopperFocused(true);
     // setAnchorEl((e.target as HTMLElement).closest("[data-bracket-selector]"));
   };
 
-  const handleBoxBlur = () => {
+  const handleIconButtonClick = (e) => {
+    setBoxFocused(true);
+    setPopperFocused(true);
+
+    const target = (e.currentTarget as HTMLElement).closest("[data-cell-input]");
+    // console.log(e, target)
+    if (!target) return;
+
+    setAnchorEl(target);
+  }
+
+  const handleBoxBlur = (e) => {
+    // console.log(e.target, e.relatedTarget, e.currentTarget);
+    if (!e.currentTarget || !e.relatedTarget) {
+      return;
+    }
+
+    if (e.currentTarget.contains(e.relatedTarget)) {
+      return;
+    }
+
     setBoxFocused(false);
   };
 
   const handlePopperClose = () => {
     setPopperFocused(false);
     setAnchorEl(null);
-    setPopperText("");
+    // setPopperText("");
   };
 
   const handleChange = (e) => {
     if (e.nativeEvent.data === '{') {
-      console.log('open popper');
+      // console.log('open popper');
       setAnchorEl(e.target);
       setPopperFocused(true);
     }
 
-    if (open) {
-      setPopperText((oldValue) => oldValue + e.nativeEvent.data);
-    }
+    // if (open) {
+    //   setPopperText((oldValue) => oldValue + e.nativeEvent.data);
+    // }
 
     const collection = e.target.children;
     for (let i = 0; i < collection.length; i++) {
@@ -161,6 +182,13 @@ export function CellInput({
     onChange && onChange(sanitizedValue);
   };
 
+  const handleRawValueChange = (e) => {
+
+    const sanitizedValue = sanitizeHtml(e.target.value, sanitizeConf);
+    // console.log(sanitizedValue);
+    onChange && onChange(sanitizedValue);
+  }
+
   const open = Boolean(anchorEl);
   // console.log(inputValue, anchorEl);
 
@@ -169,57 +197,82 @@ export function CellInput({
       style={{
         display: "flex",
         height: "100%",
-        flexDirection: "column",
-        justifyContent: "center",
+        flexDirection: "row",
       }}
     >
       <Box
-        sx={[
-          (theme) => ({
-            overflow: "hidden",
-            lineHeight: "1.5",
-            cursor: "pointer",
-            textOverflow: "ellipsis",
-
-            "& span": {
-              color: theme.palette.brackets.main,
-            },
-          }),
-          (theme) =>
-            (boxFocused || popperFocused) && {
-              p: 1,
-              minWidth: "160px",
-              border: "2px solid #000",
-              borderRadius: 1,
-              backgroundColor: "white",
-              position: "absolute",
-              cursor: "text",
-
-              "& span": {
-                backgroundColor: theme.palette.brackets.main,
-                color: theme.palette.brackets.contrastText,
-                borderRadius: 1,
-                px: 1,
-                py: 0.5,
-                cursor: "pointer",
-              },
-            },
-        ]}
-        ref={boxRef}
-        contentEditable={!readonly}
+        data-cell-input
         onClick={handleClick}
         onFocus={() => setBoxFocused(true)}
         onBlur={handleBoxBlur}
-        onKeyDown={(e) => e.stopPropagation()}
-        onInput={handleChange}
-        dangerouslySetInnerHTML={{ __html: inputValue }}
-      />
+        sx={[
+          (theme) => ({
+            flex: 1,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            py: 0.75,
+          }),
+          (theme) =>
+            (boxFocused || popperFocused) && {
+              ml: -1,
+              position: "absolute",
+              alignItems: "center",
+              backgroundColor: "white",
+              border: `2px solid ${theme.palette.brackets.main}`,
+              borderRadius: 1,
+              px: 1,
+            },
+        ]}
+      >
+        <Box
+          sx={[
+            (theme) => ({
+              overflow: "hidden",
+              lineHeight: "1.5",
+              cursor: "pointer",
+              textOverflow: "ellipsis",
+              flex: 1,
+              outline: "none",
+
+              "& span": {
+                color: theme.palette.brackets.main,
+              },
+            }),
+            (theme) =>
+              (boxFocused || popperFocused) && {
+                p: 1,
+                minWidth: "160px",
+                cursor: "text",
+
+                "& span": {
+                  backgroundColor: theme.palette.brackets.main,
+                  color: theme.palette.brackets.contrastText,
+                  borderRadius: 1,
+                  px: 1,
+                  py: 0.5,
+                  cursor: "pointer",
+                },
+              },
+          ]}
+          ref={boxRef}
+          contentEditable={!readonly}
+          onKeyDown={(e) => e.stopPropagation()}
+          onInput={handleChange}
+          dangerouslySetInnerHTML={{ __html: inputValue }}
+        />
+        {boxFocused && (
+          <IconButton size="small" onClick={handleIconButtonClick}>
+            <AutoFixHigh />
+          </IconButton>
+        )}
+      </Box>
       <Popper open={open} anchorEl={anchorEl} placement="top-start">
         <Paper sx={{ width: 400, height: 200, p: 2 }}>
           <input
             style={{ width: "100%" }}
-            value={popperText}
-            onChange={(e) => {}}
+            value={sanitizedValue}
+            onChange={handleRawValueChange}
           />
           <Box sx={{ position: "absolute", bottom: 0, right: 0 }}>
             <IconButton onClick={handlePopperClose}>

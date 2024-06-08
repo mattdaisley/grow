@@ -351,7 +351,7 @@ function CellSelect({
         })
         .map(([key, record]: [string, any]) => (
           <option key={key} value={numberKey ? Number(key) : key}>
-            {record?.value.display_name || ""}
+            {record?.value.display_name.split("/").at(-1) || ""}
           </option>
         ))}
     </select>
