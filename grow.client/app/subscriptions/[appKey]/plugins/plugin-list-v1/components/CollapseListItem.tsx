@@ -35,9 +35,15 @@ export function CollapseListItem({
   //   selectedRecord?.schema?.display_name
   // );
 
-  const displayName = (listItem.listItemRecord?.value as any)?.display_name;
-
-  const matchesSelectedRecord = selectedRecord?.schema?.display_name.indexOf(displayName+"/") === 0;
+  const matchesSelectedRecord =
+    selectedRecord?.schema?.display_name.indexOf(listItem.displayName+"/") === 0;
+  
+  // console.log(
+  //   "CollapseListItem matchesSelectedRecord",
+  //   selectedRecord?.schema?.display_name,
+  //   matchesSelectedRecord,
+  //   listItem.displayName
+  // );
 
   useEffect(() => {
     if (matchesSelectedRecord) {

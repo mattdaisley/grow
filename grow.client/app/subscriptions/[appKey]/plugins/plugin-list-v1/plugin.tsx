@@ -2,9 +2,9 @@
 
 import PluginList from "./components/PluginList";
 
-export default function Plugin({ components, ...props }) {
+export default function Plugin({ components, selectedRecord, ...props }) {
   // console.log("plugin-list-v1", "selectedRecord", props.selectedRecord.value.schema.display_name);
-  // console.log("plugin-list-v1", "components", components, "props", props);
+  // console.log("plugin-list-v1", "components", components, "selectedRecord", selectedRecord, "props", props);
 
   if (components?.value === undefined) {
     return null;
@@ -17,7 +17,11 @@ export default function Plugin({ components, ...props }) {
 
   return (
     <>
-      <PluginList listItemCollection={components.value} {...propValues} />
+      <PluginList
+        listItemCollection={components.value}
+        selectedRecord={selectedRecord}
+        {...propValues}
+      />
     </>
   );
 }

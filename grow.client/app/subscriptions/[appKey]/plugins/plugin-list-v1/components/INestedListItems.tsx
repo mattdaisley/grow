@@ -8,6 +8,7 @@ export interface INestedListItems {
 }
 
 export interface INestedListItem {
+  displayName: string;
   listItemRecord: Record | null;
   nestedListItems: INestedListItems;
 

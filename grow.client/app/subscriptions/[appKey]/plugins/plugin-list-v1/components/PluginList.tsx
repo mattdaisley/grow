@@ -7,9 +7,11 @@ import { Collection } from "../../../store/domain/Collection";
 import { Record } from "../../../store/domain/Record";
 import { CollapseList } from "./CollapseList";
 import { INestedListItems } from "./INestedListItems";
+import useRecords from "../../../store/useRecords";
 
 interface IPluginListProps {
   listItemCollection: Collection;
+  selectedRecord?: any;
   sort_key?: string;
   primary?: string;
   secondary?: string;
@@ -21,6 +23,7 @@ interface IPluginListProps {
 
 export default function PluginList({
   listItemCollection,
+  selectedRecord,
   dense,
   padding,
   px,
@@ -30,8 +33,19 @@ export default function PluginList({
 }: IPluginListProps) {
   // console.log("Rendering PluginList listItemCollection", listItemCollection);
 
+  const recordFieldRequest = {
+    selectedRecord: {
+      record: selectedRecord.record,
+    },
+  };
+
+  const useRecordResults = useRecords(recordFieldRequest);
   const listItemsResponse = useCollections([listItemCollection]);
-  // console.log("PluginList listItemsResponse", listItemsResponse);
+  // console.log(
+  //   "PluginList listItemsResponse",
+  //   listItemsResponse,
+  //   "useRecordResults", useRecordResults
+  // );
   if (
     !listItemsResponse ||
     !listItemsResponse[listItemCollection.key]?.records
@@ -65,6 +79,7 @@ export default function PluginList({
           <CollapseList
             dense={dense}
             nestedListItems={nestedListItems}
+            selectedRecord={useRecordResults.selectedRecord?.value}
             {...props}
           />
         }
@@ -95,10 +110,12 @@ function transformList(listItems): INestedListItems {
   listItems.forEach(([itemKey, item]) => {
     let keys = item.value.display_name.split("/");
     let currentLevel = result;
+    let currentDisplayName = '';
 
     keys.forEach((key, index) => {
       if (!currentLevel[key]) {
         currentLevel[key] = {
+          displayName: currentDisplayName,
           listItemRecord: null,
           nestedListItems: {},
         };
@@ -107,6 +124,12 @@ function transformList(listItems): INestedListItems {
       if (index === keys.length - 1) {
         currentLevel[key].listItemRecord = item;
       }
+      
+      currentDisplayName = currentDisplayName
+        ? `${currentDisplayName}/${key}`
+        : key;
+
+      currentLevel[key].displayName = currentDisplayName;
 
       currentLevel = currentLevel[key].nestedListItems;
     });
