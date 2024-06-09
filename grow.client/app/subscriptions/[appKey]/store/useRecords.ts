@@ -15,6 +15,7 @@ export interface RecordsFieldRequest {
 }
 export interface useRecordsResult {
   [key: string]: {
+    field: Field;
     record?: Record;
     value: any;
     displayValue: any;
@@ -26,9 +27,14 @@ export interface useRecordsResult {
 interface callbacksCache {
   [key: string]: { 
     record: Record, 
-    fieldName: string, 
+    field: Field, 
     callback: Function 
   } 
+}
+interface Field {
+  key: string;
+  name: string;
+  type: string;
 }
 
 /**
@@ -61,23 +67,25 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
     const values: useRecordsResult = {};
     const callbacks: callbacksCache = {} 
 
-    Object.entries(recordFieldRequests).forEach(([key, recordFieldRequest]) => {
+    Object.entries(recordFieldRequests).forEach(([requestKey, recordFieldRequest]) => {
+      if (!recordFieldRequest?.record) return;
 
-      const {record, field, callback: requestCallback} = recordFieldRequest;
+      const {record, field: requestField, callback: requestCallback} = recordFieldRequest;
 
-      const fieldName = getFieldName(key, field, record);
+      const field = getField(requestKey, requestField, record);
       // console.log('useRecord fieldName', fieldName, key, field, record)
 
-      callbacks[key] = { record: record, fieldName, callback: getCallback(key, fieldName, setValue, requestCallback) };
-      record.subscribe(fieldName, callbacks[key].callback);
+      callbacks[requestKey] = { record: record, field, callback: getCallback(requestKey, field.name, setValue, requestCallback) };
+      record.subscribe(field.name, callbacks[requestKey].callback);
 
-      values[key] = {
+      values[requestKey] = {
         record,
-        value: record.valueByFieldName(fieldName),
-        displayValue: record.getDisplayValueByFieldName(fieldName),
-        rawValue: record.rawValue[fieldName],
-        bracketValues: record.bracketValueByFieldName(fieldName),
-        onChange: getOnChangeHandler(record, fieldName),
+        field,
+        value: record.valueByFieldName(field.name),
+        displayValue: record.getDisplayValueByFieldName(field.name),
+        rawValue: record.rawValue[field.name],
+        bracketValues: record.bracketValueByFieldName(field.name),
+        onChange: getOnChangeHandler(record, field.name),
       };
     })
 
@@ -88,16 +96,16 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
     return () => {
       Object.entries(callbacks).forEach(([key, recordCallback]) => {
         // console.log('useRecord cleanup', recordCallback.fieldName)
-        recordCallback.record.unsubscribe(recordCallback.fieldName, recordCallback.callback);
+        recordCallback.record.unsubscribe(recordCallback.field.name, recordCallback.callback);
       });
     };
 
-  }, [JSON.stringify(Object.entries(recordFieldRequests).map(([key, recordFieldRequest]) => key + recordFieldRequest.record.key + recordFieldRequest.field))]);
+  }, [JSON.stringify(Object.entries(recordFieldRequests).map(([key, recordFieldRequest]) => key + recordFieldRequest?.record?.key + recordFieldRequest.field))]);
 
   return value;
 }
 
-function getFieldName(key: string, field: string, record: Record): string {
+function getField(key: string, field: string, record: Record): Field {
   // console.log('useRecord getFieldName', key, field, record)
   let fieldName = key;
 
@@ -111,7 +119,23 @@ function getFieldName(key: string, field: string, record: Record): string {
     fieldName = record.schema.fields[fieldKey].name;
   }
 
-  return fieldName;
+  const matchingFields = Object.entries(record.schema.fields)
+    .map(([key, value]) => ({key, value}))
+    .filter(kv => kv.value.name === fieldName);
+
+  if (matchingFields.length === 0) {
+    return {
+      key: '',
+      name: fieldName,
+      type: '',
+    }
+  }
+
+  return {
+    key: matchingFields[0].key,
+    name: matchingFields[0].value.name,
+    type: matchingFields[0].value.type,
+  };
 }
 
 function getCallback(key: string, fieldName: string, setValue: Function, requestCallback?: Function): Function {

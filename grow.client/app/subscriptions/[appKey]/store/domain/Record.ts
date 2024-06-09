@@ -138,6 +138,14 @@ export class Record {
         return;
       }
 
+      if (field.type === "collection_field_key") {
+        const fieldKeyValue = fieldValue ? fieldValue : "";
+        // console.log('Record.record_key', field.name, fieldValue)
+        fields[field.name] = fieldKeyValue;
+        // console.log('Record.record_key', field.name, fieldValue, fields[field.name])
+        return;
+      }
+
       fields[field.name] = fieldValue;
     });
 
@@ -197,7 +205,6 @@ export class Record {
     }
     // console.log("Record._getBracketFieldValue bracketSelectors", bracketSelectors); // logs an array of all matched selectors
     if (bracketSelectors.length > 0) {
-      
       bracketSelectors.forEach((bracketSelector) => {
         // console.log("Record._getBracketFieldValue returnBracketValue has bracketSelector", returnBracketValue, bracketSelector); // logs an array of all matched selectors
         if (returnBracketValue.hasOwnProperty(bracketSelector)) {
@@ -251,10 +258,37 @@ export class Record {
         bracketValue
       );
 
-      fields[field.name] = fieldValue;
+      if (field.type === "collection_field_key") {
+        fields[field.name] = fieldValue.value;
+      } else {
+        fields[field.name] = fieldValue;
+      }
     });
 
     return fields[fieldName];
+  }
+
+  getDisplayValueByFieldName(fieldName: string): string {
+    const value = this.valueByFieldName(fieldName);
+    const fieldType = this.fieldTypeByFieldName(fieldName);
+
+    // console.log('Record.getDisplayValueByFieldName', fieldName, value, fieldType)
+    let displayValue = value?.toString();
+
+    if (fieldType === "collection") {
+      displayValue = `${value?.key} - ${value?.schema?.display_name}`;
+    }
+
+    if (fieldType === "collection_field_key") {
+      // console.log("Record.getDisplayValueByFieldName collection_field_key", fieldName, value);
+      displayValue = value.displayValue;
+    }
+
+    if (fieldType === "app_plugin_list") {
+      displayValue = `${value?.value?.display_name}`;
+    }
+
+    return displayValue;
   }
 
   private _getFieldValue(rawValue, field, fieldBracketValue: Object): any {
@@ -265,21 +299,49 @@ export class Record {
       return resultFieldValue;
     }
 
-    let patternValue: string = rawValue;
+    let patternValue = rawValue;
+
+    if (field.type === "collection_field_key") {
+      patternValue = {
+        value: rawValue,
+        displayValue: rawValue,
+      };
+    }
+
     // console.log("Record._getFieldValue", rawValue, fieldBracketValue, field.type);
     if (Object.keys(fieldBracketValue).length > 0) {
       Object.entries(fieldBracketValue).forEach(([selector, bracketValue]) => {
         // console.log('Record._getFieldValue replacing selector', selector, bracketValue, patternValue);
-        try {
-          patternValue = patternValue.replace(selector, bracketValue);
-        } catch (e) {
-          console.log(
-            "Record._getFieldValue bracketValues",
-            selector,
-            bracketValue,
-            patternValue,
-            e
-          );
+
+        if (field.type === "collection_field_key") {
+          // console.log("Record.value collection_field_key", patternValue);
+          patternValue = {
+            value: patternValue.value.replace(selector, bracketValue.fieldKey),
+            displayValue: patternValue.displayValue.replace(
+              selector,
+              bracketValue.fieldValue
+            ),
+          };
+        // } else if (field.type === "referenced_field") {
+        //   patternValue = {
+        //     value: patternValue.value.replace(selector, bracketValue.fieldKey),
+        //     displayValue: patternValue.displayValue.replace(
+        //       selector,
+        //       bracketValue.fieldValue
+        //     ),
+        //   };
+        } else {
+          try {
+            patternValue = patternValue.replace(selector, bracketValue);
+          } catch (e) {
+            console.log(
+              "Record._getFieldValue bracketValues",
+              selector,
+              bracketValue,
+              patternValue,
+              e
+            );
+          }
         }
       });
 
@@ -292,6 +354,8 @@ export class Record {
         // return resultFieldValue;
       }
     }
+
+    // console.log("Record._getFieldValue", patternValue, field.type, field.name, fieldBracketValue)
 
     if (patternValue !== undefined && typeof patternValue === "string") {
       // console.log('Record.value after possible selectors', patternValue, field.type);
@@ -422,6 +486,51 @@ export class Record {
           resultFieldValue = rawValue;
         }
       }
+
+      if (field.type === "referenced_field") {
+        // const regex =
+        //   /collections\.([a-zA-Z0-9-_]+)\.records\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
+        // const matches = patternValue.match(regex);
+        // // console.log("RecordPlugin useRecordsResult", key, value, matches);
+        // if (matches) {
+
+        //   const collectionKey = matches[1];
+        //   const recordKey = matches[2];
+        //   const fieldKey = matches[3];
+
+        //   const collection = this._app.getCollection(collectionKey);
+        //   // const collection = app.collections[collectionKey];
+
+        //   return {
+        //     collection,
+        //     recordKey,
+        //     fieldKey,
+        //     // fieldPropKey: key,
+        //   };
+        // }
+
+        const appRecordRegex = /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
+        const appRecordMatches = patternValue.match(appRecordRegex);
+        if (appRecordMatches) {
+          const appRecord = this._getAppRecord(
+            appRecordMatches,
+            field
+          );
+
+          if (appRecord !== undefined) {
+            const { nestedRecord, nestedFieldKey } = appRecord;
+              
+            return {
+              collection: nestedRecord._collection,
+              recordKey: nestedRecord.key,
+              fieldKey: nestedFieldKey,
+              // fieldPropKey: key,
+            };
+          }
+          // console.log('Record.value appRecordValue',  appRecordValue, selector)
+          // return appRecordValue !== undefined ? appRecordValue : patternValue;
+        }
+      }
     }
 
     // console.log('field.type', field.type, resultFieldValue)
@@ -437,24 +546,6 @@ export class Record {
 
     return resultFieldValue;
     // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
-  }
-
-  getDisplayValueByFieldName(fieldName: string): string {
-    const value = this.valueByFieldName(fieldName);
-    const fieldType = this.fieldTypeByFieldName(fieldName);
-
-    // console.log('Record.getDisplayValueByFieldName', fieldName, value, fieldType)
-    let displayValue = value?.toString();
-
-    if (fieldType === "collection") {
-      displayValue = `${value?.key} - ${value?.schema?.display_name}`;
-    }
-
-    if (fieldType === "app_plugin_list") {
-      displayValue = `${value?.value?.display_name}`;
-    }
-
-    return displayValue;
   }
 
   fieldTypeByFieldName(fieldName: string): string {
@@ -483,11 +574,26 @@ export class Record {
     if (appRecordMatches) {
       const appRecordValue = this._getAppRecordValue(
         appRecordMatches,
-        fieldValue,
         field
       );
       // console.log('Record.value appRecordValue',  appRecordValue, selector)
       return appRecordValue !== undefined ? appRecordValue : bracketSelector;
+    }
+
+    const collectionFieldRegex =
+      /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.f\.([a-zA-Z0-9-_]+)/;
+    const collectionFieldMatches = bracketSelector.match(collectionFieldRegex);
+    // console.log("Record._getBracketValue collectionFieldMatches", collectionFieldMatches)
+    if (collectionFieldMatches) {
+      const collectionFieldValue = this._getCollectionFieldValue(
+        collectionFieldMatches,
+        fieldValue,
+        field
+      );
+      // console.log('Record.value collectionFieldValue',  collectionFieldValue, selector)
+      return collectionFieldValue !== undefined
+        ? collectionFieldValue
+        : bracketSelector;
     }
 
     const appStateRegex = /appState\.([a-zA-Z0-9-_]+)/;
@@ -508,8 +614,17 @@ export class Record {
 
     return bracketSelector;
   }
+  private _getAppRecordValue(matches: any, field: any) {
+    const appRecord = this._getAppRecord(matches, field);
 
-  private _getAppRecordValue(matches: any, fieldValue: any, field: any) {
+    // console.log("Record._getAppRecordValue nestedRecord", nestedRecord, nestedFieldKey, nestedField)
+    if (appRecord !== undefined) {
+      const { nestedRecord, nestedField } = appRecord;
+      return nestedRecord.valueByFieldName(nestedField.name);
+    }
+  }
+
+  private _getAppRecord(matches: any, field: any) {
     const appKey = matches[1];
     const collectionKey = matches[2];
     const recordKey = matches[3];
@@ -553,7 +668,7 @@ export class Record {
       if (nestedCollection.records?.hasOwnProperty(recordKey)) {
         const nestedRecord = nestedCollection.records[recordKey];
         const nestedField = nestedRecord.schema.fields[nestedFieldKey];
-        // console.log("Record._getAppRecordValue nestedRecord", nestedRecord, nestedFieldKey, nestedField)
+
         if (nestedField) {
           const callbacksKey = `${field.name}-${appKey}.${collectionKey}.${recordKey}.${nestedFieldKey}`;
 
@@ -577,8 +692,83 @@ export class Record {
             this._callbacks[callbacksKey] = callback;
             nestedRecord.subscribe(nestedField.name, callback);
           }
+        }
+        
+        return {
+          nestedRecord,
+          nestedFieldKey,
+          nestedField,
+        }
+      }
+    }
+  }
 
-          return nestedRecord.valueByFieldName(nestedField.name);
+  private _getCollectionFieldValue(matches: any, fieldValue: any, field: any) {
+    const appKey = matches[1];
+    const collectionKey = matches[2];
+    const fieldKey = matches[3];
+    // console.log(
+    //   "Record._getCollectionFieldValue, value match group properties",
+    //   field,
+    //   matches,
+    //   appKey,
+    //   collectionKey,
+    //   fieldKey
+    // );
+    let nestedCollection: Collection;
+    if (appKey === this._app.key) {
+      nestedCollection = this._app.getCollection(collectionKey);
+    } else {
+      nestedCollection = this._app.getReferencedAppCollection(
+        appKey,
+        collectionKey
+      );
+    }
+
+    const nestedCollectionCallbacksKey = `${appKey}.${collectionKey}`;
+    if (!this._callbacks.hasOwnProperty(nestedCollectionCallbacksKey)) {
+      const callback = (_: Record) => {
+        // console.log("Record._getAppRecordValue nested collection callback");
+        this._notifySubscribers(field.name);
+      };
+
+      this._callbacks[nestedCollectionCallbacksKey] = callback;
+      nestedCollection.subscribe("*", callback);
+    }
+
+    // console.log(
+    //   "Record._getCollectionFieldValue value nestedCollection",
+    //   nestedCollection
+    // );
+    if (nestedCollection) {
+      if (nestedCollection.schema?.fields?.hasOwnProperty(fieldKey)) {
+        const nestedField = nestedCollection.schema.fields[fieldKey];
+        // console.log("Record._getAppRecordValue nestedRecord", nestedRecord, nestedFieldKey, nestedField)
+        if (nestedField) {
+          const callbacksKey = `${field.name}-${appKey}.${collectionKey}.f.${fieldKey}`;
+
+          if (!this._callbacks.hasOwnProperty(callbacksKey)) {
+            // console.log("Record._getAppRecordValue adding callback", callbacksKey);
+            const callback = (_: Record) => {
+              // console.log(
+              //   "Record._getAppRecordValue nested record callback",
+              //   callbacksKey,
+              //   field.name
+              // );
+              this._notifySubscribers(field.name);
+            };
+
+            // console.log(
+            //   "nested record subscribing callback",
+            //   callbacksKey,
+            //   field.name,
+            //   nestedField.nam
+            // );
+            this._callbacks[callbacksKey] = callback;
+            nestedCollection.subscribe(nestedField.name, callback);
+          }
+
+          return { fieldKey, fieldValue: nestedField.name };
         }
       }
     }
@@ -600,6 +790,7 @@ export class Record {
       appStateRecord.subscribe(appStateKey, callback);
     }
 
+    // return { fieldKey: appStateKey, fieldValue: appStateRecord?.value?.[appStateKey] };
     return appStateRecord?.value?.[appStateKey];
   }
 
@@ -613,13 +804,12 @@ export class Record {
         ...this._record,
         ...record,
       };
-    }
-    else {
+    } else {
       this._record = {
         ...this._record,
         updatedDate: record.updatedDate,
         version: record.version,
-      }
+      };
     }
 
     difference.forEach((k) =>

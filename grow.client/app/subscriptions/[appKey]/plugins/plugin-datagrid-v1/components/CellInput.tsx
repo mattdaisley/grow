@@ -29,6 +29,7 @@ export function CellInput({
   record,
   fieldName,
   rawValue,
+  displayValue,
   value,
   bracketValues,
   onChange,
@@ -37,6 +38,7 @@ export function CellInput({
   record: Record;
   fieldName: string;
   rawValue: string;
+  displayValue: string;
   value: string;
   bracketValues: any;
   onChange: Function;
@@ -63,11 +65,12 @@ export function CellInput({
     let html = sanitizedValue;
 
     if (bracketValues !== undefined && Object.keys(bracketValues).length > 0) {
-      Object.entries(bracketValues).forEach(([selector, bracketValue]) => {
+      Object.entries(bracketValues).forEach(([selector, bracketValue]: [selector: string, bracketValue: any]) => {
+        const displayValue = typeof bracketValue === "string" ? bracketValue : bracketValue?.fieldValue;
         html = html.replace(
           selector,
           renderToString(
-            <BracketValue selector={selector} displayValue={bracketValue} />
+            <BracketValue selector={selector} displayValue={displayValue} />
           )
         );
       });

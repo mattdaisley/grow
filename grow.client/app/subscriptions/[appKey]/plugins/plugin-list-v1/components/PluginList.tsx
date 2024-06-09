@@ -35,7 +35,7 @@ export default function PluginList({
 
   const recordFieldRequest = {
     selectedRecord: {
-      record: selectedRecord.record,
+      record: selectedRecord?.record,
     },
   };
 

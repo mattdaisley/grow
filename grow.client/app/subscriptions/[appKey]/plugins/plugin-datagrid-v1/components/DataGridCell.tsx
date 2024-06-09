@@ -29,7 +29,7 @@ export function DataGridCell({ record, field, editable }) {
 function DataGridCellEdit({ useRecordsResults, field }) {
   // console.log("DataGridCellEdit", useRecordsResults, field);
 
-  const { record, value, rawValue, bracketValues, onChange } = useRecordsResults[field.name];
+  const { record, displayValue, value, rawValue, bracketValues, onChange } = useRecordsResults[field.name];
   // console.log(
   //   "DataGridCellEdit",
   //   field.name,
@@ -120,6 +120,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
         record={record}
         fieldName={field.name}
         rawValue={rawValue}
+        displayValue={displayValue}
         value={value}
         bracketValues={bracketValues}
         readonly={field.readonly}
@@ -133,6 +134,7 @@ function DataGridCellEdit({ useRecordsResults, field }) {
       record={record}
       fieldName={field.name}
       rawValue={rawValue}
+      displayValue={displayValue}
       value={value}
       bracketValues={bracketValues}
       onChange={onChange}
@@ -145,6 +147,7 @@ function CellSelectRecordKeyWrapper({
   record,
   fieldName,
   rawValue,
+  displayValue,
   value,
   bracketValues,
   readonly,
@@ -169,6 +172,7 @@ function CellSelectRecordKeyWrapper({
         record={record}
         fieldName={fieldName}
         rawValue={rawValue}
+        displayValue={displayValue}
         value={value}
         bracketValues={bracketValues}
         onChange={onChange}
@@ -193,6 +197,7 @@ function CellSelectRecordKeyWrapper({
       record={record}
       fieldName={fieldName}
       rawValue={rawValue}
+      displayValue={displayValue}
       value={value}
       bracketValues={bracketValues}
       onChange={onChange}
@@ -200,7 +205,7 @@ function CellSelectRecordKeyWrapper({
   );
 }
 
-function CellSelectRecordKey({ components, record, fieldName, rawValue, value, bracketValues, onChange }) {
+function CellSelectRecordKey({ components, record, fieldName, rawValue, displayValue, value, bracketValues, onChange }) {
   // console.log("CellSelectRecordKey", fieldName, components);
   const listItems = useCollections([components]);
   // console.log("CellSelectRecordKey", listItems, value);
@@ -222,6 +227,7 @@ function CellSelectRecordKey({ components, record, fieldName, rawValue, value, b
         record={record}
         fieldName={fieldName}
         rawValue={rawValue}
+        displayValue={displayValue}
         value={value}
         bracketValues={bracketValues}
         onChange={onChange}

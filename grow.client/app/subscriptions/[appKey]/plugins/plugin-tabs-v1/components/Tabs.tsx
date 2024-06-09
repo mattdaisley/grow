@@ -25,7 +25,7 @@ export default function PluginTabs({
   sort_key,
   tab_key,
 }: IPluginTabsProps) {
-  // console.log("Rendering PluginTabs", components, padding, px, py);
+  // console.log("Rendering PluginTabs", components, tab_key);
   const [value, setValue] = useState<number>(undefined);
 
   const useAppStateResults = useAppState(appStateKey);
@@ -49,7 +49,7 @@ export default function PluginTabs({
     }
   }, [tabsRecords, value]);
 
-  // console.log("PluginList tabsCollectionResponse", tabsCollectionResponse);
+  // console.log("PluginTabs tabsCollectionResponse", tabsCollectionResponse);
   if (!tabsCollectionResponse || !tabsCollectionResponse[tabsCollection.key]?.records) {
     return null;
   }

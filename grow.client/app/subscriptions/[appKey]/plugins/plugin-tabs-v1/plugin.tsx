@@ -16,7 +16,11 @@ export default function Plugin({ components, tabs, ...props }) {
 
   return (
     <>
-      <PluginTabs tabsCollection={tabs.value} components={components.value} {...propValues} />
+      <PluginTabs
+        tabsCollection={tabs.value}
+        components={components.value}
+        {...propValues}
+      />
     </>
   );
 }
