@@ -156,8 +156,9 @@ function getCallback(key: string, fieldName: string, setValue: Function, request
         displayValue: newRecord.getDisplayValueByFieldName(fieldName),
         rawValue: newRecord.rawValue[fieldName],
         bracketValues: newRecord.bracketValueByFieldName(fieldName),
+        field: currentValue[key].field,
         onChange: currentValue[key].onChange,
-      }
+      };
 
       const newValue = {
         ...currentValue,

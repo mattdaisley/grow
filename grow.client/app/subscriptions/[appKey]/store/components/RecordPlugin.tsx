@@ -57,9 +57,9 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
 
   Object.entries(useRecordsResults).forEach(([key, useRecordsResult]) => {
     const value = useRecordsResult?.value;
-
+    // console.log("RecordPlugin useRecordsResult", key, useRecordsResult?.field?.type, value);
     if (useRecordsResult?.field?.type === "referenced_field") {
-      // console.log("RecordPlugin useRecordsResult", key, useRecordsResult);
+      // console.log("RecordPlugin useRecordsResult referenced_field", key, useRecordsResult);
 
       if (typeof value !== "string") {
         referencedFields[key] = {
@@ -69,7 +69,7 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
       }
     }
     else if (typeof value === "string" && value.startsWith("collections.")) {
-      console.log("RecordPlugin useRecordsResult", key, value, useRecordsResult);
+      console.log("RecordPlugin useRecordsResult collections.", key, value, useRecordsResult);
       const regex =
         /collections\.([a-zA-Z0-9-_]+)\.records\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
       const matches = value.match(regex);
