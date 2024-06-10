@@ -59,7 +59,8 @@ export class Record {
           field.type === "app_list" ||
           field.type === "app_collection_list" ||
           field.type === "collection_field_list" ||
-          field.type === "collection_record_list"
+          field.type === "collection_record_list" ||
+          field.type === "referenced_field"
         ) {
           // value doesn't currently matter. Just returns an empty string so the actual 'value' can return all apps.
           // could be used to filter apps in the future.

@@ -61,7 +61,7 @@ export function RecordPlugin({ record }: IRecordPluginProps) {
     if (useRecordsResult?.field?.type === "referenced_field") {
       // console.log("RecordPlugin useRecordsResult referenced_field", key, useRecordsResult);
 
-      if (typeof value !== "string") {
+      if (typeof value !== "string" && value !== undefined) {
         referencedFields[key] = {
           ...value,
           fieldPropKey: key,

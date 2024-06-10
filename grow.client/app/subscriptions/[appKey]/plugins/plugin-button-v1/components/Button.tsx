@@ -28,6 +28,13 @@ interface IPluginButton {
   // if clickAction === "addRow"
   // components?: Collection; -- shared with addColumn
   source_collection?: Collection;
+
+  // if clickAction === "copyCollection"
+  // collection_display_name?: string; -- shared with addCollection
+  // collection_name?: string; -- shared with addCollection
+  // source_collection?: Collection; -- shared with addRow
+  source_app?: App;
+  target_app?: App;
 }
 
 export default function PluginButton({
@@ -41,7 +48,9 @@ export default function PluginButton({
   components,
   column_name,
   column_type,
+  source_app,
   source_collection,
+  target_app,
 }: IPluginButton) {
   // console.log(
   //   "PluginButton",
@@ -107,6 +116,44 @@ export default function PluginButton({
         };
 
         app.pushCreateCollection(newCollection);
+      }
+    }
+
+    // console.log("button clickAction", clickAction, source_app, target_app, source_collection);
+    if (
+      clickAction === "copyCollection" &&
+      source_app !== undefined &&
+      source_app.key !== "" &&
+      target_app !== undefined &&
+      target_app.key !== "" &&
+      source_collection !== undefined
+    ) {
+      // {{a.1.c.59.r.134.ca90b5f1-a487-4f31-bcdb-35127c725f13}}
+      // {{a.1.c.59.r.135.ca90b5f1-a487-4f31-bcdb-35127c725f13}}
+
+      if (
+        collection_display_name !== undefined &&
+        collection_display_name.trim() !== "" &&
+        collection_name !== undefined &&
+        collection_name.trim() !== ""
+      ) {
+        // console.log(
+        //   "button clickAction addCollection",
+        //   app,
+        //   collection_display_name,
+        //   collection_name
+        // );
+
+        const newCollection = {
+          displayName: collection_display_name,
+          name: collection_name,
+        };
+
+        target_app.pushCopyCollection(
+          source_app.key,
+          source_collection,
+          newCollection
+        );
       }
     }
 

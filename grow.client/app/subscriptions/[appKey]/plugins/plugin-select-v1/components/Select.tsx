@@ -16,6 +16,7 @@ interface IPluginSelectProps {
   menuItemField?: string;
   value_field?: string;
   sort_key?: string;
+  readonly?: boolean;
 }
 
 export default function PluginSelect({
@@ -27,6 +28,7 @@ export default function PluginSelect({
   menuItemField,
   value_field,
   sort_key,
+  readonly = false,
 }: IPluginSelectProps) {
   const menuItemsResponse = useCollections([menuItemsCollection]);
   // console.log(
@@ -72,6 +74,12 @@ export default function PluginSelect({
 
   const fieldWidth = width === 0 ? 12 : Number(width ?? 12);
 
+  const inputProps: any = {};
+
+  if (readonly) {
+    inputProps.readOnly = true;
+  }
+
   return (
     <Grid
       data-plugin="plugin-select-v1"
@@ -90,6 +98,7 @@ export default function PluginSelect({
         label={label ?? ""}
         value={value ?? ""}
         onChange={handleChange}
+        InputProps={inputProps}
       >
         <MenuItem value="">
           <em>None</em>
@@ -102,7 +111,9 @@ export default function PluginSelect({
           // );
           const value =
             value_field !== undefined
-              ? menuItemRecord.value[menuItemRecord.schema.fields[value_field].name]
+              ? menuItemRecord.value[
+                  menuItemRecord.schema.fields[value_field].name
+                ]
               : key;
           return (
             <MenuItem key={key} value={value}>

@@ -30,7 +30,7 @@ export class App {
 
   private _referencedApps: {
     [key: string]: App;
-  }
+  };
   private _collections: {
     [key: string]: Collection;
   };
@@ -38,13 +38,13 @@ export class App {
   private _plugins_display_list: Collection;
   private _collections_display_list: Collection;
   private _subscriptions: {
-    [selector: string]: Function[]
+    [selector: string]: Function[];
   };
 
   private _socket: Socket;
 
   constructor({ key, plugins, collections }: IApp, socket: Socket) {
-    this._instance = uuidv4()
+    this._instance = uuidv4();
 
     // console.log('App constructor app key:', key, plugins);
     this.key = key;
@@ -64,7 +64,7 @@ export class App {
     });
   }
 
-  private _createPlugins(plugins: { [key: string]: IPlugin; }) {
+  private _createPlugins(plugins: { [key: string]: IPlugin }) {
     const pluginMap = {};
     for (const [key, value] of Object.entries(plugins)) {
       pluginMap[key] = new Plugin(this, { key, ...value });
@@ -72,10 +72,13 @@ export class App {
     return pluginMap;
   }
 
-  private _createCollections(collections: { [key: string]: ICollection; }) {
+  private _createCollections(collections: { [key: string]: ICollection }) {
     const collectionMap = {};
     for (const [collectionKey, collection] of Object.entries(collections)) {
-      collectionMap[collectionKey] = new Collection(this, {key: collectionKey, ...collection});
+      collectionMap[collectionKey] = new Collection(this, {
+        key: collectionKey,
+        ...collection,
+      });
     }
     return collectionMap;
   }
@@ -92,9 +95,14 @@ export class App {
   public getAppDisplayList(): Collection {
     if (!this._app_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
-      this._emitEvent('get-app-list')
+      this._emitEvent("get-app-list");
 
-      this._app_display_list = new Collection(this, {key: `${this.key}.al`, schema: undefined, records: undefined, type: 'app_list'});
+      this._app_display_list = new Collection(this, {
+        key: `${this.key}.al`,
+        schema: undefined,
+        records: undefined,
+        type: "app_list",
+      });
     }
 
     return this._app_display_list;
@@ -104,15 +112,21 @@ export class App {
     if (appKey === this.key) {
       return this;
     }
-    
+
     if (!this._referencedApps[appKey]) {
-      this._referencedApps[appKey] = new App({ key: appKey, plugins: {}, collections: {} }, this._socket);
+      this._referencedApps[appKey] = new App(
+        { key: appKey, plugins: {}, collections: {} },
+        this._socket
+      );
     }
 
     return this._referencedApps[appKey];
   }
 
-  public getReferencedAppCollection(appKey: string, collectionKey: string): Collection {
+  public getReferencedAppCollection(
+    appKey: string,
+    collectionKey: string
+  ): Collection {
     const app = this.getReferencedApp(appKey);
 
     return app.getCollection(collectionKey);
@@ -121,9 +135,14 @@ export class App {
   public getPluginDisplayList(): Collection {
     if (!this._plugins_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getPluginDisplayList not found`)
-      this._emitEvent('get-plugin-list')
+      this._emitEvent("get-plugin-list");
 
-      this._plugins_display_list = new Collection(this, {key: `${this.key}.pl`, schema: undefined, records: undefined, type: 'plugin_list'});
+      this._plugins_display_list = new Collection(this, {
+        key: `${this.key}.pl`,
+        schema: undefined,
+        records: undefined,
+        type: "plugin_list",
+      });
     }
 
     // console.log(`App ${this.key}: ${this._instance}`, this._plugins_display_list)
@@ -133,9 +152,14 @@ export class App {
   public getCollectionDisplayList(): Collection {
     if (!this._collections_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getCollectionDisplayList not found`)
-      this._emitEvent('get-collection-list')
+      this._emitEvent("get-collection-list");
 
-      this._collections_display_list = new Collection(this, {key: `${this.key}.cl`, schema: undefined, records: undefined, type: 'collection_list'});
+      this._collections_display_list = new Collection(this, {
+        key: `${this.key}.cl`,
+        schema: undefined,
+        records: undefined,
+        type: "collection_list",
+      });
     }
 
     return this._collections_display_list;
@@ -144,42 +168,79 @@ export class App {
   public getCollection(collectionKey: string): Collection {
     if (!this._collections[collectionKey]) {
       // console.log(`App ${this.key}: ${this._instance} getCollection key not found`, collectionKey)
-      this._emitEvent('get-collection', { collectionKey });
+      this._emitEvent("get-collection", { collectionKey });
 
-      this._collections[collectionKey] = new Collection(this, {key: collectionKey, schema: undefined, records: undefined});
+      this._collections[collectionKey] = new Collection(this, {
+        key: collectionKey,
+        schema: undefined,
+        records: undefined,
+      });
     }
 
     return this._collections[collectionKey];
   }
 
-  public pushCreateCollectionSchemaField(collectionKey: string, field: { name: string, type: string }) {
-    this._emitEvent('create-collection-schema-field', { collectionKey, field });
+  public pushCreateCollectionSchemaField(
+    collectionKey: string,
+    field: { name: string; type: string }
+  ) {
+    this._emitEvent("create-collection-schema-field", { collectionKey, field });
   }
 
-  public pushCreateCollection({ name, displayName }: { name: string, displayName: string }) {
-    this._emitEvent('create-collection', { name, displayName });
+  public pushCreateCollection({
+    name,
+    displayName,
+  }: {
+    name: string;
+    displayName: string;
+  }) {
+    this._emitEvent("create-collection", { name, displayName });
   }
 
-  public pushCreateRecord(collectionKey: string, contents: { [key: string]: any }) {
-    this._emitEvent('create-record', { collectionKey, contents });
+  public pushCopyCollection(
+    source_app,
+    source_collection,
+    newCollection: { name: string; displayName: string }
+  ) {
+    console.log('pushCopyCollection', source_app, source_collection, newCollection)
+    this._emitEvent("copy-collection", {
+      source_app,
+      source_collection,
+      ...newCollection,
+    });
   }
 
-  public pushUpdateRecord(collectionKey: string, recordKey: string, fieldKey: string, newValue: any) {
-    this._emitEvent('update-record', { collectionKey, recordKey, fieldKey, newValue });
+  public pushCreateRecord(
+    collectionKey: string,
+    contents: { [key: string]: any }
+  ) {
+    this._emitEvent("create-record", { collectionKey, contents });
+  }
+
+  public pushUpdateRecord(
+    collectionKey: string,
+    recordKey: string,
+    fieldKey: string,
+    newValue: any
+  ) {
+    this._emitEvent("update-record", {
+      collectionKey,
+      recordKey,
+      fieldKey,
+      newValue,
+    });
   }
 
   public pushDeleteRecords(collectionKey: string, recordKeys: string[]) {
     this._emitEvent("delete-records", { collectionKey, recordKeys });
   }
 
-
   private _emitEvent(event: string, data: any = {}) {
     let eventData = {
       appKey: this.key,
       appInstance: this._instance,
-      ...data
+      ...data,
     };
-
 
     this._socket.emit(event, eventData);
   }
@@ -189,49 +250,59 @@ export class App {
     Object.entries(data).forEach(([key, value]: [string, any]) => {
       const collection = this._collections[value.collectionKey];
       // console.log('App handleEvent', key, value, collection)
-      
-      const allowedSelfUpdateKeys = ['i', 'u', 'd'];
-      let isSelfUpdate = this._socket.id === data.client && this._instance === data.appInstance;
+
+      const allowedSelfUpdateKeys = ["i", "u", "d"];
+      let isSelfUpdate =
+        this._socket.id === data.client && this._instance === data.appInstance;
       if (!allowedSelfUpdateKeys.includes(key) && isSelfUpdate) {
         return;
       }
 
       switch (key) {
-        case 'l':
+        case "l":
           collection?.setCollection(value);
           break;
-        case 'i':
+        case "i":
           Object.entries(value.records).forEach(([recordKey, record]) => {
             collection?.addRecord(recordKey, record);
           });
           break;
-        case 'd':
+        case "d":
           Object.entries(value.records).forEach(([recordKey, record]) => {
             collection?.removeRecord(recordKey);
           });
           break;
-        case 'u':
+        case "u":
           Object.entries(value.records).forEach(([recordKey, record]) => {
             collection?.updateRecord(recordKey, record, isSelfUpdate);
           });
           break;
-        case 'al':
+        case "al":
           if (this._app_display_list) {
-            this._app_display_list.setCollection({ schema: value.schema, records: value.records });
+            this._app_display_list.setCollection({
+              schema: value.schema,
+              records: value.records,
+            });
           }
           break;
-        case 'cl':
+        case "cl":
           if (this._collections_display_list) {
-            this._collections_display_list.setCollection({ schema: value.schema, records: value.records });
+            this._collections_display_list.setCollection({
+              schema: value.schema,
+              records: value.records,
+            });
           }
           break;
-        case 'pl':
+        case "pl":
           if (this._plugins_display_list) {
-            this._plugins_display_list.setCollection({ schema: value.schema, records: value.records });
+            this._plugins_display_list.setCollection({
+              schema: value.schema,
+              records: value.records,
+            });
           }
           break;
         default:
-          // console.log('Unknown event type', key, value);
+        // console.log('Unknown event type', key, value);
       }
     });
   }
@@ -242,10 +313,10 @@ export class App {
       let searchParamValue: string = params.get(key);
       let initialValue: any = searchParamValue;
 
-      if (searchParamValue?.toLowerCase() === 'false') {
+      if (searchParamValue?.toLowerCase() === "false") {
         initialValue = false;
       }
-      if (searchParamValue?.toLowerCase() === 'true') {
+      if (searchParamValue?.toLowerCase() === "true") {
         initialValue = true;
       }
       // console.log("getFromAppState", key, searchParamValue, initialValue);
@@ -270,7 +341,6 @@ export class App {
   }
 
   subscribe(selector: string, callback: Function) {
-
     // console.log('record subscribe', selector, this.key)
     if (!this._subscriptions[selector]) {
       this._subscriptions[selector] = [];
@@ -279,9 +349,10 @@ export class App {
   }
 
   unsubscribe(selector: string, callback: Function) {
-
     if (this._subscriptions[selector]) {
-      this._subscriptions[selector] = this._subscriptions[selector].filter(cb => cb !== callback);
+      this._subscriptions[selector] = this._subscriptions[selector].filter(
+        (cb) => cb !== callback
+      );
     }
 
     if (Object.keys(this._referencedApps).length) {
@@ -293,16 +364,15 @@ export class App {
 
   unsubscribeAll() {
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
-      callbacks.forEach(cb => this.unsubscribe(selector, cb));
+      callbacks.forEach((cb) => this.unsubscribe(selector, cb));
     });
   }
 
   private _notifySubscribers(type: string) {
-
     Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
-      if (type === '*' || selector === type) {
+      if (type === "*" || selector === type) {
         // console.log("Record _notifySubscribers", selector, type, callbacks.length)
-        callbacks.forEach(cb => cb(this.getFromAppState(selector)))
+        callbacks.forEach((cb) => cb(this.getFromAppState(selector)));
       }
     });
   }
