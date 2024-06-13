@@ -3,6 +3,7 @@
 import { NavItem } from "./NavItem";
 import { ResponsiveNavDrawer } from "./ResponsiveNavDrawer";
 import useCollections from "../../../store/useCollections";
+import { Records } from "../../../store/domain/Records";
 
 export const drawerWidth = 200;
 
@@ -30,10 +31,10 @@ export default function PluginNavDrawer(props) {
   ) {
     sortedPages.sort((a, b) => {
       // console.log(a, b);
-      if (a[1].value[sort_key] < b[1].value[sort_key]) {
+      if (a[1].valueByFieldName(sort_key) < b[1].valueByFieldName(sort_key)) {
         return -1;
       }
-      if (a[1].value[sort_key] > b[1].value[sort_key]) {
+      if (a[1].valueByFieldName(sort_key) > b[1].valueByFieldName(sort_key)) {
         return 1;
       }
       return 0;

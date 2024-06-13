@@ -37,9 +37,6 @@ export class App {
   private _app_display_list: Collection;
   private _plugins_display_list: Collection;
   private _collections_display_list: Collection;
-  private _subscriptions: {
-    [selector: string]: Function[];
-  };
 
   private _socket: Socket;
 
@@ -52,7 +49,6 @@ export class App {
     this.plugins = this._createPlugins(plugins);
     this._collections = this._createCollections(collections);
     this._referencedApps = {};
-    this._subscriptions = {};
 
     this._socket = socket;
 
@@ -62,6 +58,15 @@ export class App {
 
       this.handleEvent(data);
     });
+  }
+
+  public unregisterMessageListeners() {
+    // console.log('unregistering socket listener', `subscriptions-${this.key}`)
+    this._socket.off(`subscriptions-${this.key}`);
+  }
+
+  public getAppInstance() {
+    return this._instance;
   }
 
   private _createPlugins(plugins: { [key: string]: IPlugin }) {
@@ -81,15 +86,6 @@ export class App {
       });
     }
     return collectionMap;
-  }
-
-  public unregisterMessageListeners() {
-    // console.log('unregistering socket listener', `subscriptions-${this.key}`)
-    this._socket.off(`subscriptions-${this.key}`);
-  }
-
-  public getAppInstance() {
-    return this._instance;
   }
 
   public getAppDisplayList(): Collection {
@@ -338,42 +334,5 @@ export class App {
     }
 
     return this._appState[key];
-  }
-
-  subscribe(selector: string, callback: Function) {
-    // console.log('record subscribe', selector, this.key)
-    if (!this._subscriptions[selector]) {
-      this._subscriptions[selector] = [];
-    }
-    this._subscriptions[selector].push(callback);
-  }
-
-  unsubscribe(selector: string, callback: Function) {
-    if (this._subscriptions[selector]) {
-      this._subscriptions[selector] = this._subscriptions[selector].filter(
-        (cb) => cb !== callback
-      );
-    }
-
-    if (Object.keys(this._referencedApps).length) {
-      Object.entries(this._referencedApps).forEach(([appKey, app]) => {
-        app.unsubscribeAll();
-      });
-    }
-  }
-
-  unsubscribeAll() {
-    Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
-      callbacks.forEach((cb) => this.unsubscribe(selector, cb));
-    });
-  }
-
-  private _notifySubscribers(type: string) {
-    Object.entries(this._subscriptions).forEach(([selector, callbacks]) => {
-      if (type === "*" || selector === type) {
-        // console.log("Record _notifySubscribers", selector, type, callbacks.length)
-        callbacks.forEach((cb) => cb(this.getFromAppState(selector)));
-      }
-    });
   }
 }

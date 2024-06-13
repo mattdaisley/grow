@@ -7,6 +7,11 @@ import useAppState from "../../../store/useAppState";
 import { App } from "../../../store/domain/App";
 import { Collection } from "../../../store/domain/Collection";
 
+type TargetRecord = {
+  target_field: string;
+  target_value: string;
+};
+
 interface IPluginButton {
   label: string;
   clickAction?: string;
@@ -27,7 +32,7 @@ interface IPluginButton {
 
   // if clickAction === "addRow"
   // components?: Collection; -- shared with addColumn
-  source_collection?: Collection;
+  source_collection?: Collection<TargetRecord>;
 
   // if clickAction === "copyCollection"
   // collection_display_name?: string; -- shared with addCollection
@@ -188,11 +193,7 @@ export default function PluginButton({
       const contents = {}
       if (source_collection?.records !== undefined) {
         Object.values(source_collection.records).forEach((record) => {
-          const recordValue = record.value as {
-            target_field: string;
-            target_value: string;
-          };
-          contents[recordValue.target_field] = recordValue.target_value;
+          contents[record.value.target_field] = record.value.target_value;
         });
       }
       // console.log("button clickAction addRow", contents);

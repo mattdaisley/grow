@@ -1,7 +1,7 @@
 "use client";
 
 import { Record } from "../domain/Record";
-import { ISchema } from "../domain/Schema";
+import { ISchema } from "../domain/ISchema";
 import useCollections from "../useCollections";
 import useRecords from "../useRecords";
 import { RecordPlugin } from "./RecordPlugin";

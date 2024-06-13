@@ -52,10 +52,10 @@ export default function PluginSelect({
   if (sort_key !== undefined) {
     menuItems.sort((a, b) => {
       // console.log(a, b);
-      if (a[1].value[sort_key] < b[1].value[sort_key]) {
+      if (a[1].valueByFieldName(sort_key) < b[1].valueByFieldName(sort_key)) {
         return -1;
       }
-      if (a[1].value[sort_key] > b[1].value[sort_key]) {
+      if (a[1].valueByFieldName(sort_key) > b[1].valueByFieldName(sort_key)) {
         return 1;
       }
       return 0;
@@ -79,6 +79,8 @@ export default function PluginSelect({
   if (readonly) {
     inputProps.readOnly = true;
   }
+
+  const menuItemFieldName = menuItemField ?? "display_name";
 
   return (
     <Grid
@@ -111,14 +113,13 @@ export default function PluginSelect({
           // );
           const value =
             value_field !== undefined
-              ? menuItemRecord.value[
+              ? menuItemRecord.valueByFieldName(
                   menuItemRecord.schema.fields[value_field].name
-                ]
+                )
               : key;
           return (
             <MenuItem key={key} value={value}>
-              {(menuItemField && menuItemRecord.value[menuItemField]) ??
-                menuItemRecord.value["display_name"]}
+              {menuItemRecord.valueByFieldName(menuItemFieldName)}
             </MenuItem>
           );
         })}

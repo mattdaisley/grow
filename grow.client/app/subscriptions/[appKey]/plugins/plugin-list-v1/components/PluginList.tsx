@@ -88,15 +88,18 @@ export default function PluginList({
   );
 }
 
+type ListItemRecord = {
+  display_name: string;
+}
 
-function sortListItems(sort_key: string, listItems: [string, Record][]) {
+function sortListItems(sort_key: string, listItems: [string, Record<ListItemRecord>][]) {
   if (sort_key) {
     listItems.sort((a, b) => {
       // console.log(a, b);
-      if (a[1].value["display_name"] < b[1].value["display_name"]) {
+      if (a[1].value.display_name < b[1].value.display_name) {
         return -1;
       }
-      if (a[1].value["display_name"] > b[1].value["display_name"]) {
+      if (a[1].value.display_name > b[1].value.display_name) {
         return 1;
       }
       return 0;

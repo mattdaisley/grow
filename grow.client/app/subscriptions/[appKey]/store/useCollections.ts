@@ -7,7 +7,7 @@ import { flatten } from "flat";
 
 import { Collection } from "./domain/Collection";
 import { Record } from "./domain/Record";
-import { ISchema } from "./domain/Schema";
+import { ISchema } from "./domain/ISchema";
 
 
 // anytime the collection changes, we want to update the records

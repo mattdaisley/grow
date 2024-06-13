@@ -1,12 +1,24 @@
 "use client";
 
 import { Collection } from "../../../store/domain/Collection";
+import { Records } from "../../../store/domain/Records";
 import useCollections from "../../../store/useCollections";
 import { FlowDiagram } from "./FlowDiagram";
 
+type EdgeRecord = {
+  source: string;
+  target: string;
+};
+
+type NodeRecord = {
+  x: number;
+  y: number;
+  label: string;
+};
+
 interface IPluginFlowProps {
-  edgesCollection: Collection,
-  nodesCollection: Collection,
+  edgesCollection: Collection<EdgeRecord>,
+  nodesCollection: Collection<NodeRecord>,
   panel?: Collection
   viewport?: Collection,
 }
@@ -27,8 +39,8 @@ export default function PluginFlow({
     return null;
   }
 
-  const edgeRecords = useCollectionsResponse[edgesCollection.key]?.records;
-  const nodeRecords = useCollectionsResponse[nodesCollection.key]?.records;
+  const edgeRecords: Records<EdgeRecord> = useCollectionsResponse[edgesCollection.key]?.records;
+  const nodeRecords: Records<NodeRecord> = useCollectionsResponse[nodesCollection.key]?.records;
   // console.log("PluginFlow nodeRecords and edgeRecords", nodeRecords, edgeRecords);
 
   if (!edgeRecords || !nodeRecords) {
@@ -36,7 +48,7 @@ export default function PluginFlow({
   }
 
   const edges = Object.entries(edgeRecords).map(([key, edgeRecord]) => {
-    const { source, target } = edgeRecord.value as any;
+    const { source, target } = edgeRecord.value;
 
     return {
       id: key,
@@ -46,7 +58,7 @@ export default function PluginFlow({
   });
 
   const nodes = Object.entries(nodeRecords).map(([key, nodeRecord]) => {
-    const { x, y, label } = nodeRecord.value as any;
+    const { x, y, label } = nodeRecord.value;
 
     return {
       id: key,

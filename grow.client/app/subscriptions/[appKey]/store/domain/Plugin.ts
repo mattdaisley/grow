@@ -1,5 +1,5 @@
 import { App } from './App';
-import { Property } from './Property';
+import { IProperty } from './IProperty';
 
 
 export interface IPlugin {
@@ -7,7 +7,7 @@ export interface IPlugin {
   parent: string;
   order: number;
   properties: {
-    [key: string]: Property;
+    [key: string]: IProperty;
   };
 }
 
@@ -19,7 +19,7 @@ export class Plugin {
   order: number;
   private _app: App;
   private _properties: {
-    [key: string]: Property;
+    [key: string]: IProperty;
   };
 
   constructor(app: App, { key, name, parent, order, properties }) {

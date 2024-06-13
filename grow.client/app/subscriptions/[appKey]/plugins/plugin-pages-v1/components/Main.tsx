@@ -62,10 +62,10 @@ export default function PluginMain({ pagesCollection, filter, selectedRecord: se
   ) {
     sortedPages.sort((a, b) => {
       // console.log(a, b);
-      if (a[1].value[sort_key] < b[1].value[sort_key]) {
+      if (a[1].valueByFieldName(sort_key) < b[1].valueByFieldName(sort_key)) {
         return -1;
       }
-      if (a[1].value[sort_key] > b[1].value[sort_key]) {
+      if (a[1].valueByFieldName(sort_key) > b[1].valueByFieldName(sort_key)) {
         return 1;
       }
       return 0;

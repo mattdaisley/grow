@@ -58,7 +58,7 @@ export default function PluginDataGrid({
           return value;
         }
 
-        const displayValue = row.record.getDisplayValueByFieldName(field.name);
+        const displayValue = row.record.displayValueByFieldName(field.name);
         // console.log("valueFormatter", key, field.name, displayValue, value, row);
 
         return displayValue;

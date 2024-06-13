@@ -1,6 +1,6 @@
 import { App } from './App';
 import { Record } from './Record';
-import { ISchema } from './Schema';
+import { ISchema } from './ISchema';
 
 export interface ICollection {
   schema: ISchema;
@@ -9,12 +9,12 @@ export interface ICollection {
   }
 }
 
-export class Collection {
+export class Collection<TRecordValue extends Object = any> {
   key: string;
   schema: ISchema;
   type: string;
   records: {
-    [key: string]: Record;
+    [key: string]: Record<TRecordValue>;
   };
 
   private _app: App;
@@ -31,10 +31,10 @@ export class Collection {
     this.type = type;
     this._subscriptions = {};
 
-    !!records && this._createRecords(records);
+    !!records && this._initializeRecords(records);
   }
 
-  _createRecords(records: { [key: string]: object }) {
+  _initializeRecords(records: { [key: string]: object }) {
     this.records = {};
 
     Object.entries(records).forEach(([recordKey, record]) => {
@@ -46,15 +46,15 @@ export class Collection {
     });
   }
 
-  createSchemaField({ name, type }) {
+  public createSchemaField({ name, type }) {
     this._app.pushCreateCollectionSchemaField(this.key, { name, type });
   }
 
-  createRecord(contents) {
+  public createRecord(contents) {
     this._app.pushCreateRecord(this.key, contents);
   }
 
-  deleteRecords(recordKeys: string[]) {
+  public deleteRecords(recordKeys: string[]) {
     this._app.pushDeleteRecords(this.key, recordKeys);
   }
 
@@ -71,11 +71,11 @@ export class Collection {
       },
     };
     if (!!collection.records) {
-      this._createRecords(collection.records);
+      this._initializeRecords(collection.records);
       this._setRecordsDisplayListRecords();
     } else {
       Object.values(this.records).forEach((record) => {
-        record.updateSchema(this.schema);
+        record.setSchema(this.schema);
       });
     }
 

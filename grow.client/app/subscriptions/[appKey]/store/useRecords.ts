@@ -82,7 +82,7 @@ export default function useRecords(recordFieldRequests: RecordsFieldRequest): us
         record,
         field,
         value: record.valueByFieldName(field.name),
-        displayValue: record.getDisplayValueByFieldName(field.name),
+        displayValue: record.displayValueByFieldName(field.name),
         rawValue: record.rawValue[field.name],
         bracketValues: record.bracketValueByFieldName(field.name),
         onChange: getOnChangeHandler(record, field.name),
@@ -153,7 +153,7 @@ function getCallback(key: string, fieldName: string, setValue: Function, request
       const newRecordValue = {
         record: newRecord,
         value: newRecord.valueByFieldName(fieldName),
-        displayValue: newRecord.getDisplayValueByFieldName(fieldName),
+        displayValue: newRecord.displayValueByFieldName(fieldName),
         rawValue: newRecord.rawValue[fieldName],
         bracketValues: newRecord.bracketValueByFieldName(fieldName),
         field: currentValue[key].field,

@@ -1,11 +1,11 @@
 import { App } from './App';
 import { Collection } from './Collection';
-import { ISchema } from './Schema';
+import { ISchema } from './ISchema';
 
 
 const BRACKET_PATTERN = new RegExp("({{ *([a-zA-Z0-9-_.]*) *}})", "g");
 
-export class Record {
+export class Record<TValue extends Object = any> {
   key: string;
   schema: ISchema;
   _record: object;
@@ -24,13 +24,66 @@ export class Record {
     this._app = app;
     this._collection = collection;
     this.key = key;
-    this.schema = schema;
+    this.setSchema(schema);
     this._record = record;
     this._subscriptions = {};
   }
 
   _callbacks: { [key: string]: Function } = {};
   _referencedFields: {};
+
+  public setSchema(schema: ISchema) {
+    this.schema = schema;
+  }
+
+  public update(record: any, isSelfUpdate = false) {
+    const difference = Object.keys(record).filter(
+      (k) => this._record[k] !== record[k]
+    );
+
+    if (!isSelfUpdate) {
+      this._record = {
+        ...this._record,
+        ...record,
+      };
+    } else {
+      this._record = {
+        ...this._record,
+        updatedDate: record.updatedDate,
+        version: record.version,
+      };
+    }
+
+    difference.forEach((k) =>
+      this._notifySubscribers(this.schema.fields[k].name)
+    );
+  }
+
+  public updateField(fieldName: string, newValue: any) {
+    // console.log('updateField', fieldName, newValue, this._record)
+    const newRecord = { ...this._record };
+
+    Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
+      const fieldValue = this._record[fieldKey];
+
+      if (field.name === fieldName && fieldValue !== newValue) {
+        newRecord[fieldKey] = newValue;
+        // this._record[fieldKey] = newValue;
+        // this._notifySubscribers(fieldName)
+
+        if (this._collection?.key) {
+          this._app.pushUpdateRecord(
+            this._collection.key,
+            this.key,
+            fieldKey,
+            newValue
+          );
+        }
+      }
+    });
+
+    this.update(newRecord);
+  }
 
   get rawValue(): Object {
     const fields = {};
@@ -55,11 +108,21 @@ export class Record {
           return;
         }
 
+        if (field.type === "app_collection") {
+          fields[field.name] = "";
+          // console.log('Record.app_collection', field.name, fields[field.name])
+          return;
+        }
+
         if (
-          field.type === "app_list" ||
+          field.type === "app" ||
+          field.type === "app_collection" ||
           field.type === "app_collection_list" ||
+          field.type === "app_list" ||
+          field.type === "collection_field_key" ||
           field.type === "collection_field_list" ||
           field.type === "collection_record_list" ||
+          field.type === "record_key" ||
           field.type === "referenced_field"
         ) {
           // value doesn't currently matter. Just returns an empty string so the actual 'value' can return all apps.
@@ -76,23 +139,6 @@ export class Record {
       if (fieldKey === "createdDate" || fieldKey === "updatedDate") {
         fields[fieldKey] = new Date(this._record[fieldKey]).toLocaleString();
         return;
-      }
-
-      // if (field.type === 'app_list') {
-      //   // value doesn't currently matter. Just returns all apps.
-      //   // could be used to filter apps in the future.
-
-      //   fields[field.name] = this._app.getAppDisplayList();
-      //   console.log('Record.app_list', fieldValue, fields[field.name])
-      //   return;
-      // }
-
-      if (field.type === "app") {
-        if (fieldValue === undefined) {
-          fields[field.name] = "";
-          // console.log('Record.app', field.name, fields[field.name])
-          return;
-        }
       }
 
       if (field.type === "app_plugin_list") {
@@ -116,34 +162,10 @@ export class Record {
         return;
       }
 
-      if (field.type === "app_collection") {
-        if (fieldValue === undefined) {
-          fields[field.name] = "";
-          // console.log('Record.app_collection', field.name, fields[field.name])
-          return;
-        }
-      }
-
       if (field.type === "collection") {
         // console.log('Record.collection', field.name, fieldValue)
         fields[field.name] = this._app.getCollection(fieldValue);
         // console.log('Record.collection', field.name, fieldValue, fields[field.name])
-        return;
-      }
-
-      if (field.type === "record_key") {
-        const recordKeyValue = fieldValue ? fieldValue : "";
-        // console.log('Record.record_key', field.name, fieldValue)
-        fields[field.name] = recordKeyValue;
-        // console.log('Record.record_key', field.name, fieldValue, fields[field.name])
-        return;
-      }
-
-      if (field.type === "collection_field_key") {
-        const fieldKeyValue = fieldValue ? fieldValue : "";
-        // console.log('Record.record_key', field.name, fieldValue)
-        fields[field.name] = fieldKeyValue;
-        // console.log('Record.record_key', field.name, fieldValue, fields[field.name])
         return;
       }
 
@@ -153,20 +175,74 @@ export class Record {
     return fields;
   }
 
-  get bracketValues(): { [key: string]: Object } {
-    const bracketValues = {};
+  get value(): TValue {
+    const fields = {} as TValue;
+    const bracketValues = this._getBracketValues();
+    // console.log("Record.value", this);
 
     Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
-      bracketValues[field.name] = this._getBracketFieldValue(
+      let fieldValue = this._getFieldValue(
+        this.rawValue[field.name],
         field,
-        this._record[fieldKey]
+        bracketValues[field.name]
       );
+
+      fields[field.name] = fieldValue;
     });
 
-    return bracketValues;
+    return fields;
   }
 
-  bracketValueByFieldName(fieldName: string) {
+  public valueByFieldName(fieldName: string): any {
+    const fields = {};
+    const bracketValue = this.bracketValueByFieldName(fieldName);
+    // console.log("Record.valueByFieldName", fieldName, this, bracketValue);
+
+    const matchingFields = Object.values(this.schema.fields).filter(
+      (field) => field.name === fieldName
+    );
+
+    matchingFields.forEach((field) => {
+      let fieldValue = this._getFieldValue(
+        this.rawValue[field.name],
+        field,
+        bracketValue
+      );
+
+      if (field.type === "collection_field_key") {
+        fields[field.name] = fieldValue.value;
+      } else {
+        fields[field.name] = fieldValue;
+      }
+    });
+
+    return fields[fieldName];
+  }
+
+  public displayValueByFieldName(fieldName: string): string {
+    const value = this.valueByFieldName(fieldName);
+    const fieldType = this._fieldTypeByFieldName(fieldName);
+
+    // console.log('Record.getDisplayValueByFieldName', fieldName, value, fieldType)
+    let displayValue = value?.toString();
+
+    if (fieldType === "collection") {
+      displayValue = `${value?.key} - ${value?.schema?.display_name}`;
+    }
+
+    if (fieldType === "collection_field_key") {
+      // console.log("Record.getDisplayValueByFieldName collection_field_key", fieldName, value);
+      displayValue = value.displayValue;
+    }
+
+    if (fieldType === "app_plugin_list") {
+      displayValue = `${value?.value?.display_name}`;
+    }
+
+    return displayValue;
+  }
+
+  public bracketValueByFieldName(fieldName: string) {
     const bracketValues = {};
 
     const matchingFields = Object.entries(this.schema.fields).filter(
@@ -181,6 +257,19 @@ export class Record {
     });
 
     return bracketValues[fieldName];
+  }
+
+  private _getBracketValues(): { [key: string]: Object } {
+    const bracketValues = {};
+
+    Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
+      bracketValues[field.name] = this._getBracketFieldValue(
+        field,
+        this._record[fieldKey]
+      );
+    });
+
+    return bracketValues;
   }
 
   private _getBracketFieldValue(field, fieldValue: string) {
@@ -225,73 +314,6 @@ export class Record {
     return returnBracketValue;
   }
 
-  get value(): Object {
-    const fields = {};
-    const bracketValues = this.bracketValues;
-    // console.log("Record.value", this);
-
-    Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
-      let fieldValue = this._getFieldValue(
-        this.rawValue[field.name],
-        field,
-        bracketValues[field.name]
-      );
-
-      fields[field.name] = fieldValue;
-    });
-
-    return fields;
-  }
-
-  valueByFieldName(fieldName: string): any {
-    const fields = {};
-    const bracketValue = this.bracketValueByFieldName(fieldName);
-    // console.log("Record.valueByFieldName", fieldName, this, bracketValue);
-
-    const matchingFields = Object.values(this.schema.fields).filter(
-      (field) => field.name === fieldName
-    );
-
-    matchingFields.forEach((field) => {
-      let fieldValue = this._getFieldValue(
-        this.rawValue[field.name],
-        field,
-        bracketValue
-      );
-
-      if (field.type === "collection_field_key") {
-        fields[field.name] = fieldValue.value;
-      } else {
-        fields[field.name] = fieldValue;
-      }
-    });
-
-    return fields[fieldName];
-  }
-
-  getDisplayValueByFieldName(fieldName: string): string {
-    const value = this.valueByFieldName(fieldName);
-    const fieldType = this.fieldTypeByFieldName(fieldName);
-
-    // console.log('Record.getDisplayValueByFieldName', fieldName, value, fieldType)
-    let displayValue = value?.toString();
-
-    if (fieldType === "collection") {
-      displayValue = `${value?.key} - ${value?.schema?.display_name}`;
-    }
-
-    if (fieldType === "collection_field_key") {
-      // console.log("Record.getDisplayValueByFieldName collection_field_key", fieldName, value);
-      displayValue = value.displayValue;
-    }
-
-    if (fieldType === "app_plugin_list") {
-      displayValue = `${value?.value?.display_name}`;
-    }
-
-    return displayValue;
-  }
-
   private _getFieldValue(rawValue, field, fieldBracketValue: Object): any {
     let resultFieldValue = rawValue;
 
@@ -323,14 +345,14 @@ export class Record {
               bracketValue.fieldValue
             ),
           };
-        // } else if (field.type === "referenced_field") {
-        //   patternValue = {
-        //     value: patternValue.value.replace(selector, bracketValue.fieldKey),
-        //     displayValue: patternValue.displayValue.replace(
-        //       selector,
-        //       bracketValue.fieldValue
-        //     ),
-        //   };
+          // } else if (field.type === "referenced_field") {
+          //   patternValue = {
+          //     value: patternValue.value.replace(selector, bracketValue.fieldKey),
+          //     displayValue: patternValue.displayValue.replace(
+          //       selector,
+          //       bracketValue.fieldValue
+          //     ),
+          //   };
         } else {
           try {
             patternValue = patternValue.replace(selector, bracketValue);
@@ -510,17 +532,15 @@ export class Record {
         //   };
         // }
 
-        const appRecordRegex = /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
+        const appRecordRegex =
+          /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
         const appRecordMatches = patternValue.match(appRecordRegex);
         if (appRecordMatches) {
-          const appRecord = this._getAppRecord(
-            appRecordMatches,
-            field
-          );
+          const appRecord = this._getAppRecord(appRecordMatches, field);
 
           if (appRecord !== undefined) {
             const { nestedRecord, nestedFieldKey } = appRecord;
-              
+
             return {
               collection: nestedRecord._collection,
               recordKey: nestedRecord.key,
@@ -549,7 +569,7 @@ export class Record {
     // console.log('Record value patternValue', `"${fieldValue}"`, `"${patternValue}"`)
   }
 
-  fieldTypeByFieldName(fieldName: string): string {
+  private _fieldTypeByFieldName(fieldName: string): string {
     const matchingFields = Object.values(this.schema.fields).filter(
       (field) => field.name === fieldName
     );
@@ -559,24 +579,13 @@ export class Record {
     }
   }
 
-  get appDisplayName(): string {
-    return this._app.key;
-  }
-
-  get collectionDisplayName(): string {
-    return this._collection.schema.display_name;
-  }
-
   private _getBracketValue(bracketSelector: any, fieldValue: any, field: any) {
     const appRecordRegex =
       /a\.([a-zA-Z0-9-_]+)\.c.([a-zA-Z0-9-_]+)\.r\.([a-zA-Z0-9-_]+)\.([a-zA-Z0-9-_]+)/;
     const appRecordMatches = bracketSelector.match(appRecordRegex);
     // console.log("Record._getBracketValue appRecordMatches", bracketSelector, appRecordMatches)
     if (appRecordMatches) {
-      const appRecordValue = this._getAppRecordValue(
-        appRecordMatches,
-        field
-      );
+      const appRecordValue = this._getAppRecordValue(appRecordMatches, field);
       // console.log('Record.value appRecordValue',  appRecordValue, selector)
       return appRecordValue !== undefined ? appRecordValue : bracketSelector;
     }
@@ -694,12 +703,12 @@ export class Record {
             nestedRecord.subscribe(nestedField.name, callback);
           }
         }
-        
+
         return {
           nestedRecord,
           nestedFieldKey,
           nestedField,
-        }
+        };
       }
     }
   }
@@ -792,63 +801,10 @@ export class Record {
     }
 
     // return { fieldKey: appStateKey, fieldValue: appStateRecord?.value?.[appStateKey] };
-    return appStateRecord?.value?.[appStateKey];
+    return appStateRecord?.valueByFieldName(appStateKey);
   }
 
-  update(record: any, isSelfUpdate = false) {
-    const difference = Object.keys(record).filter(
-      (k) => this._record[k] !== record[k]
-    );
-
-    if (!isSelfUpdate) {
-      this._record = {
-        ...this._record,
-        ...record,
-      };
-    } else {
-      this._record = {
-        ...this._record,
-        updatedDate: record.updatedDate,
-        version: record.version,
-      };
-    }
-
-    difference.forEach((k) =>
-      this._notifySubscribers(this.schema.fields[k].name)
-    );
-  }
-
-  updateField(fieldName: string, newValue: any) {
-    // console.log('updateField', fieldName, newValue, this._record)
-    const newRecord = { ...this._record };
-
-    Object.entries(this.schema.fields).forEach(([fieldKey, field]) => {
-      const fieldValue = this._record[fieldKey];
-
-      if (field.name === fieldName && fieldValue !== newValue) {
-        newRecord[fieldKey] = newValue;
-        // this._record[fieldKey] = newValue;
-        // this._notifySubscribers(fieldName)
-
-        if (this._collection?.key) {
-          this._app.pushUpdateRecord(
-            this._collection.key,
-            this.key,
-            fieldKey,
-            newValue
-          );
-        }
-      }
-    });
-
-    this.update(newRecord);
-  }
-
-  updateSchema(schema: ISchema) {
-    this.schema = schema;
-  }
-
-  subscribe(selector: string, callback: Function) {
+  public subscribe(selector: string, callback: Function) {
     // console.log('record subscribe', selector, this.key)
     if (!this._subscriptions[selector]) {
       this._subscriptions[selector] = [];
@@ -856,7 +812,7 @@ export class Record {
     this._subscriptions[selector].push(callback);
   }
 
-  unsubscribe(selector: string, callback: Function) {
+  public unsubscribe(selector: string, callback: Function) {
     if (this._subscriptions[selector]) {
       this._subscriptions[selector] = this._subscriptions[selector].filter(
         (cb) => cb !== callback
