@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 import { SocketContext, socket } from "./store/SocketContext";
 import { SubscriptionStoreContext } from "./store/SubscriptionStoreContext";
 import { IApp, App } from "./store/domain/App";
+import { AppService } from "./store/domain/AppService";
 import { LayoutPlugins } from "./LayoutPlugins";
 
 interface Props {
@@ -29,8 +30,8 @@ export default function SubscriptionsLayoutTemplate({
       socket.emit("get-app", { appKey });
       socket.on(`app-${appKey}`, (data) => {
         // console.log("app", data);
-
-        setApp(new App(data, socket));
+        const appService = new AppService(appKey, socket);
+        setApp(new App(data, appService));
       });
     }
 

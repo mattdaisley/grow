@@ -1,9 +1,9 @@
 import { Collection, ICollection } from './Collection';
 import { IPlugin, Plugin } from './Plugin';
 
-import {Socket} from "socket.io-client";
 import { v4 as uuidv4 } from 'uuid';
 import { Record } from './Record';
+import { AppService } from './AppService';
 
 export interface IApp {
   key: string;
@@ -38,10 +38,13 @@ export class App {
   private _plugins_display_list: Collection;
   private _collections_display_list: Collection;
 
-  private _socket: Socket;
+  private _appService: AppService;
 
-  constructor({ key, plugins, collections }: IApp, socket: Socket) {
+  constructor({ key, plugins, collections }: IApp, appService: AppService) {
     this._instance = uuidv4();
+
+    this._appService = appService;
+    this._appService.subscribe("*", this.handleEvent.bind(this));
 
     // console.log('App constructor app key:', key, plugins);
     this.key = key;
@@ -49,20 +52,11 @@ export class App {
     this.plugins = this._createPlugins(plugins);
     this._collections = this._createCollections(collections);
     this._referencedApps = {};
-
-    this._socket = socket;
-
-    // console.log('registering socket listener', `subscriptions-${this.key}`)
-    this._socket.on(`subscriptions-${this.key}`, (data) => {
-      // console.log(`subscriptions-${this.key}`, data, this._socket.id);
-
-      this.handleEvent(data);
-    });
   }
 
   public unregisterMessageListeners() {
     // console.log('unregistering socket listener', `subscriptions-${this.key}`)
-    this._socket.off(`subscriptions-${this.key}`);
+    this._appService.unregisterMessageListeners();
   }
 
   public getAppInstance() {
@@ -91,7 +85,7 @@ export class App {
   public getAppDisplayList(): Collection {
     if (!this._app_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
-      this._emitEvent("get-app-list");
+      this._appService.getAppList();
 
       this._app_display_list = new Collection(this, {
         key: `${this.key}.al`,
@@ -112,7 +106,7 @@ export class App {
     if (!this._referencedApps[appKey]) {
       this._referencedApps[appKey] = new App(
         { key: appKey, plugins: {}, collections: {} },
-        this._socket
+        new AppService(appKey, this._appService.getSocket())
       );
     }
 
@@ -128,10 +122,41 @@ export class App {
     return app.getCollection(collectionKey);
   }
 
+  public getCollection(collectionKey: string): Collection {
+    if (!this._collections[collectionKey]) {
+      // console.log(`App ${this.key}: ${this._instance} getCollection key not found`, collectionKey)
+      this._appService.getCollection(collectionKey);
+
+      this._collections[collectionKey] = new Collection(this, {
+        key: collectionKey,
+        schema: undefined,
+        records: undefined,
+      });
+    }
+
+    return this._collections[collectionKey];
+  }
+
+  public getCollectionDisplayList(): Collection {
+    if (!this._collections_display_list) {
+      // console.log(`App ${this.key}: ${this._instance} getCollectionDisplayList not found`)
+      this._appService.getCollectionList();
+
+      this._collections_display_list = new Collection(this, {
+        key: `${this.key}.cl`,
+        schema: undefined,
+        records: undefined,
+        type: "collection_list",
+      });
+    }
+
+    return this._collections_display_list;
+  }
+
   public getPluginDisplayList(): Collection {
     if (!this._plugins_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getPluginDisplayList not found`)
-      this._emitEvent("get-plugin-list");
+      this._appService.getPluginList();
 
       this._plugins_display_list = new Collection(this, {
         key: `${this.key}.pl`,
@@ -145,72 +170,37 @@ export class App {
     return this._plugins_display_list;
   }
 
-  public getCollectionDisplayList(): Collection {
-    if (!this._collections_display_list) {
-      // console.log(`App ${this.key}: ${this._instance} getCollectionDisplayList not found`)
-      this._emitEvent("get-collection-list");
-
-      this._collections_display_list = new Collection(this, {
-        key: `${this.key}.cl`,
-        schema: undefined,
-        records: undefined,
-        type: "collection_list",
-      });
-    }
-
-    return this._collections_display_list;
-  }
-
-  public getCollection(collectionKey: string): Collection {
-    if (!this._collections[collectionKey]) {
-      // console.log(`App ${this.key}: ${this._instance} getCollection key not found`, collectionKey)
-      this._emitEvent("get-collection", { collectionKey });
-
-      this._collections[collectionKey] = new Collection(this, {
-        key: collectionKey,
-        schema: undefined,
-        records: undefined,
-      });
-    }
-
-    return this._collections[collectionKey];
-  }
-
   public pushCreateCollectionSchemaField(
     collectionKey: string,
     field: { name: string; type: string }
   ) {
-    this._emitEvent("create-collection-schema-field", { collectionKey, field });
+    this._appService.createCollectionSchemaField(collectionKey, field);
   }
 
-  public pushCreateCollection({
-    name,
-    displayName,
-  }: {
+  public pushCreateCollection(collectionOptions: {
     name: string;
     displayName: string;
   }) {
-    this._emitEvent("create-collection", { name, displayName });
+    this._appService.createCollection(collectionOptions);
   }
 
   public pushCopyCollection(
-    source_app,
-    source_collection,
+    source_app: string,
+    source_collection: string,
     newCollection: { name: string; displayName: string }
   ) {
-    console.log('pushCopyCollection', source_app, source_collection, newCollection)
-    this._emitEvent("copy-collection", {
+    this._appService.copyCollection(
       source_app,
       source_collection,
-      ...newCollection,
-    });
+      newCollection,
+    );
   }
 
   public pushCreateRecord(
     collectionKey: string,
     contents: { [key: string]: any }
   ) {
-    this._emitEvent("create-record", { collectionKey, contents });
+    this._appService.createRecord({ collectionKey, contents });
   }
 
   public pushUpdateRecord(
@@ -219,7 +209,7 @@ export class App {
     fieldKey: string,
     newValue: any
   ) {
-    this._emitEvent("update-record", {
+    this._appService.updateRecord({
       collectionKey,
       recordKey,
       fieldKey,
@@ -228,79 +218,63 @@ export class App {
   }
 
   public pushDeleteRecords(collectionKey: string, recordKeys: string[]) {
-    this._emitEvent("delete-records", { collectionKey, recordKeys });
-  }
-
-  private _emitEvent(event: string, data: any = {}) {
-    let eventData = {
-      appKey: this.key,
-      appInstance: this._instance,
-      ...data,
-    };
-
-    this._socket.emit(event, eventData);
-  }
-
-  handleEvent(data: any) {
-    // console.log('App handleEvent', data, JSON.stringify(Object.keys(this._collections)));
-    Object.entries(data).forEach(([key, value]: [string, any]) => {
-      const collection = this._collections[value.collectionKey];
-      // console.log('App handleEvent', key, value, collection)
-
-      const allowedSelfUpdateKeys = ["i", "u", "d"];
-      let isSelfUpdate =
-        this._socket.id === data.client && this._instance === data.appInstance;
-      if (!allowedSelfUpdateKeys.includes(key) && isSelfUpdate) {
-        return;
-      }
-
-      switch (key) {
-        case "l":
-          collection?.setCollection(value);
-          break;
-        case "i":
-          Object.entries(value.records).forEach(([recordKey, record]) => {
-            collection?.addRecord(recordKey, record);
-          });
-          break;
-        case "d":
-          Object.entries(value.records).forEach(([recordKey, record]) => {
-            collection?.removeRecord(recordKey);
-          });
-          break;
-        case "u":
-          Object.entries(value.records).forEach(([recordKey, record]) => {
-            collection?.updateRecord(recordKey, record, isSelfUpdate);
-          });
-          break;
-        case "al":
-          if (this._app_display_list) {
-            this._app_display_list.setCollection({
-              schema: value.schema,
-              records: value.records,
-            });
-          }
-          break;
-        case "cl":
-          if (this._collections_display_list) {
-            this._collections_display_list.setCollection({
-              schema: value.schema,
-              records: value.records,
-            });
-          }
-          break;
-        case "pl":
-          if (this._plugins_display_list) {
-            this._plugins_display_list.setCollection({
-              schema: value.schema,
-              records: value.records,
-            });
-          }
-          break;
-        default:
-        // console.log('Unknown event type', key, value);
-      }
+    this._appService.deleteRecords({
+      collectionKey,
+      recordKeys,
     });
+  }
+
+  handleEvent(key: string, value: any, isSelfUpdate: boolean = false) {
+    // console.log('App handleEvent', data, JSON.stringify(Object.keys(this._collections)));
+    const collection = this._collections[value.collectionKey];
+    // console.log('App handleEvent', key, value, collection)
+
+    switch (key) {
+      case "l":
+        collection?.setCollection(value);
+        break;
+      case "i":
+        Object.entries(value.records).forEach(([recordKey, record]) => {
+          collection?.addRecord(recordKey, record);
+        });
+        break;
+      case "d":
+        Object.entries(value.records).forEach(([recordKey, record]) => {
+          collection?.removeRecord(recordKey);
+        });
+        break;
+      case "u":
+        Object.entries(value.records).forEach(([recordKey, record]) => {
+          collection?.updateRecord(recordKey, record, isSelfUpdate);
+        });
+        break;
+      case "al":
+        if (this._app_display_list) {
+          this._app_display_list.setCollection({
+            schema: value.schema,
+            records: value.records,
+          });
+        }
+        break;
+      case "cl":
+        if (this._collections_display_list) {
+          this._collections_display_list.setCollection({
+            schema: value.schema,
+            records: value.records,
+          });
+        }
+        break;
+      case "pl":
+        if (this._plugins_display_list) {
+          this._plugins_display_list.setCollection({
+            schema: value.schema,
+            records: value.records,
+          });
+        }
+        break;
+      default:
+      // console.log('Unknown event type', key, value);
+    }
   }
 
   public getFromAppState(key: string): Record {
