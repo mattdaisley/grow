@@ -1,10 +1,13 @@
 import { Socket } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
+import { App } from "./App";
+import { Collection } from "./Collection";
+
 
 export class AppService {
   key: string;
+  
   private _socket: Socket;
-
   private _instance: string;
   private _subscriptions: {
     [selector: string]: Function[];
@@ -23,24 +26,54 @@ export class AppService {
     });
   }
 
-  public getSocket() {
-    return this._socket;
+  public getReferencedApp(appKey: string): App {
+    return new App(
+      { key: appKey, plugins: {}, collections: {} },
+      new AppService(appKey, this._socket)
+    );
   }
 
-  public getAppList() {
+  public getAppList(app: App) {
     this._emitEvent("get-app-list");
+
+    return new Collection(app, {
+      key: `${app.key}.al`,
+      schema: undefined,
+      records: undefined,
+      type: "app_list",
+    });
   }
 
-  public getCollection(collectionKey: string) {
+  public getCollection(app: App, collectionKey: string) {
     this._emitEvent("get-collection", { collectionKey });
+
+    return new Collection(app, {
+      key: collectionKey,
+      schema: undefined,
+      records: undefined,
+    });
   }
 
-  public getCollectionList() {
+  public getCollectionList(app: App) {
     this._emitEvent("get-collection-list");
+
+    return new Collection(app, {
+      key: `${app.key}.cl`,
+      schema: undefined,
+      records: undefined,
+      type: "collection_list",
+    });
   }
 
-  public getPluginList() {
+  public getPluginList(app: App) {
     this._emitEvent("get-plugin-list");
+
+    return new Collection(app, {
+      key: `${app.key}.pl`,
+      schema: undefined,
+      records: undefined,
+      type: "plugin_list",
+    });
   }
 
   public copyCollection(
@@ -92,32 +125,7 @@ export class AppService {
     collectionKey: string;
     recordKeys: string[];
   }) {
-
     this._emitEvent("delete-records", deleteRecordOptions);
-  }
-
-  private _handleEvent(data: any) {
-    // console.log('App handleEvent', data, JSON.stringify(Object.keys(this._collections)));
-    Object.entries(data).forEach(([key, value]: [string, any]) => {
-      const allowedSelfUpdateKeys = ["i", "u", "d"];
-      let isSelfUpdate =
-        this._socket.id === data.client && this._instance === data.appInstance;
-      if (!allowedSelfUpdateKeys.includes(key) && isSelfUpdate) {
-        return;
-      }
-
-      this._notifySubscribers("*", key, value, isSelfUpdate);
-    });
-  }
-
-  public _emitEvent(event: string, data: any = {}) {
-    let eventData = {
-      appKey: this.key,
-      appInstance: this._instance,
-      ...data,
-    };
-
-    this._socket.emit(event, eventData);
   }
 
   public subscribe(selector: string, callback: Function) {
@@ -134,6 +142,30 @@ export class AppService {
         (cb) => cb !== callback
       );
     }
+  }
+
+  private _emitEvent(event: string, data: any = {}) {
+    let eventData = {
+      appKey: this.key,
+      appInstance: this._instance,
+      ...data,
+    };
+
+    this._socket.emit(event, eventData);
+  }
+
+  private _handleEvent(data: any) {
+    // console.log('App handleEvent', data, JSON.stringify(Object.keys(this._collections)));
+    Object.entries(data).forEach(([key, value]: [string, any]) => {
+      const allowedSelfUpdateKeys = ["i", "u", "d"];
+      let isSelfUpdate =
+        this._socket.id === data.client && this._instance === data.appInstance;
+      if (!allowedSelfUpdateKeys.includes(key) && isSelfUpdate) {
+        return;
+      }
+
+      this._notifySubscribers("*", key, value, isSelfUpdate);
+    });
   }
 
   private _notifySubscribers(

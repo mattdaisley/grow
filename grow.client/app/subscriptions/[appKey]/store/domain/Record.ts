@@ -497,10 +497,8 @@ export class Record<TValue extends Object = any> {
           if (appKey === this._app.key) {
             nestedCollection = this._app.getCollection(collectionKey);
           } else {
-            nestedCollection = this._app.getReferencedAppCollection(
-              appKey,
-              collectionKey
-            );
+            const referencedApp = this._app.getReferencedApp(appKey);
+            nestedCollection = referencedApp.getCollection(collectionKey);
           }
 
           return nestedCollection;
@@ -652,10 +650,8 @@ export class Record<TValue extends Object = any> {
     if (appKey === this._app.key) {
       nestedCollection = this._app.getCollection(collectionKey);
     } else {
-      nestedCollection = this._app.getReferencedAppCollection(
-        appKey,
-        collectionKey
-      );
+      const referencedApp = this._app.getReferencedApp(appKey);
+      nestedCollection = referencedApp.getCollection(collectionKey);
     }
 
     const nestedCollectionCallbacksKey = `${appKey}.${collectionKey}`;
@@ -729,10 +725,8 @@ export class Record<TValue extends Object = any> {
     if (appKey === this._app.key) {
       nestedCollection = this._app.getCollection(collectionKey);
     } else {
-      nestedCollection = this._app.getReferencedAppCollection(
-        appKey,
-        collectionKey
-      );
+      const referencedApp = this._app.getReferencedApp(appKey);
+      nestedCollection = referencedApp.getCollection(collectionKey);
     }
 
     const nestedCollectionCallbacksKey = `${appKey}.${collectionKey}`;

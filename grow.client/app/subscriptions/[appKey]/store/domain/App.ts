@@ -3,7 +3,7 @@ import { IPlugin, Plugin } from './Plugin';
 
 import { v4 as uuidv4 } from 'uuid';
 import { Record } from './Record';
-import { AppService } from './AppService';
+import { IAppService } from "./IAppService";
 
 export interface IApp {
   key: string;
@@ -19,9 +19,6 @@ export interface IApp {
 export class App {
   private _instance: string;
   key: string;
-  _plugins: {
-    [key: string]: Object;
-  };
   plugins: {
     [key: string]: Plugin;
   };
@@ -38,9 +35,9 @@ export class App {
   private _plugins_display_list: Collection;
   private _collections_display_list: Collection;
 
-  private _appService: AppService;
+  private _appService: IAppService;
 
-  constructor({ key, plugins, collections }: IApp, appService: AppService) {
+  constructor({ key, plugins, collections }: IApp, appService: IAppService) {
     this._instance = uuidv4();
 
     this._appService = appService;
@@ -48,9 +45,8 @@ export class App {
 
     // console.log('App constructor app key:', key, plugins);
     this.key = key;
-    this._plugins = plugins;
-    this.plugins = this._createPlugins(plugins);
-    this._collections = this._createCollections(collections);
+    this.plugins = this._initializePlugins(plugins);
+    this._collections = this._initializeCollections(collections);
     this._referencedApps = {};
   }
 
@@ -63,7 +59,7 @@ export class App {
     return this._instance;
   }
 
-  private _createPlugins(plugins: { [key: string]: IPlugin }) {
+  private _initializePlugins(plugins: { [key: string]: IPlugin }) {
     const pluginMap = {};
     for (const [key, value] of Object.entries(plugins)) {
       pluginMap[key] = new Plugin(this, { key, ...value });
@@ -71,7 +67,7 @@ export class App {
     return pluginMap;
   }
 
-  private _createCollections(collections: { [key: string]: ICollection }) {
+  private _initializeCollections(collections: { [key: string]: ICollection }) {
     const collectionMap = {};
     for (const [collectionKey, collection] of Object.entries(collections)) {
       collectionMap[collectionKey] = new Collection(this, {
@@ -85,14 +81,7 @@ export class App {
   public getAppDisplayList(): Collection {
     if (!this._app_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getAppDisplayList not found`)
-      this._appService.getAppList();
-
-      this._app_display_list = new Collection(this, {
-        key: `${this.key}.al`,
-        schema: undefined,
-        records: undefined,
-        type: "app_list",
-      });
+      this._app_display_list = this._appService.getAppList(this);
     }
 
     return this._app_display_list;
@@ -104,34 +93,19 @@ export class App {
     }
 
     if (!this._referencedApps[appKey]) {
-      this._referencedApps[appKey] = new App(
-        { key: appKey, plugins: {}, collections: {} },
-        new AppService(appKey, this._appService.getSocket())
-      );
+      this._referencedApps[appKey] = this._appService.getReferencedApp(appKey);
     }
 
     return this._referencedApps[appKey];
   }
 
-  public getReferencedAppCollection(
-    appKey: string,
-    collectionKey: string
-  ): Collection {
-    const app = this.getReferencedApp(appKey);
-
-    return app.getCollection(collectionKey);
-  }
-
   public getCollection(collectionKey: string): Collection {
     if (!this._collections[collectionKey]) {
       // console.log(`App ${this.key}: ${this._instance} getCollection key not found`, collectionKey)
-      this._appService.getCollection(collectionKey);
-
-      this._collections[collectionKey] = new Collection(this, {
-        key: collectionKey,
-        schema: undefined,
-        records: undefined,
-      });
+      this._collections[collectionKey] = this._appService.getCollection(
+        this,
+        collectionKey
+      );
     }
 
     return this._collections[collectionKey];
@@ -140,14 +114,7 @@ export class App {
   public getCollectionDisplayList(): Collection {
     if (!this._collections_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getCollectionDisplayList not found`)
-      this._appService.getCollectionList();
-
-      this._collections_display_list = new Collection(this, {
-        key: `${this.key}.cl`,
-        schema: undefined,
-        records: undefined,
-        type: "collection_list",
-      });
+      this._collections_display_list = this._appService.getCollectionList(this);
     }
 
     return this._collections_display_list;
@@ -156,25 +123,11 @@ export class App {
   public getPluginDisplayList(): Collection {
     if (!this._plugins_display_list) {
       // console.log(`App ${this.key}: ${this._instance} getPluginDisplayList not found`)
-      this._appService.getPluginList();
-
-      this._plugins_display_list = new Collection(this, {
-        key: `${this.key}.pl`,
-        schema: undefined,
-        records: undefined,
-        type: "plugin_list",
-      });
+      this._plugins_display_list = this._appService.getPluginList(this);
     }
 
     // console.log(`App ${this.key}: ${this._instance}`, this._plugins_display_list)
     return this._plugins_display_list;
-  }
-
-  public pushCreateCollectionSchemaField(
-    collectionKey: string,
-    field: { name: string; type: string }
-  ) {
-    this._appService.createCollectionSchemaField(collectionKey, field);
   }
 
   public pushCreateCollection(collectionOptions: {
@@ -192,8 +145,15 @@ export class App {
     this._appService.copyCollection(
       source_app,
       source_collection,
-      newCollection,
+      newCollection
     );
+  }
+
+  public pushCreateCollectionSchemaField(
+    collectionKey: string,
+    field: { name: string; type: string }
+  ) {
+    this._appService.createCollectionSchemaField(collectionKey, field);
   }
 
   public pushCreateRecord(
