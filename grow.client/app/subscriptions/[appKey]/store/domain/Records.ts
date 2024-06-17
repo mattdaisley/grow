@@ -1,4 +1,3 @@
-"use client";
 import { Record } from "./Record";
 
 export type Records<TValue> = {

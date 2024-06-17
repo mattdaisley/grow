@@ -2,7 +2,6 @@ import { App } from "./App";
 import { Collection } from "./Collection";
 
 
-
 export interface IAppService {
   getReferencedApp(appKey: string): App;
 

@@ -1,9 +1,10 @@
+import { v4 as uuidv4 } from 'uuid';
+
+import { IAppService } from "./IAppService";
 import { Collection, ICollection } from './Collection';
 import { IPlugin, Plugin } from './Plugin';
-
-import { v4 as uuidv4 } from 'uuid';
 import { Record } from './Record';
-import { IAppService } from "./IAppService";
+
 
 export interface IApp {
   key: string;
