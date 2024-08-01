@@ -21,20 +21,19 @@ export const plugins = {
   "plugin-drawer-v1": lazy(
     () => import(`../../plugins/plugin-drawer-v1/plugin`)
   ),
-  "plugin-flow-v1": lazy(
-    () => import(`../../plugins/plugin-flow-v1/plugin`)
-  ),
+  "plugin-flow-v1": lazy(() => import(`../../plugins/plugin-flow-v1/plugin`)),
   "plugin-iframe-v1": lazy(
     () => import(`../../plugins/plugin-iframe-v1/plugin`)
   ),
   "plugin-list-v1": lazy(() => import(`../../plugins/plugin-list-v1/plugin`)),
   "plugin-modal-v1": lazy(() => import(`../../plugins/plugin-modal-v1/plugin`)),
+  "plugin-robot-arm-v1": lazy(() => import(`../../plugins/plugin-robot-arm-v1/plugin`)),
+  "plugin-select-v1": lazy(
+    () => import(`../../plugins/plugin-select-v1/plugin`)
+  ),
   "plugin-tabs-v1": lazy(() => import(`../../plugins/plugin-tabs-v1/plugin`)),
   "plugin-textfield-v1": lazy(
     () => import(`../../plugins/plugin-textfield-v1/plugin`)
-  ),
-  "plugin-select-v1": lazy(
-    () => import(`../../plugins/plugin-select-v1/plugin`)
   ),
 };
 
