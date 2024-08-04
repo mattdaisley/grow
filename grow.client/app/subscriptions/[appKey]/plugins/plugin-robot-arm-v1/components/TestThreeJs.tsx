@@ -1,7 +1,8 @@
-import React, { useCallback, useRef, useState, useLayoutEffect } from "react";
+import React, { useCallback, useRef, useState, useLayoutEffect, useEffect } from "react";
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Group, Mesh, Line, Vector3 } from "three";
 import { Children } from 'react';
+import { TextField } from "@mui/material";
 
 const degressToRadians = (degrees: number) => (degrees * Math.PI) / 180;
 const radiansToDegrees = (radians: number) => (radians * 180) / Math.PI;
@@ -17,7 +18,15 @@ const radiansToDegrees = (radians: number) => (radians * 180) / Math.PI;
 //   return { j1, j2, j3 };
 // }
 
-const inverseKinematics = (x: number, y: number, z: number): {j1:number, j2:number, j3:number} => {
+const inverseKinematics = (target: {
+  x: string;
+  y: string;
+  z: string;
+}): { j1: number; j2: number; j3: number } => {
+  const x = Number(target.x);
+  const y = Number(target.y);
+  const z = -1 * Number(target.z);
+
   const l1 = 100;
   const l2 = 100;
 
@@ -52,7 +61,7 @@ const inverseKinematics = (x: number, y: number, z: number): {j1:number, j2:numb
   // sq(l2) = sq(hypontenus) + sq(l1) - 2*hypontenus*l1*cos(alpha)
   // alpha = acos( ( sq(hypontenus) + sq(l1) - sq(l2) ) / 2*hypontenus*l1 )
   const alpha = Math.acos(
-    (hypontenus * hypontenus + l1 * l1 -l2 * l2) / (2 * hypontenus * l1)
+    (hypontenus * hypontenus + l1 * l1 - l2 * l2) / (2 * hypontenus * l1)
   );
 
   // j1 = gamma + alpha;
@@ -74,58 +83,95 @@ const inverseKinematics = (x: number, y: number, z: number): {j1:number, j2:numb
 
 export default function TestThreeJs(props) {
   // const [angles, setAngles] = useState({ j1: degressToRadians(-90), j2: degressToRadians(90), j3: degressToRadians(0) });
-  const [angles, setAngles] = useState<{j1:number, j2:number, j3:number}>(inverseKinematics(120, 0, -150));
+  const [target, setTarget] = useState<{x:string, y:string, z:string}>({ x: "100", y: "0", z: "-100" });
 
-  const setJoint1 = useCallback((j1: number) => {
-    setAngles((prev) => ({ ...prev, j1 }));
-  }, [angles, setAngles]);
+  const [angles, setAngles] = useState<{j1:number, j2:number, j3:number}>(inverseKinematics(target));
+
+  const setTargetX = useCallback((x: string) => setTarget((t) => ({ ...t, x })), []);
+  const setTargetY = useCallback((y: string) => setTarget((t) => ({ ...t, y })), []);
+  const setTargetZ = useCallback((z: string) => setTarget((t) => ({ ...t, z })), []);
+
+  useEffect(() => {
+    if (isNaN(Number(target.x)) || isNaN(Number(target.y)) || isNaN(Number(target.z))) return;
+
+    setAngles(inverseKinematics(target));
+  }, [target, target.x, target.y, target.z]);
 
   return (
-    <Canvas>
-      <ambientLight intensity={Math.PI / 2} />
-      <spotLight
-        position={[10, 10, 10]}
-        angle={0.15}
-        penumbra={1}
-        decay={0}
-        intensity={Math.PI}
-      />
-      <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-      {/* <group rotation={[-Math.PI / 2, -Math.PI / 8, -Math.PI / 8]}> */}
-      <group rotation={[-Math.PI / 2.5, 0, Math.PI / 16]} position={[0, -.5, 0]}>
-        <group scale={1 / 65}>
-          <Joint angle={angles.j1}>
-            <UpperArm />
-            <Joint position={[100, 0, 0]} angle={angles.j2}>
+    <>
+      <div style={{position: 'fixed', top: 20, left: 50, width: 400, height: 400, padding: 8, border: '1px solid gray', zIndex:100, backgroundColor: 'black', color: 'white'}}>
+        <div>
+          <TextField
+            label="X"
+            value={target.x}
+            onChange={(e) => setTargetX(e.target.value)} />
+        </div>
+        <div>
+          <TextField
+            label="Y"
+            value={target.y}
+            onChange={(e) => setTargetY(e.target.value)} />
+        </div>
+        <div>
+          <TextField
+            label="Z"
+            value={target.z}
+            onChange={(e) => setTargetZ(e.target.value)} />
+        </div>
+      </div>
+      <Canvas>
+        <ambientLight intensity={Math.PI / 2} />
+        <spotLight
+          position={[10, 10, 10]}
+          angle={0.15}
+          penumbra={1}
+          decay={0}
+          intensity={Math.PI}
+        />
+        <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
+        {/* <group rotation={[-Math.PI / 2, -Math.PI / 8, -Math.PI / 8]}> */}
+        <group
+          rotation={[-Math.PI / 2.5, 0, Math.PI / 16]}
+          position={[0, -0.5, 0]}
+        >
+          <group scale={1 / 65}>
+            <Joint angle={angles.j1}>
               <UpperArm />
-              <Joint position={[100, 0, 0]} angle={angles.j3}>
-                <PrintHead />
+              <Joint position={[100, 0, 0]} angle={angles.j2}>
+                <UpperArm />
+                <Joint position={[100, 0, 0]} angle={angles.j3}>
+                  <PrintHead />
+                </Joint>
               </Joint>
             </Joint>
-          </Joint>
 
+            <mesh>
+              <planeGeometry args={[400, 400]} />
+              <meshBasicMaterial
+                color={"dimgray"}
+                transparent={true}
+                opacity={1}
+              />
+            </mesh>
+            <mesh>
+              <sphereGeometry args={[200, 50, 50]} />
+              <meshBasicMaterial
+                color={"white"}
+                transparent={true}
+                opacity={0.2}
+              />
+            </mesh>
+          </group>
           <mesh>
-            <planeGeometry args={[400, 400]} />
-            <meshBasicMaterial color={"dimgray"} transparent={true} opacity={1} />
+            <sphereGeometry args={[0.05, 20, 20]} />
+            <meshStandardMaterial color={"white"} />
           </mesh>
-          <mesh>
-            <sphereGeometry args={[200, 50, 50]} />
-            <meshBasicMaterial
-              color={"white"}
-              transparent={true}
-              opacity={0.2}
-            />
-          </mesh>
+          <Axis start={[-1, 0, 0]} end={[1, 0, 0]} color={"red"} />
+          <Axis start={[0, -1, 0]} end={[0, 1, 0]} color={"green"} />
+          <Axis start={[0, 0, -1]} end={[0, 0, 1]} color={"blue"} />
         </group>
-        <mesh>
-          <sphereGeometry args={[0.05, 20, 20]} />
-          <meshStandardMaterial color={"white"} />
-        </mesh>
-        <Axis start={[-1, 0, 0]} end={[1, 0, 0]} color={"red"} />
-        <Axis start={[0, -1, 0]} end={[0, 1, 0]} color={"green"} />
-        <Axis start={[0, 0, -1]} end={[0, 0, 1]} color={"blue"} />
-      </group>
-    </Canvas>
+      </Canvas>
+    </>
   );
 }
 
