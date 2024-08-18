@@ -23,6 +23,8 @@ const l1 = 150;
 const l2 = 150;
 const l3 = 40;
 
+const reach_radius = l1 + l2;
+
 interface InverseKinematics {
   target_x: number;
   target_y: number;
@@ -137,12 +139,16 @@ const inverseKinematics = (target: {
   };
 };
 
+const init_x = 150;
+const init_y = 0;
+const init_z = 110;
+
 export default function TestThreeJs(props) {
   // const [angles, setAngles] = useState({ j1: degressToRadians(-90), j2: degressToRadians(90), j3: degressToRadians(0) });
-  const [world, setWorld] = useState<{ rx: number; ry: number; rz: number }>({ rx: 22, ry: 0, rz: 5, });
+  const [world, setWorld] = useState<{ rx: number; ry: number; rz: number }>({ rx: 75/360*100, ry: 0, rz: 30/360*100, });
 
-  const [scaleTarget, setScaleTarget] = useState<{x:number, y:number, z:number}>({ x: 50, y: 0, z: 50 });
-  const [target, setTarget] = useState<{x:number, y:number, z:number}>({ x: 100, y: 0, z: 100 });
+  const [target, setTarget] = useState<{x:number, y:number, z:number}>({ x: init_x, y: init_y, z: init_z });
+  const [scaleTarget, setScaleTarget] = useState<{x:number, y:number, z:number}>({ x: init_x/(reach_radius/100), y: (reach_radius/2)/(reach_radius/100), z: init_z/(reach_radius/100) });
 
   const [ik, setIk] = useState<InverseKinematics>(
     inverseKinematics(target)
@@ -176,12 +182,13 @@ export default function TestThreeJs(props) {
           top: 20,
           left: 50,
           width: 400,
-          height: 400,
-          padding: 8,
+          height: "calc(100vh - 40px)",
+          padding: 16,
           border: "1px solid gray",
           zIndex: 100,
           backgroundColor: "black",
           color: "white",
+          overflowY: "auto",
         }}
       >
         <div style={{ display: "flex" }}>
@@ -190,7 +197,7 @@ export default function TestThreeJs(props) {
               value={scaleTarget.x}
               scale={(value) => value * 3}
               onChange={(e) => {
-                setTargetX(Number(e.target.value) * 3);
+                setTargetX((Number(e.target.value) * reach_radius) / 100);
                 setScaleTargetX(e.target.value);
               }}
               valueLabelDisplay="auto"
@@ -203,7 +210,7 @@ export default function TestThreeJs(props) {
               value={target.x}
               onChange={(e) => {
                 setTargetX(Number(e.target.value));
-                setScaleTargetX(Number(e.target.value) / 3);
+                setScaleTargetX(Number(e.target.value) / reach_radius / 100);
               }}
             />
           </div>
@@ -212,21 +219,27 @@ export default function TestThreeJs(props) {
           <div style={{ flex: 3 }}>
             <Slider
               value={scaleTarget.y}
-              scale={(value) => value * 3}
+              scale={(value) => (value * reach_radius) / 100 - reach_radius / 2}
               onChange={(e) => {
-                setTargetY(Number(e.target.value) * 3);
+                setTargetY(
+                  (Number(e.target.value) * reach_radius) / 100 -
+                    reach_radius / 2
+                );
                 setScaleTargetY(e.target.value);
               }}
+              valueLabelDisplay="auto"
             />
           </div>
           <div style={{ flex: 1 }}>
             <TextField
-              type="number"
               label="Y"
               value={target.y}
               onChange={(e) => {
                 setTargetY(Number(e.target.value));
-                setScaleTargetY(Number(e.target.value) / 3);
+                setScaleTargetY(
+                  (Number(e.target.value) + reach_radius / 2) /
+                    (reach_radius / 100)
+                );
               }}
             />
           </div>
@@ -235,11 +248,12 @@ export default function TestThreeJs(props) {
           <div style={{ flex: 3 }}>
             <Slider
               value={scaleTarget.z}
-              scale={(value) => value * 3}
+              scale={(value) => (value * reach_radius) / 100}
               onChange={(e) => {
-                setTargetZ(Number(e.target.value) * 3);
+                setTargetZ((Number(e.target.value) * reach_radius) / 100);
                 setScaleTargetZ(e.target.value);
               }}
+              valueLabelDisplay="auto"
             />
           </div>
           <div style={{ flex: 1 }}>
@@ -249,7 +263,7 @@ export default function TestThreeJs(props) {
               value={target.z}
               onChange={(e) => {
                 setTargetZ(Number(e.target.value));
-                setScaleTargetZ(Number(e.target.value) / 3);
+                setScaleTargetZ(Number(e.target.value) / reach_radius / 100);
               }}
             />
           </div>
@@ -257,7 +271,7 @@ export default function TestThreeJs(props) {
         <div>
           <Slider
             value={world.rz}
-            scale={(value) => Math.round((360 / 100) * value - 180)} // scale from 0-100 to -180-180. value = ((scaled + 180) * 100) / 360
+            scale={(value) => Math.round((360 / 100) * value)}
             onChange={(e) => setWorldRz(e.target.value)}
             valueLabelDisplay="auto"
           />
@@ -265,7 +279,7 @@ export default function TestThreeJs(props) {
         <div>
           <Slider
             value={world.rx}
-            scale={(value) => Math.round((360 / 100) * value - 180)} // scale from 0-100 to -180-180. value = ((scaled + 180) * 100) / 360
+            scale={(value) => Math.round((360 / 100) * value)}
             onChange={(e) => setWorldRx(e.target.value)}
             valueLabelDisplay="auto"
           />
@@ -273,13 +287,13 @@ export default function TestThreeJs(props) {
         <div>
           <Slider
             value={world.ry}
-            scale={(value) => Math.round((360 / 100) * value - 180)} // scale from 0-100 to -180-180. value = ((scaled + 180) * 100) / 360
+            scale={(value) => Math.round((360 / 100) * value)}
             onChange={(e) => setWorldRy(e.target.value)}
             valueLabelDisplay="auto"
           />
         </div>
 
-        <div>
+        <div style={{ fontSize: 16 }}>
           {Object.entries(ik).map(([key, value]) => {
             const angleKeys = [
               "j0",
@@ -339,7 +353,7 @@ export default function TestThreeJs(props) {
             </group>
 
             <mesh>
-              <circleGeometry args={[l1 + l2, 50]} />
+              <circleGeometry args={[reach_radius, 50]} />
               <meshBasicMaterial
                 color={"dimgray"}
                 transparent={true}
@@ -348,7 +362,7 @@ export default function TestThreeJs(props) {
             </mesh>
 
             <mesh>
-              <sphereGeometry args={[l1 + l2, 50, 50]} />
+              <sphereGeometry args={[reach_radius, 50, 50]} />
               <meshBasicMaterial
                 color={"white"}
                 transparent={true}
