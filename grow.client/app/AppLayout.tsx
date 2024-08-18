@@ -30,11 +30,11 @@ export const theme = createTheme({
     primary: green,
     secondary: lightBlue,
     // primary: {
-      // main: "#E74F09",
-      // main: "#90a4ae",
-      // light: "#c1d5e0",
-      // dark: "#62757f",
-      // contrastText: "#000",
+    // main: "#E74F09",
+    // main: "#90a4ae",
+    // light: "#c1d5e0",
+    // dark: "#62757f",
+    // contrastText: "#000",
     // },
     // secondary: {
     //   main: "#26a69a",
@@ -50,7 +50,7 @@ export const theme = createTheme({
       primary: "#494949",
     },
     brackets: {
-      main: "cornflowerblue",
+      main: "#6495ED",
       contrastText: "white",
     },
   },
