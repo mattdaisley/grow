@@ -2,15 +2,12 @@
 
 import PluginRobotArm from "./components/PluginRobotArm";
 
-export default function Plugin({ src, ...props }) {
-  if (src === undefined) {
-    return null;
-  }
-  // console.log("plugin-iframe-v1", src, props);
+export default function Plugin({ ...props }) {
+  // console.log("plugin-robot-arm-v1", props);
 
   return (
     <>
-      <PluginRobotArm src={src?.value ?? src} {...props} />
+      <PluginRobotArm {...props} />
     </>
   );
 }

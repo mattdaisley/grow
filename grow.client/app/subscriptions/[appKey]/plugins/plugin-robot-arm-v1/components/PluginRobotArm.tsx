@@ -1,9 +1,25 @@
-import { Box, Button, ButtonGroup } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { Box } from "@mui/material";
+
 import TestThreeJs from "./TestThreeJs";
 
 export default function PluginRobotArm(props) {
-  // console.log("PluginIFrame", props.src);
+  // console.log("PluginRobotArm", props);
+
+   const handleTargetChange = (target) => {
+    if (!props?.x || !props?.y || !props?.z) {
+      return;
+    }
+
+    if (props.x.value !== target.x) {
+      props.x.onChange && props.x.onChange(target.x);
+    }
+    if (props.y.value !== target.y) {
+      props.y.onChange && props.y.onChange(target.y);
+    }
+    if (props.z.value !== target.z) {
+      props.z.onChange && props.z.onChange(target.z);
+    }
+   }
 
     return (
       <>
@@ -30,7 +46,15 @@ export default function PluginRobotArm(props) {
               justifyContent: "center",
             }}
           >
-            <TestThreeJs />
+            <TestThreeJs
+              l1={props.l1.value}
+              l2={props.l2.value}
+              l3={props.l3.value}
+              x={props.x.value}
+              y={props.y.value}
+              z={props.z.value}
+              onTargetChange={handleTargetChange}
+            />
           </Box>
         </Box>
       </>
