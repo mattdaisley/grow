@@ -4,14 +4,11 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
 } from '@nestjs/websockets';
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, UpdateResult, DeleteResult, Like, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { plainToClass } from 'class-transformer';
 
-import { from, Observable } from 'rxjs';
-import { last, map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
@@ -19,10 +16,6 @@ import { App } from './entities/app.entity';
 import { AppCollection } from './entities/appCollection.entity';
 import { AppRecord } from './entities/appRecord.entity';
 import { Plugin } from './entities/plugin.entity';
-
-let insertedIds = []
-let insertedMessages = {}
-let lastIndex = -1;
 
 @WebSocketGateway({
   namespace: 'subscriptions',
@@ -54,102 +47,6 @@ export class SubscriptionsGateway {
     // this.seedAppCollection().then(() => { console.log("seeded collections")});
   }
 
-  private async seedAppCollection() {
-    const data = JSON.parse(
-      fs.readFileSync('./src/subscriptions/data.json', 'utf8'),
-    );
-
-    this.appRepository.queryRunner?.startTransaction();
-
-    try {
-      for (const [appKey, appValue] of Object.entries(data.apps)) {
-        const newApp = plainToClass(App, {
-          id: Number(appKey),
-          display_name: appValue['display_name'],
-          contents: { plugins: appValue['plugins'] },
-        });
-
-        const existingApp = await this.appRepository.findOneBy({
-          id: Number(appKey),
-        });
-
-        if (!existingApp) {
-          const savedApp = await this.appRepository.save(newApp);
-          // console.log('seedApp saved', savedApp);
-        } else {
-          const updatedApp = this.appRepository.update(existingApp.id, newApp);
-          // console.log('seedApp updated', updatedApp);
-        }
-
-        for (const [collectionKey, collectionValue] of Object.entries(
-          appValue['collections'],
-        )) {
-          const newAppCollection = plainToClass(AppCollection, {
-            id: Number(collectionKey),
-            appKey: Number(appKey),
-            contents: collectionValue['schema'],
-          });
-
-          const existingAppCollection =
-            await this.appCollectionRepository.findOneBy({
-              appKey: Number(appKey),
-              id: Number(collectionKey),
-            });
-
-          if (!existingAppCollection) {
-            const savedAppCollection = await this.appCollectionRepository.save(
-              newAppCollection,
-            );
-            // console.log('seedAppCollection saved', savedAppCollection);
-          } else {
-            const updatedAppCollection = this.appCollectionRepository.update(
-              existingAppCollection.id,
-              newAppCollection,
-            );
-            // console.log('seedAppCollection updated', updatedAppCollection);
-          }
-
-          for (const [key, recordValue] of Object.entries(
-            collectionValue['records'],
-          )) {
-            // console.log('seed record', collectionKey, key)
-            const newItem = plainToClass(AppRecord, {
-              id: Number(key),
-              appKey,
-              collectionKey: Number(collectionKey),
-              contents: recordValue,
-            });
-
-            const existingItem = await this.appRecordRepository.findOneBy({
-              appKey: Number(appKey),
-              collectionKey: Number(collectionKey),
-              id: Number(key),
-            });
-            // console.log('seed record existingItem', existingItem, key, recordValue)
-            if (!existingItem) {
-              // console.log('seed record saving', newItem);
-              const savedItem = await this.appRecordRepository.save(newItem);
-              // console.log('seed record saved', savedItem);
-            } else {
-              const updatedItem = this.appRecordRepository.update(
-                existingItem.id,
-                newItem,
-              );
-              // console.log('seed record updated', updatedItem);
-            }
-          }
-        }
-      }
-
-      this.appRepository.queryRunner?.commitTransaction();
-    } catch (error) {
-      console.error('seedAppCollection error', error);
-      this.appRepository.queryRunner?.rollbackTransaction();
-    } finally {
-      this.appRepository.queryRunner?.release();
-    }
-  }
-
   handleConnection(client: Socket, ...args: any[]) {
     console.log(`Client connected: ${client.id}`);
     client.emit('discover');
@@ -157,8 +54,6 @@ export class SubscriptionsGateway {
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
-    insertedIds = [];
-    insertedMessages = {};
     this.server?.emit('client-disconnect', { clientId: client.id });
   }
 
