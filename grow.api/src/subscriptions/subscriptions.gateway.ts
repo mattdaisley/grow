@@ -377,7 +377,8 @@ export class SubscriptionsGateway {
       appInstance,
       // client: client.id, // drop so client can respone to it's own insert events. Not sure when a client would not need to.
       i: {
-        collectionKey: body.collectionKey,
+        appKey,
+        collectionKey,
         records: {
           [savedItem.id]: newRecord,
         },

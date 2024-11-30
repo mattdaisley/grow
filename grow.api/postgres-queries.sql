@@ -1,6 +1,8 @@
 select 
-	contents->>'display_name' as display_name 
-from public.app_collection;
+	contents->>'display_name' as display_name,
+	"appKey"
+from public.app_collection
+order by "appKey" asc, display_name asc;
 
 select *
 FROM (

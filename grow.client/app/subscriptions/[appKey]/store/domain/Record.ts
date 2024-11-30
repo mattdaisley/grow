@@ -108,12 +108,6 @@ export class Record<TValue extends Object = any> {
           return;
         }
 
-        if (field.type === "app_collection") {
-          fields[field.name] = "";
-          // console.log('Record.app_collection', field.name, fields[field.name])
-          return;
-        }
-
         if (
           field.type === "app" ||
           field.type === "app_collection" ||

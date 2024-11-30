@@ -21,7 +21,7 @@ export class AppService {
     this._instance = uuidv4();
 
     // console.log('registering socket listener', `subscriptions-${this.key}`)
-    this._socket.on(`subscriptions-${this.key}`, (data) => {
+    this._socket?.on(`subscriptions-${this.key}`, (data) => {
       // console.log(`subscriptions-${this.key}`, data, this._socket.id);
       this._handleEvent(data);
     });
