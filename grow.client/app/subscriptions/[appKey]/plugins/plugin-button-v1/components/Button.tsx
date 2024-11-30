@@ -25,6 +25,13 @@ interface IPluginButton {
   collection_display_name?: string;
   collection_name?: string;
 
+  // if clickAction === "copyCollection"
+  // collection_display_name?: string; -- shared with addCollection
+  // collection_name?: string; -- shared with addCollection
+  source_collection?: string | Collection<any>; // -- shared with copyRow
+  source_app?: App;
+  target_app?: App;
+
   // if clickAction === "addColumn"
   components?: Collection;
   column_name?: string;
@@ -32,14 +39,11 @@ interface IPluginButton {
 
   // if clickAction === "addRow"
   // components?: Collection; -- shared with addColumn
-  source_collection?: Collection<TargetRecord>;
 
-  // if clickAction === "copyCollection"
-  // collection_display_name?: string; -- shared with addCollection
-  // collection_name?: string; -- shared with addCollection
-  // source_collection?: Collection; -- shared with addRow
-  source_app?: App;
-  target_app?: App;
+  // if clickAction === "copyRow"
+  source_record?: string;
+  // components?: Collection; -- shared with addColumn
+  // source_collection?: string; -- shared with copyCollection
 }
 
 export default function PluginButton({
@@ -55,6 +59,7 @@ export default function PluginButton({
   column_type,
   source_app,
   source_collection,
+  source_record,
   target_app,
 }: IPluginButton) {
   // console.log(
@@ -135,6 +140,7 @@ export default function PluginButton({
     ) {
       // {{a.1.c.59.r.134.ca90b5f1-a487-4f31-bcdb-35127c725f13}}
       // {{a.1.c.59.r.135.ca90b5f1-a487-4f31-bcdb-35127c725f13}}
+      // console.log("button clickAction copyCollection", source_app, source_collection, target_app);
 
       if (
         collection_display_name !== undefined &&
@@ -156,7 +162,7 @@ export default function PluginButton({
 
         target_app.pushCopyCollection(
           source_app.key,
-          source_collection,
+          source_collection as string,
           newCollection
         );
       }
@@ -189,16 +195,33 @@ export default function PluginButton({
       components?.key !== undefined &&
       components.key !== ""
     ) {
-      // console.log("button clickAction addRow", components, source_collection);
-      const contents = {}
-      if (source_collection?.records !== undefined) {
-        Object.values(source_collection.records).forEach((record) => {
-          contents[record.value.target_field] = record.value.target_value;
-        });
-      }
-      // console.log("button clickAction addRow", contents);
-
+      // console.log("button clickAction addRow", components);
+      const contents = {};
       components.createRecord(contents);
+    }
+
+    if (
+      clickAction === "copyRow" &&
+      components?.key !== undefined &&
+      components.key !== "" &&
+      source_app !== undefined &&
+      source_app.key !== "" &&
+      target_app !== undefined &&
+      target_app.key !== "" &&
+      source_collection !== undefined
+    ) {
+      const record_to_copy = (source_collection as Collection<any>)?.records[
+        source_record
+      ];
+      // console.log("button clickAction copyRow", components, record_to_copy);
+      
+      target_app.pushCopyRecord(
+        source_app.key,
+        (source_collection as Collection<any>).key,
+        record_to_copy.key,
+        target_app.key,
+        components.key
+      );
     }
   }
 

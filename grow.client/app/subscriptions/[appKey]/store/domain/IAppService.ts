@@ -13,22 +13,30 @@ export interface IAppService {
 
   getPluginList(app: App): Collection;
 
-  copyCollection(
-    source_app: string,
-    source_collection: string,
-    newCollection: { name: string; displayName: string; }
-  ): void;
-
   createCollection(createCollectionOptions: {
     name: string;
     displayName: string;
   }): void;
 
+  copyCollection(
+    source_app: string,
+    source_collection: string,
+    newCollection: { name: string; displayName: string }
+  ): void;
+
   createCollectionSchemaField(collectionKey: string, field: any): void;
 
   createRecord(createRecordOptions: {
     collectionKey: string;
-    contents: { [key: string]: any; };
+    contents: { [key: string]: any };
+  }): void;
+
+  copyRecord(copyRecordOptions: {
+    source_app_key: string;
+    source_collection_key: string;
+    source_record_key: string;
+    target_app_key: string;
+    target_collection_key: string;
   }): void;
 
   updateRecord(updateRecordOptions: {

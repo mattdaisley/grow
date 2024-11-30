@@ -164,6 +164,22 @@ export class App {
     this._appService.createRecord({ collectionKey, contents });
   }
 
+  public pushCopyRecord(
+    source_app_key: string,
+    source_collection_key: string,
+    source_record_key: string,
+    target_app_key: string,
+    target_collection_key:string
+  ) {
+    this._appService.copyRecord({
+      source_app_key,
+      source_collection_key,
+      source_record_key,
+      target_app_key,
+      target_collection_key,
+    });
+  }
+
   public pushUpdateRecord(
     collectionKey: string,
     recordKey: string,

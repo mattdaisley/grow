@@ -3,11 +3,12 @@ import { v4 as uuidv4 } from "uuid";
 
 import { App } from "./App";
 import { Collection } from "./Collection";
+import { IAppService } from './IAppService';
 
 
-export class AppService {
+export class AppService implements IAppService {
   key: string;
-  
+
   private _socket: Socket;
   private _instance: string;
   private _subscriptions: {
@@ -77,6 +78,13 @@ export class AppService {
     });
   }
 
+  public createCollection(createCollectionOptions: {
+    name: string;
+    displayName: string;
+  }) {
+    this._emitEvent("create-collection", createCollectionOptions);
+  }
+
   public copyCollection(
     source_app: string,
     source_collection: string,
@@ -95,13 +103,6 @@ export class AppService {
     });
   }
 
-  public createCollection(createCollectionOptions: {
-    name: string;
-    displayName: string;
-  }) {
-    this._emitEvent("create-collection", createCollectionOptions);
-  }
-
   public createCollectionSchemaField(collectionKey: string, field: any) {
     this._emitEvent("create-collection-schema-field", { collectionKey, field });
   }
@@ -111,6 +112,17 @@ export class AppService {
     contents: { [key: string]: any };
   }) {
     this._emitEvent("create-record", createRecordOptions);
+  }
+
+  public copyRecord(copyRecordOptions: {
+    source_app_key: string;
+    source_collection_key: string;
+    source_record_key: string;
+    target_app_key: string;
+    target_collection_key: string;
+  }) {
+    console.log("pushCopyRecord", copyRecordOptions);
+    this._emitEvent("copy-record", copyRecordOptions);
   }
 
   public updateRecord(updateRecordOptions: {

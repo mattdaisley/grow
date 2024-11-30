@@ -488,14 +488,16 @@ export class SubscriptionsGateway {
       contents: {
         name,
         display_name: displayName,
-        fields: {}
+        fields: {},
       },
     });
 
-    Object.entries((collectionEntity.contents as any).fields).forEach(([fieldKey, field]) => {
-      const newFieldId = uuidv4();
-      (newItem.contents as any).fields[newFieldId] = field;
-    });
+    Object.entries((collectionEntity.contents as any).fields).forEach(
+      ([fieldKey, field]) => {
+        const newFieldId = uuidv4();
+        (newItem.contents as any).fields[newFieldId] = field;
+      },
+    );
 
     // console.log(newItem);
 
@@ -514,6 +516,104 @@ export class SubscriptionsGateway {
     this.server?.emit(event, response);
 
     await this.handleGetCollectionListEvent({ appKey }, client);
+  }
+
+  @SubscribeMessage('copy-record')
+  async handleCopyRecord(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: Socket,
+  ): Promise<any> {
+    const {
+      appKey,
+      appInstance,
+      source_app_key,
+      source_collection_key,
+      source_record_key,
+      target_app_key,
+      target_collection_key,
+    } = body;
+
+    // console.log('handleCopyRecord', body);
+
+    const event = `subscriptions-${appKey}`;
+
+    const sourceCollectionEntity = await this.appCollectionRepository.findOneBy(
+      {
+        id: source_collection_key,
+        appKey: source_app_key,
+      },
+    );
+
+    const sourceRecordEntity = await this.appRecordRepository.findOneBy({
+      id: source_record_key,
+      collectionKey: source_collection_key,
+      appKey: source_app_key,
+    });
+
+    const targetCollectionEntity = await this.appCollectionRepository.findOneBy(
+      {
+        id: target_collection_key,
+        appKey: target_app_key,
+      },
+    );
+
+    // console.log('handleCopyRecord sourceRecordEntity', sourceRecordEntity);
+    // console.log(
+    //   'handleCopyRecord targetCollectionEntity',
+    //   targetCollectionEntity,
+    // );
+
+    const newItem = plainToClass(AppRecord, {
+      appKey: target_app_key,
+      collectionKey: Number(target_collection_key),
+      contents: {},
+    });
+
+    const sourceCollectionFields = Object.entries(
+      (sourceCollectionEntity.contents as any).fields,
+    );
+    // console.log(
+    //   'handleCopyRecord sourceCollectionFields',
+    //   sourceCollectionFields,
+    // );
+
+    Object.entries((targetCollectionEntity.contents as any).fields).forEach(
+      ([fieldKey, field]: [string, any]) => {
+        const sourceCollectionField = sourceCollectionFields.find(
+          ([_, sourceField]: [string, any]) => sourceField.name === field.name,
+        );
+
+        const source_value =
+          sourceRecordEntity.contents[sourceCollectionField[0]];
+        (newItem.contents as any)[fieldKey] = source_value;
+      },
+    );
+
+    const savedItem = await this.appRecordRepository.save(newItem);
+    // console.log('handleCopyRecord new record saved', savedItem);
+
+    const newRecord = {
+      ...savedItem.contents,
+      createdDate: savedItem.createdDate,
+      updatedDate: savedItem.updatedDate,
+      version: savedItem.version,
+    };
+
+    const response = {
+      appInstance,
+      // client: client.id, // drop so client can respone to it's own insert events. Not sure when a client would not need to.
+      i: {
+        appKey,
+        collectionKey: target_collection_key,
+        records: {
+          [savedItem.id]: newRecord,
+        },
+      },
+    };
+
+    // console.log('handleCopyRecord returning', event, response)
+    this.server?.emit(event, response);
+    return response;
   }
 
   @SubscribeMessage('delete-records')
